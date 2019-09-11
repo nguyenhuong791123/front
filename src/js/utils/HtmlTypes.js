@@ -11,6 +11,8 @@ export const TYPE = {
     ,IMAGE: 'image'
     ,DATE: 'date'
     ,NUMBER: 'number'
+    ,DIV: 'div'
+    ,TAB: 'tab'
 }
 
 export const ATTR = {

@@ -17,33 +17,6 @@ div._loading_overlay_wrapper {
     position: unset;
 }
 
-div.div-overlay-box {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-}
-
-div.div-overlay-box > div:first-child {
-    border: 5px solid #dee2e6;
-    border-radius: 1em;
-    width: 40%;
-    max-width: 40%;
-    text-align: center;
-    top: 20%;
-    margin-left: 30%;
-}
-
-div.div-overlay-box > div:first-child button {
-    margin: .5em;
-}
-
-div.div-overlay-box > div:first-child h4 {
-    text-align: left;
-}
-
 /* 点滅 */
 a.blinking
 ,button.blinking {

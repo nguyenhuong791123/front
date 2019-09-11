@@ -3,8 +3,8 @@ import React, { Component as C } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import FormBS4 from 'react-jsonschema-form-bs4';
-import { Alert, Button, Form } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck } from 'react-icons/fa';
+import { Alert, Button, Form, FormControl } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars } from 'react-icons/fa';
 
 // import Actions from '../utils/Actions';
 import { ACTION, HTML_TAG, VARIANT_TYPES, SYSTEM } from '../utils/Types';
@@ -12,6 +12,7 @@ import { DRAG, MOUSE, TYPE } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
+import '../../css/Customize.css';
 import GetMsg from '../../msg/Msg';
 
 class Customize extends C {
@@ -31,7 +32,7 @@ class Customize extends C {
     this._onClickDelete = this._onClickDelete.bind(this);
     // this._onAlerEdit = this._onAlerEdit.bind(this);
     // this._onAlerEdit = this._onOpenEdit.bind(this);
-    this._onEditChange = this._onEditChange.bind(this);
+    this._onSelectChange = this._onSelectChange.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -40,6 +41,15 @@ class Customize extends C {
       ,alertEdit: { show: false, msg: '', class: 'div-overlay-box', style: {} }
       ,draggable: 0
       ,dragobject: null
+      ,mode: ACTION.CREATE
+      ,menus: [
+        { id: 1, target: 'target_00', label: 'label_00' }
+        ,{ id: 3, target: 'target_001', label: 'label_001' }
+        ,{ id: 5, target: 'target_0000', label: 'label_0000' }
+        ,{ id: 7, target: 'target_003', label: 'label_003' }
+        ,{ id: 8, target: 'target_0000003', label: 'label_0000003' }
+        ,{ id: 10, target: 'target_0000031', label: 'target_0000031'} 
+      ]
     }
   };
 
@@ -68,11 +78,13 @@ class Customize extends C {
   UNSAFE_componentWillMount(){
     this.state.schema = {
         // title: 'Widgets',
-        type: 'object',
-        properties: {
+        type: 'object'
+        ,name: '顧客情報'
+        ,properties: {
           cust_info: {
             type: 'object'
             ,title: '顧客情報'
+            ,background: ''
             ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
               cust_name_hira: { type: 'string' }
@@ -82,6 +94,7 @@ class Customize extends C {
           base_info: {
             type: 'object'
             ,title: '基本情報'
+            ,background: ''
             // ,required: [ 'email', 'uri' ]
             ,properties: {
               email: { type: 'string', title: 'メール', format: 'email', }
@@ -91,6 +104,7 @@ class Customize extends C {
           project_info: {
             type: 'object'
             ,title: '顧客情報2'
+            ,background: ''
             ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
               cust_name_hira: { type: 'string' }
@@ -399,7 +413,7 @@ class Customize extends C {
     this.forceUpdate();
   }
 
-  _onEditChange(e) {
+  _onSelectChange(e) {
     console.log(this.state.dragobject);
   }
 
@@ -415,8 +429,22 @@ class Customize extends C {
         show={ this.state.alertEdit.show }
         variant={ VARIANT_TYPES.LIGHT }
         className={ this.state.alertEdit.class }>
-        <div className='alert alert-light' style={ this.state.alertEdit.style }>
-          <table>
+        <div className='alert-light' style={ this.state.alertEdit.style }>
+          <div>
+            <Button
+              type={ HTML_TAG.BUTTON }
+              onClick={ this._onClickClose.bind(this) }
+              variant={ VARIANT_TYPES.WARNING }>
+              <FaCheck />
+            </Button>
+            <Button
+              type={ HTML_TAG.BUTTON }
+              onClick={ this._onClickClose.bind(this) }
+              variant={ VARIANT_TYPES.INFO }>
+              <FaReply />
+            </Button>
+          </div>
+          <table className='table-overlay-box'>
             <tbody>
               <tr>
                 <td colSpan='4'><h4>{ this.state.alertEdit.msg }</h4></td>
@@ -426,7 +454,7 @@ class Customize extends C {
                 <td colSpan='3'>
                   <Form.Control
                     as={ HTML_TAG.SELECT }
-                    onChange={ this._onEditChange.bind(this) }
+                    onChange={ this._onSelectChange.bind(this) }
                     defaultValue={ TYPE.TEXT }> { items }</Form.Control>
                 </td>
               </tr>
@@ -450,25 +478,15 @@ class Customize extends C {
               </tr>
               <tr>
                 <td>タイトル</td>
-                <td><input type='color' value='#ff0000' onChange={()=>{}}></input></td>
+                <td><input type='color' value='default' onChange={()=>{}}></input></td>
                 <td>背景</td>
                 <td><input type='color' value='transparent' onChange={()=>{}}></input></td>
               </tr>
               <tr>
-                <td colSpan='2'>
-                  <Button
-                    type={ HTML_TAG.BUTTON }
-                    onClick={ this._onClickClose.bind(this) }
-                    variant={ VARIANT_TYPES.WARNING }>
-                    <FaCheck />
-                  </Button>
-                  <Button
-                    type={ HTML_TAG.BUTTON }
-                    onClick={ this._onClickClose.bind(this) }
-                    variant={ VARIANT_TYPES.INFO }>
-                    <FaReply />
-                  </Button>
-                </td>
+                <td>テキスト</td>
+                <td><input type='color' value='default' onChange={()=>{}}></input></td>
+                <td>背景</td>
+                <td><input type='color' value='transparent' onChange={()=>{}}></input></td>
               </tr>
             </tbody>
           </table>
@@ -541,12 +559,61 @@ class Customize extends C {
     );
   }
 
+  _onClickChangeMode() {
+    this.state.mode = (this.state.mode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
+    this.forceUpdate();
+  }
+
+  _getTitle() {
+    var items = [];
+    const menus = this.state.menus;
+    for (let i=0; i<menus.length; i++) {
+      items.push( <option key={ i } value={ menus[i].id }>{ menus[i].label }</option> );
+    }
+    return(
+      <div>
+        {(() => {
+          if (this.state.mode === ACTION.CREATE) {
+            return (
+              <div className='div-customize-title-box'>
+                <FormControl type="text" placeholder="Input" className="mr-sm-2" />
+                <Button
+                  type={ HTML_TAG.BUTTON }
+                  onClick={ this._onClickChangeMode.bind(this) }
+                  variant={ VARIANT_TYPES.INFO }>
+                  <FaBars />
+                </Button>
+              </div>
+            );
+          }
+          if (this.state.mode === ACTION.EDIT) {
+            return (
+              <div className='div-customize-title-box'>
+                <Form.Control
+                  as={ HTML_TAG.SELECT }
+                  onChange={ this._onSelectChange.bind(this) }
+                  defaultValue={ TYPE.TEXT }> { items }</Form.Control>
+                <Button
+                  type={ HTML_TAG.BUTTON }
+                  onClick={ this._onClickChangeMode.bind(this) }
+                  variant={ VARIANT_TYPES.INFO }>
+                  <FaPlus />
+                </Button>
+              </div>
+            );
+          }
+        })()}
+      </div>
+    );
+  }
+
   render() {
     return (
       <div>
         { this._onAlertDelete() }
         { this._onAlerEdit() }
         { this._onAlertPageActions() }
+        { this._getTitle() }
         <FormBS4
           id='div-form'
           schema={ this.state.schema }
