@@ -431,16 +431,28 @@ class Customize extends C {
                 </td>
               </tr>
               <tr>
+                <td>Required</td>
+                <td><Form.Check type="checkbox" /></td>
+                <td>横幅</td>
+                <td><input type='range' min='20' max='100' step='10' onChange={()=>{}}></input></td>
+              </tr>
+              <tr>
+                <td>Label</td>
+                <td><Form.Control type={ TYPE.TEXT } /></td>
+                <td>Placeholder</td>
+                <td><Form.Control type={ TYPE.TEXT } /></td>
+              </tr>
+              <tr>
+                <td>Default</td>
+                <td><Form.Control type={ TYPE.TEXT } /></td>
+                <td>MaxLength</td>
+                <td><Form.Control type={ TYPE.NUMBER } /></td>
+              </tr>
+              <tr>
                 <td>タイトル</td>
                 <td><input type='color' value='#ff0000' onChange={()=>{}}></input></td>
                 <td>背景</td>
                 <td><input type='color' value='transparent' onChange={()=>{}}></input></td>
-              </tr>
-              <tr>
-                <td>横幅</td>
-                <td colSpan='3'>
-                  <input type='range' min='20' max='100' step='10' onChange={()=>{}}></input>
-                </td>
               </tr>
               <tr>
                 <td colSpan='2'>
