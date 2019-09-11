@@ -36,6 +36,7 @@ module.exports = {
         ,publicPath: ENVS.publicPath
         ,filename: ENVS.outfileJs
     },
+
     module: {
         rules: [
             {
@@ -88,6 +89,7 @@ module.exports = {
         modules: [ ENVS.nodemodules, ENVS.src ],
         extensions: ENVS.extensions,
     },
+
     devServer: {
         host: ENVS.host
         ,port: ENVS.port
@@ -96,6 +98,7 @@ module.exports = {
         ,watchContentBase: true
         ,hot: true
         ,open: false
+        ,historyApiFallback: true
     },
     devtool: (ENVS.mode === 'development') ? 'source-map' : 'none'
     ,
