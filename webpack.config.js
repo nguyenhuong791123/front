@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const ENVS = {
     mode:  'development'
@@ -13,8 +14,14 @@ const ENVS = {
     ,outfile: 'bundle.js'
     ,resolve: path.resolve(__dirname, 'src/js')
     ,extensions: [ '*' ,'.js', '.jsx', '.json', '.css', '.scss' ]
+    ,public: path.resolve(__dirname, 'public')
     ,template: path.resolve(__dirname, 'public', 'index.html')
     ,favicon: path.resolve(__dirname, 'public', 'favicon.ico')
+    ,publicsrc: 'src'
+    ,publiccss: 'dist'
+    ,publicsounds: 'sounds'
+    ,dailer: 'dailer.html'
+    ,dailercss: 'WebRTC.css'
     ,nodemodules: 'node_modules'
 };
 
@@ -87,6 +94,16 @@ module.exports = {
     devtool: 'inline-source-map',
     plugins: [
         new webpack.HotModuleReplacementPlugin()
-        ,new HtmlWebpackPlugin({ template: ENVS.template, favicon: ENVS.favicon })
+        ,new HtmlWebpackPlugin({
+            template: ENVS.template
+            ,favicon: ENVS.favicon
+        })
+        ,new CopyWebpackPlugin([
+            { from: ENVS.public + ENVS.publicPath + ENVS.dailer, to: ENVS.dailer },
+            { from: ENVS.public + ENVS.publicPath + ENVS.dailercss, to: ENVS.dailercss },
+            { from: ENVS.public + ENVS.publicPath + ENVS.publicsrc, to: ENVS.publicsrc },
+            { from: ENVS.public + ENVS.publicPath + ENVS.publiccss, to: ENVS.publiccss },
+            { from: ENVS.public + ENVS.publicPath + ENVS.publicsounds, to: ENVS.publicsounds },
+        ]),
     ]
 }
