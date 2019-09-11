@@ -4,15 +4,15 @@ import { withRouter } from "react-router-dom";
 import { connect } from 'react-redux';
 import Form from "react-jsonschema-form-bs4";
 import { Alert, Button } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaReply } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck } from 'react-icons/fa';
 
-import Actions from '../utils/Actions';
-import { ACTION, HTML_TAG, VARIANT_TYPES } from '../utils/Types';
+// import Actions from '../utils/Actions';
+import { ACTION, HTML_TAG, VARIANT_TYPES, SYSTEM } from '../utils/Types';
 import { DRAG, MOUSE } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
-// import GetMsg from '../../msg/Msg';
+import GetMsg from '../../msg/Msg';
 
 class Customize extends C {
   constructor(props) {
@@ -153,12 +153,12 @@ class Customize extends C {
     div.childNodes[0].childNodes[0].addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
     div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
 
-    // console.log(div.childNodes[0]);
+    console.log(div.childNodes[0]);
     for(var i=0; i<divDrags.length; i++) {
       const drags = divDrags[i];
       const dragChilds = drags.childNodes[0].childNodes;
       if(Utils.isEmpty(dragChilds)) continue;
-      drags.id = DRAG.ABLE + '_' + i;
+      // drags.id = DRAG.ABLE + '_' + i;
       drags.setAttribute(DRAG.ABLE, 'true');
       drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
       for(var c=0; c<dragChilds.length; c++) {
@@ -205,15 +205,14 @@ class Customize extends C {
       return;
     }
     console.log('_onDragDrop');
+    var nps = [];
+    var json = {};
     if(this.state.draggable === 1 && e.target.tagName === HTML_TAG.LEGEND) {
       const div = e.target.parentElement.parentElement;
-      var nps = [];
       var keys = Object.keys(this.state.schema.properties);
-      var json = {};
-      if(Utils.isEmpty(div.id) || Utils.isEmpty(div.parentElement.childNodes) || div.parentElement.childNodes.length <= 0) return;
+      if(Utils.isEmpty(div.parentElement.childNodes) || div.parentElement.childNodes.length <= 0) return;
       const dragId = Array.from(div.parentElement.childNodes).indexOf(div);
       const dropId = Array.from(div.parentElement.childNodes).indexOf(this.state.dragobject);
-      // var id = div.parentElement.id.replace('root_', '');
       if(dragId < dropId) {
         div.before(this.state.dragobject);
         for(var drag=0; drag<keys.length; drag++) {
@@ -230,18 +229,6 @@ class Customize extends C {
             nps.push(json);
           }
         }
-        json = {};
-        console.log(nps);
-        for(var i=0; i<nps.length; i++) {
-          console.log(nps[i]);
-          var oks = Object.keys(nps[i]);
-          for(var l=0; l<oks.length; l++) {
-            json[oks[l]] = nps[i][oks[l]];
-          }
-        }
-        console.log(json);
-        this.state.schema.properties = json;
-        console.log(this.state.schema.properties);
       } else {
         div.after(this.state.dragobject);
         for(var drop=0; drop<keys.length; drop++) {
@@ -258,41 +245,76 @@ class Customize extends C {
             nps.push(json);
           }
         }
-        json = {};
-        for(var o=0; o<nps.length; o++) {
-          var oks = Object.keys(nps[o]);
-          for(var u=0; u<oks.length; u++) {
-            json[oks[u]] = nps[o][oks[u]];
-          }
-        }
-        console.log(json);
-        this.state.schema.properties = json;
-        console.log(this.state.schema.properties);
       }
+      json = {};
+      for(var o=0; o<nps.length; o++) {
+        var oks = Object.keys(nps[o]);
+        for(var u=0; u<oks.length; u++) {
+          json[oks[u]] = nps[o][oks[u]];
+        }
+      }
+      this.state.schema.properties = json;
     }
+
     if(this.state.draggable === 2) {
       const div = e.target.parentElement;
       const tPDiv = div.parentElement;
       const dPObj = this.state.dragobject.parentElement;
       if(tPDiv.id !== dPObj.id) return;
-      const dragId = Array.from(tPDiv.childNodes).indexOf(div);
-      const dropId = Array.from(tPDiv.childNodes).indexOf(this.state.dragobject);
+      var dragId = Array.from(tPDiv.childNodes).indexOf(div);
+      var dropId = Array.from(tPDiv.childNodes).indexOf(this.state.dragobject);
+      if(!Utils.isEmpty(tPDiv.childNodes[0]) && tPDiv.childNodes[0].tagName === HTML_TAG.LEGEND) {
+        if(dragId > 0) dragId -= 1;
+        if(dropId > 0) dropId -= 1;
+      }
+      const jKey = tPDiv.id.replace('root_', '');
+      const isJson = this.state.schema.properties[jKey].properties;
+      keys = Object.keys(isJson);
       if(dragId < dropId) {
         div.before(this.state.dragobject);
+        for(var drag=0; drag<keys.length; drag++) {
+          if(drag === dropId) continue;
+          if(drag === dragId) {
+            json[keys[dropId]] =isJson[keys[dropId]];
+            nps.push(json);
+            json = {};
+            json[keys[dragId]] = isJson[keys[dragId]];
+            nps.push(json);
+          } else {
+            json = {};
+            json[keys[drag]] = isJson[keys[drag]];
+            nps.push(json);
+          }
+        }
       } else {
         div.after(this.state.dragobject);
+        for(var drop=0; drop<keys.length; drop++) {
+          if(drop === dropId) continue;
+          if(drop === dragId) {
+            json[keys[dragId]] =isJson[keys[dragId]];
+            nps.push(json);
+            json = {};
+            json[keys[dropId]] = isJson[keys[dropId]];
+            nps.push(json);
+          } else {
+            json = {};
+            json[keys[drop]] = isJson[keys[drop]];
+            nps.push(json);
+          }
+        }
       }
-      // console.log(dragId);
-      // console.log(dropId);
-      // console.log(this.state.schema.properties);
+      json = {};
+      for(var i=0; i<nps.length; i++) {
+        var oks = Object.keys(nps[i]);
+        for(var l=0; l<oks.length; l++) {
+          json[oks[l]] = nps[i][oks[l]];
+        }
+      }
+      this.state.schema.properties[jKey].properties = json;
+      console.log(this.state.schema.properties[jKey].properties);
+      console.log(this.state.schema.properties);
     }
   }
-
-  // _onDragEnd(e) {
-  //   console.log('_onDragEnd');
-  //   console.log(e);
-  //   console.log(this.state.draggable);
-  // }
 
   _onMouseOver(e) {
     const obj = e.target;
@@ -409,6 +431,29 @@ class Customize extends C {
     );
   }
 
+  _onAlertPageActions() {
+    const className = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
+    return (
+        <div id="div_button_action" className={ className }>
+            <Button onClick={ this._onClickReturn.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
+              <FaPlus />
+              { GetMsg(null, this.state.isUser.language, 'bt_add') }
+            </Button>
+            <br />
+            <Button onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+              <FaCheck />
+              { GetMsg(null, this.state.isUser.language, 'bt_insert') }
+            </Button>
+            <br />
+            <Button onClick={ this._onClickReturn.bind(this) } variant={ VARIANT_TYPES.INFO }>
+              <FaReply />
+              { GetMsg(null, this.state.isUser.language, 'bt_return') }
+            </Button>
+            <br />
+        </div>
+    )  
+  }
+
   _onAlertDelete() {
     return(
       <Alert
@@ -438,6 +483,7 @@ class Customize extends C {
     return (
       <div>
         { this._onAlertDelete() }
+        { this._onAlertPageActions() }
         <Form
           id='div-form'
           schema={ this.state.schema }
@@ -449,10 +495,10 @@ class Customize extends C {
           validate={ this._onValidate.bind(this) }
           onError={ this._onError.bind(this) }>
 
-          <Actions
+          {/* <Actions
             isUser={ this.state.isUser }
             onClickReturn={ this._onClickReturn.bind(this) }
-            onClickSubmit={ this._onClickSubmit.bind(this) } />
+            onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
           { this._onAlertActions() }
         </Form>
       </div>
