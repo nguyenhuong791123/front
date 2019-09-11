@@ -1,14 +1,14 @@
 
 import React, { Component as C } from 'react';
-import { withRouter } from "react-router-dom";
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import Form from "react-jsonschema-form-bs4";
-import { Alert, Button } from 'react-bootstrap';
+import FormBS4 from 'react-jsonschema-form-bs4';
+import { Alert, Button, Form } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck } from 'react-icons/fa';
 
 // import Actions from '../utils/Actions';
 import { ACTION, HTML_TAG, VARIANT_TYPES, SYSTEM } from '../utils/Types';
-import { DRAG, MOUSE } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
@@ -22,7 +22,6 @@ class Customize extends C {
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
     this._onError = this._onError.bind(this);
-    this._onValidate = this._onValidate.bind(this);
 
     this._onMouseDown = this._onMouseDown.bind(this);
     this._onDragStart = this._onDragStart.bind(this);
@@ -30,6 +29,9 @@ class Customize extends C {
     this._onDragDrop = this._onDragDrop.bind(this);
 
     this._onClickDelete = this._onClickDelete.bind(this);
+    // this._onAlerEdit = this._onAlerEdit.bind(this);
+    // this._onAlerEdit = this._onOpenEdit.bind(this);
+    this._onEditChange = this._onEditChange.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -52,85 +54,66 @@ class Customize extends C {
     for(var i=0; i<oks.length; i++) {
       console.log(this.state.schema.properties[oks[i]]);
     }
-    console.log("Data submitted: ", document.forms[0]);
+    console.log('Data submitted: ', document.forms[0]);
   }
 
   _onChange(type) {
-    console.log.bind(console, type);
+    console.log(type);
   }
 
   _onError(errors) {
-    console.log("I have", errors.length, "errors to fix");
-  }
-
-  _onValidate(formData, errors) {
-    // if (formData.base_info.email === undefined || formData.base_info.email.length <= 0) {
-    //   errors.base_info.email.addError("を入力してください。");
-    // }
-    // if (formData.base_info.checkboxs === undefined || formData.base_info.checkboxs.length <= 0) {
-    //   errors.base_info.checkboxs.addError("を選択してください。");
-    // }
-    // if (formData.base_info.user_flag === undefined || formData.base_info.user_flag.length <= 0) {
-    //   errors.base_info.user_flag.addError("を選択してください。");
-    // }
-    // if (formData.base_info.file === undefined || formData.base_info.file.length <= 0) {
-    //   errors.base_info.file.addError("を選択してください。");
-    // }
-    // if (formData.base_info.files === undefined || formData.base_info.files.length <= 0) {
-    //   errors.base_info.files.addError("を選択してください。");
-    // }
-    return errors;
+    console.log('I have', errors.length, 'errors to fix');
   }
 
   UNSAFE_componentWillMount(){
     this.state.schema = {
-        // title: "Widgets",
-        type: "object",
+        // title: 'Widgets',
+        type: 'object',
         properties: {
           cust_info: {
-            type: "object"
-            ,title: "顧客情報"
-            ,required: [ "cust_name_hira", "cust_name_kana" ]
+            type: 'object'
+            ,title: '顧客情報'
+            ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
-              cust_name_hira: { type: "string" }
-              ,cust_name_kana: { type: "string" }
+              cust_name_hira: { type: 'string' }
+              ,cust_name_kana: { type: 'string' }
             }
           },
           base_info: {
-            type: "object"
-            ,title: "基本情報"
-            // ,required: [ "email", "uri" ]
+            type: 'object'
+            ,title: '基本情報'
+            // ,required: [ 'email', 'uri' ]
             ,properties: {
-              email: { type: "string", title: "メール", format: "email", }
-              ,uri: { type: "string", format: "uri", }
+              email: { type: 'string', title: 'メール', format: 'email', }
+              ,uri: { type: 'string', format: 'uri', }
             },
           },
           project_info: {
-            type: "object"
-            ,title: "顧客情報2"
-            ,required: [ "cust_name_hira", "cust_name_kana" ]
+            type: 'object'
+            ,title: '顧客情報2'
+            ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
-              cust_name_hira: { type: "string" }
-              ,cust_name_kana: { type: "string" }
+              cust_name_hira: { type: 'string' }
+              ,cust_name_kana: { type: 'string' }
             }
           }
         },
     }
     this.state.uiSchema = {
         base_info: {
-          classNames: "draggable-top-box div-top-box div-top-box-50"
-          ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-50" }
-          ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-50" }
+          classNames: 'draggable-top-box div-top-box div-top-box-50'
+          ,email: { 'ui:placeholder': 'メール', classNames: 'div-box div-box-50' }
+          ,uri: { 'ui:placeholder': 'URL', classNames: 'div-box div-box-50' }
         }
         ,cust_info: {
-          classNames: "draggable-top-box div-top-box div-top-box-50"
-          ,cust_name_hira: { "ui:placeholder": "顧客名", classNames: "div-box div-box-50" }
-          ,cust_name_kana: { "ui:placeholder": "顧客カナ", classNames: "div-box div-box-50" }
+          classNames: 'draggable-top-box div-top-box div-top-box-50'
+          ,cust_name_hira: { 'ui:placeholder': '顧客名', classNames: 'div-box div-box-50' }
+          ,cust_name_kana: { 'ui:placeholder': '顧客カナ', classNames: 'div-box div-box-50' }
         }
         ,project_info: {
-          classNames: "draggable-top-box div-top-box div-top-box-50"
-          ,cust_name_hira: { "ui:placeholder": "案件名", classNames: "div-box div-box-50" }
-          ,cust_name_kana: { "ui:placeholder": "カナ", classNames: "div-box div-box-50" }
+          classNames: 'draggable-top-box div-top-box div-top-box-50'
+          ,cust_name_hira: { 'ui:placeholder': '案件名', classNames: 'div-box div-box-50' }
+          ,cust_name_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
         }
     }
     this.state.formData = {}
@@ -358,54 +341,6 @@ class Customize extends C {
     return obj;
   }
 
-  _onAlertEdit() {
-    this.state.alertDelete.show = true;
-    this.forceUpdate();
-  }
-
-  _onOpenDelete() {
-    const obj = this.state.dragobject;
-    if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
-    this.state.alertDelete.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
-    this.state.alertDelete.show = true;
-    this.forceUpdate();
-  }
-
-  _onClickClose() {
-    this.state.alertDelete.show = false;
-    this.forceUpdate();
-  }
-
-  _onClickDelete() {
-    const obj = this.state.dragobject;
-    if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
-    if(obj.tagName === HTML_TAG.LEGEND) {
-      if(!Html.hasAttribute(obj.parentElement, 'id')) return;
-      var id = obj.parentElement.id.replace('root_', '');
-      // console.log(id);
-      delete this.state.schema.properties[id];
-      delete this.state.uiSchema[id];
-      // console.log(this.state.schema.properties);
-      // console.log(this.state.uiSchema);
-    }
-    if(obj.tagName === HTML_TAG.LABEL) {
-      if(!Html.hasAttribute(obj.parentElement.parentElement, 'id')
-        || !Html.hasAttribute(obj, 'for')) return;
-      var cId = obj.parentElement.parentElement.id.replace('root_', '');
-      var oId = obj.getAttribute('for').replace('root_' + cId + '_', '');
-      // console.log(cId);
-      // console.log(oId);
-      delete this.state.schema.properties[cId].properties[oId];
-      delete this.state.uiSchema[id][oId];
-      // console.log(this.state.schema.properties);
-      // console.log(this.state.uiSchema);
-    }
-
-    this.state.alertActions.show = false;
-    this.state.alertDelete.show = false;
-    this.forceUpdate();
-  }
-
   _onAlertActions() {
     return(
       <Alert
@@ -416,7 +351,7 @@ class Customize extends C {
         <Button
           type={ HTML_TAG.BUTTON }
           onMouseOver={ this._onMouseOut.bind(this) }
-          onClick={ this._onClickSubmit.bind(this) }
+          onClick={ this._onOpenEdit.bind(this) }
           variant={ VARIANT_TYPES.SECONDARY }>
           <FaEdit />
         </Button>
@@ -434,7 +369,7 @@ class Customize extends C {
   _onAlertPageActions() {
     const className = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
     return (
-        <div id="div_button_action" className={ className }>
+        <div id='div_button_action' className={ className }>
             <Button onClick={ this._onClickReturn.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
               <FaPlus />
               { GetMsg(null, this.state.isUser.language, 'bt_add') }
@@ -454,13 +389,128 @@ class Customize extends C {
     )  
   }
 
+  _onOpenEdit() {
+    const obj = this.state.dragobject;
+    if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
+    this.state.alertEdit.msg = '「' + obj.innerText + '」' + 'を修正';
+    console.log(obj);
+    this.state.alertEdit.show = true;
+    this.state.alertDelete.show = false;
+    this.forceUpdate();
+  }
+
+  _onEditChange(e) {
+    console.log(this.state.dragobject);
+  }
+
+  _onAlerEdit() {
+    if(!this.state.alertEdit.show) return '';
+    var items = [];
+    const objs = Object.keys(TYPE);
+    for (let i=0; i<objs.length; i++) {
+      items.push( <option key={ i } value={ TYPE[objs[i]] }>{ '' + TYPE[objs[i]] }</option> );
+    }
+    return(
+      <Alert
+        show={ this.state.alertEdit.show }
+        variant={ VARIANT_TYPES.LIGHT }
+        className={ this.state.alertEdit.class }>
+        <div className='alert alert-light' style={ this.state.alertEdit.style }>
+          <table>
+            <tbody>
+              <tr>
+                <td colSpan='4'><h4>{ this.state.alertEdit.msg }</h4></td>
+              </tr>
+              <tr>
+                <td>種類</td>
+                <td colSpan='3'>
+                  <Form.Control
+                    as={ HTML_TAG.SELECT }
+                    onChange={ this._onEditChange.bind(this) }
+                    defaultValue={ TYPE.TEXT }> { items }</Form.Control>
+                </td>
+              </tr>
+              <tr>
+                <td>タイトル</td>
+                <td><input type='color' value='#ff0000' onChange={()=>{}}></input></td>
+                <td>背景</td>
+                <td><input type='color' value='transparent' onChange={()=>{}}></input></td>
+              </tr>
+              <tr>
+                <td>横幅</td>
+                <td colSpan='3'>
+                  <input type='range' min='20' max='100' step='10' onChange={()=>{}}></input>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan='2'>
+                  <Button
+                    type={ HTML_TAG.BUTTON }
+                    onClick={ this._onClickClose.bind(this) }
+                    variant={ VARIANT_TYPES.WARNING }>
+                    <FaCheck />
+                  </Button>
+                  <Button
+                    type={ HTML_TAG.BUTTON }
+                    onClick={ this._onClickClose.bind(this) }
+                    variant={ VARIANT_TYPES.INFO }>
+                    <FaReply />
+                  </Button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Alert>
+    );
+  }
+
+  _onOpenDelete() {
+    const obj = this.state.dragobject;
+    if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
+    this.state.alertDelete.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
+    this.state.alertDelete.show = true;
+    this.state.alertEdit.show = false;
+    this.forceUpdate();
+  }
+
+  _onClickDelete() {
+    const obj = this.state.dragobject;
+    if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
+    if(obj.tagName === HTML_TAG.LEGEND) {
+      if(!Html.hasAttribute(obj.parentElement, 'id')) return;
+      var id = obj.parentElement.id.replace('root_', '');
+      delete this.state.schema.properties[id];
+      delete this.state.uiSchema[id];
+    }
+    if(obj.tagName === HTML_TAG.LABEL) {
+      if(!Html.hasAttribute(obj.parentElement.parentElement, 'id')
+        || !Html.hasAttribute(obj, 'for')) return;
+      var cId = obj.parentElement.parentElement.id.replace('root_', '');
+      var oId = obj.getAttribute('for').replace('root_' + cId + '_', '');
+      delete this.state.schema.properties[cId].properties[oId];
+      delete this.state.uiSchema[id][oId];
+    }
+
+    this.state.alertActions.show = false;
+    this.state.alertDelete.show = false;
+    this.forceUpdate();
+  }
+
+  _onClickClose() {
+    this.state.alertDelete.show = false;
+    this.state.alertEdit.show = false;
+    this.forceUpdate();
+  }
+
   _onAlertDelete() {
+    if(!this.state.alertDelete.show) return '';
     return(
       <Alert
         show={ this.state.alertDelete.show }
         variant={ VARIANT_TYPES.LIGHT }
         className={ this.state.alertDelete.class }>
-        <div className="alert alert-light" style={ this.state.alertDelete.style }>
+        <div className='alert alert-light' style={ this.state.alertDelete.style }>
           <h4>{ this.state.alertDelete.msg }</h4>
           <Button
             type={ HTML_TAG.BUTTON }
@@ -483,24 +533,19 @@ class Customize extends C {
     return (
       <div>
         { this._onAlertDelete() }
+        { this._onAlerEdit() }
         { this._onAlertPageActions() }
-        <Form
+        <FormBS4
           id='div-form'
           schema={ this.state.schema }
           uiSchema={ this.state.uiSchema } 
           widgets={ this.state.widgets }
           formData={ this.state.formData }
-          onChange={ this._onChange("changed") }
-          onSubmit={ this._onClickSubmit.bind(this) }
-          validate={ this._onValidate.bind(this) }
+          // onChange={ this._onChange('changed') }
+          // onSubmit={ this._onClickSubmit.bind(this) }
           onError={ this._onError.bind(this) }>
-
-          {/* <Actions
-            isUser={ this.state.isUser }
-            onClickReturn={ this._onClickReturn.bind(this) }
-            onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
           { this._onAlertActions() }
-        </Form>
+        </FormBS4>
       </div>
     )
   };
