@@ -2,21 +2,23 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const ENVS = {
-    mode:  'development'
+    mode:  (process.env && process.env.production) ? 'production' : 'development'
     ,host: '0.0.0.0'
     ,port: 8080
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
     ,output: path.resolve(__dirname, 'build')
     ,publicPath: '/'
-    ,outfile: 'bundle.js'
+    ,outfileJs: 'bundle-[hash].js'
+    ,outfileCss: 'bundle-[hash].css'
     ,resolve: path.resolve(__dirname, 'src/js')
     ,extensions: [ '*' ,'.js', '.jsx', '.json', '.css', '.scss' ]
     ,public: path.resolve(__dirname, 'public')
     ,template: path.resolve(__dirname, 'public', 'index.html')
-    ,favicon: path.resolve(__dirname, 'public', 'favicon.ico')
+    ,favicon: 'favicon.ico'
     ,publicsrc: 'src'
     ,publiccss: 'dist'
     ,publicsounds: 'sounds'
@@ -32,7 +34,7 @@ module.exports = {
     output: {
         path: ENVS.output
         ,publicPath: ENVS.publicPath
-        ,filename: ENVS.outfile
+        ,filename: ENVS.outfileJs
     },
     module: {
         rules: [
@@ -46,6 +48,7 @@ module.exports = {
                         "@babel/preset-env"
                         ,"@babel/preset-react"
                     ]
+                    ,"compact": false
                 }
             },
             {
@@ -53,15 +56,18 @@ module.exports = {
                 ,loader: 'html-loader'
             },
             {
-                test: /\.css$/,
-                exclude: [ '/' + ENVS.nodemodules + '/' ],
-                use: [ 'style-loader', { loader: 'css-loader', options: { url: false, modules: true } } ]
+                test: /\.css$/
+                ,exclude: [ '/' + ENVS.nodemodules + '/' ]
+                ,use: [ 'style-loader'
+                    ,MiniCssExtractPlugin.loader
+                    ,{ loader: 'css-loader' }
+                ]
             },
             {
                 test: /\.s[ac]ss$/i,
                 use: [
                     'style-loader'
-                    // ,'css-loader'
+                    ,MiniCssExtractPlugin.loader
                     ,{
                         loader: 'sass-loader'
                         ,options: {
@@ -91,14 +97,18 @@ module.exports = {
         ,hot: true
         ,open: false
     },
-    devtool: 'inline-source-map',
+    devtool: (ENVS.mode === 'development') ? 'source-map' : 'none'
+    ,
+    // 'inline-source-map',
     plugins: [
         new webpack.HotModuleReplacementPlugin()
+        ,new MiniCssExtractPlugin({ filename: ENVS.outfileCss })
         ,new HtmlWebpackPlugin({
             template: ENVS.template
-            ,favicon: ENVS.favicon
+            // ,favicon: ENVS.public + ENVS.publicPath + ENVS.favicon
         })
         ,new CopyWebpackPlugin([
+            { from: ENVS.public + ENVS.publicPath + ENVS.favicon, to: ENVS.favicon },
             { from: ENVS.public + ENVS.publicPath + ENVS.dailer, to: ENVS.dailer },
             { from: ENVS.public + ENVS.publicPath + ENVS.dailercss, to: ENVS.dailercss },
             { from: ENVS.public + ENVS.publicPath + ENVS.publicsrc, to: ENVS.publicsrc },
