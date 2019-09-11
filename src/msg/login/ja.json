@@ -1,0 +1,10 @@
+{
+    "system_auth": "システム認証"
+    ,"login_id": "ログインID"
+    ,"password": "パスワード"
+    ,"remember_me": "オートログイン"
+    ,"login_or_password": "ログインIDかパスワード"
+  
+    ,"error_not_url":"アクセス先存在しません。"
+  }
+  

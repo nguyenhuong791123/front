@@ -1,0 +1,17 @@
+div.div-calendar-box {
+    position: absolute;
+    background-color: white;
+}
+
+div.div-calendar-box div.rlc-calendar {
+    width: 282px;
+}
+
+div.div-calendar-box div.rlc-calendar div.rlc-date-details {
+    display: none;
+}
+
+div.div-calendar-box div.rlc-calendar div.rlc-details div.rlc-date-details-wrapper {
+    margin: 0;
+    text-align: center;
+}

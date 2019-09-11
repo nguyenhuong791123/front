@@ -1,0 +1,56 @@
+{
+    "version": "SmartCRM Ver1.0.0"
+    ,"en": "English"
+    ,"ja": "Japanese"
+    ,"vn": "VietNam"
+
+    ,"file": "File"
+  
+    ,"bt_login": "Login"
+    ,"bt_logout": "Logout"
+    ,"bt_profile": "Profile"
+  
+    ,"bt_create": "Create"
+    ,"bt_edit": "Edit"
+    ,"bt_view": "View"
+    ,"bt_search": "Search"
+    ,"bt_insert": "Insert"
+    ,"bt_update": "Update"
+    ,"bt_delete": "Delete"
+    ,"bt_send": "Send"
+    ,"bt_download": "Download"
+    ,"bt_upload": "Upload"
+    ,"bt_cancel": "Cancel"
+    ,"bt_next": "Next"
+    ,"bt_previous": "Previous"
+  
+    ,"company_auth": "Company Management"
+    ,"group_auth": "Group Management"
+    ,"user_auth": "User Management"
+    ,"schedule_auth": "Schedule"
+    ,"customer_auth": "Customer Management"
+    ,"mente_auth": "Maintenance"
+  
+    ,"tel": "Tel"
+    ,"mobile": "Mobile"
+    ,"fax": "Fax"
+    ,"mail": "E-mail"
+    ,"name": "Name"
+    ,"kana": "Kana Name"
+    ,"post": "Post"
+    ,"post_mask": "〒"
+    ,"city": "City"
+    ,"address": "Address"
+  
+    ,"title_menu": "Menu"
+    ,"title_keyword": "Search Keyword"
+    ,"title_register": "Register"
+    ,"title_phone": "Phone"
+    ,"title_join": "Join"
+    ,"title_messenger": "Messenger"
+    ,"title_home": "Home"
+  
+    ,"required": " is required."
+    ,"not_exists": " is not exists."
+  }
+  

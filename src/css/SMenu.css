@@ -1,0 +1,21 @@
+div.div-menu-right {
+  top: 4em;
+  border: 1px solid #dee2e6;
+  z-index: 10 !important;
+}
+
+div.div-menu-right + div > div.bm-burger-button {
+  /* z-index: 150 !important; */
+  color: #007bff !important;
+  right: 0.5em !important;
+  top: 3.5em !important;
+  display: none;
+}
+
+/* div.div-menu-right + div > div.bm-burger-button:hover {
+  color: #0052aa !important;
+} */
+
+div.div-margin-right-22 {
+  margin-right: 22%;
+}

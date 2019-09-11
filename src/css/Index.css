@@ -1,0 +1,309 @@
+* {
+    -moz-transition: all .5s;
+    -o-transition: all .5s;
+    -webkit-transition: all .5s;
+    transition: all .5s;
+}
+
+*[draggable=true] legend, label{
+    cursor: move;
+}
+
+*[draggable=true] legend:hover, label:hover {
+    background-color: #cce5ff !important;
+}
+
+div._loading_overlay_wrapper {
+    position: unset;
+}
+
+div.div-overlay-box {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+}
+
+div.div-overlay-box div:first-child {
+    border: 5px solid #dee2e6;
+    border-radius: 1em;
+    width: 40%;
+    max-width: 40%;
+    text-align: center;
+    top: 20%;
+    margin-left: 30%;
+}
+
+div.div-overlay-box div:first-child button {
+    margin: .5em;
+}
+
+div.div-overlay-box div:first-child h4 {
+    text-align: left;
+}
+
+/* 点滅 */
+a.blinking
+,button.blinking {
+	-webkit-animation:blink .7s ease-in-out infinite alternate;
+    -moz-animation:blink .7s ease-in-out infinite alternate;
+    animation:blink .7s ease-in-out infinite alternate;
+    color: red;
+}
+@-webkit-keyframes blink {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+@-moz-keyframes blink {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+@keyframes blink {
+    0% {opacity:0;}
+    100% {opacity:1;}
+}
+
+body {
+    overflow: hidden;
+}
+
+/* object { */
+    /* width: 240px; */
+    /* height: 100%; */
+    /* position: absolute;
+    z-index: 15;
+    display: none; */
+/* } */
+
+.required {
+    color: red;
+}
+
+button svg {
+    margin-right: .3em;
+    /* vertical-align: text-top; */
+}
+
+a.nav-link {
+    display: block;
+    padding: 0.5rem 1rem;
+}
+
+form.rjsf > div.errors:first-child {
+    display: none;
+}
+
+div.drag-and-drop {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+}
+
+div.drag-and-drop object {
+    /* height:100vh;
+    width: 100vh; */
+    height: 100vh;
+    position: absolute;
+}
+
+div.drag-and-drop button {
+    cursor: pointer;
+    margin-left: -.5em;
+    margin-top: .5em;
+    padding-left: .5em;
+}
+
+div.drag-and-drop button:hover {
+    margin-left: -2em;
+}
+
+div.div-customize-actions {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    margin-top: .2em;
+    background: transparent;
+    border: none;
+}
+
+div.div-customize-actions button {
+    margin: 0;
+    padding: .1em;
+}
+
+div.div-customize-actions button:last-child {
+    margin-left: .2em;
+}
+
+div.div-customize-actions svg {
+    padding: 0;
+    margin-left: .3em;
+    margin-top: -.3em;
+}
+
+div.div-customize-actions-child {
+    margin-top: 0;
+    margin-top: -.1em;
+}
+
+div.div-customize-actions-child button {
+    font-size: 50%;
+}
+
+div.form-group fieldset legend {
+    padding-left: 0.5em;
+    margin-bottom: 0;
+    /* font-size: 1rem; */
+    /* background-color: #cce5ff; */
+}
+
+div.form-group fieldset > div.div-top-box {
+    float: left;
+    /* padding-left: 0.2em;
+    padding-right: 0.2em; */
+}
+
+div.form-group fieldset > div.div-top-box-50 {
+    width: 50%;
+}
+
+div.form-group fieldset > div.div-top-box-100 {
+    width: 100%;
+}
+
+div.form-group fieldset legend::before {
+    content: '● ';
+}
+
+div.form-group fieldset div.div-box {
+    height: 88px;
+    padding: 0.2em;
+    float: left;
+    margin: 0;
+    /* border: 1px solid gainsboro; */
+}
+
+div.form-group fieldset div.div-box > label {
+    width: 100%;
+    background-color: gainsboro;
+    padding-left: 0.2em;
+}
+
+div.form-group fieldset > div.div-box > div ul.error-detail {
+    position: absolute;
+    list-style-type: none;
+    margin-left: -3em;
+    margin-top: -0.2em;
+    font-size: 80%;
+}
+
+div.form-group fieldset > div.div-box > div ul.file-info {
+    display: none;
+    /* position: absolute;
+    margin-top: -2.7em;
+    margin-left: 8.5em;
+    list-style-type: none; */
+}
+
+div.form-group fieldset div.div-box-not-view-label {
+    height: 56px !important;
+}
+
+div.form-group fieldset div.div-box-not-view-label > label {
+    display: none;
+}
+
+div.form-group fieldset div.div-box-25 {
+    width: 25%;
+}
+
+div.form-group fieldset div.div-box-33 {
+    width: 33.33333%;
+}
+
+div.form-group fieldset div.div-box-50 {
+    width: 50%;
+}
+
+div.form-group fieldset div.div-box-100 {
+    width: 100%;
+}
+
+div.form-group fieldset div.div-box-display-contents {
+    height: 86px;
+}
+
+div.form-group fieldset div.div-box-display-contents div.checkboxes div.form-check-inline:first-child {
+    margin-left: 0.5em;
+}
+
+div.form-group fieldset div.div-box-checkbox {
+    /* height: 56px; */
+    padding-left: 0.5em;
+}
+
+div.form-group fieldset div.div-box span.range-view {
+    float: right;
+    margin-top: -1em;
+}
+
+div.form-group fieldset div.div-box-help-block-01 > p.help-block  {
+    margin-top: 0.5em;
+    font-size: 80%;
+}
+
+div.form-group fieldset div.div-box-help-block-02 > p.help-block  {
+    margin-top: -0.5em;
+    font-size: 80%;
+}
+
+div.form-group fieldset div.div-box-file > div  {
+    margin-bottom: -7px;
+}
+
+div.dropdown-menu {
+    max-width: 23%;
+}
+
+div.dropdown-menu a {
+    cursor: pointer;
+}
+
+div.dropdown-menu a:hover {
+    background-color: #cce5ff;
+}
+
+div.dropdown-menu a.dropdown-item svg {
+    margin-right: 0.3em;
+}
+
+div.div-actions-box {
+    padding: 0.2em;
+    top: 20%;
+    /* bottom: 20%; */
+    float: right;
+    right: -5.5em;
+    position: absolute;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+div.div-actions-box:hover {
+    right: 0;
+}
+
+div.div-actions-box button {
+    margin: 0.2em;
+}
+
+div.div-not-windown-actions-box {
+    display: flex;
+    top: .5em;
+    position: absolute;
+    right: .5em;
+}
+div.div-not-windown-actions-box button {
+    margin: 0.2em;
+}

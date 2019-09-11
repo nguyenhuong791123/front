@@ -1,0 +1,39 @@
+div.div-alert {
+    width: 45%;
+    margin-top: 14%;
+    margin-left: 28%;
+}
+
+div.div-alert > div:first-child {
+    position: absolute;
+    right: 1em;
+}
+
+div.div-alert-menu {
+    position: absolute;
+}
+
+div.div-alert-menu > div {
+    /* margin: 0;
+    padding: 0; */
+    padding: .5rem 0;
+    margin: .125rem 0 0;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: .25rem;
+}
+
+div.div-alert-menu > div a {
+    color: black !important;
+    display: flex;
+}
+
+div.div-alert-menu > div a:hover {
+    background: #f8f9fa;
+}
+
+div.div-alert-menu > div a svg {
+    margin-right: 0.3em;
+    margin-top: 0.2em;
+}

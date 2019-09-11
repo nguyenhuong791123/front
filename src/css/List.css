@@ -1,0 +1,78 @@
+div.react-bootstrap-table {
+    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+}
+
+div.div-react-bootstrap-table {
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+table.table-list thead {
+    background-color: #343a40;
+    color: white;
+}
+
+table.table-list th, td {
+    word-break: break-all;
+}
+
+table.table-list thead th {
+    padding: .2rem;
+}
+
+table.table-list thead th:first-child {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    text-align: center;
+    cursor: pointer;
+}
+
+table.table-list thead th label {
+    margin-bottom: 0 !important;
+    margin-right: 0.5em;
+}
+
+table.table-list thead th input {
+    padding: .2rem;
+}
+
+table.table-list tbody td:first-child {
+    cursor: pointer;
+}
+
+table.table-pagination-header {
+    width: 100%;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* table.table-pagination-header tbody td:first-child span {
+    float: right;
+} */
+
+table.table-pagination-header tbody td:last-child {
+    /* width: 45%; */
+    /* max-width: 45%; */
+    text-align: right;
+    padding-right: 0.3em;
+}
+
+table.table-pagination-header tbody td:last-child button.btn-primary {
+    float: right;
+    margin-left: 0.5em;
+}
+
+table.table-pagination-header tbody td:last-child ul {
+    float: right;
+    margin: 0;
+    padding: 0;
+    margin-left: 0.5em;
+}
+
+table.table-pagination-header tbody td:last-child ul li a {
+    display: flex;
+}

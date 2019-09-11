@@ -1,0 +1,41 @@
+div.div-table div:last-child {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+table.table {
+    margin-bottom: 0;
+    width: auto;
+    width: max-content;
+}
+
+table.table thead tr th:first-child
+,table.table tbody tr td:first-child {
+    width: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
+table.table thead tr th:first-child input[type='checkbox'] {
+    margin-bottom: .7em;
+    cursor: pointer;
+}
+
+table.table thead th {
+    padding: 0;
+    border-bottom-width: 0;
+    border-bottom: 0;
+}
+
+table.table thead th label {
+    margin-left: .3em;
+}
+
+table.table thead input {
+    padding: .2em;
+}
+
+table.table tr.selected {
+    background-color: #2a9fd685 !important;
+}
+

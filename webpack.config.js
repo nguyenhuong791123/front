@@ -12,9 +12,10 @@ const ENVS = {
     ,publicPath: '/'
     ,outfile: 'bundle.js'
     ,resolve: path.resolve(__dirname, 'src/js')
-    ,extensions: [ '*' ,'.js', '.jsx', '.json' ]
+    ,extensions: [ '*' ,'.js', '.jsx', '.json', '.css', '.scss' ]
     ,template: path.resolve(__dirname, 'public', 'index.html')
     ,favicon: path.resolve(__dirname, 'public', 'favicon.ico')
+    ,nodemodules: 'node_modules'
 };
 
 module.exports = {
@@ -30,14 +31,15 @@ module.exports = {
         rules: [
             {
                 test: /\.(js|jsx)$/
-                ,exclude: /node_modules/
+                ,exclude: '/' + ENVS.nodemodules + '/'
+                // ,use: [ 'babel-loader', 'eslint-loader' ]
                 ,loader: 'babel-loader'
-                // ,options: {
-                //     presets: [
-                //         "@babel/preset-env"
-                //         ,"@babel/preset-react"
-                //     ]
-                // }
+                ,options: {
+                    presets: [
+                        "@babel/preset-env"
+                        ,"@babel/preset-react"
+                    ]
+                }
             },
             {
                 test: /\.html?$/
@@ -45,8 +47,8 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                exclude: [ /node_modules/ ],
-                use: [ "style-loader", { loader: "css-loader", options: { url: false, modules: true } } ]
+                exclude: [ '/' + ENVS.nodemodules + '/' ],
+                use: [ 'style-loader', { loader: 'css-loader', options: { url: false, modules: true } } ]
             },
             {
                 test: /\.s[ac]ss$/i,
@@ -58,6 +60,7 @@ module.exports = {
                         ,options: {
                             implementation: require('sass')
                             ,sassOptions: { fiber: require('fibers') }
+                            ,includePaths: [ path.resolve(__dirname, ENVS.nodemodules) ]
                         }
                     }
                 ]
@@ -69,7 +72,7 @@ module.exports = {
         ]
     },
     resolve: {
-        modules: [ 'node_modules', ENVS.src ],
+        modules: [ ENVS.nodemodules, ENVS.src ],
         extensions: ENVS.extensions,
     },
     devServer: {

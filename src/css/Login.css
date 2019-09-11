@@ -1,0 +1,28 @@
+div.div-center {
+    width: 20%;
+}
+
+div.div-center div.form-group {
+    margin: 0.5em;
+}
+
+div.div-center div.form-group div.invalid-feedback {
+    width: 100%;
+    text-align: left;
+    font-size: x-small;
+}
+
+div.div-center div.alert-heading {
+    text-align: center;
+    font-weight: bold;
+}
+
+div.div-center div.form-group:last-child {
+    display: grid;
+    padding-top: 0.5em;
+}
+
+div.div-center div.form-group:last-child button svg:first-child {
+    float: right;
+    margin-top: 0.3em;
+}

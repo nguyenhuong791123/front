@@ -1,0 +1,66 @@
+{
+    "sys":
+      {
+        "icon_url": "./images/favicon.ico"
+        ,"app_host": "192.168.10.6"
+        ,"app_port": "8085"
+        ,"api_host": ""
+        ,"api_port": ""
+      }
+    ,"basic":
+      {
+        "db": "Postgres"
+        ,"basic_id": "admin"
+        ,"basic_password": "admin"
+        ,"basic_db": true
+        ,"table_name": "company_info"
+        ,"column_id": "company_id"
+        ,"column_basic_id": "company_basic_login_id"
+        ,"column_basic_password": "company_basic_password"
+      }
+    ,"db":
+      {
+        "host": "127.0.0.1"
+        ,"port": "3306"
+        ,"user": "root"
+        ,"password": "mysqladmin"
+        ,"database": "crmcloud"
+        ,"connectionLimit": 50
+        ,"connectTimeout": 10000
+        ,"supportBigNumbers": true
+        ,"removeNodeErrorCount": 3
+        ,"debug": false
+      }
+    ,"pg":
+      {
+        "host": "127.0.0.1"
+        ,"port": "5432"
+        ,"user": "postgres"
+        ,"password": "postgres"
+        ,"database": "smartcrm"
+        ,"max": 50
+        ,"idleTimeoutMillis": 1000
+        ,"connectionTimeoutMillis": 1000
+        ,"ssl": true
+      }
+    ,"ftp":
+      {
+        "host": "127.0.0.1"
+        ,"port": "21"
+        ,"user": "ftpsmartcrm"
+        ,"password": "ftpsmartcrm"
+        ,"ssl": "NO"
+        ,"rsaCertFile": ""
+      }
+    ,"eslatic":
+      {
+        "host": "127.0.0.1"
+        ,"port": "9200"
+      }
+    ,"redis":
+      {
+        "host": "127.0.0.1"
+        ,"port": "6379"
+      }
+  }
+  

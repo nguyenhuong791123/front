@@ -1,0 +1,109 @@
+/* div.mr-auto {
+    border-bottom: 1px solid #dee2e6;
+} */
+
+div.mr-auto a:first-child
+,div.mr-auto a:last-child {
+    border: 1px solid #dee2e6;
+    /* border-top: 1px solid #dee2e6;
+    border-left: 1px solid #dee2e6;
+    border-right: 1px solid #dee2e6; */
+}
+
+div.mr-auto-parent {
+    border-radius: 0.5em;
+    padding: 0.2em;
+    position: absolute;
+    max-width: 275px;
+    right: .2em;
+    /* background: grey; */
+    top: 3em;
+    border: 1px solid #dee2e6;
+}
+
+div#tab_menu_1 div:first-child {
+    width: 100%;
+    border: none;
+}
+
+div.tab-menu-1 {
+    max-width: 275px;
+    top: 3em;
+    position: absolute;
+    right: 0.5em;
+}
+
+div.tab-menu-1 form.form-inline input {
+    width: 100%;
+}
+
+div.tab-menu-1 a {
+    float: left;
+}
+
+div.tab-menu-1 div:last-child {
+    float: left;
+}
+
+div.mr-auto-parent form.form-inline input {
+    width: 100%;
+}
+
+div.mr-auto-parent div:last-child
+,div.mr-auto-parent form a:last-child
+,div.mr-auto-parent a:last-child
+,div.mr-auto-parent a:nth-last-child(1)
+,div.mr-auto-parent a:nth-last-child(2)
+,div.mr-auto-parent a:nth-last-child(3)
+,div.mr-auto-parent a:nth-last-child(4) {
+    float: left;
+}
+
+div.mr-auto-parent a:last-child {
+    float: left;
+}
+
+div.mr-auto nav.nav-tabs {
+    border-bottom: none !important;
+    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+div.mr-auto nav.nav-tabs-vertical {
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    right: .5em;
+    margin-top: .1em;
+    margin-bottom: .2em;
+}
+
+div.mr-auto nav.nav-tabs-vertical a:first-child {
+    margin-left: 0;
+}
+
+div.mr-auto div:first-child {
+    display: flex;
+}
+
+div.mr-auto nav.nav-tabs a.nav-link {
+    border-color: #dee2e6;
+    /* border-bottom: none; */
+    white-space: nowrap;
+    margin-bottom: 0;
+    /* color: #007bff; */
+}
+
+/* div.mr-auto nav.nav-tabs a.nav-link.active {
+    background: none;
+} */
+
+/* div.mr-auto nav.nav-tabs a.nav-link:first-child {
+    position: absolute;
+    margin-left: -2em;
+}
+
+div.mr-auto nav.nav-tabs a.nav-link:last-child {
+    position: absolute;
+} */

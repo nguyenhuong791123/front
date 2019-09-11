@@ -1,0 +1,10 @@
+{
+    "system_auth": "System VN"
+    ,"login_id": "Login ID"
+    ,"password": "Password"
+    ,"remember_me": "Remember Me"
+    ,"login_or_password": "Login ID or Password"
+  
+    ,"error_not_url":"URL find not found"
+  }
+  

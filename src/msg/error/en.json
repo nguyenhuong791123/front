@@ -1,0 +1,5 @@
+{
+    "required": " is required."
+    ,"not_exists": " is incorrect."
+    ,"max_length": "%s max length is %d characters. Over %d"
+}

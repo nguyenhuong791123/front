@@ -1,0 +1,41 @@
+div.div-pagin {
+    width: 100%;
+    padding: .2em;
+    display: inline-block;
+    margin-bottom: -1em;
+    padding-top: .3em;
+}
+
+div.div-pagin button
+,div.div-pagin ul.pagination {
+    float: right;
+}
+
+div.div-pagin button {
+    margin-left: .5em;
+}
+
+div.div-pagin h5 {
+    position: absolute;
+    margin-top: .5em;
+}
+
+div.div-pagin h5::before {
+    content: '★ ';
+}
+
+div.div-pagin div.div-count-per {
+    display: flex;
+    float: right;
+    margin-right: 1em;
+}
+
+div.div-pagin div.div-count-per select {
+    width: auto;
+    margin-right: .5em;
+}
+
+div.div-pagin div.div-count-per span {
+    margin-top: .5em;
+    padding: .1em;
+}
