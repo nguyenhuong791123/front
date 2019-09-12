@@ -8,7 +8,7 @@ import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaRegEye } from 'rea
 
 // import Actions from '../utils/Actions';
 import { ACTION, HTML_TAG, VARIANT_TYPES, SYSTEM } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, ALIGN } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, ATTR, TYPE, ALIGN } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
@@ -33,12 +33,13 @@ class Customize extends C {
     // this._onAlerEdit = this._onAlerEdit.bind(this);
     // this._onAlerEdit = this._onOpenEdit.bind(this);
     this._onSelectChange = this._onSelectChange.bind(this);
+    this._onCreateEditChange = this._onCreateEditChange.bind(this);
 
     this.state = {
       isUser: this.props.isUser
       ,alertActions: { show: false, class: '', style: {} }
       ,alertDelete: { show: false, msg: '', class: 'div-overlay-box', style: {} }
-      ,alertEdit: { show: false, msg: '', class: 'div-overlay-box', style: {} }
+      ,alertCreateEdit: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
       ,draggable: 0
       ,dragobject: null
       ,mode: ACTION.CREATE
@@ -406,19 +407,36 @@ class Customize extends C {
   _onOpenEdit() {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
-    this.state.alertEdit.msg = '「' + obj.innerText + '」' + 'を修正';
+    this.state.alertCreateEdit.msg = '「' + obj.innerText + '」' + 'を修正';
     console.log(obj);
-    this.state.alertEdit.show = true;
+    this.state.alertCreateEdit.show = true;
     this.state.alertDelete.show = false;
     this.forceUpdate();
   }
 
-  _onSelectChange(e) {
+  _onSelectChange() {
     console.log(this.state.dragobject);
   }
 
+  _onCreateEditChange(e) {
+    const obj = e.target;
+    if(Utils.isEmpty(obj)) return;
+    var val = obj.value;
+    const name = obj.name;
+    if(e.target.type === TYPE.CHECKBOX) val = obj.checked;
+    this.state.alertCreateEdit.obj[name] = val;
+    console.log(e);
+    console.log(e.target);
+    console.log(e.target.type);
+    console.log(e.target.name);
+    console.log(e.target.value);
+    console.log(e.target.checked);
+    console.log(this.state.alertCreateEdit.obj);
+    // console.log(this.state.alertCreateEdit.obj);
+  }
+
   _onAlerEdit() {
-    if(!this.state.alertEdit.show) return '';
+    if(!this.state.alertCreateEdit.show) return '';
     var items = [];
     var aligns = [];
     var objs = Object.keys(TYPE);
@@ -429,12 +447,13 @@ class Customize extends C {
     for (let i=0; i<objs.length; i++) {
       aligns.push( <option key={ i } value={ ALIGN[objs[i]] }>{ '' + ALIGN[objs[i]] }</option> );
     }
+
     return(
       <Alert
-        show={ this.state.alertEdit.show }
+        show={ this.state.alertCreateEdit.show }
         variant={ VARIANT_TYPES.LIGHT }
-        className={ this.state.alertEdit.class }>
-        <div className='alert-light' style={ this.state.alertEdit.style }>
+        className={ this.state.alertCreateEdit.class }>
+        <div className='alert-light' style={ this.state.alertCreateEdit.style }>
           <div>
             <Button
               type={ HTML_TAG.BUTTON }
@@ -458,68 +477,73 @@ class Customize extends C {
           <table className='table-overlay-box'>
             <tbody>
               <tr>
-                <td colSpan='4'><h4>{ this.state.alertEdit.msg }</h4></td>
+                <td colSpan='4'><h4>{ this.state.alertCreateEdit.msg }</h4></td>
               </tr>
               <tr>
                 <td className='td-not-break'>種類</td>
                 <td colSpan='3'>
                   <Form.Control
                     as={ HTML_TAG.SELECT }
-                    onChange={ this._onSelectChange.bind(this) }
-                    defaultValue={ TYPE.TEXT }> { items }</Form.Control>
+                    name={ 'type' }
+                    value={ this.state.alertCreateEdit.obj['type'] }
+                    onChange={ this._onCreateEditChange.bind(this) }> { items }</Form.Control>
                 </td>
               </tr>
               <tr>
                 <td className='td-not-break'>Required</td>
-                <td><Form.Check type="checkbox" /></td>
+                <td><Form.Check type="checkbox" name={ 'required' } value={ this.state.alertCreateEdit.obj['required'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
                 <td className='td-not-break'>横幅</td>
-                <td><input type='range' min='20' max='100' step='10' onChange={()=>{}}></input></td>
+                <td><input type='range' name={ 'boxwidth' } value={ this.state.alertCreateEdit.obj['boxwidth'] } min='20' max='100' step='10' onChange={ this._onCreateEditChange.bind(this) }></input></td>
               </tr>
               <tr>
                 <td className='td-not-break'>Label</td>
-                <td><Form.Control type={ TYPE.TEXT } /></td>
+                <td><Form.Control type={ TYPE.TEXT } name={ 'label' } value={ this.state.alertCreateEdit.obj['label'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
                 <td className='td-not-break'>Placeholder</td>
-                <td><Form.Control type={ TYPE.TEXT } /></td>
+                <td><Form.Control type={ TYPE.TEXT } name={ 'placeholder' } value={ this.state.alertCreateEdit.obj['placeholder'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
               </tr>
               <tr>
                 <td className='td-not-break'>Default</td>
-                <td><Form.Control type={ TYPE.TEXT } /></td>
+                <td><Form.Control type={ TYPE.TEXT } name={ 'default' } value={ this.state.alertCreateEdit.obj['default'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
                 <td className='td-not-break'>MaxLength</td>
-                <td><Form.Control type={ TYPE.NUMBER } /></td>
+                <td><Form.Control type={ TYPE.NUMBER } name={ 'maxlength' } value={ this.state.alertCreateEdit.obj['maxlength'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
               </tr>
               <tr>
                 <td className='td-not-break'>タイトル</td>
                 <td>
-                  <input type='color' value='default' onChange={()=>{}}></input>
+                  <input type='color' name={ 'labelcolor' } value={ this.state.alertCreateEdit.obj['labelcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
                   <span>背景</span>
-                  <input type='color' value='transparent' onChange={()=>{}}></input>
+                  <input type='color' name={ 'labellayoutcolor' } value={ this.state.alertCreateEdit.obj['labellayoutcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
                 </td>
                 <td className='td-not-break'>align</td>
                 <td>
                   <Form.Control
                       as={ HTML_TAG.SELECT }
-                      onChange={ this._onSelectChange.bind(this) }
-                      defaultValue={ ALIGN.LEFT }> { aligns }</Form.Control>
+                      name={ 'labelalign' }
+                      value={ this.state.alertCreateEdit.obj['labelalign'] }
+                      onChange={ this._onCreateEditChange.bind(this) }> { aligns }</Form.Control>
                 </td>
               </tr>
               <tr>
                 <td className='td-not-break'>テキスト</td>
                 <td>
-                  <input type='color' value='default' onChange={()=>{}}></input>
+                  <input type='color' name={ 'textcolor' } value={ this.state.alertCreateEdit.obj['textcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
                   <span>背景</span>
-                  <input type='color' value='transparent' onChange={()=>{}}></input>
+                  <input type='color' name={ 'textlayoutcolor' } value={ this.state.alertCreateEdit.obj['textlayoutcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
                 </td>
                 <td className='td-not-break'>align</td>
                 <td>
                   <Form.Control
                       as={ HTML_TAG.SELECT }
-                      onChange={ this._onSelectChange.bind(this) }
-                      defaultValue={ ALIGN.LEFT }> { aligns }</Form.Control>
+                      name={ 'textalign' }
+                      value={ this.state.alertCreateEdit.obj['textalign'] }
+                      onChange={ this._onCreateEditChange.bind(this) }> { aligns }</Form.Control>
                 </td>
               </tr>
               <tr>
                 <td className='td-not-break'>CSS Style</td>
-                <td colSpan='3'><Form.Control type={ TYPE.TEXT } /></td>
+                <td colSpan='3'>
+                  <Form.Control type={ TYPE.TEXT } name={ 'style' } value={ this.state.alertCreateEdit.obj['style'] } onChange={ this._onCreateEditChange.bind(this) }/>
+                </td>
               </tr>
               <tr>
                 <td colSpan='4' id='td_view_box' className='td-view-box'></td>
@@ -536,7 +560,7 @@ class Customize extends C {
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
     this.state.alertDelete.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
     this.state.alertDelete.show = true;
-    this.state.alertEdit.show = false;
+    this.state.alertCreateEdit.show = false;
     this.forceUpdate();
   }
 
@@ -577,7 +601,7 @@ class Customize extends C {
   _onClickClose() {
     this.state.dragobject = null;
     this.state.alertDelete.show = false;
-    this.state.alertEdit.show = false;
+    this.state.alertCreateEdit.show = false;
     this.forceUpdate();
   }
 
