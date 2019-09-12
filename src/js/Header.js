@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Form, FormControl, Image } from 'react-bootstrap';
 import { FaUser, FaSearch, FaTty, FaPhone, FaMailBulk, FaUserCog, FaSitemap, FaKey, FaLink, FaRocketchat } from 'react-icons/fa';
 
-import { ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, HTML_TAG, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
+import { ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
+import { HTML_TAG } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
 import Utils from './utils/Utils';
 import LMenu from "./utils/header/LMenu";

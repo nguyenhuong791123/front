@@ -4,7 +4,8 @@ import ReactLightCalendar from '@lls/react-light-calendar';
 import '@lls/react-light-calendar/dist/index.css';
 import '../../css/Calendar.css';
 
-import { MSG_TYPE, HTML_TAG } from './Types';
+import { MSG_TYPE } from './Types';
+import { HTML_TAG } from './HtmlTypes';
 import { isEmpty } from './Utils';
 import DateTime from './Date';
 import GetMsg from '../../msg/Msg';

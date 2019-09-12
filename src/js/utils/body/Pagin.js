@@ -1,7 +1,8 @@
 import React, { Component as C } from "react";
 import { Pagination } from 'react-bootstrap';
 
-import { HTML_TAG, PAGIN } from '../Types';
+import { PAGIN } from '../Types';
+import { HTML_TAG } from '../HtmlTypes';
 import Utils from '../Utils';
 
 import "../../../css/Pagin.css";

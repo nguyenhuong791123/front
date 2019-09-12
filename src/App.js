@@ -7,7 +7,8 @@ import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import { sessionService, sessionReducer } from 'redux-react-session';
 import thunkMiddleware from 'redux-thunk';
 
-import { ACTION, HTML_TAG, SYSTEM } from './js/utils/Types';
+import { ACTION, SYSTEM } from './js/utils/Types';
+import { HTML_TAG } from './js/utils/HtmlTypes';
 import { THEME } from './js/utils/Theme';
 import Utils from './js/utils/Utils';
 
@@ -184,7 +185,7 @@ class App extends C {
         if(!Utils.isEmpty(obj)) {
             obj.href = css_path;
         } else {
-            const css = document.createElement(HTML_TAG.CSS_LINK);
+            const css = document.createElement(HTML_TAG.LINK);
             css.id = SYSTEM.IS_CSS_LINK_ID;
             css.setAttribute('rel', 'stylesheet');
             css.setAttribute('href', css_path);

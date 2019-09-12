@@ -3,7 +3,8 @@ import { Nav } from 'react-bootstrap';
 import { FaBars } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
 
-import { LINK, NOT_LINK, HTML_TAG } from '../Types';
+import { LINK, NOT_LINK } from '../Types';
+import { HTML_TAG } from '../HtmlTypes';
 import Utils from '../Utils';
 
 var styles = {

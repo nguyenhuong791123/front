@@ -7,7 +7,8 @@ import { FaPlus } from 'react-icons/fa';
 import Pagination from '../utils/body/Pagin';
 import Table from '../utils/body/Table';
 
-import { ACTION, HTML_TAG, PAGIN_PER, PAGIN_PER_LIST, INPUT_TYPE } from '../utils/Types';
+import { ACTION, PAGIN_PER, PAGIN_PER_LIST, INPUT_TYPE } from '../utils/Types';
+import { HTML_TAG } from '../utils/HtmlTypes';
 import Utils from '../utils/Utils';
 import GetMsg from '../../msg/Msg';
 // import View from './View';

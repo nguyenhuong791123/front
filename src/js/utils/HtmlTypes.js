@@ -1,3 +1,31 @@
+export const HTML_TAG = {
+    LINK: 'LINK'
+    ,HEAD: 'HEAD'
+    ,SCRIPT: 'SCRIPT'
+    ,CHECKBOX: 'CHECKBOX'
+    ,RADIO: 'RADIO'
+    ,SELECT: 'select'
+    ,TEXT: 'TEXT'
+    ,OBJECT: 'OBJECT'
+    ,IFRAME: 'IFRAME'
+    ,BODY: 'BODY'
+    ,DIV: 'DIV'
+    ,TAB: 'TAB'
+    ,SVG: 'svg'
+    ,PATH: 'path'
+    ,PASSWORD: 'PASSWORD'
+    ,RANGE: 'RANGE'
+    ,INPUT: 'INPUT'
+    ,SPAN: 'SPAN'
+    ,TBODY: 'TBODY'
+    ,TR: 'TR'
+    ,TH: 'TH'
+    ,TD: 'TD'
+    ,BUTTON: 'BUTTON'
+    ,LEGEND: 'LEGEND'
+    ,LABEL: 'LABEL'
+}
+
 export const TYPE = {
     TEXT: 'text'
     ,PASSWORD: 'password'
@@ -13,6 +41,8 @@ export const TYPE = {
     ,NUMBER: 'number'
     ,DIV: 'div'
     ,TAB: 'tab'
+    ,COLOR: 'color'
+    ,OBJECT: 'object'
 }
 
 export const ATTR = {
@@ -78,5 +108,22 @@ export const ALIGN = {
     LEFT: 'left'
     ,RIGHT: 'right'
     ,CENTER: 'center'
+}
+
+export const CUSTOMIZE = {
+    TYPE: 'type'
+    ,BOX_WIDTH: 'box_width'
+    ,REQUIRED: 'required'
+    ,LABEL: 'label'
+    ,DEFAULT: 'default'
+    ,PLACEHOLDER: 'placeholder'
+    ,MAX_LENGTH: 'max_length'
+    ,LABEL_COLOR: 'label_color'
+    ,LABEL_LAYOUT_COLOR: 'label_layout_color'
+    ,LABEL_ALIGN: 'label_align'
+    ,TEXT_COLOR: 'text_color'
+    ,TEXT_LAYOUT_COLOR: 'text_layout_color'
+    ,TEXT_ALIGN: 'text_align'
+    ,STYLE: 'style'
 }
 

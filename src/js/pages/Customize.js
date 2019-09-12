@@ -1,14 +1,15 @@
 
 import React, { Component as C } from 'react';
+import ReactDOM from 'react-dom';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import FormBS4 from 'react-jsonschema-form-bs4';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaRegEye } from 'react-icons/fa';
+import CTabs from '../utils/CTabs';
 
-// import Actions from '../utils/Actions';
-import { ACTION, HTML_TAG, VARIANT_TYPES, SYSTEM } from '../utils/Types';
-import { DRAG, MOUSE, ATTR, TYPE, ALIGN } from '../utils/HtmlTypes';
+import { ACTION, VARIANT_TYPES, SYSTEM } from '../utils/Types';
+import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
@@ -38,7 +39,7 @@ class Customize extends C {
     this.state = {
       isUser: this.props.isUser
       ,alertActions: { show: false, class: '', style: {} }
-      ,alertDelete: { show: false, msg: '', class: 'div-overlay-box', style: {} }
+      ,alertDelete: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
       ,alertCreateEdit: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
       ,draggable: 0
       ,dragobject: null
@@ -80,13 +81,14 @@ class Customize extends C {
     this.state.schema = {
         // title: 'Widgets',
         type: 'object'
-        ,name: '顧客情報'
+        ,page_name: '顧客情報'
         ,properties: {
           cust_info: {
             type: 'object'
             ,title: '顧客情報'
+            ,objecttype: 'div'
             ,background: ''
-            ,required: [ 'cust_name_hira', 'cust_name_kana' ]
+            // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
               cust_name_hira: { type: 'string' }
               ,cust_name_kana: { type: 'string' }
@@ -95,6 +97,7 @@ class Customize extends C {
           base_info: {
             type: 'object'
             ,title: '基本情報'
+            ,objecttype: 'tab'
             ,background: ''
             // ,required: [ 'email', 'uri' ]
             ,properties: {
@@ -104,12 +107,13 @@ class Customize extends C {
           },
           project_info: {
             type: 'object'
+            ,objecttype: 'tab'
             ,title: '顧客情報2'
             ,background: ''
-            ,required: [ 'cust_name_hira', 'cust_name_kana' ]
+            // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
-              cust_name_hira: { type: 'string' }
-              ,cust_name_kana: { type: 'string' }
+              project_hira: { type: 'string' }
+              ,project_kana: { type: 'string' }
             }
           }
         },
@@ -127,8 +131,8 @@ class Customize extends C {
         }
         ,project_info: {
           classNames: 'draggable-top-box div-top-box div-top-box-50'
-          ,cust_name_hira: { 'ui:placeholder': '案件名', classNames: 'div-box div-box-50' }
-          ,cust_name_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
+          ,project_hira: { 'ui:placeholder': '案件名', classNames: 'div-box div-box-50' }
+          ,project_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
         }
     }
     this.state.formData = {}
@@ -145,16 +149,45 @@ class Customize extends C {
     if(Utils.isEmpty(div)) return;
     if(Utils.isEmpty(div.childNodes[0])) return;
     if(Utils.isEmpty(div.childNodes[0].childNodes[0])) return;
+    var tabs = [];
+    const schema = this.state.schema.properties;
+    var keys = Object.keys(schema);
+    for(var i=0; i<keys.length; i++) {
+      console.log(schema[keys[i]]);
+      if(Utils.isEmpty(schema[keys[i]]['objecttype']) || schema[keys[i]]['objecttype'] !== 'tab') continue;
+      var obj = { label: schema[keys[i]]['title'] };
+      tabs.push(obj);
+    }
+    const divTabs = document.createElement(HTML_TAG.DIV);
+    if(!Utils.isEmpty(tabs) && tabs.length > 0) {
+      divTabs.setAttribute('id', 'div_customize_0');
+      div.appendChild(divTabs);
+      ReactDOM.render(<CTabs isActive={ '1' } objs={ tabs } />, divTabs);
+    }
+
     const divDrags = div.childNodes[0].childNodes[0].childNodes;
     div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
     div.childNodes[0].childNodes[0].addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
     div.childNodes[0].childNodes[0].addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
     div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
 
-    console.log(div.childNodes[0]);
+    // var tabIdx = 0;
+    console.log(divTabs);
+    console.log(divTabs.childNodes);
+    for(var i=0; i<divTabs.childNodes.length; i++) {
+      console.log(divTabs.childNodes[i]);
+    }
+    const divTabChilds = divTabs.childNodes[1];
+    console.log(divTabChilds);
     for(var i=0; i<divDrags.length; i++) {
       const drags = divDrags[i];
       const dragChilds = drags.childNodes[0].childNodes;
+      console.log(drags.childNodes[0]);
+      const objtype = drags.childNodes[0]['objecttype'];
+      if(objtype === 'tab') {
+        divTabs.childNodes[tabIdx].appendChild(drags.childNodes[0]);
+        tabIdx++;
+      }
       if(Utils.isEmpty(dragChilds)) continue;
       // drags.id = DRAG.ABLE + '_' + i;
       drags.setAttribute(DRAG.ABLE, 'true');
@@ -332,7 +365,7 @@ class Customize extends C {
 
   _onMouseOut(e) {
     const obj = this._getButton(e);
-    // console.log(obj.tagName);
+    console.log(obj.tagName);
     if(obj.tagName === HTML_TAG.BUTTON) {
       this.state.alertActions.show = true;
     } else {
@@ -467,12 +500,12 @@ class Customize extends C {
               variant={ VARIANT_TYPES.INFO }>
               <FaReply />
             </Button>
-            <Button
+            {/* <Button
               type={ HTML_TAG.BUTTON }
               onClick={ this._onClickView.bind(this) }
               variant={ VARIANT_TYPES.WARNING }>
               <FaRegEye />
-            </Button>
+            </Button> */}
           </div>
           <table className='table-overlay-box'>
             <tbody>
@@ -484,70 +517,132 @@ class Customize extends C {
                 <td colSpan='3'>
                   <Form.Control
                     as={ HTML_TAG.SELECT }
-                    name={ 'type' }
-                    value={ this.state.alertCreateEdit.obj['type'] }
+                    name={ CUSTOMIZE.TYPE }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.TYPE] }
                     onChange={ this._onCreateEditChange.bind(this) }> { items }</Form.Control>
                 </td>
               </tr>
               <tr>
                 <td className='td-not-break'>Required</td>
-                <td><Form.Check type="checkbox" name={ 'required' } value={ this.state.alertCreateEdit.obj['required'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
+                <td>
+                  <Form.Check
+                    type={ HTML_TAG.CHECKBOX }
+                    name={ CUSTOMIZE.REQUIRED }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.REQUIRED] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                  </td>
                 <td className='td-not-break'>横幅</td>
-                <td><input type='range' name={ 'boxwidth' } value={ this.state.alertCreateEdit.obj['boxwidth'] } min='20' max='100' step='10' onChange={ this._onCreateEditChange.bind(this) }></input></td>
+                <td>
+                  <input
+                    type={ HTML_TAG.RANGE }
+                    name={ CUSTOMIZE.BOX_WIDTH }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.BOX_WIDTH] }
+                    min='20'
+                    max='100'
+                    step='10'
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
+                  </td>
               </tr>
               <tr>
                 <td className='td-not-break'>Label</td>
-                <td><Form.Control type={ TYPE.TEXT } name={ 'label' } value={ this.state.alertCreateEdit.obj['label'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
+                <td>
+                  <Form.Control type={ TYPE.TEXT }
+                    name={ CUSTOMIZE.LABEL }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.LABEL] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                  </td>
                 <td className='td-not-break'>Placeholder</td>
-                <td><Form.Control type={ TYPE.TEXT } name={ 'placeholder' } value={ this.state.alertCreateEdit.obj['placeholder'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
+                <td>
+                  <Form.Control
+                    type={ TYPE.TEXT }
+                    name={ CUSTOMIZE.PLACEHOLDER }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.PLACEHOLDER] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                  </td>
               </tr>
               <tr>
                 <td className='td-not-break'>Default</td>
-                <td><Form.Control type={ TYPE.TEXT } name={ 'default' } value={ this.state.alertCreateEdit.obj['default'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
+                <td>
+                  <Form.Control
+                    type={ TYPE.TEXT }
+                    name={ CUSTOMIZE.DEFAULT }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.DEFAULT] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                  </td>
                 <td className='td-not-break'>MaxLength</td>
-                <td><Form.Control type={ TYPE.NUMBER } name={ 'maxlength' } value={ this.state.alertCreateEdit.obj['maxlength'] } onChange={ this._onCreateEditChange.bind(this) }/></td>
+                <td>
+                  <Form.Control
+                    type={ TYPE.NUMBER }
+                    name={ CUSTOMIZE.MAX_LENGTH }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.MAX_LENGTH] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                  </td>
               </tr>
               <tr>
                 <td className='td-not-break'>タイトル</td>
                 <td>
-                  <input type='color' name={ 'labelcolor' } value={ this.state.alertCreateEdit.obj['labelcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
+                  <input
+                    type={ TYPE.COLOR }
+                    name={ CUSTOMIZE.LABEL_COLOR }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.LABEL_COLOR] }
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
                   <span>背景</span>
-                  <input type='color' name={ 'labellayoutcolor' } value={ this.state.alertCreateEdit.obj['labellayoutcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
+                  <input
+                    type={ TYPE.COLOR }
+                    name={ CUSTOMIZE.LABEL_LAYOUT_COLOR }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] }
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
                 </td>
                 <td className='td-not-break'>align</td>
                 <td>
                   <Form.Control
-                      as={ HTML_TAG.SELECT }
-                      name={ 'labelalign' }
-                      value={ this.state.alertCreateEdit.obj['labelalign'] }
-                      onChange={ this._onCreateEditChange.bind(this) }> { aligns }</Form.Control>
+                    as={ HTML_TAG.SELECT }
+                    name={ CUSTOMIZE.LABEL_ALIGN }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.LABEL_ALIGN] }
+                    onChange={ this._onCreateEditChange.bind(this) }>
+                    { aligns }
+                  </Form.Control>
                 </td>
               </tr>
               <tr>
                 <td className='td-not-break'>テキスト</td>
                 <td>
-                  <input type='color' name={ 'textcolor' } value={ this.state.alertCreateEdit.obj['textcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
+                  <input
+                    type={ TYPE.COLOR }
+                    name={ CUSTOMIZE.TEXT_COLOR }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.TEXT_COLOR] }
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
                   <span>背景</span>
-                  <input type='color' name={ 'textlayoutcolor' } value={ this.state.alertCreateEdit.obj['textlayoutcolor'] } onChange={ this._onCreateEditChange.bind(this) }></input>
+                  <input
+                    type={ TYPE.COLOR }
+                    name={ CUSTOMIZE.TEXT_LAYOUT_COLOR }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.TEXT_LAYOUT_COLOR] }
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
                 </td>
                 <td className='td-not-break'>align</td>
                 <td>
                   <Form.Control
-                      as={ HTML_TAG.SELECT }
-                      name={ 'textalign' }
-                      value={ this.state.alertCreateEdit.obj['textalign'] }
-                      onChange={ this._onCreateEditChange.bind(this) }> { aligns }</Form.Control>
+                    as={ HTML_TAG.SELECT }
+                    name={ CUSTOMIZE.TEXT_ALIGN }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.TEXT_ALIGN] }
+                    onChange={ this._onCreateEditChange.bind(this) }>
+                    { aligns }
+                  </Form.Control>
                 </td>
               </tr>
               <tr>
                 <td className='td-not-break'>CSS Style</td>
                 <td colSpan='3'>
-                  <Form.Control type={ TYPE.TEXT } name={ 'style' } value={ this.state.alertCreateEdit.obj['style'] } onChange={ this._onCreateEditChange.bind(this) }/>
+                  <Form.Control
+                    type={ TYPE.TEXT }
+                    name={ CUSTOMIZE.STYLE }
+                    value={ this.state.alertCreateEdit.obj[CUSTOMIZE.STYLE] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
                 </td>
               </tr>
-              <tr>
+              {/* <tr>
                 <td colSpan='4' id='td_view_box' className='td-view-box'></td>
-              </tr>
+              </tr> */}
             </tbody>
           </table>
         </div>
@@ -612,7 +707,7 @@ class Customize extends C {
         show={ this.state.alertDelete.show }
         variant={ VARIANT_TYPES.LIGHT }
         className={ this.state.alertDelete.class }>
-        <div className='alert alert-light' style={ this.state.alertDelete.style }>
+        <div className='alert-light' style={ this.state.alertDelete.style }>
           <h4>{ this.state.alertDelete.msg }</h4>
           <Button
             type={ HTML_TAG.BUTTON }

@@ -12,11 +12,11 @@ div.div-overlay-box > div:first-child {
     border-radius: 1em;
     width: 40%;
     max-width: 40%;
-    text-align: center;
-    margin-top: 5%;
-    margin-left: 30%;
+    top: 10%;
+    left: 30%;
     padding: .5em;
     display: inline-table;
+    position: absolute;
 }
 
 div.div-overlay-box > div:first-child h4 {
@@ -31,6 +31,10 @@ div.div-overlay-box > div:first-child > div {
     position: absolute;
     margin-left: -5em;
     display: grid;
+}
+
+table.table-overlay-box {
+    width: 100%;
 }
 
 table.table-overlay-box tbody tr td {

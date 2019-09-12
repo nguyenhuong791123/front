@@ -15,32 +15,6 @@ export const SYSTEM = {
     ,IS_DIV_HEADER_FORM: 'div_header_form'
 }
 
-export const HTML_TAG = {
-    CSS_LINK: 'link'
-    ,HEAD: 'head'
-    ,SCRIPT: 'script'
-    ,CHECKBOX: 'checkbox'
-    ,RADIO: 'radio'
-    ,SELECT: 'select'
-    ,TEXT: 'text'
-    ,OBJECT: 'object'
-    ,IFRAME: 'iframe'
-    ,BODY: 'body'
-    ,DIV: 'div'
-    ,SVG: 'svg'
-    ,PATH: 'path'
-    ,PASSWORD: 'password'
-    ,INPUT: 'INPUT'
-    ,SPAN: 'SPAN'
-    ,TBODY: 'TBODY'
-    ,TR: 'TR'
-    ,TH: 'TH'
-    ,TD: 'TD'
-    ,BUTTON: 'BUTTON'
-    ,LEGEND: 'LEGEND'
-    ,LABEL: 'LABEL'
-}
-
 export const DISPLAY_TYPE = {
     NONE: 'none'
     ,BLOCK: 'block'

@@ -9,7 +9,8 @@ import View from '../../pages/View';
 import CMenu from '../CMenu';
 
 import Utils from '../Utils';
-import { ACTION, HTML_TAG, INPUT_TYPE } from '../Types';
+import { ACTION, INPUT_TYPE } from '../Types';
+import { HTML_TAG } from '../HtmlTypes';
 import GetMsg from '../../../msg/Msg';
 import "../../../css/Table.css";
 
