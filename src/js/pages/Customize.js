@@ -385,7 +385,7 @@ class Customize extends C {
     const className = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
     return (
         <div id='div_button_action' className={ className }>
-            <Button onClick={ this._onClickReturn.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
+            <Button onClick={ this._onOpenEdit.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
               <FaPlus />
               { GetMsg(null, this.state.isUser.language, 'bt_add') }
             </Button>
@@ -406,9 +406,9 @@ class Customize extends C {
 
   _onOpenEdit() {
     const obj = this.state.dragobject;
+    console.log(obj);
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
     this.state.alertCreateEdit.msg = '「' + obj.innerText + '」' + 'を修正';
-    console.log(obj);
     this.state.alertCreateEdit.show = true;
     this.state.alertDelete.show = false;
     this.forceUpdate();

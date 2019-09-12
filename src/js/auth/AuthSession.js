@@ -23,7 +23,7 @@ const isUserInit = (isUser) => {
     info: {
       device: getJsonValue(isUser, 'info', 'device', 'pc')
       ,language: getJsonValue(isUser, 'info', 'language', 'ja')
-      ,menu: getJsonValue(isUser, 'info', 'menu', 1)
+      ,menu: getJsonValue(isUser, 'info', 'menu', 0)
       ,uLid: getJsonValue(isUser, 'info', 'uLid', '')
       ,cId:  getJsonValue(isUser, 'info', 'cId', '')
       ,gId:  getJsonValue(isUser, 'info', 'gId', '')

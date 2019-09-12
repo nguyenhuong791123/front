@@ -2,6 +2,7 @@ import React, { Component as C } from 'react';
 import ReactDOM from 'react-dom';
 import onClickOutside from 'react-onclickoutside';
 import { Nav, Tabs, Tab } from 'react-bootstrap';
+import CTabs from '../CTabs';
 
 import { LINK, NOT_LINK, WINDOWN_WIDTH, SYSTEM, TAB_MENU_TYPE, DISPLAY_TYPE } from '../Types';
 import Utils from '../Utils';
@@ -345,7 +346,7 @@ class TabMenu extends C {
                 if(Utils.isEmpty(prev) || Utils.isEmpty(next)) return;
                 if(window.innerWidth < WINDOWN_WIDTH) {
                     nav.style.width = '100%';
-                    nav.childNodes[0].style.marginLeft = 0;
+                    // nav.childNodes[0].style.marginLeft = 0;
                     if(nav.className.indexOf(' nav-tabs-vertical') === -1) {
                         nav.className = nav.className + ' nav-tabs-vertical';
                         prev.style.display = DISPLAY_TYPE.NONE;
@@ -401,6 +402,7 @@ class TabMenu extends C {
                 <Nav.Link action={ TAB_MENU_TYPE.PLUS } onClick={ this._onClickNextPrev.bind(this) }>
                     { TAB_MENU_TYPE.PRIVIOUS }
                 </Nav.Link>
+                {/* { <CTabs isActive={ this.state.isActive } onSelect={ this._onSelect.bind(this) } /> } */}
                 <Tabs defaultActiveKey={ this.state.isActive } onSelect={ this._onSelect.bind(this) }>
                     { this._getTabs(this.state.objs) }
                 </Tabs>
