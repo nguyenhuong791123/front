@@ -338,11 +338,8 @@ class Header extends C {
                       {/* ADMIN場合Themeリストを表示 */}
                       { theme }
                       {/* グローバル検索 */}
-                      <Form inline>
-                        <FormControl type="text" id="input_global_search" placeholder="Search" className="mr-sm-2" />
-                        <Nav.Link href="#search" className="global-search"><FaSearch /></Nav.Link>
-                      </Form>
-        
+                      <FormControl type="text" id="input_global_search" placeholder="Search"/>
+                      <Nav.Link href="#search" className="global-search"><FaSearch /></Nav.Link>
                       {/* 電話オプション */}
                       {(() => {
                         if(this.state.options.dailer) {

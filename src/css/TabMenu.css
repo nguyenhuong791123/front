@@ -33,9 +33,9 @@ div.tab-menu-1 {
     right: 0.5em;
 }
 
-div.tab-menu-1 form.form-inline input {
+/* div.tab-menu-1 form.form-inline input {
     width: 100%;
-}
+} */
 
 div.tab-menu-1 a {
     float: left;
@@ -45,9 +45,9 @@ div.tab-menu-1 div:last-child {
     float: left;
 }
 
-div.mr-auto-parent form.form-inline input {
+/* div.mr-auto-parent form.form-inline input {
     width: 100%;
-}
+} */
 
 div.mr-auto-parent div:last-child
 ,div.mr-auto-parent form a:last-child

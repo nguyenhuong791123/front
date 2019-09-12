@@ -74,3 +74,9 @@ export const DRAG = {
     ,SRCOLL: 'scroll'
 }
 
+export const ALIGN = {
+    LEFT: 'left'
+    ,RIGHT: 'right'
+    ,CENTER: 'center'
+}
+

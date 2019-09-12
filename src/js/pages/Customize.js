@@ -4,11 +4,11 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import FormBS4 from 'react-jsonschema-form-bs4';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaRegEye } from 'react-icons/fa';
 
 // import Actions from '../utils/Actions';
 import { ACTION, HTML_TAG, VARIANT_TYPES, SYSTEM } from '../utils/Types';
-import { DRAG, MOUSE, TYPE } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, ALIGN } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
@@ -420,9 +420,14 @@ class Customize extends C {
   _onAlerEdit() {
     if(!this.state.alertEdit.show) return '';
     var items = [];
-    const objs = Object.keys(TYPE);
+    var aligns = [];
+    var objs = Object.keys(TYPE);
     for (let i=0; i<objs.length; i++) {
       items.push( <option key={ i } value={ TYPE[objs[i]] }>{ '' + TYPE[objs[i]] }</option> );
+    }
+    objs = Object.keys(ALIGN);
+    for (let i=0; i<objs.length; i++) {
+      aligns.push( <option key={ i } value={ ALIGN[objs[i]] }>{ '' + ALIGN[objs[i]] }</option> );
     }
     return(
       <Alert
@@ -443,6 +448,12 @@ class Customize extends C {
               variant={ VARIANT_TYPES.INFO }>
               <FaReply />
             </Button>
+            <Button
+              type={ HTML_TAG.BUTTON }
+              onClick={ this._onClickView.bind(this) }
+              variant={ VARIANT_TYPES.WARNING }>
+              <FaRegEye />
+            </Button>
           </div>
           <table className='table-overlay-box'>
             <tbody>
@@ -450,7 +461,7 @@ class Customize extends C {
                 <td colSpan='4'><h4>{ this.state.alertEdit.msg }</h4></td>
               </tr>
               <tr>
-                <td>種類</td>
+                <td className='td-not-break'>種類</td>
                 <td colSpan='3'>
                   <Form.Control
                     as={ HTML_TAG.SELECT }
@@ -459,34 +470,59 @@ class Customize extends C {
                 </td>
               </tr>
               <tr>
-                <td>Required</td>
+                <td className='td-not-break'>Required</td>
                 <td><Form.Check type="checkbox" /></td>
-                <td>横幅</td>
+                <td className='td-not-break'>横幅</td>
                 <td><input type='range' min='20' max='100' step='10' onChange={()=>{}}></input></td>
               </tr>
               <tr>
-                <td>Label</td>
+                <td className='td-not-break'>Label</td>
                 <td><Form.Control type={ TYPE.TEXT } /></td>
-                <td>Placeholder</td>
+                <td className='td-not-break'>Placeholder</td>
                 <td><Form.Control type={ TYPE.TEXT } /></td>
               </tr>
               <tr>
-                <td>Default</td>
+                <td className='td-not-break'>Default</td>
                 <td><Form.Control type={ TYPE.TEXT } /></td>
-                <td>MaxLength</td>
+                <td className='td-not-break'>MaxLength</td>
                 <td><Form.Control type={ TYPE.NUMBER } /></td>
               </tr>
               <tr>
-                <td>タイトル</td>
-                <td><input type='color' value='default' onChange={()=>{}}></input></td>
-                <td>背景</td>
-                <td><input type='color' value='transparent' onChange={()=>{}}></input></td>
+                <td className='td-not-break'>タイトル</td>
+                <td>
+                  <input type='color' value='default' onChange={()=>{}}></input>
+                  <span>背景</span>
+                  <input type='color' value='transparent' onChange={()=>{}}></input>
+                </td>
+                <td className='td-not-break'>align</td>
+                <td>
+                  <Form.Control
+                      as={ HTML_TAG.SELECT }
+                      onChange={ this._onSelectChange.bind(this) }
+                      defaultValue={ ALIGN.LEFT }> { aligns }</Form.Control>
+                </td>
               </tr>
               <tr>
-                <td>テキスト</td>
-                <td><input type='color' value='default' onChange={()=>{}}></input></td>
-                <td>背景</td>
-                <td><input type='color' value='transparent' onChange={()=>{}}></input></td>
+                <td className='td-not-break'>テキスト</td>
+                <td>
+                  <input type='color' value='default' onChange={()=>{}}></input>
+                  <span>背景</span>
+                  <input type='color' value='transparent' onChange={()=>{}}></input>
+                </td>
+                <td className='td-not-break'>align</td>
+                <td>
+                  <Form.Control
+                      as={ HTML_TAG.SELECT }
+                      onChange={ this._onSelectChange.bind(this) }
+                      defaultValue={ ALIGN.LEFT }> { aligns }</Form.Control>
+                </td>
+              </tr>
+              <tr>
+                <td className='td-not-break'>CSS Style</td>
+                <td colSpan='3'><Form.Control type={ TYPE.TEXT } /></td>
+              </tr>
+              <tr>
+                <td colSpan='4' id='td_view_box' className='td-view-box'></td>
               </tr>
             </tbody>
           </table>
@@ -527,7 +563,19 @@ class Customize extends C {
     this.forceUpdate();
   }
 
+  _onClickView() {
+    const td = document.getElementById('td_view_box');
+    if(Utils.isEmpty(td)) return;
+    td.style.display = 'table-cell';
+    td.innerText = '';
+    if(Utils.isEmpty(this.state.dragobject)) return;
+    var obj = this.state.dragobject.cloneNode(true);
+    if(obj.tagName !== HTML_TAG.LEGEND)  obj = this.state.dragobject.parentElement.cloneNode(true);
+    td.appendChild(obj);
+  }
+
   _onClickClose() {
+    this.state.dragobject = null;
     this.state.alertDelete.show = false;
     this.state.alertEdit.show = false;
     this.forceUpdate();

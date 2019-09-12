@@ -17,6 +17,10 @@ div._loading_overlay_wrapper {
     position: unset;
 }
 
+div.form-group {
+    margin-bottom: 0;
+}
+
 /* 点滅 */
 a.blinking
 ,button.blinking {
@@ -158,7 +162,7 @@ div.form-group fieldset div.div-box {
     /* border: 1px solid gainsboro; */
 }
 
-div.form-group fieldset div.div-box > label {
+div.form-group > label {
     width: 100%;
     background-color: gainsboro;
     padding-left: 0.2em;
