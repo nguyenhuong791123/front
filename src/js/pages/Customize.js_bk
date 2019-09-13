@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import FormBS4 from 'react-jsonschema-form-bs4';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaRegEye } from 'react-icons/fa';
-import CForm from '../utils/CForm';
+import CTabs from '../utils/CTabs';
 
 import { ACTION, VARIANT_TYPES, SYSTEM } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE } from '../utils/HtmlTypes';
@@ -38,7 +38,6 @@ class Customize extends C {
 
     this.state = {
       isUser: this.props.isUser
-      ,form: {}
       ,alertActions: { show: false, class: '', style: {} }
       ,alertDelete: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
       ,alertCreateEdit: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
@@ -62,10 +61,10 @@ class Customize extends C {
   }
 
   _onClickSubmit() {
-    console.log(this.state.form.schema.properties);
-    var oks = Object.keys(this.state.form.schema.properties);
+    console.log(this.state.schema.properties);
+    var oks = Object.keys(this.state.schema.properties);
     for(var i=0; i<oks.length; i++) {
-      console.log(this.state.form.schema.properties[oks[i]]);
+      console.log(this.state.schema.properties[oks[i]]);
     }
     console.log('Data submitted: ', document.forms[0]);
   }
@@ -79,7 +78,7 @@ class Customize extends C {
   }
 
   UNSAFE_componentWillMount(){
-    this.state.form.schema = {
+    this.state.schema = {
         // title: 'Widgets',
         type: 'object'
         ,page_name: '顧客情報'
@@ -87,7 +86,7 @@ class Customize extends C {
           cust_info: {
             type: 'object'
             ,title: '顧客情報'
-            ,object_type: 'div'
+            ,objecttype: 'div'
             ,background: ''
             // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
             ,properties: {
@@ -98,7 +97,7 @@ class Customize extends C {
           base_info: {
             type: 'object'
             ,title: '基本情報'
-            ,object_type: 'tab'
+            ,objecttype: 'tab'
             ,background: ''
             // ,required: [ 'email', 'uri' ]
             ,properties: {
@@ -108,7 +107,7 @@ class Customize extends C {
           },
           project_info: {
             type: 'object'
-            ,object_type: 'tab'
+            ,objecttype: 'tab'
             ,title: '顧客情報2'
             ,background: ''
             // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
@@ -119,7 +118,7 @@ class Customize extends C {
           }
         },
     }
-    this.state.form.uiSchema = {
+    this.state.uiSchema = {
         base_info: {
           classNames: 'draggable-top-box div-top-box div-top-box-50'
           ,email: { 'ui:placeholder': 'メール', classNames: 'div-box div-box-50' }
@@ -136,7 +135,7 @@ class Customize extends C {
           ,project_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
         }
     }
-    // this.state.form.formData = {}
+    this.state.formData = {}
   }
 
   UNSAFE_componentWillReceiveProps(props) {
@@ -151,11 +150,11 @@ class Customize extends C {
     if(Utils.isEmpty(div.childNodes[0])) return;
     if(Utils.isEmpty(div.childNodes[0].childNodes[0])) return;
     var tabs = [];
-    const schema = this.state.form.schema.properties;
+    const schema = this.state.schema.properties;
     var keys = Object.keys(schema);
     for(var i=0; i<keys.length; i++) {
       console.log(schema[keys[i]]);
-      if(Utils.isEmpty(schema[keys[i]]['object_type']) || schema[keys[i]]['object_type'] !== 'tab') continue;
+      if(Utils.isEmpty(schema[keys[i]]['objecttype']) || schema[keys[i]]['objecttype'] !== 'tab') continue;
       var obj = { label: schema[keys[i]]['title'] };
       tabs.push(obj);
     }
@@ -184,7 +183,7 @@ class Customize extends C {
       const drags = divDrags[i];
       const dragChilds = drags.childNodes[0].childNodes;
       console.log(drags.childNodes[0]);
-      const objtype = drags.childNodes[0]['object_type'];
+      const objtype = drags.childNodes[0]['objecttype'];
       if(objtype === 'tab') {
         divTabs.childNodes[tabIdx].appendChild(drags.childNodes[0]);
         tabIdx++;
@@ -241,7 +240,7 @@ class Customize extends C {
     var json = {};
     if(this.state.draggable === 1 && e.target.tagName === HTML_TAG.LEGEND) {
       const div = e.target.parentElement.parentElement;
-      var keys = Object.keys(this.state.form.schema.properties);
+      var keys = Object.keys(this.state.schema.properties);
       if(Utils.isEmpty(div.parentElement.childNodes) || div.parentElement.childNodes.length <= 0) return;
       const dragId = Array.from(div.parentElement.childNodes).indexOf(div);
       const dropId = Array.from(div.parentElement.childNodes).indexOf(this.state.dragobject);
@@ -250,14 +249,14 @@ class Customize extends C {
         for(var drag=0; drag<keys.length; drag++) {
           if(drag === dropId) continue;
           if(drag === dragId) {
-            json[keys[dropId]] = this.state.form.schema.properties[keys[dropId]];
+            json[keys[dropId]] = this.state.schema.properties[keys[dropId]];
             nps.push(json);
             json = {};
-            json[keys[dragId]] = this.state.form.schema.properties[keys[dragId]];
+            json[keys[dragId]] = this.state.schema.properties[keys[dragId]];
             nps.push(json);
           } else {
             json = {};
-            json[keys[drag]] = this.state.form.schema.properties[keys[drag]];
+            json[keys[drag]] = this.state.schema.properties[keys[drag]];
             nps.push(json);
           }
         }
@@ -266,14 +265,14 @@ class Customize extends C {
         for(var drop=0; drop<keys.length; drop++) {
           if(drop === dropId) continue;
           if(drop === dragId) {
-            json[keys[dragId]] = this.state.form.schema.properties[keys[dragId]];
+            json[keys[dragId]] = this.state.schema.properties[keys[dragId]];
             nps.push(json);
             json = {};
-            json[keys[dropId]] = this.state.form.schema.properties[keys[dropId]];
+            json[keys[dropId]] = this.state.schema.properties[keys[dropId]];
             nps.push(json);
           } else {
             json = {};
-            json[keys[drop]] = this.state.form.schema.properties[keys[drop]];
+            json[keys[drop]] = this.state.schema.properties[keys[drop]];
             nps.push(json);
           }
         }
@@ -285,7 +284,7 @@ class Customize extends C {
           json[oks[u]] = nps[o][oks[u]];
         }
       }
-      this.state.form.schema.properties = json;
+      this.state.schema.properties = json;
     }
 
     if(this.state.draggable === 2) {
@@ -300,7 +299,7 @@ class Customize extends C {
         if(dropId > 0) dropId -= 1;
       }
       const jKey = tPDiv.id.replace('root_', '');
-      const isJson = this.state.form.schema.properties[jKey].properties;
+      const isJson = this.state.schema.properties[jKey].properties;
       keys = Object.keys(isJson);
       if(dragId < dropId) {
         div.before(this.state.dragobject);
@@ -342,9 +341,9 @@ class Customize extends C {
           json[oks[l]] = nps[i][oks[l]];
         }
       }
-      this.state.form.schema.properties[jKey].properties = json;
-      console.log(this.state.form.schema.properties[jKey].properties);
-      console.log(this.state.form.schema.properties);
+      this.state.schema.properties[jKey].properties = json;
+      console.log(this.state.schema.properties[jKey].properties);
+      console.log(this.state.schema.properties);
     }
   }
 
@@ -666,16 +665,16 @@ class Customize extends C {
     if(obj.tagName === HTML_TAG.LEGEND) {
       if(!Html.hasAttribute(obj.parentElement, 'id')) return;
       var id = obj.parentElement.id.replace('root_', '');
-      delete this.state.form.schema.properties[id];
-      delete this.state.form.uiSchema[id];
+      delete this.state.schema.properties[id];
+      delete this.state.uiSchema[id];
     }
     if(obj.tagName === HTML_TAG.LABEL) {
       if(!Html.hasAttribute(obj.parentElement.parentElement, 'id')
         || !Html.hasAttribute(obj, 'for')) return;
       var cId = obj.parentElement.parentElement.id.replace('root_', '');
       var oId = obj.getAttribute('for').replace('root_' + cId + '_', '');
-      delete this.state.form.schema.properties[cId].properties[oId];
-      delete this.state.form.uiSchema[id][oId];
+      delete this.state.schema.properties[cId].properties[oId];
+      delete this.state.uiSchema[id][oId];
     }
 
     this.state.alertActions.show = false;
@@ -778,22 +777,21 @@ class Customize extends C {
   render() {
     return (
       <div>
-        {/* { this._onAlertDelete() }
+        { this._onAlertDelete() }
         { this._onAlerEdit() }
         { this._onAlertPageActions() }
-        { this._getTitle() } */}
-        {/* <FormBS4
+        { this._getTitle() }
+        <FormBS4
           id='div-form'
-          schema={ this.state.form.schema }
-          uiSchema={ this.state.form.uiSchema } 
+          schema={ this.state.schema }
+          uiSchema={ this.state.uiSchema } 
           widgets={ this.state.widgets }
-          formData={ this.state.form.formData }
+          formData={ this.state.formData }
           // onChange={ this._onChange('changed') }
           // onSubmit={ this._onClickSubmit.bind(this) }
           onError={ this._onError.bind(this) }>
           { this._onAlertActions() }
-        </FormBS4> */}
-        { <CForm isUser={ this.state.isUser } /> }
+        </FormBS4>
       </div>
     )
   };
