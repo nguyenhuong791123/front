@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const ENVS = {
@@ -104,7 +105,8 @@ module.exports = {
     ,
     // 'inline-source-map',
     plugins: [
-        new webpack.HotModuleReplacementPlugin()
+        new CleanWebpackPlugin()
+        ,new webpack.HotModuleReplacementPlugin()
         ,new MiniCssExtractPlugin({ filename: ENVS.outfileCss })
         ,new HtmlWebpackPlugin({
             template: ENVS.template

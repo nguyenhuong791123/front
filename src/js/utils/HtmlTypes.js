@@ -24,6 +24,8 @@ export const HTML_TAG = {
     ,BUTTON: 'BUTTON'
     ,LEGEND: 'LEGEND'
     ,LABEL: 'LABEL'
+    ,FORM: 'FORM'
+    ,NAV: 'NAV'
 }
 
 export const TYPE = {

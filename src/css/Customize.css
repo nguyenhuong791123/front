@@ -1,3 +1,7 @@
+button.btn-submit-form-hidden {
+    display: none;
+}
+
 div.div-customize-box {
     display: flex;
 }

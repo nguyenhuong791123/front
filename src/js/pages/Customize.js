@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import FormBS4 from 'react-jsonschema-form-bs4';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaRegEye } from 'react-icons/fa';
+import CTabs from '../utils/CTabs';
 import CForm from '../utils/CForm';
 
 import { ACTION, VARIANT_TYPES, SYSTEM } from '../utils/Types';
@@ -86,6 +87,7 @@ class Customize extends C {
           ,object: {
               schema: {
                   type: 'object'
+                  // ,title: '顧客情報0'
                   ,properties: {
                       cust_info: {
                           type: 'object'
@@ -95,12 +97,25 @@ class Customize extends C {
                               cust_name_hira: { type: 'string' }
                           }
                       }
+                      ,base_info: {
+                        type: 'object'
+                        ,title: '顧客00'
+                        ,background: ''
+                        ,properties: {
+                          email: { type: 'string', title: 'メール', format: 'email', }
+                          ,uri: { type: 'string', format: 'uri', }
+                        },
+                      },
                   }
               },
               ui: {
                   cust_info: {
                       // classNames: 'draggable-top-box div-top-box div-top-box-50',
                       cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
+                  },
+                  base_info: {
+                    email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
+                    ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
                   }
               },
               data: {}
@@ -133,36 +148,43 @@ class Customize extends C {
                           cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
                           ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
                           ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
-              }
+                      }
                   },
                   data: {}
               },
               {
-                  schema: {
-                      type: 'object'
-                      ,tab_name: '顧客情報2'
-                      ,properties: {
-                          cust_info: {
-                              type: 'object'
-                              ,background: ''
-                              ,properties: {
-                                  cust_name_hira: { type: 'string' }
-                                  ,cust_name_kana: { type: 'string' }
-                                  ,phone: { type: 'string' }
-                              }
-                          }
-                      }
-                  },
-                  ui: {
-                      cust_info: {
-                          // classNames: 'draggable-top-box div-top-box div-top-box-50',
-                          cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
-                          ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
-                          ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
-              }
-                  },
-                  data: {}
-              }
+                schema: {
+                    type: 'object'
+                    ,tab_name: '顧客情報2'
+                    ,properties: {
+                        cust_info: {
+                            type: 'object'
+                            ,background: ''
+                            ,properties: {
+                                cust_name_hira: { type: 'string' }
+                            }
+                        }
+                        ,base_info: {
+                          type: 'object'
+                          ,background: ''
+                          ,properties: {
+                            email: { type: 'string', title: 'メール', format: 'email', }
+                            ,uri: { type: 'string', format: 'uri', }
+                          },
+                        },
+                    }
+                },
+                ui: {
+                    cust_info: {
+                        cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
+                    },
+                    base_info: {
+                      email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
+                      ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
+                    }
+                },
+                data: {}
+            }
           ]
       }
   ]
@@ -233,64 +255,107 @@ class Customize extends C {
   }
 
   componentDidMount() {
-    const div = document.getElementById('div-form');
-    if(Utils.isEmpty(div)) return;
-    if(Utils.isEmpty(div.childNodes[0])) return;
-    if(Utils.isEmpty(div.childNodes[0].childNodes[0])) return;
-    var tabs = [];
-    const schema = this.state.form.schema.properties;
-    var keys = Object.keys(schema);
-    for(var i=0; i<keys.length; i++) {
-      console.log(schema[keys[i]]);
-      if(Utils.isEmpty(schema[keys[i]]['object_type']) || schema[keys[i]]['object_type'] !== 'tab') continue;
-      var obj = { label: schema[keys[i]]['title'] };
-      tabs.push(obj);
-    }
-    const divTabs = document.createElement(HTML_TAG.DIV);
-    if(!Utils.isEmpty(tabs) && tabs.length > 0) {
-      divTabs.setAttribute('id', 'div_customize_0');
-      div.appendChild(divTabs);
-      ReactDOM.render(<CTabs isActive={ '1' } objs={ tabs } />, divTabs);
-    }
-
-    const divDrags = div.childNodes[0].childNodes[0].childNodes;
-    div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
-    div.childNodes[0].childNodes[0].addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
-    div.childNodes[0].childNodes[0].addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
-    div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
-
-    // var tabIdx = 0;
-    console.log(divTabs);
-    console.log(divTabs.childNodes);
-    for(var i=0; i<divTabs.childNodes.length; i++) {
-      console.log(divTabs.childNodes[i]);
-    }
-    const divTabChilds = divTabs.childNodes[1];
-    console.log(divTabChilds);
-    for(var i=0; i<divDrags.length; i++) {
-      const drags = divDrags[i];
-      const dragChilds = drags.childNodes[0].childNodes;
-      console.log(drags.childNodes[0]);
-      const objtype = drags.childNodes[0]['object_type'];
-      if(objtype === 'tab') {
-        divTabs.childNodes[tabIdx].appendChild(drags.childNodes[0]);
-        tabIdx++;
+    var div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+    if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
+    div.addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
+    div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
+    div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
+    div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
+    console.log(div.childNodes);
+    console.log(div.childNodes.length);
+    const objs = Array.from(div.childNodes);
+    for(var i=0; i<objs.length; i++) {
+      const cDiv = objs[i];
+      if(Utils.isEmpty(cDiv.childNodes)||  Utils.isEmpty(cDiv.childNodes[0])) continue;
+      cDiv.setAttribute(DRAG.ABLE, 'true');
+      cDiv.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
+      const tag =  cDiv.childNodes[0].tagName;
+      if(tag === HTML_TAG.FORM) {
+        div = div.childNodes[i].childNodes[0].childNodes[0];
+        console.log(tag);
+        console.log(div);
       }
-      if(Utils.isEmpty(dragChilds)) continue;
-      // drags.id = DRAG.ABLE + '_' + i;
-      drags.setAttribute(DRAG.ABLE, 'true');
-      drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
-      for(var c=0; c<dragChilds.length; c++) {
-        const dDrag = dragChilds[c];
-        if(c === 0 && dDrag.tagName === HTML_TAG.LEGEND) continue;
-        dDrag.setAttribute(DRAG.ABLE, 'true');
-        dDrag.ondragstart = this._onDragStart.bind(this);
+      if(tag === HTML_TAG.NAV && cDiv.childNodes.length > 1) {
+        div = cDiv.childNodes[1].childNodes[0].childNodes[0].childNodes[0];
+        // cDiv.childNodes[0].setAttribute(DRAG.ABLE, 'true');
+        // cDiv.childNodes[0].addEventListener(DRAG.START, this._onDragStart.bind(this), false);
+        console.log(tag);
+        console.log(div);
       }
     }
+  
+    const divDrags = Array.from(div.childNodes);
+    console.log(divDrags);
+    // for(var i=0; i<divDrags.length; i++) {
+    //   const drags = divDrags[i];
+    //   drags.setAttribute(DRAG.ABLE, 'true');
+    //   drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
+    //   for(var c=0; c<dragChilds.length; c++) {
+    //     const dDrag = dragChilds[c];
+    //     if(c === 0 && dDrag.tagName === HTML_TAG.LEGEND) continue;
+    //     dDrag.setAttribute(DRAG.ABLE, 'true');
+    //     dDrag.ondragstart = this._onDragStart.bind(this);
+    //   }
+    // }
+
+    // const div = document.getElementById('div-form');
+    // if(Utils.isEmpty(div)) return;
+    // if(Utils.isEmpty(div.childNodes[0])) return;
+    // if(Utils.isEmpty(div.childNodes[0].childNodes[0])) return;
+    // var tabs = [];
+    // const schema = this.state.form.schema.properties;
+    // var keys = Object.keys(schema);
+    // for(var i=0; i<keys.length; i++) {
+    //   console.log(schema[keys[i]]);
+    //   if(Utils.isEmpty(schema[keys[i]]['object_type']) || schema[keys[i]]['object_type'] !== 'tab') continue;
+    //   var obj = { label: schema[keys[i]]['title'] };
+    //   tabs.push(obj);
+    // }
+    // const divTabs = document.createElement(HTML_TAG.DIV);
+    // if(!Utils.isEmpty(tabs) && tabs.length > 0) {
+    //   divTabs.setAttribute('id', 'div_customize_0');
+    //   div.appendChild(divTabs);
+    //   ReactDOM.render(<CTabs isActive={ '1' } objs={ tabs } />, divTabs);
+    // }
+
+    // const divDrags = div.childNodes[0].childNodes[0].childNodes;
+    // div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
+    // div.childNodes[0].childNodes[0].addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
+    // div.childNodes[0].childNodes[0].addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
+    // div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
+
+    // // var tabIdx = 0;
+    // console.log(divTabs);
+    // console.log(divTabs.childNodes);
+    // for(var i=0; i<divTabs.childNodes.length; i++) {
+    //   console.log(divTabs.childNodes[i]);
+    // }
+    // const divTabChilds = divTabs.childNodes[1];
+    // console.log(divTabChilds);
+    // for(var i=0; i<divDrags.length; i++) {
+    //   const drags = divDrags[i];
+    //   const dragChilds = drags.childNodes[0].childNodes;
+    //   console.log(drags.childNodes[0]);
+    //   const objtype = drags.childNodes[0]['object_type'];
+    //   if(objtype === 'tab') {
+    //     divTabs.childNodes[tabIdx].appendChild(drags.childNodes[0]);
+    //     tabIdx++;
+    //   }
+    //   if(Utils.isEmpty(dragChilds)) continue;
+    //   // drags.id = DRAG.ABLE + '_' + i;
+    //   drags.setAttribute(DRAG.ABLE, 'true');
+    //   drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
+    //   for(var c=0; c<dragChilds.length; c++) {
+    //     const dDrag = dragChilds[c];
+    //     if(c === 0 && dDrag.tagName === HTML_TAG.LEGEND) continue;
+    //     dDrag.setAttribute(DRAG.ABLE, 'true');
+    //     dDrag.ondragstart = this._onDragStart.bind(this);
+    //   }
+    // }
   }
 
   _onMouseDown(e) {
-    // console.log(e.target.tagName);
+    console.log(e.target.tagName);
     if(e.target.tagName === HTML_TAG.LEGEND) {
       this.state.draggable = 1;
       this.state.dragobject = e.target.parentElement.parentElement;
@@ -868,8 +933,8 @@ class Customize extends C {
         {/* { this._onAlertDelete() }
         { this._onAlerEdit() }
         { this._onAlertPageActions() }
-        { this._getTitle() } */}
-        {/* <FormBS4
+        { this._getTitle() }
+        <FormBS4
           id='div-form'
           schema={ this.state.form.schema }
           uiSchema={ this.state.form.uiSchema } 
@@ -882,7 +947,11 @@ class Customize extends C {
         </FormBS4> */}
         { this._onAlertPageActions() }
         { this._getTitle() }
-        { <CForm isUser={ this.state.isUser } form={ this.state.form } /> }
+        {
+          <CForm isUser={ this.state.isUser } form={ this.state.form }>
+            { this._onAlertActions() }
+          </CForm>
+        }
       </div>
     )
   };
