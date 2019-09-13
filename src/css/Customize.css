@@ -1,3 +1,15 @@
+div.div-customize-box {
+    display: flex;
+}
+
+div.div-customize-box > div.div-box-50 {
+    width: 50%;
+}
+
+div.div-customize-box > div.div-box-100 {
+    width: 100%;
+}
+
 div.div-overlay-box {
     position: absolute;
     top: 0;

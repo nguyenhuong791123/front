@@ -79,63 +79,150 @@ class Customize extends C {
   }
 
   UNSAFE_componentWillMount(){
-    this.state.form.schema = {
-        // title: 'Widgets',
-        type: 'object'
-        ,page_name: '顧客情報'
-        ,properties: {
-          cust_info: {
-            type: 'object'
-            ,title: '顧客情報'
-            ,object_type: 'div'
-            ,background: ''
-            // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
-            ,properties: {
-              cust_name_hira: { type: 'string' }
-              ,cust_name_kana: { type: 'string' }
-            }
-          },
-          base_info: {
-            type: 'object'
-            ,title: '基本情報'
-            ,object_type: 'tab'
-            ,background: ''
-            // ,required: [ 'email', 'uri' ]
-            ,properties: {
-              email: { type: 'string', title: 'メール', format: 'email', }
-              ,uri: { type: 'string', format: 'uri', }
-            },
-          },
-          project_info: {
-            type: 'object'
-            ,object_type: 'tab'
-            ,title: '顧客情報2'
-            ,background: ''
-            // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
-            ,properties: {
-              project_hira: { type: 'string' }
-              ,project_kana: { type: 'string' }
-            }
+    this.state.form = [
+      {
+          object_type: 'div'
+          ,class_name: 'div-box-50'
+          ,object: {
+              schema: {
+                  type: 'object'
+                  ,properties: {
+                      cust_info: {
+                          type: 'object'
+                          ,title: '顧客情報'
+                          ,background: ''
+                          ,properties: {
+                              cust_name_hira: { type: 'string' }
+                          }
+                      }
+                  }
+              },
+              ui: {
+                  cust_info: {
+                      // classNames: 'draggable-top-box div-top-box div-top-box-50',
+                      cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
+                  }
+              },
+              data: {}
           }
-        },
-    }
-    this.state.form.uiSchema = {
-        base_info: {
-          classNames: 'draggable-top-box div-top-box div-top-box-50'
-          ,email: { 'ui:placeholder': 'メール', classNames: 'div-box div-box-50' }
-          ,uri: { 'ui:placeholder': 'URL', classNames: 'div-box div-box-50' }
-        }
-        ,cust_info: {
-          classNames: 'draggable-top-box div-top-box div-top-box-50'
-          ,cust_name_hira: { 'ui:placeholder': '顧客名', classNames: 'div-box div-box-50' }
-          ,cust_name_kana: { 'ui:placeholder': '顧客カナ', classNames: 'div-box div-box-50' }
-        }
-        ,project_info: {
-          classNames: 'draggable-top-box div-top-box div-top-box-50'
-          ,project_hira: { 'ui:placeholder': '案件名', classNames: 'div-box div-box-50' }
-          ,project_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
-        }
-    }
+      },
+      {
+          object_type: 'tab'
+          ,active: 0
+          ,class_name: 'div-box-50'
+          ,object: [
+              {
+                  schema: {
+                      type: 'object'
+                      ,tab_name: '顧客情報1'
+                      ,properties: {
+                          cust_info: {
+                              type: 'object'
+                              ,background: ''
+                              ,properties: {
+                                  cust_name_hira: { type: 'string' }
+                                  ,cust_name_kana: { type: 'string' }
+                                  ,phone: { type: 'string' }
+                              }
+                          }
+                      }
+                  },
+                  ui: {
+                      cust_info: {
+                          // classNames: 'draggable-top-box div-top-box div-top-box-50',
+                          cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
+                          ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
+                          ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
+              }
+                  },
+                  data: {}
+              },
+              {
+                  schema: {
+                      type: 'object'
+                      ,tab_name: '顧客情報2'
+                      ,properties: {
+                          cust_info: {
+                              type: 'object'
+                              ,background: ''
+                              ,properties: {
+                                  cust_name_hira: { type: 'string' }
+                                  ,cust_name_kana: { type: 'string' }
+                                  ,phone: { type: 'string' }
+                              }
+                          }
+                      }
+                  },
+                  ui: {
+                      cust_info: {
+                          // classNames: 'draggable-top-box div-top-box div-top-box-50',
+                          cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
+                          ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
+                          ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
+              }
+                  },
+                  data: {}
+              }
+          ]
+      }
+  ]
+    // this.state.form.schema = {
+    //     // title: 'Widgets',
+    //     type: 'object'
+    //     ,page_name: '顧客情報'
+    //     ,properties: {
+    //       cust_info: {
+    //         type: 'object'
+    //         ,title: '顧客情報'
+    //         ,object_type: 'div'
+    //         ,background: ''
+    //         // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
+    //         ,properties: {
+    //           cust_name_hira: { type: 'string' }
+    //           ,cust_name_kana: { type: 'string' }
+    //         }
+    //       },
+    //       base_info: {
+    //         type: 'object'
+    //         ,title: '基本情報'
+    //         ,object_type: 'tab'
+    //         ,background: ''
+    //         // ,required: [ 'email', 'uri' ]
+    //         ,properties: {
+    //           email: { type: 'string', title: 'メール', format: 'email', }
+    //           ,uri: { type: 'string', format: 'uri', }
+    //         },
+    //       },
+    //       project_info: {
+    //         type: 'object'
+    //         ,object_type: 'tab'
+    //         ,title: '顧客情報2'
+    //         ,background: ''
+    //         // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
+    //         ,properties: {
+    //           project_hira: { type: 'string' }
+    //           ,project_kana: { type: 'string' }
+    //         }
+    //       }
+    //     },
+    // }
+    // this.state.form.uiSchema = {
+    //     base_info: {
+    //       classNames: 'draggable-top-box div-top-box div-top-box-50'
+    //       ,email: { 'ui:placeholder': 'メール', classNames: 'div-box div-box-50' }
+    //       ,uri: { 'ui:placeholder': 'URL', classNames: 'div-box div-box-50' }
+    //     }
+    //     ,cust_info: {
+    //       classNames: 'draggable-top-box div-top-box div-top-box-50'
+    //       ,cust_name_hira: { 'ui:placeholder': '顧客名', classNames: 'div-box div-box-50' }
+    //       ,cust_name_kana: { 'ui:placeholder': '顧客カナ', classNames: 'div-box div-box-50' }
+    //     }
+    //     ,project_info: {
+    //       classNames: 'draggable-top-box div-top-box div-top-box-50'
+    //       ,project_hira: { 'ui:placeholder': '案件名', classNames: 'div-box div-box-50' }
+    //       ,project_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
+    //     }
+    // }
     // this.state.form.formData = {}
   }
 
@@ -793,7 +880,9 @@ class Customize extends C {
           onError={ this._onError.bind(this) }>
           { this._onAlertActions() }
         </FormBS4> */}
-        { <CForm isUser={ this.state.isUser } /> }
+        { this._onAlertPageActions() }
+        { this._getTitle() }
+        { <CForm isUser={ this.state.isUser } form={ this.state.form } /> }
       </div>
     )
   };
