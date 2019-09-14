@@ -122,6 +122,46 @@ class Customize extends C {
           }
       },
       {
+        object_type: 'div'
+        ,class_name: 'div-box-50'
+        ,object: {
+            schema: {
+                type: 'object'
+                // ,title: '顧客情報0'
+                ,properties: {
+                    cust_info: {
+                        type: 'object'
+                        ,title: '顧客情報'
+                        ,background: ''
+                        ,properties: {
+                            cust_name_hira: { type: 'string' }
+                        }
+                    }
+                    ,base_info: {
+                      type: 'object'
+                      ,title: '顧客00'
+                      ,background: ''
+                      ,properties: {
+                        email: { type: 'string', title: 'メール', format: 'email', }
+                        ,uri: { type: 'string', format: 'uri', }
+                      },
+                    },
+                }
+            },
+            ui: {
+                cust_info: {
+                    // classNames: 'draggable-top-box div-top-box div-top-box-50',
+                    cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
+                },
+                base_info: {
+                  email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
+                  ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
+                }
+            },
+            data: {}
+        }
+    },
+      {
           object_type: 'tab'
           ,active: 0
           ,class_name: 'div-box-50'
@@ -181,6 +221,74 @@ class Customize extends C {
                     base_info: {
                       email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
                       ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
+                    }
+                },
+                data: {}
+            }
+          ]
+      },
+      {
+          object_type: 'tab'
+          ,active: 0
+          ,class_name: 'div-box-50'
+          ,object: [
+              {
+                  schema: {
+                      type: 'object'
+                      ,tab_name: '顧客情報1'
+                      ,properties: {
+                          cust_info: {
+                              type: 'object'
+                              ,background: ''
+                              ,properties: {
+                                  cust_name_hira: { type: 'string' }
+                                  ,cust_name_kana: { type: 'string' }
+                                  ,phone: { type: 'string' }
+                              }
+                          }
+                      }
+                  },
+                  ui: {
+                      cust_info: {
+                          // classNames: 'draggable-top-box div-top-box div-top-box-50',
+                          cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
+                          ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
+                          ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
+                      }
+                  },
+                  data: {}
+              },
+              {
+                schema: {
+                    type: 'object'
+                    ,tab_name: '顧客情報2'
+                    ,properties: {
+                        cust_info: {
+                            type: 'object'
+                            ,background: ''
+                            ,properties: {
+                                cust_name_hira: { type: 'string' }
+                            }
+                        }
+                        ,base_info: {
+                          type: 'object'
+                          ,background: ''
+                          ,properties: {
+                            email: { type: 'string', title: 'メール', format: 'email', }
+                            ,uri: { type: 'string', format: 'uri', }
+                            ,text: { type: 'string' }
+                          },
+                        },
+                    }
+                },
+                ui: {
+                    cust_info: {
+                        cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
+                    },
+                    base_info: {
+                      email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
+                      ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
+                      ,text: { 'ui:placeholder': 'text' }
                     }
                 },
                 data: {}
@@ -271,7 +379,7 @@ class Customize extends C {
       cDiv.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
       const tag =  cDiv.childNodes[0].tagName;
       if(tag === HTML_TAG.FORM) {
-        div = div.childNodes[i].childNodes[0].childNodes[0];
+        div = cDiv.childNodes[0].childNodes[0];
         console.log(tag);
         console.log(div);
       }
@@ -362,6 +470,9 @@ class Customize extends C {
     } else if(e.target.tagName === HTML_TAG.LABEL) {
       this.state.draggable = 2;
       this.state.dragobject = e.target.parentElement;
+    } else if(e.target.tagName === HTML_TAG.NAV) {
+      this.state.draggable = 3;
+      this.state.dragobject = e.target.parentElement;
     } else {
       this.state.draggable = 0;
       this.state.dragobject = null;
@@ -369,7 +480,7 @@ class Customize extends C {
   }
 
   _onDragStart(e) {
-    if(this.state.draggable !== 1 && this.state.draggable !== 2) {
+    if(this.state.draggable <= 0) {
       e.preventDefault();
       e.stopPropagation();
     }
@@ -391,6 +502,7 @@ class Customize extends C {
     console.log('_onDragDrop');
     var nps = [];
     var json = {};
+    console.log(e.target.tagName);
     if(this.state.draggable === 1 && e.target.tagName === HTML_TAG.LEGEND) {
       const div = e.target.parentElement.parentElement;
       var keys = Object.keys(this.state.form.schema.properties);
@@ -445,6 +557,8 @@ class Customize extends C {
       const tPDiv = div.parentElement;
       const dPObj = this.state.dragobject.parentElement;
       if(tPDiv.id !== dPObj.id) return;
+      const pDivt1 = tPDiv.parentElement.parentElement.parentElement;
+      console.log(Array.from(pDivt1.parentElement.childNodes).indexOf(pDivt1));
       var dragId = Array.from(tPDiv.childNodes).indexOf(div);
       var dropId = Array.from(tPDiv.childNodes).indexOf(this.state.dragobject);
       if(!Utils.isEmpty(tPDiv.childNodes[0]) && tPDiv.childNodes[0].tagName === HTML_TAG.LEGEND) {
@@ -497,6 +611,11 @@ class Customize extends C {
       this.state.form.schema.properties[jKey].properties = json;
       console.log(this.state.form.schema.properties[jKey].properties);
       console.log(this.state.form.schema.properties);
+    }
+
+    if(this.state.draggable === 3) {
+      console.log(this.state.dragobject);
+      console.log(this.state.form);
     }
   }
 
