@@ -5,11 +5,16 @@
     transition: all .5s;
 }
 
-*[draggable=true] nav, a, legend, label {
+*[draggable=true] nav
+,*[draggable=true] a
+,*[draggable=true] legend
+,*[draggable=true] label {
     cursor: move;
 }
 
-*[draggable=true] nav:hover, legend:hover, label:hover {
+*[draggable=true] nav:hover
+,*[draggable=true] legend:hover
+,*[draggable=true] label:hover {
     background-color: #cce5ff !important;
 }
 
