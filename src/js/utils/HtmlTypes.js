@@ -17,6 +17,7 @@ export const HTML_TAG = {
     ,RANGE: 'RANGE'
     ,INPUT: 'INPUT'
     ,SPAN: 'SPAN'
+    ,A: 'A'
     ,TBODY: 'TBODY'
     ,TR: 'TR'
     ,TH: 'TH'

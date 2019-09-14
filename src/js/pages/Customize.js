@@ -45,6 +45,7 @@ class Customize extends C {
       ,alertCreateEdit: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
       ,draggable: 0
       ,dragobject: null
+      ,dragparent: null
       ,mode: ACTION.CREATE
       ,menus: [
         { id: 1, target: 'target_00', label: 'label_00' }
@@ -91,7 +92,7 @@ class Customize extends C {
                   ,properties: {
                       cust_info: {
                           type: 'object'
-                          ,title: '顧客情報'
+                          ,title: '顧客情報0'
                           ,background: ''
                           ,properties: {
                               cust_name_hira: { type: 'string' }
@@ -131,7 +132,7 @@ class Customize extends C {
                 ,properties: {
                     cust_info: {
                         type: 'object'
-                        ,title: '顧客情報'
+                        ,title: '顧客情報1'
                         ,background: ''
                         ,properties: {
                             cust_name_hira: { type: 'string' }
@@ -363,103 +364,55 @@ class Customize extends C {
   }
 
   componentDidMount() {
-    var div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+    const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
     div.addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
     div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
     div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
     div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
-    console.log(div.childNodes);
-    console.log(div.childNodes.length);
-    const objs = Array.from(div.childNodes);
-    for(var i=0; i<objs.length; i++) {
+
+    const objs = div.childNodes;
+    // var divDrags = null;
+    for(let i=0; i<objs.length; i++) {
       const cDiv = objs[i];
-      if(Utils.isEmpty(cDiv.childNodes)||  Utils.isEmpty(cDiv.childNodes[0])) continue;
+      if(Utils.isEmpty(cDiv.childNodes) || Utils.isEmpty(cDiv.childNodes[0])) continue;
       cDiv.setAttribute(DRAG.ABLE, 'true');
       cDiv.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
       const tag =  cDiv.childNodes[0].tagName;
       if(tag === HTML_TAG.FORM) {
-        div = cDiv.childNodes[0].childNodes[0];
-        console.log(tag);
-        console.log(div);
+        // divDrags = cDiv.childNodes[0].childNodes[0].childNodes[0].childNodes;
+        this._addDragable(cDiv.childNodes[0].childNodes[0].childNodes[0].childNodes);
       }
       if(tag === HTML_TAG.NAV && cDiv.childNodes.length > 1) {
-        div = cDiv.childNodes[1].childNodes[0].childNodes[0].childNodes[0];
-        // cDiv.childNodes[0].setAttribute(DRAG.ABLE, 'true');
-        // cDiv.childNodes[0].addEventListener(DRAG.START, this._onDragStart.bind(this), false);
-        console.log(tag);
-        console.log(div);
+        const nAs = cDiv.childNodes[0].childNodes;
+        for(let a=0; a<nAs.length; a++) {
+          console.log(nAs[a]);
+          nAs[a].setAttribute(DRAG.ABLE, 'true');
+          nAs[a].addEventListener(DRAG.START, this._onDragStart.bind(this), false);  
+        }
+        const divDrags = cDiv.childNodes[1].childNodes;
+        for(let y=0; y<divDrags.length; y++) {
+          this._addDragable(divDrags[y].childNodes[0].childNodes[0].childNodes[0].childNodes);
+        }
       }
     }
-  
-    const divDrags = Array.from(div.childNodes);
-    console.log(divDrags);
-    // for(var i=0; i<divDrags.length; i++) {
-    //   const drags = divDrags[i];
-    //   drags.setAttribute(DRAG.ABLE, 'true');
-    //   drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
-    //   for(var c=0; c<dragChilds.length; c++) {
-    //     const dDrag = dragChilds[c];
-    //     if(c === 0 && dDrag.tagName === HTML_TAG.LEGEND) continue;
-    //     dDrag.setAttribute(DRAG.ABLE, 'true');
-    //     dDrag.ondragstart = this._onDragStart.bind(this);
-    //   }
-    // }
+  }
 
-    // const div = document.getElementById('div-form');
-    // if(Utils.isEmpty(div)) return;
-    // if(Utils.isEmpty(div.childNodes[0])) return;
-    // if(Utils.isEmpty(div.childNodes[0].childNodes[0])) return;
-    // var tabs = [];
-    // const schema = this.state.form.schema.properties;
-    // var keys = Object.keys(schema);
-    // for(var i=0; i<keys.length; i++) {
-    //   console.log(schema[keys[i]]);
-    //   if(Utils.isEmpty(schema[keys[i]]['object_type']) || schema[keys[i]]['object_type'] !== 'tab') continue;
-    //   var obj = { label: schema[keys[i]]['title'] };
-    //   tabs.push(obj);
-    // }
-    // const divTabs = document.createElement(HTML_TAG.DIV);
-    // if(!Utils.isEmpty(tabs) && tabs.length > 0) {
-    //   divTabs.setAttribute('id', 'div_customize_0');
-    //   div.appendChild(divTabs);
-    //   ReactDOM.render(<CTabs isActive={ '1' } objs={ tabs } />, divTabs);
-    // }
-
-    // const divDrags = div.childNodes[0].childNodes[0].childNodes;
-    // div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
-    // div.childNodes[0].childNodes[0].addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
-    // div.childNodes[0].childNodes[0].addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
-    // div.childNodes[0].childNodes[0].addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
-
-    // // var tabIdx = 0;
-    // console.log(divTabs);
-    // console.log(divTabs.childNodes);
-    // for(var i=0; i<divTabs.childNodes.length; i++) {
-    //   console.log(divTabs.childNodes[i]);
-    // }
-    // const divTabChilds = divTabs.childNodes[1];
-    // console.log(divTabChilds);
-    // for(var i=0; i<divDrags.length; i++) {
-    //   const drags = divDrags[i];
-    //   const dragChilds = drags.childNodes[0].childNodes;
-    //   console.log(drags.childNodes[0]);
-    //   const objtype = drags.childNodes[0]['object_type'];
-    //   if(objtype === 'tab') {
-    //     divTabs.childNodes[tabIdx].appendChild(drags.childNodes[0]);
-    //     tabIdx++;
-    //   }
-    //   if(Utils.isEmpty(dragChilds)) continue;
-    //   // drags.id = DRAG.ABLE + '_' + i;
-    //   drags.setAttribute(DRAG.ABLE, 'true');
-    //   drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
-    //   for(var c=0; c<dragChilds.length; c++) {
-    //     const dDrag = dragChilds[c];
-    //     if(c === 0 && dDrag.tagName === HTML_TAG.LEGEND) continue;
-    //     dDrag.setAttribute(DRAG.ABLE, 'true');
-    //     dDrag.ondragstart = this._onDragStart.bind(this);
-    //   }
-    // }
+  _addDragable(divs) {
+    if(Utils.isEmpty(divs) || divs.length <= 0) return;
+    for(let y=0; y<divs.length; y++) {
+      const drags = divs[y];
+      if(drags.tagName === HTML_TAG.BUTTON) continue;
+      drags.setAttribute(DRAG.ABLE, 'true');
+      drags.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
+      const dragChilds = drags.childNodes[0].childNodes;
+      for(let c=0; c<dragChilds.length; c++) {
+        const dDrag = dragChilds[c];
+        if(c === 0 && dDrag.tagName === HTML_TAG.LEGEND) continue;
+        dDrag.setAttribute(DRAG.ABLE, 'true');
+        dDrag.ondragstart = this._onDragStart.bind(this);
+      }
+    }
   }
 
   _onMouseDown(e) {
@@ -467,15 +420,23 @@ class Customize extends C {
     if(e.target.tagName === HTML_TAG.LEGEND) {
       this.state.draggable = 1;
       this.state.dragobject = e.target.parentElement.parentElement;
+      this.state.dragparent = this.state.dragobject.parentElement.parentElement.parentElement.parentElement;
     } else if(e.target.tagName === HTML_TAG.LABEL) {
       this.state.draggable = 2;
       this.state.dragobject = e.target.parentElement;
+      this.state.dragparent = this.state.dragobject;
     } else if(e.target.tagName === HTML_TAG.NAV) {
       this.state.draggable = 3;
       this.state.dragobject = e.target.parentElement;
+      this.state.dragparent = this.state.dragobject;
+    } else if(e.target.tagName === HTML_TAG.A) {
+      this.state.draggable = 4;
+      this.state.dragobject = e.target;
+      this.state.dragparent = this.state.dragobject.parentElement.parentElement;
     } else {
       this.state.draggable = 0;
       this.state.dragobject = null;
+      this.state.dragparent = null;
     }
   }
 
@@ -503,53 +464,81 @@ class Customize extends C {
     var nps = [];
     var json = {};
     console.log(e.target.tagName);
-    if(this.state.draggable === 1 && e.target.tagName === HTML_TAG.LEGEND) {
-      const div = e.target.parentElement.parentElement;
-      var keys = Object.keys(this.state.form.schema.properties);
-      if(Utils.isEmpty(div.parentElement.childNodes) || div.parentElement.childNodes.length <= 0) return;
-      const dragId = Array.from(div.parentElement.childNodes).indexOf(div);
-      const dropId = Array.from(div.parentElement.childNodes).indexOf(this.state.dragobject);
-      if(dragId < dropId) {
-        div.before(this.state.dragobject);
-        for(var drag=0; drag<keys.length; drag++) {
-          if(drag === dropId) continue;
-          if(drag === dragId) {
-            json[keys[dropId]] = this.state.form.schema.properties[keys[dropId]];
-            nps.push(json);
-            json = {};
-            json[keys[dragId]] = this.state.form.schema.properties[keys[dragId]];
-            nps.push(json);
-          } else {
-            json = {};
-            json[keys[drag]] = this.state.form.schema.properties[keys[drag]];
-            nps.push(json);
-          }
-        }
+    const obj = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+    if(Utils.isEmpty(obj)) return;
+    if(this.state.draggable === 1
+      && (e.target.tagName === HTML_TAG.LEGEND || e.target.tagName === HTML_TAG.NAV)) {
+      var div = null;
+      var pDiv = null;
+      if(e.target.tagName === HTML_TAG.NAV) {
+        div = e.target.parentElement;
+        pDiv = div;
       } else {
-        div.after(this.state.dragobject);
-        for(var drop=0; drop<keys.length; drop++) {
-          if(drop === dropId) continue;
-          if(drop === dragId) {
-            json[keys[dragId]] = this.state.form.schema.properties[keys[dragId]];
-            nps.push(json);
-            json = {};
-            json[keys[dropId]] = this.state.form.schema.properties[keys[dropId]];
-            nps.push(json);
-          } else {
-            json = {};
-            json[keys[drop]] = this.state.form.schema.properties[keys[drop]];
-            nps.push(json);
+        div = e.target.parentElement.parentElement;
+        pDiv = div.parentElement.parentElement.parentElement.parentElement;
+      }
+      // const obj = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+      if(Utils.isEmpty(pDiv) || Utils.isEmpty(this.state.dragparent)) return;
+      const dpIdx = Array.from(obj.childNodes).indexOf(this.state.dragparent);
+      const tpIdx = Array.from(obj.childNodes).indexOf(pDiv);
+      if(dpIdx === tpIdx) {
+        if(Utils.isEmpty(div.parentElement.childNodes) || div.parentElement.childNodes.length <= 0) return;
+        const dragId = Array.from(div.parentElement.childNodes).indexOf(div);
+        const dropId = Array.from(div.parentElement.childNodes).indexOf(this.state.dragobject);
+        if(dragId === dropId || dragId < 0) return;
+        var form = this.state.form[this.state.pidx];
+        var keys = Object.keys(form.schema.properties);
+        if(dragId < dropId) {
+          div.before(this.state.dragobject);
+          for(var drag=0; drag<keys.length; drag++) {
+            if(drag === dropId) continue;
+            if(drag === dragId) {
+              json[keys[dropId]] = form.schema.properties[keys[dropId]];
+              nps.push(json);
+              json = {};
+              json[keys[dragId]] = form.schema.properties[keys[dragId]];
+              nps.push(json);
+            } else {
+              json = {};
+              json[keys[drag]] = form.schema.properties[keys[drag]];
+              nps.push(json);
+            }
+          }
+        } else {
+          div.after(this.state.dragobject);
+          for(var drop=0; drop<keys.length; drop++) {
+            if(drop === dropId) continue;
+            if(drop === dragId) {
+              json[keys[dragId]] = form.schema.properties[keys[dragId]];
+              nps.push(json);
+              json = {};
+              json[keys[dropId]] = form.schema.properties[keys[dropId]];
+              nps.push(json);
+            } else {
+              json = {};
+              json[keys[drop]] = form.schema.properties[keys[drop]];
+              nps.push(json);
+            }
           }
         }
-      }
-      json = {};
-      for(var o=0; o<nps.length; o++) {
-        var oks = Object.keys(nps[o]);
-        for(var u=0; u<oks.length; u++) {
-          json[oks[u]] = nps[o][oks[u]];
+        json = {};
+        for(var o=0; o<nps.length; o++) {
+          var oks = Object.keys(nps[o]);
+          for(var u=0; u<oks.length; u++) {
+            json[oks[u]] = nps[o][oks[u]];
+          }
+        }
+        form.schema.properties = json;
+        this.state.form[this.state.pidx] = form;
+      } else {
+        console.log(dpIdx);
+        console.log(tpIdx);
+        if(dpIdx > tpIdx) {
+          pDiv.before(this.state.dragparent);
+        } else {
+          pDiv.after(this.state.dragparent);
         }
       }
-      this.state.form.schema.properties = json;
     }
 
     if(this.state.draggable === 2) {
@@ -573,7 +562,7 @@ class Customize extends C {
         for(var drag=0; drag<keys.length; drag++) {
           if(drag === dropId) continue;
           if(drag === dragId) {
-            json[keys[dropId]] =isJson[keys[dropId]];
+            json[keys[dropId]] = isJson[keys[dropId]];
             nps.push(json);
             json = {};
             json[keys[dragId]] = isJson[keys[dragId]];
@@ -613,9 +602,31 @@ class Customize extends C {
       console.log(this.state.form.schema.properties);
     }
 
-    if(this.state.draggable === 3) {
+    if(this.state.draggable === 3
+      && (e.target.tagName === HTML_TAG.LEGEND || e.target.tagName === HTML_TAG.NAV)) {
+      var div = null;
+      if(e.target.tagName === HTML_TAG.NAV) {
+        div = e.target.parentElement;
+      } else {
+        div = e.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+      }
+      if(Utils.isEmpty(div) || Utils.isEmpty(this.state.dragparent)) return;
+      const dpIdx = Array.from(obj.childNodes).indexOf(this.state.dragparent);
+      const tpIdx = Array.from(obj.childNodes).indexOf(div);
+      console.log(div);
+      console.log(dpIdx);
+      console.log(tpIdx);
+      if(dpIdx > tpIdx) {
+        div.before(this.state.dragparent);
+      } else {
+        div.after(this.state.dragparent);
+      }
+    }
+
+    if(this.state.draggable === 4 && e.target.tagName === HTML_TAG.A) {
+      console.log(e.target);
       console.log(this.state.dragobject);
-      console.log(this.state.form);
+      console.log(this.state.dragparent);
     }
   }
 
