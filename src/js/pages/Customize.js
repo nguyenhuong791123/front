@@ -554,52 +554,52 @@ class Customize extends C {
         if(dragId > 0) dragId -= 1;
         if(dropId > 0) dropId -= 1;
       }
-      const jKey = tPDiv.id.replace('root_', '');
-      const isJson = this.state.form.schema.properties[jKey].properties;
-      keys = Object.keys(isJson);
+      // const jKey = tPDiv.id.replace('root_', '');
+      // const isJson = this.state.form.schema.properties[jKey].properties;
+      // keys = Object.keys(isJson);
       if(dragId < dropId) {
         div.before(this.state.dragobject);
-        for(var drag=0; drag<keys.length; drag++) {
-          if(drag === dropId) continue;
-          if(drag === dragId) {
-            json[keys[dropId]] = isJson[keys[dropId]];
-            nps.push(json);
-            json = {};
-            json[keys[dragId]] = isJson[keys[dragId]];
-            nps.push(json);
-          } else {
-            json = {};
-            json[keys[drag]] = isJson[keys[drag]];
-            nps.push(json);
-          }
-        }
+        // for(var drag=0; drag<keys.length; drag++) {
+        //   if(drag === dropId) continue;
+        //   if(drag === dragId) {
+        //     json[keys[dropId]] = isJson[keys[dropId]];
+        //     nps.push(json);
+        //     json = {};
+        //     json[keys[dragId]] = isJson[keys[dragId]];
+        //     nps.push(json);
+        //   } else {
+        //     json = {};
+        //     json[keys[drag]] = isJson[keys[drag]];
+        //     nps.push(json);
+        //   }
+        // }
       } else {
         div.after(this.state.dragobject);
-        for(var drop=0; drop<keys.length; drop++) {
-          if(drop === dropId) continue;
-          if(drop === dragId) {
-            json[keys[dragId]] =isJson[keys[dragId]];
-            nps.push(json);
-            json = {};
-            json[keys[dropId]] = isJson[keys[dropId]];
-            nps.push(json);
-          } else {
-            json = {};
-            json[keys[drop]] = isJson[keys[drop]];
-            nps.push(json);
-          }
-        }
+        // for(var drop=0; drop<keys.length; drop++) {
+        //   if(drop === dropId) continue;
+        //   if(drop === dragId) {
+        //     json[keys[dragId]] =isJson[keys[dragId]];
+        //     nps.push(json);
+        //     json = {};
+        //     json[keys[dropId]] = isJson[keys[dropId]];
+        //     nps.push(json);
+        //   } else {
+        //     json = {};
+        //     json[keys[drop]] = isJson[keys[drop]];
+        //     nps.push(json);
+        //   }
+        // }
       }
-      json = {};
-      for(var i=0; i<nps.length; i++) {
-        var oks = Object.keys(nps[i]);
-        for(var l=0; l<oks.length; l++) {
-          json[oks[l]] = nps[i][oks[l]];
-        }
-      }
-      this.state.form.schema.properties[jKey].properties = json;
-      console.log(this.state.form.schema.properties[jKey].properties);
-      console.log(this.state.form.schema.properties);
+      // json = {};
+      // for(var i=0; i<nps.length; i++) {
+      //   var oks = Object.keys(nps[i]);
+      //   for(var l=0; l<oks.length; l++) {
+      //     json[oks[l]] = nps[i][oks[l]];
+      //   }
+      // }
+      // this.state.form.schema.properties[jKey].properties = json;
+      // console.log(this.state.form.schema.properties[jKey].properties);
+      // console.log(this.state.form.schema.properties);
     }
 
     if(this.state.draggable === 3
@@ -624,9 +624,26 @@ class Customize extends C {
     }
 
     if(this.state.draggable === 4 && e.target.tagName === HTML_TAG.A) {
-      console.log(e.target);
-      console.log(this.state.dragobject);
-      console.log(this.state.dragparent);
+      const a = e.target;
+      const nav = e.target.parentElement;
+      if(a.tagName !== HTML_TAG.A || nav.tagName !== HTML_TAG.NAV) return;
+      var div = nav.parentElement;
+      const pdIdx = Array.from(div.parentElement.childNodes).indexOf(div);
+      const ptIdx = Array.from(div.parentElement.childNodes).indexOf(this.state.dragparent);
+      // console.log(pdIdx);
+      // console.log(ptIdx);
+      // console.log(div);
+      // console.log(e.target);
+      // console.log(this.state.dragobject);
+      // console.log(this.state.dragparent);
+      if(pdIdx === -1 || ptIdx === -1 || pdIdx !== ptIdx) return;
+      const dpIdx = Array.from(nav.childNodes).indexOf(this.state.dragobject);
+      const tpIdx = Array.from(nav.childNodes).indexOf(e.target);
+      if(dpIdx > tpIdx) {
+        a.before(this.state.dragobject);
+      } else {
+        a.after(this.state.dragobject);
+      }
     }
   }
 
