@@ -5,6 +5,7 @@ import { Nav, Tabs, Tab } from 'react-bootstrap';
 import CTabs from '../CTabs';
 
 import { LINK, NOT_LINK, WINDOWN_WIDTH, SYSTEM, TAB_MENU_TYPE, DISPLAY_TYPE } from '../Types';
+import Html from '../HtmlUtils';
 import Utils from '../Utils';
 import "../../../css/TabMenu.css";
 
@@ -31,7 +32,7 @@ class TabMenu extends C {
   
     _onClick(e) {
         console.log('TAMENU _onClick');
-        var obj = this.getLinkObj(e);
+        var obj = Html.getLinkObj(e);
         const view = parseInt(obj.getAttribute("view"));
         if(view === NOT_LINK) {
             e.preventDefault();
@@ -134,7 +135,7 @@ class TabMenu extends C {
 
     _onMouseOver(e) {
         console.log('TAMENU _onMouseOver');
-        var obj = this.getLinkObj(e);
+        var obj = Html.getLinkObj(e);
         const view = parseInt(obj.getAttribute("view"));
         const level = parseInt(obj.getAttribute("level"));
         const divId = this.state.id + '_level_' + (level+1);
@@ -205,18 +206,18 @@ class TabMenu extends C {
         }
     }
   
-    getLinkObj(e) {
-      var obj = e.target;
-      if(obj.tagName !== 'A') {
-        if(obj.tagName === 'path') {
-          obj = e.target.parentElement.parentElement;
-        } else {
-          obj = e.target.parentElement;
-        }
-        if(Utils.isEmpty(obj) || obj.tagName !== 'A') return;
-      }
-      return obj;
-    }
+    // getLinkObj(e) {
+    //   var obj = e.target;
+    //   if(obj.tagName !== 'A') {
+    //     if(obj.tagName === 'path') {
+    //       obj = e.target.parentElement.parentElement;
+    //     } else {
+    //       obj = e.target.parentElement;
+    //     }
+    //     if(Utils.isEmpty(obj) || obj.tagName !== 'A') return;
+    //   }
+    //   return obj;
+    // }
 
     _hideAllChildMenu(level) {
         for(var idx = 0; idx <= this.state.level; idx++) {
@@ -292,7 +293,7 @@ class TabMenu extends C {
     }
 
     handleClickOutside(e) {
-        var obj = this.getLinkObj(e);
+        var obj = Html.getLinkObj(e);
         if(!Utils.isEmpty(obj)) {
             const view = obj.getAttribute("view");
             if(view === NOT_LINK) return;

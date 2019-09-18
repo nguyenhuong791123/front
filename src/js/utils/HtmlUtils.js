@@ -20,6 +20,29 @@ const object = {
       console.log(obj);
       return obj.hasAttribute(attr);
     }
+    ,getLinkObj(e) {
+      var obj = e.target;
+      if(obj.tagName !== 'A') {
+        if(obj.tagName === 'path') {
+          obj = e.target.parentElement.parentElement;
+        } else {
+          obj = e.target.parentElement;
+        }
+        if(obj === undefined || obj === null || obj.tagName !== 'A') return e.target;
+      }
+      return obj;
+    }
+    ,getButton(e) {
+      var obj = e.target;
+      if(obj.tagName === 'BUTTON') return obj;
+      if(obj.tagName === 'path') {
+        obj = e.target.parentElement.parentElement;
+      }
+      if(obj.tagName === 'SVG') {
+        obj = e.target.parentElement;
+      }
+      return obj;
+    }
 };
 
 module.exports = object;

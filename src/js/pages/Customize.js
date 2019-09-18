@@ -664,7 +664,7 @@ class Customize extends C {
   }
 
   _onMouseOut(e) {
-    const obj = this._getButton(e);
+    const obj = Html.getButton(e);
     console.log(obj.tagName);
     if(obj.tagName === HTML_TAG.BUTTON) {
       this.state.alertActions.show = true;
@@ -677,17 +677,17 @@ class Customize extends C {
     this.forceUpdate();
   }
 
-  _getButton(e) {
-    var obj = e.target;
-    if(obj.tagName === HTML_TAG.BUTTON) return obj;
-    if(obj.tagName === HTML_TAG.PATH) {
-      obj = e.target.parentElement.parentElement;
-    }
-    if(obj.tagName === HTML_TAG.SVG) {
-      obj = e.target.parentElement;
-    }
-    return obj;
-  }
+  // _getButton(e) {
+  //   var obj = e.target;
+  //   if(obj.tagName === HTML_TAG.BUTTON) return obj;
+  //   if(obj.tagName === HTML_TAG.PATH) {
+  //     obj = e.target.parentElement.parentElement;
+  //   }
+  //   if(obj.tagName === HTML_TAG.SVG) {
+  //     obj = e.target.parentElement;
+  //   }
+  //   return obj;
+  // }
 
   _onAlertActions() {
     return(

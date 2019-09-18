@@ -4,6 +4,7 @@ import { Nav, Alert } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaCloudDownloadAlt } from 'react-icons/fa';
 
 import { ACTION } from './Types';
+import Html from './HtmlUtils';
 import Utils from './Utils';
 import '../../css/CMenu.css';
 
@@ -17,7 +18,7 @@ class ContextMenu extends C {
 
     _onClick(e) {
         if(Utils.isEmpty(this.state.objs.ids) || this.state.objs.ids.length <= 0) return;
-        const obj = e.target;
+        const obj = Html.getLinkObj(e);
         const action = obj.getAttribute("action");
         this.forceUpdate();
         if(action === ACTION.EDIT) {

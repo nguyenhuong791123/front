@@ -7,6 +7,7 @@ import { FaUser, FaSearch, FaTty, FaPhone, FaMailBulk, FaUserCog, FaSitemap, FaK
 import { ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
 import { HTML_TAG } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
+import Html from './utils/HtmlUtils';
 import Utils from './utils/Utils';
 import LMenu from "./utils/header/LMenu";
 import RMenu from "./utils/header/RMenu";
@@ -162,7 +163,7 @@ class Header extends C {
   }
 
   _onOpenBoxPhone(e) {
-    const obj = this.getLinkObj(e);
+    const obj = Html.getLinkObj(e);
     if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
     this._addBoostrapTheme();
     const webRtc = document.getElementById(SYSTEM.IS_DAILER_BOX);
@@ -182,18 +183,18 @@ class Header extends C {
     }
   }
 
-  getLinkObj(e) {
-    var obj = e.target;
-    if(obj.tagName !== 'A') {
-      if(obj.tagName === 'path') {
-        obj = e.target.parentElement.parentElement;
-      } else {
-        obj = e.target.parentElement;
-      }
-      if(Utils.isEmpty(obj) || obj.tagName !== 'A') return;
-    }
-    return obj;
-  }
+  // getLinkObj(e) {
+  //   var obj = e.target;
+  //   if(obj.tagName !== 'A') {
+  //     if(obj.tagName === 'path') {
+  //       obj = e.target.parentElement.parentElement;
+  //     } else {
+  //       obj = e.target.parentElement;
+  //     }
+  //     if(Utils.isEmpty(obj) || obj.tagName !== 'A') return;
+  //   }
+  //   return obj;
+  // }
 
   _newWindow(e) {
     var obj = e.target;
