@@ -14,6 +14,7 @@ export const SYSTEM = {
     ,IS_TAB_MENU: 'div-nav-tab-menu'
     ,IS_DIV_HEADER_FORM: 'div_header_form'
     ,IS_DIV_CUSTOMIZE_BOX: 'div_customize_box'
+    ,IS_DIV_TREE_VIEW_BOX: 'div_tree_view_box'
 }
 
 export const DISPLAY_TYPE = {
