@@ -1,8 +1,7 @@
 import React, { Component as C } from 'react';
-import Tree from 'react-animated-tree';
 
 import { SYSTEM } from '../../js/utils/Types';
-import { HTML_TAG, ATTR, MOUSE } from '../utils/HtmlTypes';
+import { HTML_TAG, ATTR } from '../utils/HtmlTypes';
 import Html from '../../js/utils/HtmlUtils';
 import Utils from '../../js/utils/Utils';
 import '../../css/TreeList.css';
@@ -11,7 +10,6 @@ class System extends C {
     constructor(props) {
         super(props);
 
-        this._onMouseOver = this._onMouseOver.bind(this);
         this._onClick = this._onClick.bind(this);
 
         this.state = {
@@ -24,16 +22,12 @@ class System extends C {
                     label: 'Mars',
                     children: [
                         {
-                            value: 'phobos',
-                            label: 'Phobos',
-                            children: {
-                                value: 'mars1',
-                                label: 'Mars1',
-                                children: [
-                                    { value: 'phobos', label: 'Phobos1' },
-                                    { value: 'deimos', label: 'Deimos1' },
-                                ],
-                            }
+                            value: 'phobos1',
+                            label: 'Phobos1',
+                            children: [
+                                { value: 'phobos2', label: 'Phobos2' },
+                                { value: 'deimos2', label: 'Deimos2' },
+                            ]
                         },
                         { value: 'deimos', label: 'Deimos' },
                     ],
@@ -50,84 +44,64 @@ class System extends C {
         };
     };
 
-    _onMouseOver(e) {
-        // console.log(e.target);
-    }
-
     _onClick(e) {
         var obj = e.target;
-        if(obj.tagName === HTML_TAG.SVG || obj.tagName === HTML_TAG.G || obj.tagName === HTML_TAG.PATH) return;
-        e.preventDefault();
-        e.stopPropagation();
-        if(obj.tagName === HTML_TAG.SPAN) {
-            obj = e.target.parentElement;
-        }
-        // console.log(obj.className);
+        if(obj.tagName !== HTML_TAG.DIV) return;
         var className = (Html.hasAttribute(obj, ATTR.CLASS))?obj.className:'';
         const selected = (className.indexOf('selected') === -1);
+        // console.log(selected);
         this._addSelected(obj, selected);
     }
 
-    componentDidMount() {
-        const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
-        if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
-        const divs = Array.from(div.childNodes);
-        divs.map((d) => {
-            this._setMouseUpDown(d);
-        });
-    }
-
-    _setMouseUpDown(div) {
-        if(Utils.isEmpty(div) || div.tagName !== HTML_TAG.DIV) return;
-        console.log(Html.hasAttribute(div, MOUSE.ONCLICK));
-        div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
-        div.addEventListener(MOUSE.CLICK, this._onClick.bind(this), false);
-        if(Utils.isEmpty(div.childNodes) || div.childNodes.length <= 0) return;
-        const lDiv = div.childNodes[div.childNodes.length-1];
-        if(Utils.isEmpty(lDiv.childNodes) || lDiv.childNodes.length <= 0) return;
-        const parentClass = div.className.replace('treeview', 'parent-treeview');
-        div.className = parentClass;
-        const divs = Array.from(lDiv.childNodes);
-        divs.map((d) => {
-            this._setMouseUpDown(d);
-        });
-    }
-
-    _addSelected(div, selected) {
-        console.log(selected);
-        const className = div.className;
+    _addSelected(obj, selected) {
+        if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];
+        const className = obj.className;
         if(selected) {
             if(Utils.isEmpty(className) || className.indexOf('selected') === -1) {
-                div.className = className + ' selected';
+                obj.className = className + 'selected';
             }
         } else {
-            div.className = className.replace(' selected', '');
+            obj.className = className.replace('selected', '');
         }
-        if(Utils.isEmpty(div.childNodes) || div.childNodes.length <= 0) return;
-        const lDiv = div.childNodes[div.childNodes.length-1];
-        if(Utils.isEmpty(lDiv.childNodes) || lDiv.childNodes.length <= 0) return;
-        const divs = Array.from(lDiv.childNodes);
-        divs.map((d) => {
-            this._addSelected(d, selected);
+
+        const p = obj.parentElement;
+        const pUl = p.childNodes[p.childNodes.length-1];
+        if(Utils.isEmpty(pUl) || pUl.tagName !== HTML_TAG.UL) return;
+        const ulis = Array.from(pUl.childNodes);
+        ulis.map((li) => {
+            this._addSelected(li, selected);
         });
     }
 
     _getAllList() {
         if(Utils.isEmpty(this.state.objs) || this.state.objs.length <= 0) return "";
-        return this.state.objs.map((obj, index) => {
-            return this._geList(obj, index);
+        var childs = [];
+        this.state.objs.map((obj, index) => {
+            childs.push(this._geList(obj, index));
         });
+        return(<ul>{ childs }</ul>);
     }
 
     _geList(obj, idx) {
         if(!Utils.inJson(obj, 'children') || obj.children.length <= 0) {
-            return (<Tree key={ idx } page={ obj.value } content={ obj.label }/>);
+            return (
+                <li key={ idx } id={ obj.value }>
+                    <div key={ idx } onClick={ this._onClick.bind(this) }>{ obj.label }</div>
+                </li>);
         } else {
             var childs = [];
             obj.children.map((o, index) => {
-                childs.push(<Tree key={ index } page={ o.value } content={ o.label }/>);
+                childs.push(this._geList(o, index));
             });
-            return(<Tree key={ idx } page={ obj.value } content={ obj.label }>{ childs }</Tree>);
+            return(
+                <li
+                    key={ idx }
+                    id={ obj.value }
+                    className='parent'>
+                    <div key={ 'div_' + idx } onClick={ this._onClick.bind(this) }>{ obj.label }</div>
+                    <ul key={ 'ul_' + idx }>{ childs }</ul>
+                </li>
+                );
         }
     }
 

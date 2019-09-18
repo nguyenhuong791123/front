@@ -19,6 +19,8 @@ export const HTML_TAG = {
     ,INPUT: 'INPUT'
     ,SPAN: 'SPAN'
     ,A: 'A'
+    ,UL: 'UL'
+    ,LI: 'LI'
     ,TBODY: 'TBODY'
     ,TR: 'TR'
     ,TH: 'TH'

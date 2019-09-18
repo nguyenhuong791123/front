@@ -58,7 +58,6 @@
     "html-webpack-plugin": "^3.2.0",
     "jwt-decode": "^2.2.0",
     "mini-css-extract-plugin": "^0.8.0",
-    "react-animated-tree": "^1.0.10",
     "react-bootstrap": "^1.0.0-beta.10",
     "react-bootstrap-sidebar": "0.0.1",
     "react-burger-menu": "^2.6.11",
