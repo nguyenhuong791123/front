@@ -2,7 +2,8 @@ import React, { Component as C } from 'react';
 import Tree from 'react-animated-tree';
 
 import { SYSTEM } from '../../js/utils/Types';
-import { HTML_TAG } from '../utils/HtmlTypes';
+import { HTML_TAG, ATTR, MOUSE } from '../utils/HtmlTypes';
+import Html from '../../js/utils/HtmlUtils';
 import Utils from '../../js/utils/Utils';
 import '../../css/TreeList.css';
 
@@ -50,11 +51,21 @@ class System extends C {
     };
 
     _onMouseOver(e) {
-        console.log(e.target);
+        // console.log(e.target);
     }
 
     _onClick(e) {
-        console.log(e.target);
+        var obj = e.target;
+        if(obj.tagName === HTML_TAG.SVG || obj.tagName === HTML_TAG.G || obj.tagName === HTML_TAG.PATH) return;
+        e.preventDefault();
+        e.stopPropagation();
+        if(obj.tagName === HTML_TAG.SPAN) {
+            obj = e.target.parentElement;
+        }
+        // console.log(obj.className);
+        var className = (Html.hasAttribute(obj, ATTR.CLASS))?obj.className:'';
+        const selected = (className.indexOf('selected') === -1);
+        this._addSelected(obj, selected);
     }
 
     componentDidMount() {
@@ -68,10 +79,11 @@ class System extends C {
 
     _setMouseUpDown(div) {
         if(Utils.isEmpty(div) || div.tagName !== HTML_TAG.DIV) return;
-        console.log(div);
+        console.log(Html.hasAttribute(div, MOUSE.ONCLICK));
+        div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
+        div.addEventListener(MOUSE.CLICK, this._onClick.bind(this), false);
         if(Utils.isEmpty(div.childNodes) || div.childNodes.length <= 0) return;
         const lDiv = div.childNodes[div.childNodes.length-1];
-        console.log(lDiv.childNodes);
         if(Utils.isEmpty(lDiv.childNodes) || lDiv.childNodes.length <= 0) return;
         const divs = Array.from(lDiv.childNodes);
         divs.map((d) => {
@@ -79,16 +91,35 @@ class System extends C {
         });
     }
 
+    _addSelected(div, selected) {
+        console.log(selected);
+        const className = div.className;
+        if(selected) {
+            if(Utils.isEmpty(className) || className.indexOf('selected') === -1) {
+                div.className = className + ' selected';
+            }
+        } else {
+            div.className = className.replace(' selected', '');
+        }
+        if(Utils.isEmpty(div.childNodes) || div.childNodes.length <= 0) return;
+        const lDiv = div.childNodes[div.childNodes.length-1];
+        if(Utils.isEmpty(lDiv.childNodes) || lDiv.childNodes.length <= 0) return;
+        const divs = Array.from(lDiv.childNodes);
+        divs.map((d) => {
+            this._addSelected(d, selected);
+        });
+    }
+
     render() {
         return (
-            <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX }>
+            <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
                 {/* <Tree content="main" type="ITEM" open> */}
                 {/* <Tree content="main" type="ITEM" canHide open style={treeStyles}> */}
                     {/* <Tree content="hello" type={<span style={typeStyles}>🙀</span>} canHide /> */}
                     <Tree content="hello" type={<span>🙀</span>} />
                     <Tree content="subtree with children">
                     <Tree content="hello" />
-                    <Tree content="sub-subtree with children" type={<input type="checkbox"></input>}>
+                    <Tree content="sub-subtree with children">
                         <Tree content="child 1"/>
                         <Tree content="child 2"/>
                         <Tree content="child 3"/>

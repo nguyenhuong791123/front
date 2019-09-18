@@ -12,6 +12,7 @@ export const HTML_TAG = {
     ,DIV: 'DIV'
     ,TAB: 'TAB'
     ,SVG: 'svg'
+    ,G: 'g'
     ,PATH: 'path'
     ,PASSWORD: 'PASSWORD'
     ,RANGE: 'RANGE'
@@ -67,6 +68,7 @@ export const ATTR = {
 
 export const MOUSE = {
     CLICK: 'click'
+    ,ONCLICK: 'onclick'
     ,DBCLICK: 'dblclick'
     ,MOUSEDOWN: 'mousedown'
     ,MOUSEMOVE: 'mousemove'
