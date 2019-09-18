@@ -45,11 +45,25 @@ div.div-tree-view-box {
   margin: .3em;
 }
 
-div.treeview {
+div.parent-treeview
+,div.treeview {
   padding-left: .5em !important;
-  /* padding-right: .5em !important; */
 }
 
-div.treeview.selected {
-  background-color: #2a9fd685 !important;
+div.parent-treeview:hover
+,div.treeview:hover {
+  cursor: pointer;
+  /* border: 1px inset;
+  border-color: #dee2e6;
+  border-radius: .3em; */
+}
+
+div.treeview span:hover {
+  cursor: pointer;
+}
+
+div.treeview.selected > span:nth-child(3) {
+  padding-left: .2em;
+  border-left: .3em solid;
+  border-color: #2a9fd685;
 }

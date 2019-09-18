@@ -18,7 +18,7 @@ class System extends C {
             isUser: this.props.isUser
             ,checked: []
             ,expanded: []
-            ,nodes: [
+            ,objs: [
                 {
                     value: 'mars',
                     label: 'Mars',
@@ -85,6 +85,8 @@ class System extends C {
         if(Utils.isEmpty(div.childNodes) || div.childNodes.length <= 0) return;
         const lDiv = div.childNodes[div.childNodes.length-1];
         if(Utils.isEmpty(lDiv.childNodes) || lDiv.childNodes.length <= 0) return;
+        const parentClass = div.className.replace('treeview', 'parent-treeview');
+        div.className = parentClass;
         const divs = Array.from(lDiv.childNodes);
         divs.map((d) => {
             this._setMouseUpDown(d);
@@ -110,25 +112,29 @@ class System extends C {
         });
     }
 
+    _getAllList() {
+        if(Utils.isEmpty(this.state.objs) || this.state.objs.length <= 0) return "";
+        return this.state.objs.map((obj, index) => {
+            return this._geList(obj, index);
+        });
+    }
+
+    _geList(obj, idx) {
+        if(!Utils.inJson(obj, 'children') || obj.children.length <= 0) {
+            return (<Tree key={ idx } page={ obj.value } content={ obj.label }/>);
+        } else {
+            var childs = [];
+            obj.children.map((o, index) => {
+                childs.push(<Tree key={ index } page={ o.value } content={ o.label }/>);
+            });
+            return(<Tree key={ idx } page={ obj.value } content={ obj.label }>{ childs }</Tree>);
+        }
+    }
+
     render() {
         return (
             <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
-                {/* <Tree content="main" type="ITEM" open> */}
-                {/* <Tree content="main" type="ITEM" canHide open style={treeStyles}> */}
-                    {/* <Tree content="hello" type={<span style={typeStyles}>🙀</span>} canHide /> */}
-                    <Tree content="hello" type={<span>🙀</span>} />
-                    <Tree content="subtree with children">
-                    <Tree content="hello" />
-                    <Tree content="sub-subtree with children">
-                        <Tree content="child 1"/>
-                        <Tree content="child 2"/>
-                        <Tree content="child 3"/>
-                    </Tree>
-                    <Tree content="hello" />
-                    </Tree>
-                    <Tree content="hello" />
-                    <Tree content="hello" />
-                {/* </Tree> */}
+                { this._getAllList() }
             </div>
         )
     };
