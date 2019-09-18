@@ -7,7 +7,7 @@ import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import { sessionService, sessionReducer } from 'redux-react-session';
 import thunkMiddleware from 'redux-thunk';
 
-import { ACTION, SYSTEM } from './js/utils/Types';
+import { PAGE, ACTION, SYSTEM } from './js/utils/Types';
 import { HTML_TAG } from './js/utils/HtmlTypes';
 import { THEME } from './js/utils/Theme';
 import Utils from './js/utils/Utils';
@@ -20,6 +20,7 @@ import Login from './js/Login';
 import List from './js/pages/List';
 import Create from './js/pages/Create';
 import View from './js/pages/View';
+import System from './js/pages/System';
 import Customize from './js/pages/Customize';
 
 import AuthSession from './js/auth/AuthSession';
@@ -175,7 +176,11 @@ class App extends C {
         this.state.isUser = isUser.info;
         this.state.options = isUser.options;
         this._addCssLink();
-        history.push(isUser.info.path);
+        if(isUser.info.action === PAGE.SYSTEM) {
+            history.push(ACTION.SLASH + isUser.info.action);
+        } else {
+            history.push(isUser.info.path);
+        }
         this.forceUpdate();
     }
 
@@ -249,6 +254,9 @@ class App extends C {
                                 <Route
                                     path={ ACTION.SLASH + ACTION.VIEW }
                                     render={ ({ props }) => <View isUser={ this.state.isUser } {...this.props} />} />
+                                <Route
+                                    path={ ACTION.SLASH + PAGE.SYSTEM }
+                                    render={ ({ props }) => <System isUser={ this.state.isUser } {...this.props} />} />
                                 <Route
                                     exact
                                     render={ ({ props }) => <P404 isUser={ this.state.isUser }

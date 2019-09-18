@@ -99,15 +99,16 @@ class Header extends C {
   }
 
   _onClick(e) {
-    var obj = e.target;
-    if(obj.tagName !== 'A') {
-      if(obj.tagName === 'path') {
-        obj = e.target.parentElement.parentElement;
-      } else {
-        obj = e.target.parentElement;
-      }
-      if(obj.tagName !== 'A') return;
-    }
+    var obj = Html.getLinkObj(e);
+    // var obj = e.target;
+    // if(obj.tagName !== 'A') {
+    //   if(obj.tagName === 'path') {
+    //     obj = e.target.parentElement.parentElement;
+    //   } else {
+    //     obj = e.target.parentElement;
+    //   }
+    //   if(obj.tagName !== 'A') return;
+    // }
 
     const mode = obj.getAttribute('mode');
     if(mode !== 'menu-left') this._onClickButtonToggle();
@@ -145,8 +146,9 @@ class Header extends C {
         this.state.isUser.action = action;
         const url = window.location.protocol + '//' + window.location.host;
         var path = obj.href.replace(url, '').replace('#', '');
+        if(action !== PAGE.SYSTEM) path = ACTION.SLASH + ACTION.LIST;
         this.state.isUser.path = path;
-        this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);  
+        this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }
       console.log('HEADER _onClick complete !!!');
     } else {
