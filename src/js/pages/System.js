@@ -34,16 +34,36 @@ class System extends C {
                                 {
                                     value: 'phobos2',
                                     label: 'Phobos2'
+                                    ,auth: [
+                                        {  value: 'search', label: 'Search' }
+                                        ,{  value: 'view', label: 'View' }
+                                        ,{  value: 'create', label: 'Create' }
+                                        ,{  value: 'edit', label: 'Edit' }
+                                        ,{  value: 'delete', label: 'Delete' }
+                                        ,{  value: 'upload', label: 'Upload' }
+                                        ,{  value: 'download', label: 'Download' }
+                                    ]
                                 },
                                 {
                                     value: 'deimos2',
                                     label: 'Deimos2'
+                                    ,auth: [
+                                        {  value: 'search', label: 'Search' }
+                                        ,{  value: 'view', label: 'View' }
+                                        ,{  value: 'create', label: 'Create' }
+                                        ,{  value: 'edit', label: 'Edit' }
+                                        ,{  value: 'delete', label: 'Delete' }
+                                    ]
                                 },
                             ]
                         },
                         {
                             value: 'deimos',
                             label: 'Deimos'
+                            ,auth: [
+                                {  value: 'search', label: 'Search' }
+                                ,{  value: 'view', label: 'View' }
+                            ]
                         },
                     ],
                 }
@@ -54,10 +74,19 @@ class System extends C {
                         {
                             value: 'phobos',
                             label: 'Phobos1'
+                            ,auth: [
+                                {  value: 'search', label: 'Search' }
+                                ,{  value: 'delete', label: 'Delete' }
+                                ,{  value: 'upload', label: 'Upload' }
+                                ,{  value: 'download', label: 'Download' }
+                            ]
                         },
                         {
                             value: 'deimos',
                             label: 'Deimos1'
+                            ,auth: [
+                                {  value: 'search', label: 'Search' }
+                            ]
                         },
                     ],
                 }
@@ -194,16 +223,33 @@ class System extends C {
             var div = (<div key={ idx } title={ obj.label }>{ obj.label }</div>);
             if(this.state.isUser.uLid === SYSTEM.IS_ADMIN)
                 div = (<div key={ idx } onClick={ this._onClick.bind(this) } title={ obj.label }>{ obj.label }</div>);
+            const auths = [];
+            if(Utils.inJson(obj, 'auth')) {
+                obj.auth.map((a, index) => {
+                    auths.push(<Button
+                                    key={ index }
+                                    id={ a.value }
+                                    variant={ VARIANT_TYPES.INFO }
+                                    onClick={ this._onButtonClick.bind(this) }
+                                    title={ a.label }>
+                                    { a.label }
+                                </Button>);
+                });
+            }
+
             return (
                 <li key={ idx } id={ obj.value }>
                     { div }
-                    <ButtonGroup className='div-btn-group'>
-                        <input type={ HTML_TAG.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
-                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>Search</Button>
-                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>View</Button>
-                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>Create</Button>
-                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>Update</Button>
-                    </ButtonGroup>
+                    {(() => {
+                        if(!Utils.isEmpty(auths) && auths.length > 0) {
+                            return (
+                                <ButtonGroup className='div-btn-group'>
+                                    <input type={ HTML_TAG.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                                    { auths }
+                                </ButtonGroup>
+                            );
+                        }
+                    })()}
                 </li>);
         } else {
             var childs = [];
