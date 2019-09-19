@@ -61,14 +61,29 @@ class System extends C {
         const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
         if(Utils.isEmpty(div.childNodes[0]) || div.childNodes[0].childNodes.length <= 0) return;
         const ulis = Array.from(div.childNodes[0].childNodes);
+        console.log(ulis);
         ulis.map((obj) => {
-            console.log(obj);
-            console.log(obj.className);
-            console.log(obj.id);
-            console.log(obj.childNodes[0]);
-            console.log(obj.childNodes[obj.childNodes.length-1]);
+            this._getSelected(obj);
         });
     }
+
+    _getSelected(obj) {
+        if(Utils.isEmpty(obj)
+            || obj.tagName !== HTML_TAG.LI
+            || Utils.isEmpty(obj.childNodes[0])) return;
+        const className = obj.childNodes[0].className;
+        if(Utils.isEmpty(className) || className.indexOf('selected') === -1) return;
+        // console.log('_getSelected');
+        const ul = obj.childNodes[obj.childNodes.length-1];
+        if((obj.className.indexOf('parent') === -1) || ul.tagName !== HTML_TAG.UL) {
+            console.log(obj);
+        } else {
+            const ulis = Array.from(ul.childNodes);
+            ulis.map((li) => {
+                this._getSelected(li);
+            });    
+        }
+}
 
     _addSelected(obj, selected) {
         if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];
