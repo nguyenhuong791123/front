@@ -1,7 +1,8 @@
 import React, { Component as C } from 'react';
+import { ButtonGroup, Button } from 'react-bootstrap';
 
 import Actions from '../utils/Actions';
-import { SYSTEM } from '../utils/Types';
+import { SYSTEM, VARIANT_TYPES } from '../utils/Types';
 import { HTML_TAG, ATTR } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
@@ -12,6 +13,8 @@ class System extends C {
         super(props);
 
         this._onClick = this._onClick.bind(this);
+        this._onButtonClick = this._onButtonClick.bind(this);
+        this._onCheckBoxClick = this._onCheckBoxClick.bind(this);
         this._onClickSubmit = this._onClickSubmit.bind(this);
 
         this.state = {
@@ -26,21 +29,36 @@ class System extends C {
                     children: [
                         {
                             value: 'phobos1',
-                            label: 'Phobos1',
+                            label: 'phobos1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
                             children: [
-                                { value: 'phobos2', label: 'Phobos2' },
-                                { value: 'deimos2', label: 'Deimos2' },
+                                {
+                                    value: 'phobos2',
+                                    label: 'Phobos2'
+                                },
+                                {
+                                    value: 'deimos2',
+                                    label: 'Deimos2'
+                                },
                             ]
                         },
-                        { value: 'deimos', label: 'Deimos' },
+                        {
+                            value: 'deimos',
+                            label: 'Deimos'
+                        },
                     ],
                 }
                 ,{
                     value: 'mars1',
                     label: 'Mars1',
                     children: [
-                        { value: 'phobos', label: 'Phobos1' },
-                        { value: 'deimos', label: 'Deimos1' },
+                        {
+                            value: 'phobos',
+                            label: 'Phobos1'
+                        },
+                        {
+                            value: 'deimos',
+                            label: 'Deimos1'
+                        },
                     ],
                 }
             ]
@@ -55,6 +73,42 @@ class System extends C {
         this._addSelected(obj, selected);
         this._addChildSelected(obj, selected);
         this._addParentSelected(obj, selected);
+    }
+
+    _onButtonClick(e) {
+        var obj = e.target;
+        console.log(obj);
+        if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.BUTTON) return;
+        const className = obj.className;
+        const selected = (className.indexOf('selected') === -1);
+        this._addButtonSelected(obj, selected);
+    }
+
+    _addButtonSelected(obj, selected) {
+        if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.BUTTON) return;
+        const className = obj.className;
+        if(!Utils.isEmpty(className) && className.indexOf(' selected') !== -1) {
+            obj.className = className.replace(' selected', '');
+        } else {
+            if(className.indexOf(' selected') === -1 && selected)
+                obj.className = className + ' selected';
+        }
+    }
+
+    _onCheckBoxClick(e) {
+        var obj = e.target;
+        if(Utils.isEmpty(obj)
+            || !Html.hasAttribute(obj, ATTR.TYPE)
+            || obj.type !== HTML_TAG.CHECKBOX.toLowerCase()) return;
+        const div = obj.parentElement;
+        if(Utils.isEmpty(div) || div.childNodes.length <=1) return;
+        const btns =  Array.from(div.childNodes);
+        const selected = obj.checked;
+        btns.map((bt) => {
+            if(bt.tagName === HTML_TAG.BUTTON) {
+                this._addButtonSelected(bt, selected);
+            }
+        });
     }
 
     _onClickSubmit() {
@@ -137,25 +191,43 @@ class System extends C {
 
     _geList(obj, idx) {
         if(!Utils.inJson(obj, 'children') || obj.children.length <= 0) {
+            var div = (<div key={ idx } title={ obj.label }>{ obj.label }</div>);
+            if(this.state.isUser.uLid === SYSTEM.IS_ADMIN)
+                div = (<div key={ idx } onClick={ this._onClick.bind(this) } title={ obj.label }>{ obj.label }</div>);
             return (
                 <li key={ idx } id={ obj.value }>
-                    <div key={ idx } onClick={ this._onClick.bind(this) }>{ obj.label }</div>
+                    { div }
+                    <ButtonGroup className='div-btn-group'>
+                        <input type={ HTML_TAG.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>Search</Button>
+                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>View</Button>
+                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>Create</Button>
+                        <Button variant={ VARIANT_TYPES.INFO } onClick={ this._onButtonClick.bind(this) } title={ obj.label }>Update</Button>
+                    </ButtonGroup>
                 </li>);
         } else {
             var childs = [];
             obj.children.map((o, index) => {
                 childs.push(this._geList(o, index));
             });
+            var div = (<div key={ 'div_' + idx } title={ obj.label }>{ obj.label }</div>);
+            if(this.state.isUser.uLid === SYSTEM.IS_ADMIN)
+                div = (<div key={ 'div_' + idx } onClick={ this._onClick.bind(this) } title={ obj.label }>{ obj.label }</div>);
             return(
                 <li
                     key={ idx }
                     id={ obj.value }
                     className='parent'>
-                    <div key={ 'div_' + idx } onClick={ this._onClick.bind(this) }>{ obj.label }</div>
+                    { div }
                     <ul key={ 'ul_' + idx }>{ childs }</ul>
                 </li>
                 );
         }
+    }
+
+    UNSAFE_componentWillReceiveProps(props) {
+        this.state.isUser = props.isUser;
+        this.state.actions = props.actions;
     }
 
     render() {

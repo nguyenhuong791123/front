@@ -11,17 +11,25 @@ div.div-tree-view-box ul li.parent > div:first-child {
   font-weight: bold;
 }
 
+/* div.div-tree-view-box ul > li {
+  display: inline-flex;
+} */
+
 div.div-tree-view-box ul > li ul {
   padding-left: .7em;
 }
 
 div.div-tree-view-box > ul div {
   cursor: pointer;
-  line-height: 2em;
+  line-height: 2.5em;
 }
 
-div.div-tree-view-box > ul div {
+div.div-tree-view-box > ul div:first-child {
   padding-left: .7em;
+  max-width: 20%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 div.div-tree-view-box > ul div.selected {
@@ -32,3 +40,31 @@ div.div-tree-view-box > ul div.selected {
 div.div-tree-view-box > ul div:hover {
   background-color: #2a9fd685;
 }
+
+div.div-tree-view-box ul li > div.div-btn-group {
+  position: absolute;
+  margin-top: -2.5em;
+  left: 21%;
+  padding: 0;
+}
+
+div.div-tree-view-box ul li > div.div-btn-group > input[type='checkbox'] {
+  margin: .2em;
+  margin-top: .8em;  
+}
+
+div.div-tree-view-box ul li > div.div-btn-group > input[type='checkbox']:hover {
+  cursor: pointer;
+}
+
+div.div-tree-view-box ul li > div.div-btn-group > button {
+  width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+div.div-tree-view-box ul li > div.div-btn-group > button.selected {
+  color: brown;
+}
+
