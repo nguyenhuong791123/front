@@ -22,77 +22,82 @@ class System extends C {
             ,actions: { return: false, create: true }
             ,checked: []
             ,expanded: []
-            ,objs: [
-                {
-                    value: 'mars',
-                    label: 'Mars',
-                    children: [
-                        {
-                            value: 'phobos1',
-                            label: 'phobos1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-                            children: [
-                                {
-                                    value: 'phobos2',
-                                    label: 'Phobos2'
-                                    ,auth: [
-                                        {  value: 'search', label: 'Search' }
-                                        ,{  value: 'view', label: 'View' }
-                                        ,{  value: 'create', label: 'Create' }
-                                        ,{  value: 'edit', label: 'Edit' }
-                                        ,{  value: 'delete', label: 'Delete' }
-                                        ,{  value: 'upload', label: 'Upload' }
-                                        ,{  value: 'download', label: 'Download' }
-                                    ]
-                                },
-                                {
-                                    value: 'deimos2',
-                                    label: 'Deimos2'
-                                    ,auth: [
-                                        {  value: 'search', label: 'Search' }
-                                        ,{  value: 'view', label: 'View' }
-                                        ,{  value: 'create', label: 'Create' }
-                                        ,{  value: 'edit', label: 'Edit' }
-                                        ,{  value: 'delete', label: 'Delete' }
-                                    ]
-                                },
-                            ]
-                        },
-                        {
-                            value: 'deimos',
-                            label: 'Deimos'
-                            ,auth: [
-                                {  value: 'search', label: 'Search' }
-                                ,{  value: 'view', label: 'View' }
-                            ]
-                        },
-                    ],
-                }
-                ,{
-                    value: 'mars1',
-                    label: 'Mars1',
-                    children: [
-                        {
-                            value: 'phobos',
-                            label: 'Phobos1'
-                            ,auth: [
-                                {  value: 'search', label: 'Search' }
-                                ,{  value: 'delete', label: 'Delete' }
-                                ,{  value: 'upload', label: 'Upload' }
-                                ,{  value: 'download', label: 'Download' }
-                            ]
-                        },
-                        {
-                            value: 'deimos',
-                            label: 'Deimos1'
-                            ,auth: [
-                                {  value: 'search', label: 'Search' }
-                            ]
-                        },
-                    ],
-                }
-            ]
+            ,objs: []
+            ,btns: []
         };
     };
+
+    _getObjs() {
+        this.state.objs = [
+            {
+                value: 'mars',
+                label: 'Mars',
+                children: [
+                    {
+                        value: 'phobos1',
+                        label: 'phobos1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+                        children: [
+                            {
+                                value: 'phobos2',
+                                label: 'Phobos2'
+                                ,auth: [
+                                    {  value: 'search', label: 'Search' }
+                                    ,{  value: 'view', label: 'View' }
+                                    ,{  value: 'create', label: 'Create' }
+                                    ,{  value: 'edit', label: 'Edit' }
+                                    ,{  value: 'delete', label: 'Delete' }
+                                    ,{  value: 'upload', label: 'Upload' }
+                                    ,{  value: 'download', label: 'Download' }
+                                ]
+                            },
+                            {
+                                value: 'deimos2',
+                                label: 'Deimos2'
+                                ,auth: [
+                                    {  value: 'search', label: 'Search' }
+                                    ,{  value: 'view', label: 'View' }
+                                    ,{  value: 'create', label: 'Create' }
+                                    ,{  value: 'edit', label: 'Edit' }
+                                    ,{  value: 'delete', label: 'Delete' }
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        value: 'deimos',
+                        label: 'Deimos'
+                        ,auth: [
+                            {  value: 'search', label: 'Search' }
+                            ,{  value: 'view', label: 'View' }
+                        ]
+                    },
+                ],
+            }
+            ,{
+                value: 'mars1',
+                label: 'Mars1',
+                children: [
+                    {
+                        value: 'phobos',
+                        label: 'Phobos1'
+                        ,auth: [
+                            {  value: 'search', label: 'Search' }
+                            ,{  value: 'delete', label: 'Delete' }
+                            ,{  value: 'upload', label: 'Upload' }
+                            ,{  value: 'download', label: 'Download' }
+                        ]
+                    },
+                    {
+                        value: 'deimos',
+                        label: 'Deimos1'
+                        ,auth: [
+                            {  value: 'search', label: 'Search' }
+                        ]
+                    },
+                ],
+            }
+        ]
+    }
 
     _onClick(e) {
         var obj = e.target;
@@ -116,28 +121,50 @@ class System extends C {
     _addButtonSelected(obj, selected) {
         if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.BUTTON) return;
         const className = obj.className;
-        if(!Utils.isEmpty(className) && className.indexOf(' selected') !== -1) {
+        if(className.indexOf(' selected') === -1 && selected)
+            obj.className = className + ' selected';
+        if(!Utils.isEmpty(className) && className.indexOf(' selected') !== -1 && !selected)
             obj.className = className.replace(' selected', '');
-        } else {
-            if(className.indexOf(' selected') === -1 && selected)
-                obj.className = className + ' selected';
-        }
     }
 
     _onCheckBoxClick(e) {
         var obj = e.target;
+        console.log(obj);
         if(Utils.isEmpty(obj)
             || !Html.hasAttribute(obj, ATTR.TYPE)
             || obj.type !== HTML_TAG.CHECKBOX.toLowerCase()) return;
         const div = obj.parentElement;
         if(Utils.isEmpty(div) || div.childNodes.length <=1) return;
         const btns =  Array.from(div.childNodes);
+        if(!Utils.isEmpty(this.state['selected'])) obj.checked = this.state['selected'];
         const selected = obj.checked;
         btns.map((bt) => {
             if(bt.tagName === HTML_TAG.BUTTON) {
                 this._addButtonSelected(bt, selected);
             }
         });
+        const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
+        if(Utils.isEmpty(ul) || ul.tagName !== HTML_TAG.UL) return;
+        this.state['selected'] = selected;
+        const ulis = Array.from(ul.childNodes);
+        ulis.map((li) => {
+            this._onCheckBoxAutoClick(li);
+        });
+        this.state['selected'] = null;
+    }
+
+    _onCheckBoxAutoClick(obj) {
+        if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.LI) return;
+        const div = obj.childNodes[obj.childNodes.length-1];
+        if(div.tagName === HTML_TAG.UL) {
+            const ulis = Array.from(div.childNodes);
+            ulis.map((li) => {
+                this._onCheckBoxAutoClick(li);
+            });
+        }
+        if(div.tagName === HTML_TAG.DIV && div.className.indexOf('div-btn-group') !== -1) {
+            div.childNodes[0].click();
+        }
     }
 
     _onClickSubmit() {
@@ -200,7 +227,9 @@ class System extends C {
         if(!selected) {
             ulis.map((li) => {
                 if(!selected)
-                    selected = (!Utils.isEmpty(li.childNodes[0]) && Html.hasAttribute(li.childNodes[0], ATTR.CLASS) && li.childNodes[0].className.indexOf('selected') !== -1);
+                    selected = (!Utils.isEmpty(li.childNodes[0])
+                                && Html.hasAttribute(li.childNodes[0], ATTR.CLASS)
+                                && li.childNodes[0].className.indexOf('selected') !== -1);
             });    
         }
         const pp = p.parentElement;
@@ -271,12 +300,57 @@ class System extends C {
         }
     }
 
+    _getChildButtons(obj, idx) {
+        if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.LI) return;
+        const ul = obj.childNodes[obj.childNodes.length-1];
+        if(Utils.isEmpty(ul) || (ul.tagName !== HTML_TAG.DIV && ul.tagName !== HTML_TAG.UL)) return;
+        if(ul.tagName === HTML_TAG.DIV
+            && !Utils.isEmpty(ul.className)
+            && ul.className.indexOf('div-btn-group') !== -1
+            && (Utils.isEmpty(this.state.btns[idx]) || ul.childNodes.length > this.state.btns[idx].length)) {
+            this.state.btns[idx] = ul;
+        } else {
+            const ulis = Array.from(ul.childNodes);
+            ulis.map((li) => {
+                this._getChildButtons(li, idx);
+            });
+        }
+    }
+
     UNSAFE_componentWillReceiveProps(props) {
         this.state.isUser = props.isUser;
         this.state.actions = props.actions;
     }
 
+    componentDidMount() {
+        const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
+        if(Utils.isEmpty(div) || Utils.isEmpty(div.childNodes[0]) || div.childNodes[0].childNodes.length <= 0) return;
+        const ulis = Array.from(div.childNodes[0].childNodes);
+        ulis.map((li, index) => {
+            this._getChildButtons(li, index);
+        });
+
+        if(!Utils.isEmpty(this.state.btns) && this.state.btns.length > 0) {
+            this.state.btns.map((o, index) => {
+                const obj = o.cloneNode(true);
+                obj.id = 'div_btn_' + index;
+                const btns = Array.from(obj.childNodes);
+                btns.map((b, index) => {
+                    if(index === 0 && b.tagName === HTML_TAG.INPUT) {
+                        b.onclick = this._onCheckBoxClick.bind(this);
+                    } else {
+                        b.className = 'btn btn-warning';
+                        b.onclick = this._onButtonClick.bind(this);
+                    }
+                });
+                div.childNodes[0].childNodes[index].childNodes[0].after(obj);
+            });
+        }
+    }
+
     render() {
+        this._getObjs();
+
         return (
             <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
                 { this._getAllList() }
