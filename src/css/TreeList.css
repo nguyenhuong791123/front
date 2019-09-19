@@ -15,20 +15,20 @@ div.div-tree-view-box ul > li ul {
   padding-left: .7em;
 }
 
-div.div-tree-view-box div {
+div.div-tree-view-box > ul div {
   cursor: pointer;
   line-height: 2em;
 }
 
-div.div-tree-view-box div {
+div.div-tree-view-box > ul div {
   padding-left: .7em;
 }
 
-div.div-tree-view-box div.selected {
+div.div-tree-view-box > ul div.selected {
   border-left: .3em solid;
   border-color: #2a9fd685;
 }
 
-div.div-tree-view-box div:hover {
+div.div-tree-view-box > ul div:hover {
   background-color: #2a9fd685;
 }

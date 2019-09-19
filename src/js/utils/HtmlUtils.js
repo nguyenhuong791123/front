@@ -17,7 +17,6 @@ const object = {
     }
     ,hasAttribute: (obj, attr) => {
       if(obj === undefined || attr === undefined || attr === null) return false;
-      console.log(obj);
       return obj.hasAttribute(attr);
     }
     ,getLinkObj(e) {

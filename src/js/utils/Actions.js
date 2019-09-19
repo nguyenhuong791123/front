@@ -13,7 +13,10 @@ export default class AlertAction extends C {
     this._onClickReturn = this._onClickReturn.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
 
-    this.state = { isUser: this.props.isUser }
+    this.state = {
+      isUser: this.props.isUser
+      ,actions: isEmpty(this.props.actions)?{ return: true, create: true }:this.props.actions
+    }
   }
 
   _onClickReturn() {
@@ -54,15 +57,29 @@ export default class AlertAction extends C {
     const className = (!isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
     return (
         <div id="div_button_action" className={ className }>
-            <Button onClick={ this._onClickReturn.bind(this) } variant="info">
-              <FaReply />
-              { GetMsg(null, this.state.isUser.language, 'bt_return') }
-            </Button>
-            <br />
-            <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant="warning">
-              <FaCheck />
-              { GetMsg(null, this.state.isUser.language, 'bt_insert') }
-            </Button>
+          {(() => {
+            if(this.state.actions.return) {
+              return (
+                <div>
+                  <Button onClick={ this._onClickReturn.bind(this) } variant="info">
+                    <FaReply />
+                    { GetMsg(null, this.state.isUser.language, 'bt_return') }
+                  </Button>
+                  <br />
+                </div>  
+              );
+            }
+          })()}
+          {(() => {
+            if(this.state.actions.create) {
+              return (
+                <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant="warning">
+                  <FaCheck />
+                  { GetMsg(null, this.state.isUser.language, 'bt_insert') }
+                </Button>
+              );
+            }
+          })()}
         </div>
     )
   };

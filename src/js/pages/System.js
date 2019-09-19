@@ -1,9 +1,10 @@
 import React, { Component as C } from 'react';
 
-import { SYSTEM } from '../../js/utils/Types';
+import Actions from '../utils/Actions';
+import { SYSTEM } from '../utils/Types';
 import { HTML_TAG, ATTR } from '../utils/HtmlTypes';
-import Html from '../../js/utils/HtmlUtils';
-import Utils from '../../js/utils/Utils';
+import Html from '../utils/HtmlUtils';
+import Utils from '../utils/Utils';
 import '../../css/TreeList.css';
 
 class System extends C {
@@ -11,9 +12,11 @@ class System extends C {
         super(props);
 
         this._onClick = this._onClick.bind(this);
+        this._onClickSubmit = this._onClickSubmit.bind(this);
 
         this.state = {
             isUser: this.props.isUser
+            ,actions: { return: false, create: true }
             ,checked: []
             ,expanded: []
             ,objs: [
@@ -49,8 +52,22 @@ class System extends C {
         if(obj.tagName !== HTML_TAG.DIV) return;
         var className = (Html.hasAttribute(obj, ATTR.CLASS))?obj.className:'';
         const selected = (className.indexOf('selected') === -1);
-        // console.log(selected);
         this._addSelected(obj, selected);
+        this._addChildSelected(obj, selected);
+        this._addParentSelected(obj, selected);
+    }
+
+    _onClickSubmit() {
+        const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
+        if(Utils.isEmpty(div.childNodes[0]) || div.childNodes[0].childNodes.length <= 0) return;
+        const ulis = Array.from(div.childNodes[0].childNodes);
+        ulis.map((obj) => {
+            console.log(obj);
+            console.log(obj.className);
+            console.log(obj.id);
+            console.log(obj.childNodes[0]);
+            console.log(obj.childNodes[obj.childNodes.length-1]);
+        });
     }
 
     _addSelected(obj, selected) {
@@ -63,14 +80,35 @@ class System extends C {
         } else {
             obj.className = className.replace('selected', '');
         }
+    }
 
+    _addChildSelected(obj, selected) {
+        if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];
+        this._addSelected(obj, selected);
         const p = obj.parentElement;
         const pUl = p.childNodes[p.childNodes.length-1];
         if(Utils.isEmpty(pUl) || pUl.tagName !== HTML_TAG.UL) return;
         const ulis = Array.from(pUl.childNodes);
         ulis.map((li) => {
-            this._addSelected(li, selected);
+            this._addChildSelected(li, selected);
         });
+    }
+
+    _addParentSelected(obj, selected) {
+        if(Utils.isEmpty(obj) || (obj.tagName === HTML_TAG.DIV && obj.id === SYSTEM.IS_DIV_TREE_VIEW_BOX)) return;
+        const p = obj.parentElement.parentElement;
+        if(Utils.isEmpty(p) || p.childNodes.length <= 0 || p.tagName !== HTML_TAG.UL) return;
+        const ulis = Array.from(p.childNodes);
+        if(!selected) {
+            ulis.map((li) => {
+                if(!selected)
+                    selected = (!Utils.isEmpty(li.childNodes[0]) && Html.hasAttribute(li.childNodes[0], ATTR.CLASS) && li.childNodes[0].className.indexOf('selected') !== -1);
+            });    
+        }
+        const pp = p.parentElement;
+        if(Utils.isEmpty(pp) || (pp.tagName === HTML_TAG.DIV && pp.id === SYSTEM.IS_DIV_TREE_VIEW_BOX)) return;
+        this._addSelected(pp.childNodes[0], selected);
+        this._addParentSelected(pp.childNodes[0], selected);
     }
 
     _getAllList() {
@@ -109,6 +147,11 @@ class System extends C {
         return (
             <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
                 { this._getAllList() }
+
+                <Actions
+                    isUser={ this.state.isUser }
+                    actions={ this.state.actions }
+                    onClickSubmit={ this._onClickSubmit.bind(this) } />
             </div>
         )
     };
