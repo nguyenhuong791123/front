@@ -21,6 +21,7 @@ class System extends C {
         this.state = {
             isUser: this.props.isUser
             ,options: this.props.options
+            ,pages: { page: [] }
             ,checked: []
             ,expanded: []
             ,objs: []
@@ -127,27 +128,32 @@ class System extends C {
         if(Utils.isEmpty(code)) return;
 
         const div = obj.parentElement;
+        // if(Utils.isEmpty(div)
+        //     || div.tagName !== HTML_TAG.DIV
+        //     || div.className.indexOf('div-btn-group') === -1) return;
+        // var sIdx = 0;
+        // const btns = Array.from(div.childNodes);
+        // btns.map((btn) => {
+        //     if(btn.tagName === HTML_TAG.BUTTON
+        //         && btn.className.indexOf(' selected') !== -1) sIdx += 1;
+        // });
+        // if((sIdx === 0 || (sIdx === (btns.length - 1) && !btns[0].checked))
+        //     && btns[0].type === TYPE.CHECKBOX) {
+        //     btns[0].click();
+        // } else {
+        //     btns[0].checked = true;
+        // }
+        // if(sIdx === 0
+        //     || sIdx === (btns.length - 1)
+        //     || !Html.hasAttribute(div, ATTR.ID)
+        //     || div.id.indexOf('div_btn_') === -1) return;
+
         if(Utils.isEmpty(div)
             || div.tagName !== HTML_TAG.DIV
-            || div.className.indexOf('div-btn-group') === -1) return;
-        var sIdx = 0;
-        const btns = Array.from(div.childNodes);
-        btns.map((btn) => {
-            if(btn.tagName === HTML_TAG.BUTTON
-                && btn.className.indexOf(' selected') !== -1) sIdx += 1;
-        });
-        if((sIdx === 0 || sIdx === (btns.length - 1))
-            && btns[0].type === TYPE.CHECKBOX) {
-            btns[0].click();
-        }
-        if(sIdx === 0 || sIdx === (btns.length - 1) || !Html.hasAttribute(div, ATTR.ID)) return;
-
-        const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
-        if(sIdx === 0
-            || sIdx === (btns.length - 1)
-            || Utils.isEmpty(ul)
-            || ul.tagName !== HTML_TAG.UL
+            || !Html.hasAttribute(div, ATTR.ID)
             || div.id.indexOf('div_btn_') === -1) return;
+        const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
+        if(Utils.isEmpty(ul) | ul.tagName !== HTML_TAG.UL) return;
         const ulis = Array.from(ul.childNodes);
         ulis.map((li) => {
             this._addButtonAutoSelected(li, code, selected);
@@ -226,29 +232,38 @@ class System extends C {
         const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
         if(Utils.isEmpty(div.childNodes[0]) || div.childNodes[0].childNodes.length <= 0) return;
         const ulis = Array.from(div.childNodes[0].childNodes);
-        console.log(ulis);
+        this.state.pages = { page: [] };
         ulis.map((obj) => {
             this._getSelected(obj);
         });
+        console.log(this.state['pages']);
     }
 
     _getSelected(obj) {
         if(Utils.isEmpty(obj)
             || obj.tagName !== HTML_TAG.LI
             || Utils.isEmpty(obj.childNodes[0])) return;
-        const className = obj.childNodes[0].className;
-        if(Utils.isEmpty(className) || className.indexOf('selected') === -1) return;
-        // console.log('_getSelected');
-        const ul = obj.childNodes[obj.childNodes.length-1];
-        if((obj.className.indexOf('parent') === -1) || ul.tagName !== HTML_TAG.UL) {
-            console.log(obj);
+        const div = obj.childNodes[obj.childNodes.length-1];
+        if(div.tagName === HTML_TAG.DIV && div.className.indexOf('div-btn-group') !== -1) {
+            var add = false;
+            var page = { action: obj.id, methods: [] };
+            const btns = Array.from(div.childNodes);
+            btns.map((btn) => {
+                if(btn.type === TYPE.BUTTON
+                    && Html.hasAttribute(btn, ATTR.CODE)
+                    && btn.className.indexOf(' selected') !== -1) {
+                    add = true;
+                    page.methods.push(btn.getAttribute(ATTR.CODE));
+                }
+            });
+            if(add) this.state.pages.page.push(page);
         } else {
-            const ulis = Array.from(ul.childNodes);
+            const ulis = Array.from(div.childNodes);
             ulis.map((li) => {
                 this._getSelected(li);
             });    
         }
-}
+    }
 
     _addSelected(obj, selected) {
         if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];

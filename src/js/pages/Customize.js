@@ -12,7 +12,7 @@ import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
@@ -23,6 +23,7 @@ class Customize extends C {
   constructor(props) {
     super(props);
 
+    // this._onTopDivClick = this._onTopDivClick.bind(this);
     this._onClickBack = this._onClickBack.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
@@ -363,45 +364,15 @@ class Customize extends C {
     // this.state.form.formData = {}
   }
 
-  UNSAFE_componentWillReceiveProps(props) {
-    // console.log('CREATE componentWillReceiveProps');
-    this.state.isUser = props.isUser;
-    // console.log(this.state.isUser);
-  }
-
-  componentDidMount() {
+  _addTopDivSelected(obj) {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
-    div.addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
-    div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
-    div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
-    div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
-
-    const objs = div.childNodes;
-    // var divDrags = null;
-    for(let i=0; i<objs.length; i++) {
-      const cDiv = objs[i];
-      if(Utils.isEmpty(cDiv.childNodes) || Utils.isEmpty(cDiv.childNodes[0])) continue;
-      cDiv.setAttribute(DRAG.ABLE, 'true');
-      cDiv.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
-      const tag =  cDiv.childNodes[0].tagName;
-      if(tag === HTML_TAG.FORM) {
-        // divDrags = cDiv.childNodes[0].childNodes[0].childNodes[0].childNodes;
-        this._addDragable(cDiv.childNodes[0].childNodes[0].childNodes[0].childNodes);
-      }
-      if(tag === HTML_TAG.NAV && cDiv.childNodes.length > 1) {
-        const nAs = cDiv.childNodes[0].childNodes;
-        for(let a=0; a<nAs.length; a++) {
-          console.log(nAs[a]);
-          nAs[a].setAttribute(DRAG.ABLE, 'true');
-          nAs[a].addEventListener(DRAG.START, this._onDragStart.bind(this), false);  
-        }
-        const divDrags = cDiv.childNodes[1].childNodes;
-        for(let y=0; y<divDrags.length; y++) {
-          this._addDragable(divDrags[y].childNodes[0].childNodes[0].childNodes[0].childNodes);
-        }
-      }
-    }
+    var add = (obj.className.indexOf(' selected') === -1);
+    const objs = Array.from(div.childNodes);
+    objs.map((o) => {
+      if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' selected', '');
+    });
+    if(add) obj.className = obj.className + ' selected';
   }
 
   _addDragable(divs) {
@@ -427,6 +398,14 @@ class Customize extends C {
       this.state.draggable = 1;
       this.state.dragobject = e.target.parentElement.parentElement;
       this.state.dragparent = this.state.dragobject.parentElement.parentElement.parentElement.parentElement;
+      this._addTopDivSelected(this.state.dragparent);
+      // const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+      // if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
+      // const objs = Array.from(div.childNodes);
+      // objs.map((o) => {
+      //   if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' selected', '');
+      // });
+      // this.state.dragparent.className = this.state.dragparent.className + ' selected';
     } else if(e.target.tagName === HTML_TAG.LABEL) {
       this.state.draggable = 2;
       this.state.dragobject = e.target.parentElement;
@@ -435,6 +414,7 @@ class Customize extends C {
       this.state.draggable = 3;
       this.state.dragobject = e.target.parentElement;
       this.state.dragparent = this.state.dragobject;
+      this._addTopDivSelected(this.state.dragparent);
     } else if(e.target.tagName === HTML_TAG.A) {
       this.state.draggable = 4;
       this.state.dragobject = e.target;
@@ -1087,6 +1067,54 @@ class Customize extends C {
         })()}
       </div>
     );
+  }
+
+  // _onTopDivClick(e) {
+  //   console.log(e.target);
+  // }
+
+  UNSAFE_componentWillReceiveProps(props) {
+    // console.log('CREATE componentWillReceiveProps');
+    this.state.isUser = props.isUser;
+    // console.log(this.state.isUser);
+  }
+
+  componentDidMount() {
+    const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+    if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
+    div.addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
+    div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
+    div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
+    div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
+
+    const objs = div.childNodes;
+    // var divDrags = null;
+    for(let i=0; i<objs.length; i++) {
+      const cDiv = objs[i];
+      if(Utils.isEmpty(cDiv.childNodes) || Utils.isEmpty(cDiv.childNodes[0])) continue;
+      console.log('cDiv');
+      console.log(cDiv);
+      // cDiv.onclick = this._onTopDivClick(this);
+      cDiv.setAttribute(DRAG.ABLE, 'true');
+      cDiv.addEventListener(DRAG.START, this._onDragStart.bind(this), false);
+      const tag =  cDiv.childNodes[0].tagName;
+      if(tag === HTML_TAG.FORM) {
+        // divDrags = cDiv.childNodes[0].childNodes[0].childNodes[0].childNodes;
+        this._addDragable(cDiv.childNodes[0].childNodes[0].childNodes[0].childNodes);
+      }
+      if(tag === HTML_TAG.NAV && cDiv.childNodes.length > 1) {
+        const nAs = cDiv.childNodes[0].childNodes;
+        for(let a=0; a<nAs.length; a++) {
+          // console.log(nAs[a]);
+          nAs[a].setAttribute(DRAG.ABLE, 'true');
+          nAs[a].addEventListener(DRAG.START, this._onDragStart.bind(this), false);  
+        }
+        const divDrags = cDiv.childNodes[1].childNodes;
+        for(let y=0; y<divDrags.length; y++) {
+          this._addDragable(divDrags[y].childNodes[0].childNodes[0].childNodes[0].childNodes);
+        }
+      }
+    }
   }
 
   render() {
