@@ -37,14 +37,14 @@ div.div-tree-view-box > ul div.selected {
   border-color: #2a9fd685;
 }
 
-div.div-tree-view-box > ul div:hover {
+div.div-tree-view-box > ul li > div:first-child:hover {
   background-color: #2a9fd685;
 }
 
 div.div-tree-view-box ul li > div.div-btn-group {
   position: absolute;
   margin-top: -2.5em;
-  left: 16.5%;
+  left: 17%;
   padding: 0;
 }
 

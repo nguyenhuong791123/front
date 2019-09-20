@@ -3,7 +3,7 @@ import { ButtonGroup, Button } from 'react-bootstrap';
 
 import Actions from '../utils/Actions';
 import { SYSTEM, ACTION, VARIANT_TYPES, PAGE } from '../utils/Types';
-import { HTML_TAG, ATTR } from '../utils/HtmlTypes';
+import { HTML_TAG, ATTR, TYPE } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
 import '../../css/TreeList.css';
@@ -119,20 +119,35 @@ class System extends C {
 
     _onButtonClick(e) {
         var obj = e.target;
-        console.log(obj);
         if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.BUTTON) return;
         const className = obj.className;
         const selected = (className.indexOf('selected') === -1);
         this._addButtonSelected(obj, selected);
         const code = Html.hasAttribute(obj, ATTR.CODE)?obj.getAttribute(ATTR.CODE):null;
         if(Utils.isEmpty(code)) return;
+
         const div = obj.parentElement;
         if(Utils.isEmpty(div)
             || div.tagName !== HTML_TAG.DIV
-            || !Html.hasAttribute(div, ATTR.ID)
-            || div.id.indexOf('div_btn_') === -1) return;
+            || div.className.indexOf('div-btn-group') === -1) return;
+        var sIdx = 0;
+        const btns = Array.from(div.childNodes);
+        btns.map((btn) => {
+            if(btn.tagName === HTML_TAG.BUTTON
+                && btn.className.indexOf(' selected') !== -1) sIdx += 1;
+        });
+        if((sIdx === 0 || sIdx === (btns.length - 1))
+            && btns[0].type === TYPE.CHECKBOX) {
+            btns[0].click();
+        }
+        if(sIdx === 0 || sIdx === (btns.length - 1) || !Html.hasAttribute(div, ATTR.ID)) return;
+
         const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
-        if(Utils.isEmpty(ul) || ul.tagName !== HTML_TAG.UL) return;
+        if(sIdx === 0
+            || sIdx === (btns.length - 1)
+            || Utils.isEmpty(ul)
+            || ul.tagName !== HTML_TAG.UL
+            || div.id.indexOf('div_btn_') === -1) return;
         const ulis = Array.from(ul.childNodes);
         ulis.map((li) => {
             this._addButtonAutoSelected(li, code, selected);
@@ -172,7 +187,7 @@ class System extends C {
         console.log(obj);
         if(Utils.isEmpty(obj)
             || !Html.hasAttribute(obj, ATTR.TYPE)
-            || obj.type !== HTML_TAG.CHECKBOX.toLowerCase()) return;
+            || obj.type !== TYPE.CHECKBOX) return;
         const div = obj.parentElement;
         if(Utils.isEmpty(div) || div.childNodes.length <=1) return;
         const btns =  Array.from(div.childNodes);
@@ -298,7 +313,7 @@ class System extends C {
                     auths.push(<Button
                                     key={ index }
                                     code={ a.value }
-                                    variant={ VARIANT_TYPES.INFO }
+                                    variant={ VARIANT_TYPES.OUTLINE + VARIANT_TYPES.INFO }
                                     onClick={ this._onButtonClick.bind(this) }
                                     title={ a.label }>
                                     { a.label }
@@ -313,7 +328,7 @@ class System extends C {
                         if(!Utils.isEmpty(auths) && auths.length > 0) {
                             return (
                                 <ButtonGroup className='div-btn-group'>
-                                    <input type={ HTML_TAG.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                                    <input type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
                                     { auths }
                                 </ButtonGroup>
                             );
@@ -357,9 +372,8 @@ class System extends C {
         }
     }
 
-    UNSAFE_componentWillReceiveProps(props) {
+    componentWillReceiveProps(props) {
         this.state.isUser = props.isUser;
-        this.state.actions = props.actions;
     }
 
     componentDidMount() {
@@ -379,7 +393,7 @@ class System extends C {
                     if(index === 0 && b.tagName === HTML_TAG.INPUT) {
                         b.onclick = this._onCheckBoxClick.bind(this);
                     } else {
-                        b.className = 'btn btn-warning';
+                        b.className = b.className.replace(VARIANT_TYPES.INFO, VARIANT_TYPES.SUCCESS);
                         b.onclick = this._onButtonClick.bind(this);
                     }
                 });
