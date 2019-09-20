@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Navbar, Nav, NavDropdown, Form, FormControl, Image } from 'react-bootstrap';
 import { FaUser, FaSearch, FaTty, FaPhone, FaMailBulk, FaUserCog, FaSitemap, FaKey, FaLink, FaRocketchat } from 'react-icons/fa';
 
-import { ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
+import { PAGE_ACTION, ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
 import { HTML_TAG } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
 import Html from './utils/HtmlUtils';
@@ -146,7 +146,11 @@ class Header extends C {
         this.state.isUser.action = action;
         const url = window.location.protocol + '//' + window.location.host;
         var path = obj.href.replace(url, '').replace('#', '');
-        if(action !== PAGE.SYSTEM) path = ACTION.SLASH + ACTION.LIST;
+        if(action === PAGE.SYSTEM) {
+          this.state.isUser.actions = PAGE_ACTION.SYSTEM;
+        } else {
+          path = ACTION.SLASH + ACTION.LIST;
+        }
         this.state.isUser.path = path;
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }

@@ -13,7 +13,7 @@ class Create extends C {
   constructor(props) {
     super(props);
 
-    this._onClickReturn = this._onClickReturn.bind(this);
+    this._onClickBack = this._onClickBack.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
     this._onError = this._onError.bind(this);
@@ -207,7 +207,7 @@ class Create extends C {
     }
   }
 
-  _onClickReturn() {
+  _onClickBack() {
     this.props.history.push(ACTION.SLASH + ACTION.LIST);
     this.forceUpdate();
   }
@@ -260,7 +260,7 @@ class Create extends C {
 
         <Actions
           isUser={ this.state.isUser }
-          onClickReturn={ this._onClickReturn.bind(this) }
+          onClickBack={ this._onClickBack.bind(this) }
           onClickSubmit={ this._onClickSubmit.bind(this) } />
       </Form>
     )

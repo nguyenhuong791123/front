@@ -63,7 +63,6 @@ export const ACTION = {
     ,SUCCESS: 'success'
     ,ERROR: 'error'
     ,CLEAR: 'clear'
-    ,CUSTOMIZE: 'customize'
 };
 
 export const MSG_TYPE = {
@@ -78,7 +77,12 @@ export const PAGE = {
     ,SYSTEM: 'system'
     ,MAIL: 'mail'
     ,CHAT: 'chat'
+    ,CUSTOMIZE: 'customize'
 };
+
+export const PAGE_ACTION = {
+    SYSTEM: { back: false }
+}
 
 export const PAGIN = {
     PRE: 'pre'

@@ -1,15 +1,17 @@
 
 import React, { Component as C } from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import FormBS4 from 'react-jsonschema-form-bs4';
+// import FormBS4 from 'react-jsonschema-form-bs4';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaRegEye } from 'react-icons/fa';
-import CTabs from '../utils/CTabs';
+// import CTabs from '../utils/CTabs';
+
+import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 
-import { ACTION, VARIANT_TYPES, SYSTEM } from '../utils/Types';
+import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
@@ -21,7 +23,7 @@ class Customize extends C {
   constructor(props) {
     super(props);
 
-    this._onClickReturn = this._onClickReturn.bind(this);
+    this._onClickBack = this._onClickBack.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
     this._onError = this._onError.bind(this);
@@ -39,6 +41,7 @@ class Customize extends C {
 
     this.state = {
       isUser: this.props.isUser
+      ,options: this.props.options
       ,form: {}
       ,alertActions: { show: false, class: '', style: {} }
       ,alertDelete: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
@@ -58,9 +61,11 @@ class Customize extends C {
     }
   };
 
-  _onClickReturn() {
-    this.props.history.push(ACTION.SLASH + ACTION.LIST);
-    this.forceUpdate();
+  _onClickBack() {
+    this.state.isUser.action = PAGE.SYSTEM;
+    this.state.isUser.path = ACTION.SLASH + PAGE.SYSTEM;
+    this.state.isUser.actions = PAGE_ACTION.SYSTEM;
+    this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
   }
 
   _onClickSubmit() {
@@ -714,28 +719,28 @@ class Customize extends C {
     );
   }
 
-  _onAlertPageActions() {
-    const className = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
-    return (
-        <div id='div_button_action' className={ className }>
-            <Button onClick={ this._onOpenEdit.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
-              <FaPlus />
-              { GetMsg(null, this.state.isUser.language, 'bt_add') }
-            </Button>
-            <br />
-            <Button onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
-              <FaCheck />
-              { GetMsg(null, this.state.isUser.language, 'bt_insert') }
-            </Button>
-            <br />
-            <Button onClick={ this._onClickReturn.bind(this) } variant={ VARIANT_TYPES.INFO }>
-              <FaReply />
-              { GetMsg(null, this.state.isUser.language, 'bt_return') }
-            </Button>
-            <br />
-        </div>
-    )  
-  }
+  // _onAlertPageActions() {
+  //   const className = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
+  //   return (
+  //       <div id='div_button_action' className={ className }>
+  //           <Button onClick={ this._onOpenEdit.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
+  //             <FaPlus />
+  //             { GetMsg(null, this.state.isUser.language, 'bt_add') }
+  //           </Button>
+  //           <br />
+  //           <Button onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+  //             <FaCheck />
+  //             { GetMsg(null, this.state.isUser.language, 'bt_insert') }
+  //           </Button>
+  //           <br />
+  //           <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.INFO }>
+  //             <FaReply />
+  //             { GetMsg(null, this.state.isUser.language, 'bt_return') }
+  //           </Button>
+  //           <br />
+  //       </div>
+  //   )  
+  // }
 
   _onOpenEdit() {
     const obj = this.state.dragobject;
@@ -1092,13 +1097,16 @@ class Customize extends C {
           onError={ this._onError.bind(this) }>
           { this._onAlertActions() }
         </FormBS4> */}
-        { this._onAlertPageActions() }
+        {/* { this._onAlertPageActions() } */}
         { this._getTitle() }
-        {
-          <CForm isUser={ this.state.isUser } form={ this.state.form }>
-            { this._onAlertActions() }
-          </CForm>
-        }
+        <CForm isUser={ this.state.isUser } form={ this.state.form }>
+          { this._onAlertActions() }
+        </CForm>
+        <Actions
+          isUser={ this.state.isUser }
+          onClickBack={ this._onClickBack.bind(this) }
+          onClickAdd={ this._onOpenEdit.bind(this) }
+          onClickSubmit={ this._onClickSubmit.bind(this) } />
       </div>
     )
   };

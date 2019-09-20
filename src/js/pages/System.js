@@ -2,7 +2,7 @@ import React, { Component as C } from 'react';
 import { ButtonGroup, Button } from 'react-bootstrap';
 
 import Actions from '../utils/Actions';
-import { SYSTEM, VARIANT_TYPES } from '../utils/Types';
+import { SYSTEM, ACTION, VARIANT_TYPES, PAGE } from '../utils/Types';
 import { HTML_TAG, ATTR } from '../utils/HtmlTypes';
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
@@ -101,8 +101,9 @@ class System extends C {
     }
 
     _onClickAdd() {
-        this.state.isUser.action = ACTION.CUSTOMIZE;
-        this.state.isUser.path = ACTION.SLASH + ACTION.CUSTOMIZE;
+        this.state.isUser.action = PAGE.CUSTOMIZE;
+        this.state.isUser.path = ACTION.SLASH + PAGE.CUSTOMIZE;
+        this.state.isUser.actions = undefined;
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
     }
 
