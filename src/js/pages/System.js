@@ -116,6 +116,38 @@ class System extends C {
         const className = obj.className;
         const selected = (className.indexOf('selected') === -1);
         this._addButtonSelected(obj, selected);
+        const code = Html.hasAttribute(obj, ATTR.CODE)?obj.getAttribute(ATTR.CODE):null;
+        if(Utils.isEmpty(code)) return;
+        const div = obj.parentElement;
+        if(Utils.isEmpty(div)
+            || div.tagName !== HTML_TAG.DIV
+            || !Html.hasAttribute(div, ATTR.ID)
+            || div.id.indexOf('div_btn_') === -1) return;
+        const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
+        if(Utils.isEmpty(ul) || ul.tagName !== HTML_TAG.UL) return;
+        const ulis = Array.from(ul.childNodes);
+        ulis.map((li) => {
+            this._addButtonAutoSelected(li, code, selected);
+        });
+    }
+
+    _addButtonAutoSelected(obj, code, selected) {
+        if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.LI) return;
+        const div = obj.childNodes[obj.childNodes.length-1];
+        if(div.tagName === HTML_TAG.UL) {
+            const ulis = Array.from(div.childNodes);
+            ulis.map((li) => {
+                this._addButtonAutoSelected(li, code, selected);
+            });
+        }
+        if(div.tagName === HTML_TAG.DIV && div.className.indexOf('div-btn-group') !== -1) {
+            const btns = Array.from(div.childNodes);
+            btns.map((btn) => {
+                if(Html.hasAttribute(btn, ATTR.CODE) && btn.getAttribute(ATTR.CODE) === code) {
+                    this._addButtonSelected(btn, selected);
+                }
+            });
+        }
     }
 
     _addButtonSelected(obj, selected) {
@@ -257,7 +289,7 @@ class System extends C {
                 obj.auth.map((a, index) => {
                     auths.push(<Button
                                     key={ index }
-                                    id={ a.value }
+                                    code={ a.value }
                                     variant={ VARIANT_TYPES.INFO }
                                     onClick={ this._onButtonClick.bind(this) }
                                     title={ a.label }>

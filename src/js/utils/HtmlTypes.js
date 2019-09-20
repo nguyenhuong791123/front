@@ -54,6 +54,7 @@ export const TYPE = {
 export const ATTR = {
     TYPE: 'type'
     ,ID: 'id'
+    ,CODE: 'code'
     ,NAME: 'name'
     ,VALUE: 'value'
     ,CLASS: 'class'
