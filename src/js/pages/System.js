@@ -13,13 +13,14 @@ class System extends C {
         super(props);
 
         this._onClick = this._onClick.bind(this);
+        this._onClickAdd = this._onClickAdd.bind(this);
         this._onButtonClick = this._onButtonClick.bind(this);
         this._onCheckBoxClick = this._onCheckBoxClick.bind(this);
         this._onClickSubmit = this._onClickSubmit.bind(this);
 
         this.state = {
             isUser: this.props.isUser
-            ,actions: { return: false, create: true }
+            ,options: this.props.options
             ,checked: []
             ,expanded: []
             ,objs: []
@@ -55,10 +56,10 @@ class System extends C {
                                 label: 'Deimos2'
                                 ,auth: [
                                     {  value: 'search', label: 'Search' }
-                                    ,{  value: 'view', label: 'View' }
                                     ,{  value: 'create', label: 'Create' }
-                                    ,{  value: 'edit', label: 'Edit' }
+                                    ,{  value: 'view', label: 'View' }
                                     ,{  value: 'delete', label: 'Delete' }
+                                    ,{  value: 'edit', label: 'Edit' }
                                 ]
                             },
                         ]
@@ -97,6 +98,12 @@ class System extends C {
                 ],
             }
         ]
+    }
+
+    _onClickAdd() {
+        this.state.isUser.action = ACTION.CUSTOMIZE;
+        this.state.isUser.path = ACTION.SLASH + ACTION.CUSTOMIZE;
+        this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
     }
 
     _onClick(e) {
@@ -384,13 +391,15 @@ class System extends C {
         this._getObjs();
 
         return (
-            <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
-                { this._getAllList() }
+            <div>
+                <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
+                    { this._getAllList() }
+                </div>
 
                 <Actions
-                    isUser={ this.state.isUser }
-                    actions={ this.state.actions }
-                    onClickSubmit={ this._onClickSubmit.bind(this) } />
+                        isUser={ this.state.isUser }
+                        onClickAdd={ this._onClickAdd.bind(this) }
+                        onClickSubmit={ this._onClickSubmit.bind(this) } />
             </div>
         )
     };

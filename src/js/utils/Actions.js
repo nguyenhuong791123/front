@@ -1,8 +1,8 @@
 import React, { Component as C } from 'react';
 import { Button } from 'react-bootstrap';
-import { FaReply, FaCheck } from 'react-icons/fa';
+import { FaReply, FaCheck, FaPlus } from 'react-icons/fa';
 
-import { SYSTEM } from './Types';
+import { SYSTEM, VARIANT_TYPES } from './Types';
 import { isEmpty } from './Utils';
 import GetMsg from '../../msg/Msg';
 
@@ -11,16 +11,18 @@ export default class AlertAction extends C {
     super(props);
 
     this._onClickReturn = this._onClickReturn.bind(this);
+    this._onClickAdd = this._onClickAdd.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
 
-    this.state = {
-      isUser: this.props.isUser
-      ,actions: isEmpty(this.props.actions)?{ return: true, create: true }:this.props.actions
-    }
+    this.state = { isUser: this.props.isUser }
   }
 
   _onClickReturn() {
     this.props.onClickReturn();
+  }
+
+  _onClickAdd() {
+    this.props.onClickAdd();
   }
 
   _onClickSubmit() {
@@ -48,20 +50,22 @@ export default class AlertAction extends C {
   }
 
   componentWillReceiveProps(props) {
-    // console.log('ACTION componentWillReceiveProps');
     this.state.isUser = props.isUser;
-    // console.log(this.state.isUser);
   }
 
   render() {
     const className = (!isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
+    this.state.isUser.actions = { back: false, create: true, save: true };
+    console.log(this.state);
     return (
         <div id="div_button_action" className={ className }>
           {(() => {
-            if(this.state.actions.return) {
+            if(!isEmpty(this.state.isUser.actions)
+              && !isEmpty(this.state.isUser.actions.back)
+              &&  this.state.isUser.actions.back) {
               return (
                 <div>
-                  <Button onClick={ this._onClickReturn.bind(this) } variant="info">
+                  <Button onClick={ this._onClickReturn.bind(this) } variant={ VARIANT_TYPES.INFO }>
                     <FaReply />
                     { GetMsg(null, this.state.isUser.language, 'bt_return') }
                   </Button>
@@ -71,9 +75,23 @@ export default class AlertAction extends C {
             }
           })()}
           {(() => {
-            if(this.state.actions.create) {
+            if(!isEmpty(this.state.isUser.actions)
+              && !isEmpty(this.state.isUser.actions.create)
+              && this.state.isUser.actions.create) {
               return (
-                <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant="warning">
+                <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.INFO }>
+                  <FaPlus />
+                  { GetMsg(null, this.state.isUser.language, 'bt_create') }
+                </Button>
+              );
+            }
+          })()}
+          {(() => {
+            if(!isEmpty(this.state.isUser.actions)
+              && !isEmpty(this.state.isUser.actions.save)
+              && this.state.isUser.actions.save) {
+              return (
+                <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
                   <FaCheck />
                   { GetMsg(null, this.state.isUser.language, 'bt_insert') }
                 </Button>

@@ -249,14 +249,19 @@ class App extends C {
                                     path={ ACTION.SLASH + ACTION.EDIT }
                                     render={ ({ props }) => <Create isUser={ this.state.isUser } {...this.props} />} />
                                 <Route
-                                    path={ ACTION.SLASH + ACTION.CUSTOMIZE }
-                                    render={ ({ props }) => <Customize isUser={ this.state.isUser } {...this.props} />} />
-                                <Route
                                     path={ ACTION.SLASH + ACTION.VIEW }
                                     render={ ({ props }) => <View isUser={ this.state.isUser } {...this.props} />} />
                                 <Route
+                                    path={ ACTION.SLASH + ACTION.CUSTOMIZE }
+                                    render={ ({ props }) => <Customize isUser={ this.state.isUser } {...this.props} />} />
+                                <Route
                                     path={ ACTION.SLASH + PAGE.SYSTEM }
-                                    render={ ({ props }) => <System isUser={ this.state.isUser } {...this.props} />} />
+                                    render={ ({ props }) => <System
+                                                                isUser={ this.state.isUser }
+                                                                options={ this.state.options }
+                                                                onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
+                                                                {...this.props} />} />
                                 <Route
                                     exact
                                     render={ ({ props }) => <P404 isUser={ this.state.isUser }

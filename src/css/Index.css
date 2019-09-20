@@ -262,6 +262,7 @@ div.dropdown-menu a.dropdown-item svg {
 }
 
 div.div-actions-box {
+    display: grid;
     padding: 0.2em;
     top: 20%;
     /* bottom: 20%; */
