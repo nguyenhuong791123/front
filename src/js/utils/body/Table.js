@@ -10,7 +10,7 @@ import CMenu from '../CMenu';
 
 import Utils from '../Utils';
 import { ACTION, INPUT_TYPE } from '../Types';
-import { HTML_TAG } from '../HtmlTypes';
+import { HTML_TAG, TYPE } from '../HtmlTypes';
 import GetMsg from '../../../msg/Msg';
 import "../../../css/Table.css";
 
@@ -120,7 +120,7 @@ export default class Table extends C {
     }
 
     _onCheckBoxClick(e) {
-        if(Utils.isEmpty(e.target) || e.target.type !== HTML_TAG.CHECKBOX) return;
+        if(Utils.isEmpty(e.target) || e.target.type !== TYPE.CHECKBOX) return;
         const isChecked = e.target.checked;
         var thead = e.target.parentElement.parentElement;
         if(thead.tagName !== HTML_TAG.TR) return;
@@ -180,7 +180,7 @@ export default class Table extends C {
                 <thead>
                     <tr>
                         <th>
-                            <input id='input_checkbox_all' type={ HTML_TAG.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                            <input id='input_checkbox_all' type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
                         </th>
                         { ths }
                     </tr>

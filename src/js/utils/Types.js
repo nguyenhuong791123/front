@@ -82,6 +82,7 @@ export const PAGE = {
 
 export const PAGE_ACTION = {
     SYSTEM: { back: false }
+    ,CREATE: { create: false }
 }
 
 export const PAGIN = {

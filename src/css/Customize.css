@@ -2,6 +2,11 @@ button.btn-submit-form-hidden {
     display: none;
 }
 
+button.btn-create-item {
+    position: absolute;
+    right: .5em;
+}
+
 /* div.div-customize-box < nav:hover {
     background: #80808026;
 } */

@@ -7,7 +7,7 @@ import Form from "react-jsonschema-form-bs4";
 // import { FaReply, FaCheck } from 'react-icons/fa';
 
 import Actions from '../utils/Actions';
-import { ACTION } from '../utils/Types';
+import { PAGE_ACTION, ACTION } from '../utils/Types';
 
 class Create extends C {
   constructor(props) {
@@ -214,8 +214,7 @@ class Create extends C {
 
   _onClickSubmit() {
     console.log("Data submitted: ", this.state.formData);
-    // browserHistory.push('/list');
-    // this.forceUpdate();
+    this._onClickBack();
   }
 
   _onChange(type) {
@@ -247,6 +246,8 @@ class Create extends C {
   
 
   render() {
+    this.state.isUser.actions = PAGE_ACTION.CREATE;
+
     return (
       <Form
         schema={ this.state.schema }

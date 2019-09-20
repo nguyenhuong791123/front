@@ -69,12 +69,13 @@ class Customize extends C {
   }
 
   _onClickSubmit() {
-    console.log(this.state.form.schema.properties);
-    var oks = Object.keys(this.state.form.schema.properties);
-    for(var i=0; i<oks.length; i++) {
-      console.log(this.state.form.schema.properties[oks[i]]);
-    }
+    // console.log(this.state.form.schema.properties);
+    // var oks = Object.keys(this.state.form.schema.properties);
+    // for(var i=0; i<oks.length; i++) {
+    //   console.log(this.state.form.schema.properties[oks[i]]);
+    // }
     console.log('Data submitted: ', document.forms[0]);
+    this._onClickBack();
   }
 
   _onChange(type) {
@@ -1044,13 +1045,22 @@ class Customize extends C {
     }
     return(
       <div>
+        <Button
+          type={ TYPE.BUTTON }
+          className="btn-create-item"
+          onClick={ this._onCreateEditChange.bind(this) }
+          variant={ VARIANT_TYPES.PRIMARY }>
+          <FaPlus />
+          { GetMsg(null, this.props.isUser.language, 'bt_create') }
+        </Button>
+
         {(() => {
           if (this.state.mode === ACTION.CREATE) {
             return (
               <div className='div-customize-title-box'>
                 <FormControl type="text" placeholder="Input" className="mr-sm-2" />
                 <Button
-                  type={ HTML_TAG.BUTTON }
+                  type={ TYPE.BUTTON }
                   onClick={ this._onClickChangeMode.bind(this) }
                   variant={ VARIANT_TYPES.INFO }>
                   <FaBars />
@@ -1080,6 +1090,8 @@ class Customize extends C {
   }
 
   render() {
+    this.state.isUser.actions = PAGE_ACTION.CREATE;
+
     return (
       <div>
         {/* { this._onAlertDelete() }
@@ -1105,7 +1117,7 @@ class Customize extends C {
         <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }
-          onClickAdd={ this._onOpenEdit.bind(this) }
+          // onClickAdd={ this._onOpenEdit.bind(this) }
           onClickSubmit={ this._onClickSubmit.bind(this) } />
       </div>
     )

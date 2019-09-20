@@ -146,11 +146,11 @@ class Header extends C {
         this.state.isUser.action = action;
         const url = window.location.protocol + '//' + window.location.host;
         var path = obj.href.replace(url, '').replace('#', '');
-        if(action === PAGE.SYSTEM) {
-          this.state.isUser.actions = PAGE_ACTION.SYSTEM;
-        } else {
+        if(action !== PAGE.SYSTEM) {
           path = ACTION.SLASH + ACTION.LIST;
         }
+        if(action === PAGE.SYSTEM) this.state.isUser.actions = PAGE_ACTION.SYSTEM;
+        if(path === ACTION.SLASH + ACTION.CREATE) this.state.isUser.actions = PAGE_ACTION.CREATE;
         this.state.isUser.path = path;
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }
