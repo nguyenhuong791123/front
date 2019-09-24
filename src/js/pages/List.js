@@ -29,6 +29,7 @@ class List extends C {
         this.state = {
             loading: true
             ,isUser: this.props.isUser
+            ,options: this.props.options
             ,objs: {
                 show: false
                 ,items: [
@@ -45,8 +46,11 @@ class List extends C {
     };
 
     _onClickCreate() {
-        this.props.history.push(ACTION.SLASH + ACTION.CREATE);
-        this.forceUpdate();
+        this.state.isUser.path = ACTION.SLASH + ACTION.CREATE;
+        const auth = { info: this.state.isUser, options: this.state.options };
+        this.props.onUpdateStateIsUser(auth);
+        // this.props.history.push(ACTION.SLASH + ACTION.CREATE);
+        // this.forceUpdate();
     }
 
     _onPageChange(e) {

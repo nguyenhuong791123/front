@@ -21,6 +21,7 @@ class Create extends C {
 
     this.state = {
       isUser: this.props.isUser
+      ,options: this.props.options
       ,schema: {
         // title: "Widgets",
         // type: "object",
@@ -208,8 +209,11 @@ class Create extends C {
   }
 
   _onClickBack() {
-    this.props.history.push(ACTION.SLASH + ACTION.LIST);
-    this.forceUpdate();
+    this.state.isUser.path = ACTION.SLASH + ACTION.LIST;
+    const auth = { info: this.state.isUser, options: this.state.options };
+    this.props.onUpdateStateIsUser(auth);
+    // this.props.history.push(ACTION.SLASH + ACTION.LIST);
+    // this.forceUpdate();
   }
 
   _onClickSubmit() {

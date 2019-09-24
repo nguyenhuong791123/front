@@ -389,10 +389,16 @@ class Header extends C {
                           <span>{ GetMsg(null, this.state.isUser.language, 'bt_profile') }</span>
                         </NavDropdown.Item>
                         {/* 現頁設定 */}
-                        <NavDropdown.Item action={ PAGE.SETTING } onClick={ this._onClick.bind(this) } id="a-page-setting">
-                          { <FaSitemap /> }
-                          <span>{ GetMsg(null, this.state.isUser.language, 'page_setting') }</span>
-                        </NavDropdown.Item>
+                        {(() => {
+                          if(this.state.isUser.path === ACTION.SLASH + ACTION.LIST) {
+                            return(
+                              <NavDropdown.Item action={ PAGE.SETTING } onClick={ this._onClick.bind(this) } id="a-page-setting">
+                                { <FaSitemap /> }
+                                <span>{ GetMsg(null, this.state.isUser.language, 'page_setting') }</span>
+                              </NavDropdown.Item>
+                            );
+                          }
+                        })()}
                         {/* システム設定（管理者のみ表示） */}
                         <NavDropdown.Item action={ PAGE.SYSTEM } onClick={ this._onClick.bind(this) }>
                           { <FaLink /> }

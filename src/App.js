@@ -241,10 +241,18 @@ class App extends C {
                                                                 {...this.props} />} />
                                 <Route
                                     path={ ACTION.SLASH + ACTION.LIST }
-                                    render={ ({ props }) => <List isUser={ this.state.isUser } {...this.props} />} />
+                                    render={ ({ props }) => <List
+                                                                isUser={ this.state.isUser }
+                                                                options={ this.state.options }
+                                                                onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                {...this.props} />} />
                                 <Route
                                     path={ ACTION.SLASH + ACTION.CREATE }
-                                    render={ ({ props }) => <Create isUser={ this.state.isUser } {...this.props} />} />
+                                    render={ ({ props }) => <Create
+                                                                isUser={ this.state.isUser }
+                                                                options={ this.state.options }
+                                                                onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                {...this.props} />} />
                                 <Route
                                     path={ ACTION.SLASH + ACTION.EDIT }
                                     render={ ({ props }) => <Create isUser={ this.state.isUser } {...this.props} />} />
