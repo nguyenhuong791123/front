@@ -235,6 +235,7 @@ class App extends C {
                             <Header
                                 isUser={ this.state.isUser }
                                 options={ this.state.options }
+                                headers={ this.state['headers'] }
                                 onUpdateUser={ this._onUpdatePromise.bind(this) }
                                 onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                 onLogout={ this._doLogout.bind(this) } />

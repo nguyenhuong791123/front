@@ -41,6 +41,7 @@ class Header extends C {
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
+      ,headers: this.props.headers
       ,showError: true
       ,variantError: VARIANT_TYPES.WARNING
       ,right: ''
@@ -289,7 +290,14 @@ class Header extends C {
     console.log('HEADER componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.options = props.options;
+    this.state.headers = props.headers;
     this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
+
+    console.log(this.state.headers);
+    if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
+    this.state.headers.map((obj) => {
+      console.log(obj);
+    });
   }
 
   render() {
