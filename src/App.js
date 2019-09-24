@@ -43,6 +43,7 @@ class App extends C {
         this._onUpdateIsUserCallBack = this._onUpdateIsUserCallBack.bind(this);
         this._onUpdatePromise = this._onUpdatePromise.bind(this);
         this._updateStateIsUser = this._updateStateIsUser.bind(this);
+        this._updateListHeaders = this._updateListHeaders.bind(this);
 
         this.state = {
             loading: true
@@ -216,6 +217,11 @@ class App extends C {
         this.state.loading = false;
     }
 
+    _updateListHeaders(headers) {
+        this.state['headers'] = headers;
+        console.log(this.state['headers']);
+    }
+
     render() {
         console.log('APP Render !!!');
         console.log(chrome.app);
@@ -249,6 +255,7 @@ class App extends C {
                                                                 isUser={ this.state.isUser }
                                                                 options={ this.state.options }
                                                                 onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                onUpdateListHeaders={ this._updateListHeaders.bind(this) }
                                                                 {...this.props} />} />
                                 <Route
                                     path={ ACTION.SLASH + ACTION.CREATE }

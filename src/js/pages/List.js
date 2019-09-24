@@ -122,6 +122,8 @@ class List extends C {
                 ,{ id: 11, name: "Item name 11", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }
             ]
         };
+
+        this.props.onUpdateListHeaders(this.state.list.columns);
     }
 
     _getPageCountPer() {
