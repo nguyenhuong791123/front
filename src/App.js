@@ -7,7 +7,7 @@ import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import { sessionService, sessionReducer } from 'redux-react-session';
 import thunkMiddleware from 'redux-thunk';
 
-import { PAGE, ACTION, SYSTEM } from './js/utils/Types';
+import { PAGE, PAGE_ACTION, ACTION, SYSTEM } from './js/utils/Types';
 import { HTML_TAG } from './js/utils/HtmlTypes';
 import { THEME } from './js/utils/Theme';
 import Utils from './js/utils/Utils';
@@ -113,15 +113,19 @@ class App extends C {
                 }
                 const paths = isUrl.split('/');
                 var path = null;
-                // console.log(isUrl);
-                // console.log(paths);
                 if(!Utils.isEmpty(paths) && paths.length > 0) {
                     path = paths[paths.length - 1];
                 }
-                // console.log(path);
                 if(!Utils.isEmpty(path)) {
                     data.info['path'] = ACTION.SLASH + path;
                 }
+                if(path === PAGE.SYSTEM) {
+                    data.info['action'] = PAGE.SYSTEM;
+                    data.info['actions'] = PAGE_ACTION.SYSTEM;
+                } else {
+                    data.info['actions'] = undefined;
+                }
+
                 console.log('_loadAuthCookies');
                 console.log(data);
                 callBack(data);

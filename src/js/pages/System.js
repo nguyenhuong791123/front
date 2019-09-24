@@ -30,6 +30,7 @@ class System extends C {
     };
 
     _getObjs() {
+        console.log(this.state);
         this.state.objs = [
             {
                 value: 'mars',
