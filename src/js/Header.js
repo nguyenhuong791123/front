@@ -149,9 +149,13 @@ class Header extends C {
         if(action !== PAGE.SYSTEM) {
           path = ACTION.SLASH + ACTION.LIST;
         }
-        if(action === PAGE.SYSTEM) this.state.isUser.actions = PAGE_ACTION.SYSTEM;
+        if(action === PAGE.SYSTEM) {
+          this.state.isUser.actions = PAGE_ACTION.SYSTEM;
+          path = ACTION.SLASH + PAGE.SYSTEM;
+        }
         if(path === ACTION.SLASH + ACTION.CREATE) this.state.isUser.actions = PAGE_ACTION.CREATE;
         this.state.isUser.path = path;
+        console.log(path);
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }
       console.log('HEADER _onClick complete !!!');
