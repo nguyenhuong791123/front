@@ -1,7 +1,10 @@
 import React, { Component as C } from "react";
+import ReactDOM from 'react-dom';
 import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
+import Form from "react-jsonschema-form-bs4";
 
+import Actions from '../Actions';
 import { isEmpty } from '../Utils';
 import { SYSTEM } from "../Types";
 
@@ -25,7 +28,9 @@ var styles = {
 class RMenu extends C {
   constructor(props) {
     super(props);
+
     this._onClick = this._onClick.bind(this);
+    this._onClickSubmit = this._onClickSubmit.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -56,6 +61,10 @@ class RMenu extends C {
     // console.log(body);
   }
 
+  _onClickSubmit() {
+    console.log("Data submitted: ", this.state);
+  }
+
   _getTitle() {
     return( <div>{ this.state.title }</div> );
   }
@@ -66,9 +75,26 @@ class RMenu extends C {
     this.state.title = props.title;
     this.state.objs = props.objs;
     console.log(this.state.objs);
+
     var div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
-    div.innerText = this.state.objs;
-    // div.appendChild(this.state.objs);
+    ReactDOM.render(
+      <Form
+        schema={ this.state.objs.schema }
+        uiSchema={ this.state.objs.uiSchema } 
+        // widgets={ this.state.widgets }
+        // formData={ this.state.formData }
+        // onChange={ this._onChange("changed") }
+        // onSubmit={ this._onClickSubmit.bind(this) }
+        // validate={ this._onValidate.bind(this) }
+        // onError={ this._onError.bind(this) }
+        >
+    
+        <Actions
+          isUser={ this.state.isUser }
+          onClickSubmit={ this._onClickSubmit.bind(this) } />
+      </Form>
+      ,document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX)
+    );
   }
 
   render() {

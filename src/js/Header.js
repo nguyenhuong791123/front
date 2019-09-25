@@ -295,15 +295,18 @@ class Header extends C {
 
     console.log(this.state.headers);
     if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
-    var items = {};
+    var schema = {};
+    var uiSchema = {};
     this.state.headers.map((obj) => {
       var item = { "title": "label_" + obj.field, "type": "integer", "minimum": 3, "maximum": 100, per: '%' };
       if(!Utils.isEmpty(obj.per) && obj.per === 'px') item = { "title": "label_" + obj.field, "type": "integer", "minimum": 10, "maximum": 500, per: 'px'};
-      items[obj.field] = item;
+      schema[obj.field] = item;
+      uiSchema[obj.field] = { "ui:widget": "range" };
     });
 
-    if(Utils.isEmpty(items) || items.toString() === '{}') return;
-    this.state.headers = { type: "object", title: "", properties: items }
+    if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
+    this.state.headers['schema'] = { type: "object", title: "", properties: schema };
+    this.state.headers['uiSchema'] = uiSchema;
   }
 
   render() {
