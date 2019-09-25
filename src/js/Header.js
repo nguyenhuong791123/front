@@ -9,14 +9,14 @@ import { HTML_TAG } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
 import Html from './utils/HtmlUtils';
 import Utils from './utils/Utils';
-import LMenu from "./utils/header/LMenu";
-import RMenu from "./utils/header/RMenu";
+import LMenu from './utils/header/LMenu';
+import RMenu from './utils/header/RMenu';
 import TabMenu from './utils/header/TabMenu';
-// import AlertMsg from "./utils/Alert";
+// import AlertMsg from './utils/Alert';
 
 import GetMsg from '../msg/Msg';
-import "../css/Index.css";
-import "../css/SMenu.css";
+import '../css/Index.css';
+import '../css/SMenu.css';
 import '../css/Header.css';
 // import socket from './Socket';
 
@@ -116,7 +116,7 @@ class Header extends C {
     if(mode !== 'menu-left') this._onClickButtonToggle();
     const action = obj.getAttribute('action');
     if(!Utils.isEmpty(action)) {
-      if(!Utils.isEmpty(obj.id) && (obj.id === "a-chat-icon" || obj.id === "a-page-setting")) {
+      if(!Utils.isEmpty(obj.id) && (obj.id === 'a-chat-icon' || obj.id === 'a-page-setting')) {
         const body = document.getElementById('div_body');
         const cl = body.className;
         if(!Utils.isEmpty(cl)
@@ -134,11 +134,11 @@ class Header extends C {
           }  
         }
 
-        if(obj.id === "a-chat-icon") {
+        if(obj.id === 'a-chat-icon') {
           this.state.title = 'Messenger v0.1.0';
           console.log(this.state.title);
         }
-        if(obj.id === "a-page-setting") {
+        if(obj.id === 'a-page-setting') {
           this.state.title = 'Page Setting';
           this._onSetListHeaders();
           console.log(this.state.title);
@@ -190,11 +190,11 @@ class Header extends C {
   }
 
   _onClickButtonToggle() {
-    var hBts = document.getElementById("basic-navbar-nav-toggle");
+    var hBts = document.getElementById('basic-navbar-nav-toggle');
     if(!Utils.isEmpty(hBts) && window.innerWidth < WINDOWN_WIDTH) {
-      if(hBts.tagName === "BUTTON") hBts.click();
+      if(hBts.tagName === 'BUTTON') hBts.click();
       var btn = hBts.parentElement.childNodes[0];
-      if(!Utils.isEmpty(btn) && btn.tagName === "BUTTON") btn.click();
+      if(!Utils.isEmpty(btn) && btn.tagName === 'BUTTON') btn.click();
     }
   }
 
@@ -214,9 +214,9 @@ class Header extends C {
   _newWindow(e) {
     var obj = e.target;
     if(Utils.isEmpty(obj) || Utils.isEmpty(obj.tagName)) return;
-    var href = obj.getAttribute("page");
+    var href = obj.getAttribute('page');
     if(Utils.isEmpty(href) && (obj.tagName === 'IMG' || obj.tagName === 'SPAN')) {
-      href = obj.parentElement.getAttribute("page");
+      href = obj.parentElement.getAttribute('page');
     }
     if(Utils.isEmpty(href)) return;
     var w = window.open();
@@ -276,7 +276,7 @@ class Header extends C {
     }
     return(
       <Form.Control
-        className="select-theme"
+        className='select-theme'
         as={ HTML_TAG.SELECT }
         value={ this.state.isUser.theme }
         onChange={ this._onChangeTheme.bind(this) }>
@@ -291,19 +291,22 @@ class Header extends C {
     var schema = {};
     var uiSchema = {};
     this.state.headers.map((obj) => {
-      var label = "label_" + obj.field;
-      var item = { "title": label, "type": "integer", "minimum": 3, "maximum": 100, per: '%' };
+      var label = 'label_' + obj.field;
+      var item = { 'title': label, 'type': 'integer', 'minimum': 3, 'maximum': 100, per: '%' };
       var uiHelp = '%';
-      if(!Utils.isEmpty(obj.per) && obj.per === 'px') {
-        item = { "title": label, "type": "integer", "minimum": 10, "maximum": 500, per: 'px'};
+      if(!Utils.isEmpty(obj.style) && !Utils.isEmpty(obj.style.width) && obj.style.toString().indexOf('%') === -1) {
+        const w = obj.style.width.toString().replace('%', '').replace('px', '');
+        item = { 'title': label, 'type': 'integer', 'minimum': 10, 'maximum': 500, per: 'px', 'default': w };
         uiHelp = 'px';
+      } else {
+        item['default'] = '20';
       }
       schema[obj.field] = item;
-      uiSchema[obj.field] = { "ui:widget": "range", "ui:help": label + " [" + uiHelp + "]", classNames: "div-box div-box-100 div-box-not-view-label div-box-help-block-02" };
+      uiSchema[obj.field] = { 'ui:widget': 'range', 'ui:help': label + ' [' + uiHelp + ']', classNames: 'div-box div-box-100 div-box-not-view-label div-box-help-block-02' };
     });
 
     if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
-    this.state.listHeaders['schema'] = { type: "object", title: "", properties: schema };
+    this.state.listHeaders['schema'] = { type: 'object', title: '', properties: schema };
     this.state.listHeaders['uiSchema'] = uiSchema;
   }
 
@@ -321,19 +324,19 @@ class Header extends C {
   }
 
   render() {
-    if(!this.state.isUser.viewHeader) return "";
-    var menuType = (this.state.isUser.menu===1)?"tab_menu_1":"tab_menu_0";
-    var menuClass = (this.state.isUser.menu===0)?" mr-auto-parent":""
-    const isCallClass = (this.state.dailer.isCall && this.state.dailer.register)?"blinking":"";
-    const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):"";
+    if(!this.state.isUser.viewHeader) return '';
+    var menuType = (this.state.isUser.menu===1)?'tab_menu_1':'tab_menu_0';
+    var menuClass = (this.state.isUser.menu===0)?' mr-auto-parent':''
+    const isCallClass = (this.state.dailer.isCall && this.state.dailer.register)?'blinking':'';
+    const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):'';
 
     return (
-      <div className="Headder">
+      <div className='Headder'>
         {/* <AlertMsg show={ this.state.showError } variant={ this.state.variantError } errors={ [ 'エラーメッセージ00', 'エラーメッセージ01' ] }/> */}
         {(() => {
             if(this.state[SYSTEM.IS_ACTIVE_WINDOWN]) {
               return (
-                <div id="div-header-is-menu">
+                <div id='div-header-is-menu'>
                   {/* 縦左メニュー */}
                   {(() => {
                     if(this.state.isUser.menu === 1) {
@@ -347,9 +350,9 @@ class Header extends C {
             }
         })()}
 
-        <Navbar expand="lg">
+        <Navbar expand='lg'>
           {/* アイコン、会社名（ホームページリンク） */}
-          <a href="#home-page" page={ 'https://vnext.co.jp/company-info.html' } onClick={ this._newWindow.bind(this) } className={ 'header-image-icon' }>
+          <a href='#home-page' page={ 'https://vnext.co.jp/company-info.html' } onClick={ this._newWindow.bind(this) } className={ 'header-image-icon' }>
             <Image src={ 'favicon.ico' } rounded />
             <span>SmartCRM Ver0.1.0</span>
           </a>
@@ -357,14 +360,14 @@ class Header extends C {
           {(() => {
             if(this.state[SYSTEM.IS_ACTIVE_WINDOWN]) {
               return(
-                <div id="div-header-is-navbar">
-                  <Navbar.Toggle aria-controls="basic-navbar-nav" id="basic-navbar-nav-toggle"/>
+                <div id='div-header-is-navbar'>
+                  <Navbar.Toggle aria-controls='basic-navbar-nav' id='basic-navbar-nav-toggle'/>
                   {/* TOP横メニュー */}
                   <Navbar.Collapse id={ menuType } className={ menuClass }>
                     {(() => {
                       if (this.state.isUser.menu === 0) {
                         return (
-                          <Nav className="mr-auto" id={ SYSTEM.IS_TAB_MENU }>
+                          <Nav className='mr-auto' id={ SYSTEM.IS_TAB_MENU }>
                             <TabMenu isUser={ this.state.isUser } objs={ this.state.menus } onClick={ this._onClick.bind(this) }/>
                           </Nav>
                         );
@@ -378,13 +381,13 @@ class Header extends C {
                       {/* ADMIN場合Themeリストを表示 */}
                       { theme }
                       {/* グローバル検索 */}
-                      <FormControl type="text" id="input_global_search" placeholder="Search"/>
-                      <Nav.Link href="#search" className="global-search"><FaSearch /></Nav.Link>
+                      <FormControl type='text' id='input_global_search' placeholder='Search'/>
+                      <Nav.Link href='#search' className='global-search'><FaSearch /></Nav.Link>
                       {/* 電話オプション */}
                       {(() => {
                         if(this.state.options.dailer) {
                           return(
-                            <Nav.Link id="a_dailer_box" onClick={ this._onOpenBoxPhone.bind(this) } className={ isCallClass }>
+                            <Nav.Link id='a_dailer_box' onClick={ this._onOpenBoxPhone.bind(this) } className={ isCallClass }>
                               {(() => {
                                   if(!this.state.dailer.show) { return ( <FaTty /> );
                                 }
@@ -409,12 +412,12 @@ class Header extends C {
                       {(() => {
                         if(this.state.options.chat) {
                           return(
-                            <Nav.Link action={ PAGE.CHAT } onClick={ this._onClick.bind(this) } id="a-chat-icon">{ <FaRocketchat /> }</Nav.Link>
+                            <Nav.Link action={ PAGE.CHAT } onClick={ this._onClick.bind(this) } id='a-chat-icon'>{ <FaRocketchat /> }</Nav.Link>
                           );
                         }
                       })()}
                       {/* ユーザーDropDown */}
-                      <NavDropdown title={<FaUser />} id="basic-nav-dropdown-right" alignRight>
+                      <NavDropdown title={<FaUser />} id='basic-nav-dropdown-right' alignRight>
                         {/* ユーザー情報 */}
                         <NavDropdown.Item action={ PAGE.USER } onClick={ this._onClick.bind(this) }>
                           { <FaUserCog /> }
@@ -424,7 +427,7 @@ class Header extends C {
                         {(() => {
                           if(this.state.isUser.path === ACTION.SLASH + ACTION.LIST) {
                             return(
-                              <NavDropdown.Item action={ PAGE.SETTING } onClick={ this._onClick.bind(this) } id="a-page-setting">
+                              <NavDropdown.Item action={ PAGE.SETTING } onClick={ this._onClick.bind(this) } id='a-page-setting'>
                                 { <FaSitemap /> }
                                 <span>{ GetMsg(null, this.state.isUser.language, 'page_setting') }</span>
                               </NavDropdown.Item>
@@ -438,7 +441,7 @@ class Header extends C {
                         </NavDropdown.Item>
                         <NavDropdown.Divider />
                         {/* ログアウト */}
-                        <Link to={ ACTION.SLASH } className="dropdown-item" onClick={ this._onLogout.bind(this) }>
+                        <Link to={ ACTION.SLASH } className='dropdown-item' onClick={ this._onLogout.bind(this) }>
                           { <FaKey /> }
                           <span>{ GetMsg(null, this.state.isUser.language, 'bt_logout') }</span>
                         </Link>

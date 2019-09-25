@@ -78,9 +78,10 @@ class RMenu extends C {
     console.log('HEADER componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.title = props.title;
-    this.state.objs = props.objs;
 
-    if(isEmpty(this.state.objs)) return;
+    console.log(props.objs);
+    if(isEmpty(props.objs) || props.objs.toString() === '{}' || isEmpty(props.objs.schema)) return;
+    this.state.objs = props.objs;
     ReactDOM.render(
       <Form
         schema={ this.state.objs.schema }
