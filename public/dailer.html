@@ -251,26 +251,26 @@
     if(divDailer != undefined) {
       divParent.style.top = '3em';
       divParent.style.left = (parent.window.innerWidth - (divDailer.offsetWidth + 150)) + 'px';
-      // if(divParent.childNodes[0] != undefined) {
-      //   divParent.childNodes[0].style.width = (divDailer.offsetWidth + 6) + 'px';
-      //   divParent.childNodes[0].style.height = (divDailer.offsetHeight + 6) + 'px';
-      // }
     }
     var offset = [ 0, 0 ];
     var isDown = false;
     var obj = document.getElementById('ippbx_move_box');
+    const pBody = parent.document.body;
     if(obj != undefined && obj != null) {
       const div = divParent;
       if(div != undefined && div != null) {
         obj.addEventListener('mousedown', function(e) {
-          console.log(e.target.tagName);
           if(e.target.tagName !== 'FONT') {
             isDown = false;
             return;
           }
+
+          // div.setAttribute('draggable', 'true');
+          // div.addEventListener('drag', onDrag, false);
+          // pBody.addEventListener('dragover', onDragover, false);
+          // pBody.addEventListener('drop' , onDrop, false);
           isDown = true;
           offset = [ div.offsetLeft - e.clientX, div.offsetTop - e.clientY ];
-          console.log(offset);
         }, true);
         document.addEventListener('mouseup', function(e) {
           isDown = false;
@@ -283,6 +283,23 @@
         }, true);
       }
     }
+
+    // function onDrag(e) {
+    //   console.log(e);
+    // }
+
+    // function onDragover(e) {
+    //   e.preventDefault();
+    // }
+
+    // function onDrop(e) {
+    //   console.log(divParent);
+    //   console.log(divParent.offsetLeft);
+    //   console.log(divParent.offsetTop);
+    //   divParent.removeEventListener('drag', onDrag, false);
+    //   pBody.removeEventListener('dragover', onDragover, false);
+    //   pBody.removeEventListener('drop' , onDrop, false);
+    // }
   </script>
   <script src="src/SIPml-api.js"></script>
   <script src="src/WebRTC.js"></script>
