@@ -10,7 +10,7 @@ import CMenu from '../CMenu';
 
 import Utils from '../Utils';
 import { ACTION, INPUT_TYPE } from '../Types';
-import { HTML_TAG, TYPE } from '../HtmlTypes';
+import { HTML_TAG, ATTR, TYPE } from '../HtmlTypes';
 import GetMsg from '../../../msg/Msg';
 import "../../../css/Table.css";
 
@@ -73,7 +73,7 @@ export default class Table extends C {
         if(this.state.view) {
             this.state.view = false;
             this._removeTrClass(body);
-            obj.setAttribute('class', 'selected');
+            obj.setAttribute(ATTR.CLASS, ACTION.SELECTED);
 
             const idx =  obj.getAttribute('idx');
             // console.log(idx);
@@ -90,10 +90,10 @@ export default class Table extends C {
             ReactDOM.render(<View id={ obj.id } isUser={ this.state.isUser } />, document.getElementById(rowId + '_' + HTML_TAG.TD));
         } else {
             if(Utils.isEmpty(obj.className)
-                || obj.className.indexOf('selected') === -1) {
-                obj.setAttribute('class', 'selected');
+                || obj.className.indexOf(ACTION.SELECTED) === -1) {
+                obj.setAttribute(ATTR.CLASS, ACTION.SELECTED);
             } else {
-                obj.removeAttribute('class');
+                obj.removeAttribute(ATTR.CLASS);
             }
         }
     }
@@ -104,7 +104,7 @@ export default class Table extends C {
         if(Utils.isEmpty(obj)) return;
         const body = this._getTBody();
         this._removeTrClass(body);
-        obj.setAttribute('class', 'selected');
+        obj.setAttribute(ATTR.CLASS, ACTION.SELECTED);
     }
 
     _onContextMenu(e) {
@@ -130,9 +130,9 @@ export default class Table extends C {
         var node = body.childNodes;
         for(var i=0; i<node.length; i++) {
             if(isChecked) {
-                node[i].setAttribute('class', 'selected');
+                node[i].setAttribute(ATTR.CLASS, ACTION.SELECTED);
             } else {
-                node[i].removeAttribute('class');
+                node[i].removeAttribute(ATTR.CLASS);
             }
         };
     }
@@ -261,7 +261,7 @@ export default class Table extends C {
         for(var i=0; i<tBody.childNodes.length; i++) {
             var trId =  tBody.childNodes[i].getAttribute('id');
             var className = tBody.childNodes[i].className;
-            if(className !== 'selected'
+            if(className !== ACTION.SELECTED
                 || Utils.isEmpty(trId)
                 || !Utils.isNumber(trId)) continue;
                 ids.push(trId);
@@ -280,7 +280,7 @@ export default class Table extends C {
     _removeTrClass(body) {
         const nodes = body.childNodes;
         for(var i=0; i<nodes.length; i++) {
-            nodes[i].removeAttribute('class');
+            nodes[i].removeAttribute(ATTR.CLASS);
         }
     }
 

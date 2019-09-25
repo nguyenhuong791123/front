@@ -367,12 +367,12 @@ class Customize extends C {
   _addTopDivSelected(obj) {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
-    var add = (obj.className.indexOf(' selected') === -1);
+    var add = (obj.className.indexOf(' ' + ACTION.SELECTED) === -1);
     const objs = Array.from(div.childNodes);
     objs.map((o) => {
-      if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' selected', '');
+      if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' ' + ACTION.SELECTED, '');
     });
-    if(add) obj.className = obj.className + ' selected';
+    if(add) obj.className = obj.className + ' ' + ACTION.SELECTED;
   }
 
   _addDragable(divs) {
@@ -403,9 +403,9 @@ class Customize extends C {
       // if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
       // const objs = Array.from(div.childNodes);
       // objs.map((o) => {
-      //   if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' selected', '');
+      //   if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' ' + ACTION.SELECTED, '');
       // });
-      // this.state.dragparent.className = this.state.dragparent.className + ' selected';
+      // this.state.dragparent.className = this.state.dragparent.className + ' ' + ACTION.SELECTED;
     } else if(e.target.tagName === HTML_TAG.LABEL) {
       this.state.draggable = 2;
       this.state.dragobject = e.target.parentElement;
@@ -949,16 +949,16 @@ class Customize extends C {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL)) return;
     if(obj.tagName === HTML_TAG.LEGEND) {
-      if(!Html.hasAttribute(obj.parentElement, 'id')) return;
+      if(!Html.hasAttribute(obj.parentElement, ATTR.ID)) return;
       var id = obj.parentElement.id.replace('root_', '');
       delete this.state.form.schema.properties[id];
       delete this.state.form.uiSchema[id];
     }
     if(obj.tagName === HTML_TAG.LABEL) {
-      if(!Html.hasAttribute(obj.parentElement.parentElement, 'id')
-        || !Html.hasAttribute(obj, 'for')) return;
+      if(!Html.hasAttribute(obj.parentElement.parentElement, ATTR.ID)
+        || !Html.hasAttribute(obj, ATTR.FOR)) return;
       var cId = obj.parentElement.parentElement.id.replace('root_', '');
-      var oId = obj.getAttribute('for').replace('root_' + cId + '_', '');
+      var oId = obj.getAttribute(ATTR.FOR).replace('root_' + cId + '_', '');
       delete this.state.form.schema.properties[cId].properties[oId];
       delete this.state.form.uiSchema[id][oId];
     }

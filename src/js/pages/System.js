@@ -113,7 +113,7 @@ class System extends C {
         var obj = e.target;
         if(obj.tagName !== HTML_TAG.DIV) return;
         var className = (Html.hasAttribute(obj, ATTR.CLASS))?obj.className:'';
-        const selected = (className.indexOf('selected') === -1);
+        const selected = (className.indexOf(ACTION.SELECTED) === -1);
         this._addSelected(obj, selected);
         this._addChildSelected(obj, selected);
         this._addParentSelected(obj, selected);
@@ -123,7 +123,7 @@ class System extends C {
         var obj = e.target;
         if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.BUTTON) return;
         const className = obj.className;
-        const selected = (className.indexOf('selected') === -1);
+        const selected = (className.indexOf(ACTION.SELECTED) === -1);
         this._addButtonSelected(obj, selected);
         const code = Html.hasAttribute(obj, ATTR.CODE)?obj.getAttribute(ATTR.CODE):null;
         if(Utils.isEmpty(code)) return;
@@ -198,7 +198,7 @@ class System extends C {
         const div = obj.parentElement;
         if(Utils.isEmpty(div) || div.childNodes.length <=1) return;
         const btns =  Array.from(div.childNodes);
-        if(!Utils.isEmpty(this.state['selected'])) obj.checked = this.state['selected'];
+        if(!Utils.isEmpty(this.state[ACTION.SELECTED])) obj.checked = this.state[ACTION.SELECTED];
         const selected = obj.checked;
         btns.map((bt) => {
             if(bt.tagName === HTML_TAG.BUTTON) {
@@ -207,12 +207,12 @@ class System extends C {
         });
         const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
         if(Utils.isEmpty(ul) || ul.tagName !== HTML_TAG.UL) return;
-        this.state['selected'] = selected;
+        this.state[ACTION.SELECTED] = selected;
         const ulis = Array.from(ul.childNodes);
         ulis.map((li) => {
             this._onCheckBoxAutoClick(li);
         });
-        this.state['selected'] = null;
+        this.state[ACTION.SELECTED] = null;
     }
 
     _onCheckBoxAutoClick(obj) {
@@ -270,11 +270,11 @@ class System extends C {
         if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];
         const className = obj.className;
         if(selected) {
-            if(Utils.isEmpty(className) || className.indexOf('selected') === -1) {
-                obj.className = className + 'selected';
+            if(Utils.isEmpty(className) || className.indexOf(ACTION.SELECTED) === -1) {
+                obj.className = className + ACTION.SELECTED;
             }
         } else {
-            obj.className = className.replace('selected', '');
+            obj.className = className.replace(ACTION.SELECTED, '');
         }
     }
 
@@ -300,7 +300,7 @@ class System extends C {
                 if(!selected)
                     selected = (!Utils.isEmpty(li.childNodes[0])
                                 && Html.hasAttribute(li.childNodes[0], ATTR.CLASS)
-                                && li.childNodes[0].className.indexOf('selected') !== -1);
+                                && li.childNodes[0].className.indexOf(ACTION.SELECTED) !== -1);
             });    
         }
         const pp = p.parentElement;

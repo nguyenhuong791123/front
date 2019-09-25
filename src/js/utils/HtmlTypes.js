@@ -68,6 +68,7 @@ export const ATTR = {
     ,STEP: 'step'
     ,MIN: 'min'
     ,MAX: 'max'
+    ,FOR: 'for'
 }
 
 export const MOUSE = {

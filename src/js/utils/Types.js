@@ -63,6 +63,7 @@ export const ACTION = {
     ,SUCCESS: 'success'
     ,ERROR: 'error'
     ,CLEAR: 'clear'
+    ,SELECTED: 'selected'
 };
 
 export const MSG_TYPE = {
