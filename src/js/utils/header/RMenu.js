@@ -31,6 +31,7 @@ class RMenu extends C {
 
     this._onClick = this._onClick.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
+    this._onChange = this._onChange.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -65,6 +66,10 @@ class RMenu extends C {
     console.log("Data submitted: ", this.state);
   }
 
+  _onChange(e) {
+    console.log(e.target);
+  }
+
   _getTitle() {
     return( <div>{ this.state.title }</div> );
   }
@@ -74,24 +79,20 @@ class RMenu extends C {
     this.state.isUser = props.isUser;
     this.state.title = props.title;
     this.state.objs = props.objs;
-    console.log(this.state.objs);
 
-    var div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
+    if(isEmpty(this.state.objs)) return;
     ReactDOM.render(
       <Form
         schema={ this.state.objs.schema }
         uiSchema={ this.state.objs.uiSchema } 
         // widgets={ this.state.widgets }
         // formData={ this.state.formData }
-        // onChange={ this._onChange("changed") }
+        onChange={ this._onChange.bind(this) }
         // onSubmit={ this._onClickSubmit.bind(this) }
         // validate={ this._onValidate.bind(this) }
         // onError={ this._onError.bind(this) }
         >
-    
-        <Actions
-          isUser={ this.state.isUser }
-          onClickSubmit={ this._onClickSubmit.bind(this) } />
+        <button type="submit" className="btn-submit-form-hidden" />
       </Form>
       ,document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX)
     );

@@ -42,6 +42,7 @@ class Header extends C {
       isUser: this.props.isUser
       ,options: this.props.options
       ,headers: this.props.headers
+      ,listHeaders: {}
       ,showError: true
       ,variantError: VARIANT_TYPES.WARNING
       ,right: ''
@@ -139,7 +140,10 @@ class Header extends C {
         }
         if(obj.id === "a-page-setting") {
           this.state.title = 'Page Setting';
+          this._onSetListHeaders();
           console.log(this.state.title);
+        } else {
+          this.state.listHeaders = {};
         }
         this.forceUpdate();
         // return;
@@ -281,6 +285,28 @@ class Header extends C {
     );
   }
 
+  _onSetListHeaders() {
+    console.log(this.state.headers);
+    if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
+    var schema = {};
+    var uiSchema = {};
+    this.state.headers.map((obj) => {
+      var label = "label_" + obj.field;
+      var item = { "title": label, "type": "integer", "minimum": 3, "maximum": 100, per: '%' };
+      var uiHelp = '%';
+      if(!Utils.isEmpty(obj.per) && obj.per === 'px') {
+        item = { "title": label, "type": "integer", "minimum": 10, "maximum": 500, per: 'px'};
+        uiHelp = 'px';
+      }
+      schema[obj.field] = item;
+      uiSchema[obj.field] = { "ui:widget": "range", "ui:help": label + " [" + uiHelp + "]", classNames: "div-box div-box-100 div-box-not-view-label div-box-help-block-02" };
+    });
+
+    if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
+    this.state.listHeaders['schema'] = { type: "object", title: "", properties: schema };
+    this.state.listHeaders['uiSchema'] = uiSchema;
+  }
+
   UNSAFE_componentWillMount() {
     if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
     this._addBoostrapTheme();
@@ -292,21 +318,6 @@ class Header extends C {
     this.state.options = props.options;
     this.state.headers = props.headers;
     this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
-
-    console.log(this.state.headers);
-    if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
-    var schema = {};
-    var uiSchema = {};
-    this.state.headers.map((obj) => {
-      var item = { "title": "label_" + obj.field, "type": "integer", "minimum": 3, "maximum": 100, per: '%' };
-      if(!Utils.isEmpty(obj.per) && obj.per === 'px') item = { "title": "label_" + obj.field, "type": "integer", "minimum": 10, "maximum": 500, per: 'px'};
-      schema[obj.field] = item;
-      uiSchema[obj.field] = { "ui:widget": "range" };
-    });
-
-    if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
-    this.state.headers['schema'] = { type: "object", title: "", properties: schema };
-    this.state.headers['uiSchema'] = uiSchema;
   }
 
   render() {
@@ -330,7 +341,7 @@ class Header extends C {
                     }
                   })()}
                   {/* 「チャット、頁設定」を使用するときボックス */}
-                  <RMenu isUser={ this.props.isUser } title={ this.state.title } objs={ this.state.headers }/>
+                  <RMenu isUser={ this.props.isUser } title={ this.state.title } objs={ this.state.listHeaders }/>
                 </div>      
               );
             }
