@@ -1,26 +1,26 @@
 import React, { Component as C } from "react";
 import ReactDOM from 'react-dom';
+import { Form } from 'react-bootstrap';
 import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
-import Form from "react-jsonschema-form-bs4";
+import FormBS4 from "react-jsonschema-form-bs4";
 
-import Actions from '../Actions';
 import { isEmpty } from '../Utils';
 import { SYSTEM } from "../Types";
 
 var styles = {
   bmBurgerButton: { position: 'fixed', width: '20px', height: '30px', right: '80px', top: '16px', color: 'white' },
-  bmBurgerBars: { background: '#373a47' },
-  bmBurgerBarsHover: { background: '#a90000' },
-  // bmCrossButton: { height: '24px', width: '24px' },
+  // bmBurgerBars: { background: '#373a47' },
+  // bmBurgerBarsHover: { background: '#a90000' },
+  bmCrossButton: { height: '24px', width: '24px' },
   bmCross: { background: '#bdc3c7' },
   bmMenuWrap: { position: 'fixed', height: '100%' },
   // bmMenu: { background: '#373a47', padding: '2.5em 1.5em 0', fontSize: '1.15em' },
-  bmMenu: { padding: '0.5em' },
-  bmMorphShape: { fill: '#373a47' },
+  bmMenu: { overflow: 'hidden' },
+  // bmMorphShape: { fill: '#373a47' },
   // bmItemList: { color: '#b8b7ad', padding: '0.8em' },
-  bmItemList: { color: '#b8b7ad' },
-  bmItem: { display: 'inline-block' },
+  // bmItemList: { color: '#b8b7ad' },
+  // bmItem: { display: 'inline-block' },
   // bmOverlay: { background: 'rgba(0, 0, 0, 0.3)' }
   bmOverlay: { position: 'unset !important' }
 }
@@ -28,6 +28,14 @@ var styles = {
 class RMenu extends C {
   constructor(props) {
     super(props);
+
+    // console.log(props.ua.device);
+    // console.log(props.ua.language);
+    // socket.emit('join room', 'room', 1);
+    // socket.emit('chat message', 'room', 1, 1, 1, 'TEST');
+    // socket.on('chat message', function(data){
+    //     console.log(data);
+    // });
 
     this._onClick = this._onClick.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
@@ -37,6 +45,11 @@ class RMenu extends C {
       isUser: this.props.isUser
       ,title: this.props.title
       ,objs: this.props.objs
+      ,chats: [
+        { id: 1, uId: 1, uname: 'abc', msg: 'dadfass', date: '2019/10/27 10:30' }
+        ,{ id: 2, uId: 2, uname: 'abc', msg: 'daartrgsfsdfass', date: '2019/10/26 20:30' }
+        ,{ id: 3, uId: 3, uname: 'def', msg: 'ngjdhdfbzdfgdfhtgfjdgbfgdfh', date: '2019/10/25 09:30' }
+      ]
       ,isOpen: false
     }
   }
@@ -71,7 +84,7 @@ class RMenu extends C {
   }
 
   _getTitle() {
-    return( <div>{ this.state.title }</div> );
+    return( <div className="div-box-title">{ this.state.title }</div> );
   }
 
   UNSAFE_componentWillReceiveProps(props) {
@@ -79,24 +92,58 @@ class RMenu extends C {
     this.state.isUser = props.isUser;
     this.state.title = props.title;
 
-    console.log(props.objs);
-    if(isEmpty(props.objs) || props.objs.toString() === '{}' || isEmpty(props.objs.schema)) return;
-    this.state.objs = props.objs;
-    ReactDOM.render(
-      <Form
-        schema={ this.state.objs.schema }
-        uiSchema={ this.state.objs.uiSchema } 
-        // widgets={ this.state.widgets }
-        // formData={ this.state.formData }
-        onChange={ this._onChange.bind(this) }
-        // onSubmit={ this._onClickSubmit.bind(this) }
-        // validate={ this._onValidate.bind(this) }
-        // onError={ this._onError.bind(this) }
-        >
-        <button type="submit" className="btn-submit-form-hidden" />
-      </Form>
-      ,document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX)
-    );
+    const div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
+    if(props.isViewChat) {
+      this._onChat(div);
+    } else {
+      if(isEmpty(props.objs) || props.objs.toString() === '{}' || isEmpty(props.objs.schema)) return;
+      this.state.objs = props.objs;
+      this._onPageSetting(div);
+    }
+  }
+
+  _onPageSetting(div) {
+    if(isEmpty(div)) return;
+    const divPageSetting = (<FormBS4
+                              schema={ this.state.objs.schema }
+                              uiSchema={ this.state.objs.uiSchema }
+                              onChange={ this._onChange.bind(this) }>
+                              <button type="submit" className="btn-submit-form-hidden" />
+                            </FormBS4>);
+    ReactDOM.render(divPageSetting, div);
+  }
+
+  _onChat(div) {
+    if(isEmpty(div)) return;
+    const chats = [];
+    this.state.chats.map((obj, index) => {
+      const isSeft = (this.state.isUser.uId === obj.uId)
+      const className = (isSeft)?"div-box-right":"div-box-left";
+      const span = (isSeft)?(<span>{ obj.date }</span>):(<span>{ obj.uname } { obj.date }</span>);
+      chats.push(
+        <div key={ index } className={ className }>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  { span }
+                  <div className="div-box-msg">{ obj.msg }</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    });
+    const divChatBox = (<div className="div-chat-box">
+                          <div>
+                            { chats }
+                          </div>
+                          <div>
+                            <Form.Control as="textarea" rows="3" />
+                          </div>
+                        </div>);
+    ReactDOM.render(divChatBox, div);
   }
 
   render() {
@@ -112,7 +159,7 @@ class RMenu extends C {
           onStateChange={ this._onClick.bind(this) }
           right>
           { this._getTitle() }
-          <div id={ SYSTEM.IS_DIV_RIGHT_BOX }></div>
+          <div id={ SYSTEM.IS_DIV_RIGHT_BOX } className="div-right-box"></div>
         </Menu>
       </div>
     );

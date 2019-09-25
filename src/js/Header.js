@@ -30,17 +30,11 @@ class Header extends C {
     this._onOpenBoxPhone = this._onOpenBoxPhone.bind(this);
     this._newWindow = this._newWindow.bind(this);
     this._onChangeTheme = this._onChangeTheme.bind(this);
-    // console.log(props.ua.device);
-    // console.log(props.ua.language);
-    // socket.emit('join room', 'room', 1);
-    // socket.emit('chat message', 'room', 1, 1, 1, 'TEST');
-    // socket.on('chat message', function(data){
-    //     console.log(data);
-    // });
 
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
+      ,isViewChat: false
       ,headers: this.props.headers
       ,listHeaders: {}
       ,showError: true
@@ -102,16 +96,7 @@ class Header extends C {
 
   _onClick(e) {
     var obj = Html.getLinkObj(e);
-    // var obj = e.target;
-    // if(obj.tagName !== 'A') {
-    //   if(obj.tagName === 'path') {
-    //     obj = e.target.parentElement.parentElement;
-    //   } else {
-    //     obj = e.target.parentElement;
-    //   }
-    //   if(obj.tagName !== 'A') return;
-    // }
-
+    if(Utils.isEmpty(obj)) return;
     const mode = obj.getAttribute('mode');
     if(mode !== 'menu-left') this._onClickButtonToggle();
     const action = obj.getAttribute('action');
@@ -136,17 +121,15 @@ class Header extends C {
 
         if(obj.id === 'a-chat-icon') {
           this.state.title = 'Messenger v0.1.0';
-          console.log(this.state.title);
+          this.state.isViewChat = true;
         }
         if(obj.id === 'a-page-setting') {
           this.state.title = 'Page Setting';
           this._onSetListHeaders();
-          console.log(this.state.title);
         } else {
           this.state.listHeaders = {};
         }
         this.forceUpdate();
-        // return;
       } else {
         this.state.isUser.action = action;
         const url = window.location.protocol + '//' + window.location.host;
@@ -198,24 +181,11 @@ class Header extends C {
     }
   }
 
-  // getLinkObj(e) {
-  //   var obj = e.target;
-  //   if(obj.tagName !== 'A') {
-  //     if(obj.tagName === 'path') {
-  //       obj = e.target.parentElement.parentElement;
-  //     } else {
-  //       obj = e.target.parentElement;
-  //     }
-  //     if(Utils.isEmpty(obj) || obj.tagName !== 'A') return;
-  //   }
-  //   return obj;
-  // }
-
   _newWindow(e) {
     var obj = e.target;
     if(Utils.isEmpty(obj) || Utils.isEmpty(obj.tagName)) return;
     var href = obj.getAttribute('page');
-    if(Utils.isEmpty(href) && (obj.tagName === 'IMG' || obj.tagName === 'SPAN')) {
+    if(Utils.isEmpty(href) && (obj.tagName === HTML_TAG.IMG || obj.tagName === HTML_TAG.SPAN)) {
       href = obj.parentElement.getAttribute('page');
     }
     if(Utils.isEmpty(href)) return;
@@ -258,8 +228,6 @@ class Header extends C {
   }
 
   _onChangeTheme(e) {
-    console.log(e);
-    console.log(e.target.value);
     this.state.isUser.theme = e.target.value;
     const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
     this._setLocalStrageTheme(div);
@@ -308,6 +276,7 @@ class Header extends C {
     if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
     this.state.listHeaders['schema'] = { type: 'object', title: '', properties: schema };
     this.state.listHeaders['uiSchema'] = uiSchema;
+    this.state.isViewChat = false;
   }
 
   UNSAFE_componentWillMount() {
@@ -344,7 +313,7 @@ class Header extends C {
                     }
                   })()}
                   {/* 「チャット、頁設定」を使用するときボックス */}
-                  <RMenu isUser={ this.props.isUser } title={ this.state.title } objs={ this.state.listHeaders }/>
+                  <RMenu isUser={ this.props.isUser } isViewChat={ this.state.isViewChat } title={ this.state.title } objs={ this.state.listHeaders }/>
                 </div>      
               );
             }

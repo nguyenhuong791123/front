@@ -4,9 +4,20 @@ div.div-menu-right {
   z-index: 10 !important;
 }
 
+div.div-menu-right div.div-box-title {
+  text-align: center;
+  padding-top: .3em;
+  font-weight: bold;
+}
+
 div.div-menu-right > div > nav > div {
   width: 100%;
   margin-bottom: .5em;
+}
+
+div.div-menu-right > div > nav > div:last-child {
+  height: 96%;
+  overflow-y: auto;
 }
 
 div.div-menu-right + div > div.bm-burger-button {
@@ -23,4 +34,53 @@ div.div-menu-right + div > div.bm-burger-button {
 
 div.div-margin-right-22 {
   margin-right: 22%;
+}
+
+div.div-chat-box {
+  margin: .2em;
+  height: 80%;
+}
+
+div.div-chat-box > div:last-child {
+  position: absolute;
+  bottom: 4.1em;
+  width: 98%;
+}
+
+div.div-chat-box > div:first-child div.div-box-right {
+  text-align: right;
+  display: flow-root;
+}
+
+div.div-chat-box > div:first-child > div {
+  margin-bottom: .2em;
+}
+
+div.div-chat-box > div:first-child div.div-box-right > table {
+  max-width: 85%;
+  float: right;
+}
+
+div.div-chat-box > div:first-child span {
+  font-size: 80%;
+}
+
+div.div-chat-box > div:first-child div.div-box-msg {
+  width: 100%;
+  border: 1px solid #dee2e6;
+  padding-right: .2em;
+  padding-left: .2em;
+  border-radius: .3em;
+}
+
+div.div-chat-box > div:first-child div.div-box-left {
+  text-align: left;
+}
+
+div.div-chat-box > div:last-child > textarea {
+  resize: none;
+  padding-left: .3em;
+  padding-right: .3em;
+  padding-top: .2em;
+  padding-bottom: .2em;
 }

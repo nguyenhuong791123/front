@@ -30,6 +30,8 @@ export const HTML_TAG = {
     ,LABEL: 'LABEL'
     ,FORM: 'FORM'
     ,NAV: 'NAV'
+    ,IMG: 'IMG'
+    ,SPAN: 'SPAN'
 }
 
 export const TYPE = {
