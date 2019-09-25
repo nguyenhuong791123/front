@@ -295,9 +295,15 @@ class Header extends C {
 
     console.log(this.state.headers);
     if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
+    var items = {};
     this.state.headers.map((obj) => {
-      console.log(obj);
+      var item = { "title": "label_" + obj.field, "type": "integer", "minimum": 3, "maximum": 100, per: '%' };
+      if(!Utils.isEmpty(obj.per) && obj.per === 'px') item = { "title": "label_" + obj.field, "type": "integer", "minimum": 10, "maximum": 500, per: 'px'};
+      items[obj.field] = item;
     });
+
+    if(Utils.isEmpty(items) || items.toString() === '{}') return;
+    this.state.headers = { type: "object", title: "", properties: items }
   }
 
   render() {
@@ -321,7 +327,7 @@ class Header extends C {
                     }
                   })()}
                   {/* 「チャット、頁設定」を使用するときボックス */}
-                  <RMenu isUser={ this.props.isUser } title={ this.state.title }/>
+                  <RMenu isUser={ this.props.isUser } title={ this.state.title } objs={ this.state.headers }/>
                 </div>      
               );
             }

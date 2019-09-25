@@ -3,6 +3,7 @@ import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
 
 import { isEmpty } from '../Utils';
+import { SYSTEM } from "../Types";
 
 var styles = {
   bmBurgerButton: { position: 'fixed', width: '20px', height: '30px', right: '80px', top: '16px', color: 'white' },
@@ -28,8 +29,9 @@ class RMenu extends C {
 
     this.state = {
       isUser: this.props.isUser
-      ,isOpen: false
       ,title: this.props.title
+      ,objs: this.props.objs
+      ,isOpen: false
     }
   }
 
@@ -62,7 +64,11 @@ class RMenu extends C {
     console.log('HEADER componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.title = props.title;
-    // this.forceUpdate();
+    this.state.objs = props.objs;
+    console.log(this.state.objs);
+    var div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
+    div.innerText = this.state.objs;
+    // div.appendChild(this.state.objs);
   }
 
   render() {
@@ -78,6 +84,7 @@ class RMenu extends C {
           onStateChange={ this._onClick.bind(this) }
           right>
           { this._getTitle() }
+          <div id={ SYSTEM.IS_DIV_RIGHT_BOX }></div>
         </Menu>
       </div>
     );

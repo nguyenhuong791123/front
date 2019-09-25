@@ -74,9 +74,9 @@ class List extends C {
         if(this.state.isUser.action !== 'target_00') {
             this.state.list = {
                 columns: [
-                    { field: 'id', text: '', sort: false, filter: false }
-                    ,{ field: 'name', text: '', sort: true, filter: true, style: { width: 500 } }
-                    ,{ field: 'price3', text: '', type: INPUT_TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
+                    { field: 'id', text: 'AAA', sort: false, filter: false }
+                    ,{ field: 'name', text: 'BBB', sort: true, filter: true, style: { width: 500 } }
+                    ,{ field: 'price3', text: 'CCC', type: INPUT_TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
                 ]
                 ,datas:[
                     { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }

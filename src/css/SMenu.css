@@ -4,6 +4,10 @@ div.div-menu-right {
   z-index: 10 !important;
 }
 
+div.div-menu-right > div > nav > div {
+  width: 100%;
+}
+
 div.div-menu-right + div > div.bm-burger-button {
   /* z-index: 150 !important; */
   color: #007bff !important;
