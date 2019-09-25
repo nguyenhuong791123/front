@@ -184,8 +184,10 @@ class App extends C {
         if(isUser.info.action === PAGE.SYSTEM) {
             history.push(ACTION.SLASH + isUser.info.action);
         } else {
+            this.state.isUser.actions = undefined;
             history.push(isUser.info.path);
         }
+        console.log(history);
         this.forceUpdate();
     }
 

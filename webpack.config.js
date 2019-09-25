@@ -7,8 +7,12 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const ENVS = {
     mode:  (process.env && process.env.production) ? 'production' : 'development'
+    ,sslkey: path.resolve(__dirname, 'src', 'ssl', 'dev.key')
+    ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'dev.crt')
+    ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'dev.pem')
     ,host: '0.0.0.0'
     ,port: 8080
+    // ,port: 443
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
     ,output: path.resolve(__dirname, 'build')
@@ -94,12 +98,19 @@ module.exports = {
     devServer: {
         host: ENVS.host
         ,port: ENVS.port
+        ,compress: true
         ,inline: true
         ,contentBase: ENVS.output
         ,watchContentBase: true
         ,hot: true
         ,open: false
         ,historyApiFallback: true
+        // ,http2: true
+        // ,https: {
+        //     key: ENVS.sslkey,
+        //     cert: ENVS.sslcrt,
+        //     ca: ENVS.sslpem,
+        // }
     },
     devtool: (ENVS.mode === 'development') ? 'source-map' : 'none'
     ,

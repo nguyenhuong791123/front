@@ -76,7 +76,7 @@ export default class Table extends C {
             obj.setAttribute('class', 'selected');
 
             const idx =  obj.getAttribute('idx');
-            console.log(idx);
+            // console.log(idx);
             if(Utils.isEmpty(idx) || !Utils.isNumber(idx)) return;
             const rowId = ACTION.VIEW +'_'+ idx;
             const isExists = document.getElementById(rowId);
@@ -99,7 +99,7 @@ export default class Table extends C {
     }
 
     _onDblClick(e) {
-        console.log(e);
+        // console.log(e);
         var obj = this._getObjTr(e);
         if(Utils.isEmpty(obj)) return;
         const body = this._getTBody();
@@ -295,7 +295,7 @@ export default class Table extends C {
         const cBox = document.createElement(HTML_TAG.DIV);
         cBox.id = 'div_calendar_box_view';
         obj.appendChild(cBox);
-        console.log(this.state.isUser);
+        // console.log(this.state.isUser);
         ReactDOM.render(<Calendar
             show={ true }
             objId={ obj.id }
@@ -334,10 +334,12 @@ export default class Table extends C {
         window.onresize();  
     }
 
-    // UNSAFE_componentWillReceiveProps(props) {
-    //     console.log('TabMenu componentWillReceiveProps');
-    //     this.state.isUser = props.isUser;
-    // }
+    UNSAFE_componentWillReceiveProps(props) {
+        // console.log('TabMenu componentWillReceiveProps');
+        this.state.isUser = props.isUser;
+        this.state.columns = props.columns;
+        this.state.datas = props.datas;
+    }
 
     render() {
         return (

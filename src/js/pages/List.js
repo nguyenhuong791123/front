@@ -69,7 +69,8 @@ class List extends C {
     }
 
     _getDatas() {
-        console.log(this.props.isUser);
+        console.log('this.props.isUser');
+        console.log(this.state.isUser.action);
         if(this.state.isUser.action !== 'target_00') {
             this.state.list = {
                 columns: [
@@ -155,16 +156,19 @@ class List extends C {
         );
     }
 
+    UNSAFE_componentWillMount() {
+        this._getDatas();
+    }
+
     UNSAFE_componentWillReceiveProps(props) {
         console.log('LIST componentWillReceiveProps');
         this.state.isUser = props.isUser;
         this.state.options = props.options;
-        // this.forceUpdate();
         this._getDatas();
     }
 
     render() {
-        this._getDatas();
+        // this._getDatas();
       // if(Utils.isEmpty(this.props.isUser) || Utils.isEmpty(this.props.list)) return("");
         // const styles = { 'height': (window.innerHeight - 100 ) + 'px' };
         return (
