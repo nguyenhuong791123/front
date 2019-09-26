@@ -37,7 +37,18 @@ const object = {
       if(obj.tagName === 'path') {
         obj = e.target.parentElement.parentElement;
       }
-      if(obj.tagName === 'SVG') {
+      if(obj.tagName === 'svg') {
+        obj = e.target.parentElement;
+      }
+      return obj;
+    }
+    ,getSpan(e) {
+      var obj = e.target;
+      if(obj.tagName === 'SPAN') return obj;
+      if(obj.tagName === 'path') {
+        obj = e.target.parentElement.parentElement;
+      }
+      if(obj.tagName === 'svg') {
         obj = e.target.parentElement;
       }
       return obj;

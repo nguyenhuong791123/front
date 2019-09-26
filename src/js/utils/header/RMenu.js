@@ -4,7 +4,9 @@ import { Form } from 'react-bootstrap';
 import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
 import FormBS4 from "react-jsonschema-form-bs4";
+import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
+import Html from '../HtmlUtils';
 import { isEmpty } from '../Utils';
 import { SYSTEM } from "../Types";
 
@@ -38,6 +40,7 @@ class RMenu extends C {
     // });
 
     this._onClick = this._onClick.bind(this);
+    this._onOpenClick = this._onOpenClick.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
 
@@ -55,6 +58,13 @@ class RMenu extends C {
   }
 
   _onClick(e) {
+    const obj = Html.getSpan(e);
+    console.log(e.target);
+    console.log(e.target.tagName);
+    console.log(obj);
+  }
+
+  _onOpenClick(e) {
     if(isEmpty(e.isOpen)) return;
     var body = document.getElementById('div_body');
     if(e.isOpen) {
@@ -140,6 +150,12 @@ class RMenu extends C {
                             { chats }
                           </div>
                           <div>
+                            <span onClick={ this._onClick.bind(this) }>
+                              <FaUpload title="File Upload" />
+                            </span>
+                            <span onClick={ this._onClick.bind(this) }>
+                              <FaPaperPlane title="Send" />
+                            </span>
                             <Form.Control as="textarea" rows="3" />
                           </div>
                         </div>);
@@ -156,7 +172,7 @@ class RMenu extends C {
           { ...this.props }
           customBurgerIcon={ <FaRocketchat id="div-right-chat-icon" className="div-right-chat-icon" /> }
           // customCrossIcon={ false }
-          onStateChange={ this._onClick.bind(this) }
+          onStateChange={ this._onOpenClick.bind(this) }
           right>
           { this._getTitle() }
           <div id={ SYSTEM.IS_DIV_RIGHT_BOX } className="div-right-box"></div>
