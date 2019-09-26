@@ -1,10 +1,10 @@
 import React, { Component as C } from "react";
 import ReactDOM from 'react-dom';
-import { Form } from 'react-bootstrap';
+// import { Form } from 'react-bootstrap';
 import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
 import FormBS4 from "react-jsonschema-form-bs4";
-import { FaUpload, FaPaperPlane } from 'react-icons/fa';
+// import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';

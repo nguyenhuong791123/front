@@ -16,7 +16,7 @@ div.div-menu-right > div > nav > div {
 }
 
 div.div-menu-right > div > nav > div:last-child {
-  height: 96%;
+  height: calc(100% - 125px);
   overflow-y: hidden;
 }
 
@@ -46,6 +46,8 @@ div.div-chat-box > div:last-child {
   position: absolute;
   bottom: 4.1em;
   width: 98%;
+  height: 200px;
+  max-height: 200px;
 }
 
 div.div-chat-box > div:first-child div.div-box-right {

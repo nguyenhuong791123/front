@@ -1,0 +1,22 @@
+div.public-DraftEditor-content {
+    height: 120px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+div.public-DraftStyleDefault-block {
+    margin: .2em;
+}
+
+div.rdw-colorpicker-modal
+,div.rdw-emoji-modal
+,div.rdw-embedded-modal
+,div.rdw-image-modal {
+    top: -180px;
+    left: -200px;
+    padding: .2em;
+}
+
+ul.rdw-dropdown-optionwrapper {
+    max-height: 150px;
+}
