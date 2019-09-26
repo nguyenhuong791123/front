@@ -1,27 +1,32 @@
-div.public-DraftEditor-content {
+div.div-menu-right div.public-DraftEditor-content {
     height: 120px;
     max-height: 120px;
     overflow-y: auto;
 }
 
-div.public-DraftStyleDefault-block {
+div.div-menu-right div.public-DraftStyleDefault-block {
     margin: .2em;
 }
 
-div.rdw-colorpicker-modal
-,div.rdw-link-modal
-,div.rdw-emoji-modal
-,div.rdw-embedded-modal
-,div.rdw-image-modal {
-    top: -180px;
+div.div-menu-right div.rdw-colorpicker-modal {
+    top: -175px;
+    left: -145px;
+    padding: .2em;
+}
+
+div.div-menu-right div.rdw-link-modal
+,div.div-menu-right div.rdw-emoji-modal
+,div.div-menu-right div.rdw-embedded-modal
+,div.div-menu-right div.rdw-image-modal {
+    top: -185px;
     left: -200px;
     padding: .2em;
 }
 
-div.rdw-link-modal {
+div.div-menu-right div.rdw-link-modal {
     height: 230px;
 }
 
-ul.rdw-dropdown-optionwrapper {
+div.div-menu-right ul.rdw-dropdown-optionwrapper {
     max-height: 150px;
 }
