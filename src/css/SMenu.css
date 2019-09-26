@@ -16,7 +16,7 @@ div.div-menu-right > div > nav > div {
 }
 
 div.div-menu-right > div > nav > div:last-child {
-  height: calc(100% - 125px);
+  height: 100%;
   overflow-y: hidden;
 }
 
@@ -38,13 +38,13 @@ div.div-margin-right-22 {
 
 div.div-chat-box {
   margin: .2em;
-  height: calc(100% - 185px);
+  /* height: calc(100% - 185px); */
   overflow-y: auto;
 }
 
 div.div-chat-box > div:last-child {
   position: absolute;
-  bottom: 4.1em;
+  bottom: 6em;
   width: 98%;
   height: 200px;
   max-height: 200px;
@@ -80,13 +80,13 @@ div.div-chat-box > div:first-child div.div-box-left {
   text-align: left;
 }
 
-div.div-chat-box > div:last-child > span {
+/* div.div-chat-box > div:last-child > span {
   border: 1px solid #dee2e6;
   border-radius: .2em;
   padding-left: .2em;
   padding-right: .2em;
   padding-bottom: .2em;
-}
+} */
 
 div.div-chat-box > div:last-child > span:hover {
   cursor: pointer;
@@ -97,10 +97,28 @@ div.div-chat-box > div:last-child > span:nth-last-child(2) {
   float: right;
 }
 
-div.div-chat-box > div:last-child > textarea {
+/* div.div-chat-box > div:last-child > textarea {
   resize: none;
   padding-left: .3em;
   padding-right: .3em;
   padding-top: .2em;
   padding-bottom: .2em;
+} */
+
+div.rdw-editor-toolbar > div:nth-last-child(1)
+,div.rdw-editor-toolbar > div:nth-last-child(2) {
+  border: 1px solid #dee2e6;
+  padding-left: .2em;
+  padding-right: .2em;
+  padding-bottom: .2em;
+  margin: .2em;
+}
+
+div.rdw-editor-toolbar > div:hover {
+  cursor: pointer;
+  background-color: #cce5ff;
+}
+
+div.rdw-editor-toolbar > div:nth-last-child(1) {
+  color: red;
 }

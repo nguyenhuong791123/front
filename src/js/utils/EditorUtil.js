@@ -3,7 +3,7 @@ export const EDITOR_RESET = {
     list: { inDropdown: true },
     textAlign: { inDropdown: true },
     link: { inDropdown: true },
-    // history: { inDropdown: true },
+    history: { inDropdown: true },
     colorPicker: {
       colors: [
         'rgb(97,189,109)'

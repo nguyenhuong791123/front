@@ -6,7 +6,6 @@ import draftToHtml from 'draftjs-to-html';
 import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
 import FormBS4 from "react-jsonschema-form-bs4";
-// import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
@@ -100,13 +99,59 @@ class RMenu extends C {
 
   _onUpdateEditor(editorState) {
     if(isEmpty(editorState)) return;
-    // console.log(draftToHtml(convertToRaw(editorState)));
     this.state.objs = editorState;
     this.props.onUpdateListHeaders(this.state.objs);
   }
 
   _getTitle() {
     return( <div className="div-box-title">{ this.state.title }</div> );
+  }
+
+  _onPageSetting(div) {
+    if(isEmpty(div)) return;
+    const divPageSetting = (<FormBS4
+                              schema={ this.state.objs.schema }
+                              uiSchema={ this.state.objs.uiSchema }
+                              onChange={ this._onChange.bind(this) }>
+                              <button type="submit" className="btn-submit-form-hidden" />
+                            </FormBS4>);
+    ReactDOM.render(divPageSetting, div);
+  }
+
+  _onChat(div) {
+    if(isEmpty(div)) return;
+    const chats = [];
+    const objs = JSON.stringify(this.state.objs);
+    if(!isEmpty(objs) && objs !== '{}') {
+      const cDiv = document.createElement(HTML_TAG.DIV);
+      cDiv.setAttribute('class', 'div-box-msg');
+      const text = (draftToHtml(convertToRaw(this.state.objs)));
+      cDiv.innerHTML = text;
+      chats.push(
+        <div key={ chats.length } className={ "div-box-right" }>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <span>{ 'obj.date' }</span>
+                  <div className="div-box-msg"
+                    dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.state.objs))}}>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    const divChatBox = (<div id={ SYSTEM.IS_DIV_CHAT_BOX } className="div-chat-box">
+                          <div>{ chats }</div>
+                          <div>
+                            <CEditor onUpdateEditor= { this._onUpdateEditor.bind(this) } />
+                          </div>
+                        </div>);
+    ReactDOM.render(divChatBox, div);
   }
 
   UNSAFE_componentWillReceiveProps(props) {
@@ -123,104 +168,6 @@ class RMenu extends C {
       this.state.objs = props.objs;
       this._onPageSetting(div);
     }
-  }
-
-  _onPageSetting(div) {
-    if(isEmpty(div)) return;
-    const divPageSetting = (<FormBS4
-                              schema={ this.state.objs.schema }
-                              uiSchema={ this.state.objs.uiSchema }
-                              onChange={ this._onChange.bind(this) }>
-                              <button type="submit" className="btn-submit-form-hidden" />
-                            </FormBS4>);
-    ReactDOM.render(divPageSetting, div);
-  }
-
-  _onChat(div) {
-    if(isEmpty(div)) return;
-    const objs = JSON.stringify(this.state.objs);
-    const chats = [];
-    // this.state.chats.map((obj, index) => {
-    //   const isSeft = (this.state.isUser.uId === obj.uId)
-    //   const className = (isSeft)?"div-box-right":"div-box-left";
-    //   const span = (isSeft)?(<span>{ obj.date }</span>):(<span>{ obj.uname } { obj.date }</span>);
-    //   chats.push(
-    //     <div key={ index } className={ className }>
-    //       <table>
-    //         <tbody>
-    //           <tr>
-    //             <td>
-    //               { span }
-    //               <div className="div-box-msg">{ obj.msg }</div>
-    //             </td>
-    //           </tr>
-    //         </tbody>
-    //       </table>
-    //     </div>
-    //   );
-    // });
-
-    if(!isEmpty(objs) && objs !== '{}') {
-      const cDiv = document.createElement(HTML_TAG.DIV);
-      cDiv.setAttribute('class', 'div-box-msg');
-      const text = (draftToHtml(convertToRaw(this.state.objs)));
-      // div.appendChild(text);
-      cDiv.innerHTML = text;
-      // const span = document.createElement(HTML_TAG.SPAN);
-      // span.innerText = 'obj.date';
-      // const td = document.createElement(HTML_TAG.TD);
-      // td.appendChild(span);
-      // td.appendChild(cDiv);
-      // const tr = document.createElement(HTML_TAG.TR);
-      // tr.appendChild(td);
-      // const tbody = document.createElement(HTML_TAG.TBODY);
-      // tbody.appendChild(tr);
-      // const tbl = document.createElement(HTML_TAG.TABLE);
-      // tbl.appendChild(tbody);
-
-      // const pDiv = document.createElement(HTML_TAG.DIV);
-      // pDiv.setAttribute('class', 'div-box-right');
-      // pDiv.appendChild(tbl);
-      console.log(cDiv);
-      // chats.push(pDiv);
-      chats.push(
-        <div key={ chats.length } className={ "div-box-right" }>
-          <table>
-            <tbody>
-              <tr>
-                <td>
-                  <span>{ 'obj.date' }</span>
-                  <div className="div-box-msg">
-                    {(() => {
-                      return(text);
-                    })()}
-                    {/* { draftToHtml(convertToRaw(this.state.objs)) } */}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-
-    const divChatBox = (<div className="div-chat-box">
-                          <div>
-                            { chats }
-                            {/* { draftToHtml(convertToRaw(this.state.editorState)) } */}
-                          </div>
-                          <div>
-                            {/* <span onClick={ this._onClick.bind(this) }>
-                              <FaUpload title="File Upload" />
-                            </span>
-                            <span onClick={ this._onClick.bind(this) }>
-                              <FaPaperPlane title="Send" />
-                            </span> */}
-                            <CEditor onUpdateEditor= { this._onUpdateEditor.bind(this) } />
-                            {/* <Form.Control as="textarea" rows="3" /> */}
-                          </div>
-                        </div>);
-    ReactDOM.render(divChatBox, div);
   }
 
   render() {

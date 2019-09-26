@@ -325,7 +325,9 @@ class TabMenu extends C {
         this.forceUpdate();
     }
 
-    componentWillReceiveProps() {
+    UNSAFE_componentWillReceiveProps(props) {
+        this.state.isUser = props.isUser;
+        this.state.objs = props.objs;
         this._onResizeWindown(document.getElementById(SYSTEM.IS_TAB_MENU));
     }
 

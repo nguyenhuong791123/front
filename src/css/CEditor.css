@@ -9,12 +9,17 @@ div.public-DraftStyleDefault-block {
 }
 
 div.rdw-colorpicker-modal
+,div.rdw-link-modal
 ,div.rdw-emoji-modal
 ,div.rdw-embedded-modal
 ,div.rdw-image-modal {
     top: -180px;
     left: -200px;
     padding: .2em;
+}
+
+div.rdw-link-modal {
+    height: 230px;
 }
 
 ul.rdw-dropdown-optionwrapper {
