@@ -30,6 +30,7 @@ class Header extends C {
     this._onOpenBoxPhone = this._onOpenBoxPhone.bind(this);
     this._newWindow = this._newWindow.bind(this);
     this._onChangeTheme = this._onChangeTheme.bind(this);
+    this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -254,7 +255,6 @@ class Header extends C {
   }
 
   _onSetListHeaders() {
-    console.log(this.state.headers);
     if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
     var schema = {};
     var uiSchema = {};
@@ -277,6 +277,13 @@ class Header extends C {
     this.state.listHeaders['schema'] = { type: 'object', title: '', properties: schema };
     this.state.listHeaders['uiSchema'] = uiSchema;
     this.state.isViewChat = false;
+  }
+
+  _onUpdateListHeaders(objs) {
+    if(Utils.isEmpty(objs)) return;
+    this.state.listHeaders = objs;
+    console.log(this.state.listHeaders);
+    this.forceUpdate();
   }
 
   UNSAFE_componentWillMount() {
@@ -313,7 +320,12 @@ class Header extends C {
                     }
                   })()}
                   {/* 「チャット、頁設定」を使用するときボックス */}
-                  <RMenu isUser={ this.props.isUser } isViewChat={ this.state.isViewChat } title={ this.state.title } objs={ this.state.listHeaders }/>
+                  <RMenu
+                    isUser={ this.props.isUser }
+                    isViewChat={ this.state.isViewChat }
+                    title={ this.state.title }
+                    objs={ this.state.listHeaders }
+                    onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) } />
                 </div>      
               );
             }

@@ -1,5 +1,7 @@
 import React, { Component as C } from "react";
 import ReactDOM from 'react-dom';
+import { convertToRaw } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
 // import { Form } from 'react-bootstrap';
 import { FaRocketchat } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
@@ -44,6 +46,7 @@ class RMenu extends C {
     this._onOpenClick = this._onOpenClick.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
+    this._onUpdateEditor = this._onUpdateEditor.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -94,6 +97,13 @@ class RMenu extends C {
     console.log(e.target);
   }
 
+  _onUpdateEditor(editorState) {
+    if(isEmpty(editorState)) return;
+    // console.log(draftToHtml(convertToRaw(editorState)));
+    this.state.objs = editorState;
+    this.props.onUpdateListHeaders(this.state.objs);
+  }
+
   _getTitle() {
     return( <div className="div-box-title">{ this.state.title }</div> );
   }
@@ -102,6 +112,7 @@ class RMenu extends C {
     console.log('HEADER componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.title = props.title;
+    this.state.objs = props.objs;
 
     const div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
     if(props.isViewChat) {
@@ -126,29 +137,53 @@ class RMenu extends C {
 
   _onChat(div) {
     if(isEmpty(div)) return;
+    const objs = JSON.stringify(this.state.objs);
     const chats = [];
-    this.state.chats.map((obj, index) => {
-      const isSeft = (this.state.isUser.uId === obj.uId)
-      const className = (isSeft)?"div-box-right":"div-box-left";
-      const span = (isSeft)?(<span>{ obj.date }</span>):(<span>{ obj.uname } { obj.date }</span>);
+    // this.state.chats.map((obj, index) => {
+    //   const isSeft = (this.state.isUser.uId === obj.uId)
+    //   const className = (isSeft)?"div-box-right":"div-box-left";
+    //   const span = (isSeft)?(<span>{ obj.date }</span>):(<span>{ obj.uname } { obj.date }</span>);
+    //   chats.push(
+    //     <div key={ index } className={ className }>
+    //       <table>
+    //         <tbody>
+    //           <tr>
+    //             <td>
+    //               { span }
+    //               <div className="div-box-msg">{ obj.msg }</div>
+    //             </td>
+    //           </tr>
+    //         </tbody>
+    //       </table>
+    //     </div>
+    //   );
+    // });
+
+    console.log(this.state.objs);
+    console.log(JSON.stringify(this.state.objs));
+    if(!isEmpty(objs) && objs !== '{}') {
       chats.push(
-        <div key={ index } className={ className }>
+        <div className={ "div-box-right" }>
           <table>
             <tbody>
               <tr>
                 <td>
-                  { span }
-                  <div className="div-box-msg">{ obj.msg }</div>
+                  <span>{ 'obj.date' }</span>
+                  <div className="div-box-msg">
+                    { draftToHtml(convertToRaw(this.state.objs)) }
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       );
-    });
+    }
+
     const divChatBox = (<div className="div-chat-box">
                           <div>
                             { chats }
+                            {/* { draftToHtml(convertToRaw(this.state.editorState)) } */}
                           </div>
                           <div>
                             {/* <span onClick={ this._onClick.bind(this) }>
@@ -157,7 +192,7 @@ class RMenu extends C {
                             <span onClick={ this._onClick.bind(this) }>
                               <FaPaperPlane title="Send" />
                             </span> */}
-                            <CEditor />
+                            <CEditor onUpdateEditor= { this._onUpdateEditor.bind(this) } />
                             {/* <Form.Control as="textarea" rows="3" /> */}
                           </div>
                         </div>);
