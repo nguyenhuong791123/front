@@ -11,6 +11,7 @@ import FormBS4 from "react-jsonschema-form-bs4";
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
 import { isEmpty } from '../Utils';
+import { HTML_TAG } from '../HtmlTypes';
 import { SYSTEM } from "../Types";
 
 var styles = {
@@ -159,18 +160,41 @@ class RMenu extends C {
     //   );
     // });
 
-    console.log(this.state.objs);
-    console.log(JSON.stringify(this.state.objs));
     if(!isEmpty(objs) && objs !== '{}') {
+      const cDiv = document.createElement(HTML_TAG.DIV);
+      cDiv.setAttribute('class', 'div-box-msg');
+      const text = (draftToHtml(convertToRaw(this.state.objs)));
+      // div.appendChild(text);
+      cDiv.innerHTML = text;
+      // const span = document.createElement(HTML_TAG.SPAN);
+      // span.innerText = 'obj.date';
+      // const td = document.createElement(HTML_TAG.TD);
+      // td.appendChild(span);
+      // td.appendChild(cDiv);
+      // const tr = document.createElement(HTML_TAG.TR);
+      // tr.appendChild(td);
+      // const tbody = document.createElement(HTML_TAG.TBODY);
+      // tbody.appendChild(tr);
+      // const tbl = document.createElement(HTML_TAG.TABLE);
+      // tbl.appendChild(tbody);
+
+      // const pDiv = document.createElement(HTML_TAG.DIV);
+      // pDiv.setAttribute('class', 'div-box-right');
+      // pDiv.appendChild(tbl);
+      console.log(cDiv);
+      // chats.push(pDiv);
       chats.push(
-        <div className={ "div-box-right" }>
+        <div key={ chats.length } className={ "div-box-right" }>
           <table>
             <tbody>
               <tr>
                 <td>
                   <span>{ 'obj.date' }</span>
                   <div className="div-box-msg">
-                    { draftToHtml(convertToRaw(this.state.objs)) }
+                    {(() => {
+                      return(text);
+                    })()}
+                    {/* { draftToHtml(convertToRaw(this.state.objs)) } */}
                   </div>
                 </td>
               </tr>

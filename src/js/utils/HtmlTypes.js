@@ -21,6 +21,7 @@ export const HTML_TAG = {
     ,A: 'A'
     ,UL: 'UL'
     ,LI: 'LI'
+    ,TABLE: 'TABLE'
     ,TBODY: 'TBODY'
     ,TR: 'TR'
     ,TH: 'TH'
