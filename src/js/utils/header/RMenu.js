@@ -6,6 +6,7 @@ import { slide as Menu } from "react-burger-menu";
 import FormBS4 from "react-jsonschema-form-bs4";
 import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
+import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
 import { isEmpty } from '../Utils';
 import { SYSTEM } from "../Types";
@@ -150,13 +151,14 @@ class RMenu extends C {
                             { chats }
                           </div>
                           <div>
-                            <span onClick={ this._onClick.bind(this) }>
+                            {/* <span onClick={ this._onClick.bind(this) }>
                               <FaUpload title="File Upload" />
                             </span>
                             <span onClick={ this._onClick.bind(this) }>
                               <FaPaperPlane title="Send" />
-                            </span>
-                            <Form.Control as="textarea" rows="3" />
+                            </span> */}
+                            <CEditor />
+                            {/* <Form.Control as="textarea" rows="3" /> */}
                           </div>
                         </div>);
     ReactDOM.render(divChatBox, div);
