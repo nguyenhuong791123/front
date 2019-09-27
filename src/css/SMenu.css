@@ -111,7 +111,8 @@ div.rdw-editor-toolbar > div:nth-last-child(1)
   padding-left: .2em;
   padding-right: .2em;
   padding-bottom: .2em;
-  margin: .2em;
+  margin-right: .2em;
+  margin-bottom: .5em;
 }
 
 div.rdw-editor-toolbar > div:hover {

@@ -51,7 +51,7 @@ class RMenu extends C {
     this.state = {
       isUser: this.props.isUser
       ,title: this.props.title
-      ,objs: this.props.objs
+      ,objs: (this.props.isViewChat)?this.props.chats:this.props.objs
       ,chats: [
         { id: 1, uId: 1, uname: 'abc', msg: 'dadfass', date: '2019/10/27 10:30' }
         ,{ id: 2, uId: 2, uname: 'abc', msg: 'daartrgsfsdfass', date: '2019/10/26 20:30' }
@@ -121,28 +121,29 @@ class RMenu extends C {
   _onChat(div) {
     if(isEmpty(div)) return;
     const chats = [];
-    const objs = JSON.stringify(this.state.objs);
-    if(!isEmpty(objs) && objs !== '{}') {
-      const cDiv = document.createElement(HTML_TAG.DIV);
-      cDiv.setAttribute('class', 'div-box-msg');
-      const text = (draftToHtml(convertToRaw(this.state.objs)));
-      cDiv.innerHTML = text;
-      chats.push(
-        <div key={ chats.length } className={ "div-box-right" }>
-          <table>
-            <tbody>
-              <tr>
-                <td>
-                  <span>{ 'obj.date' }</span>
-                  <div className="div-box-msg"
-                    dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(this.state.objs))}}>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      );
+    if(!isEmpty(this.state.objs) && this.state.objs.length > 0) {
+      this.state.objs.map((obj, index) => {
+        const cDiv = document.createElement(HTML_TAG.DIV);
+        cDiv.setAttribute('class', 'div-box-msg');
+        const text = (draftToHtml(convertToRaw(obj)));
+        cDiv.innerHTML = text;
+        chats.push(
+          <div key={ index } className={ "div-box-right" }>
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                    <span>{ obj.date }</span>
+                    <div className="div-box-msg"
+                      dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(obj))}}>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        );
+      });        
     }
 
     const divChatBox = (<div id={ SYSTEM.IS_DIV_CHAT_BOX } className="div-chat-box">
@@ -158,7 +159,7 @@ class RMenu extends C {
     console.log('HEADER componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.title = props.title;
-    this.state.objs = props.objs;
+    this.state.objs = (props.isViewChat)?props.chats:props.objs;
 
     const div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
     if(props.isViewChat) {
@@ -191,16 +192,3 @@ class RMenu extends C {
 }
 
 export default RMenu;
-
-// export default props => {
-//   // console.log(props);
-//   return (
-//     <div>
-//       <Menu styles={ styles } className="div-menu-right" {...props} customBurgerIcon={ <FaRocketchat className="div-right-chat-icon" /> } customCrossIcon={ false } right>
-//         <a className="menu-item" href="/">
-//           Home
-//         </a>
-//       </Menu>
-//     </div>
-//   );
-// };

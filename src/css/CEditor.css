@@ -30,3 +30,10 @@ div.div-menu-right div.rdw-link-modal {
 div.div-menu-right ul.rdw-dropdown-optionwrapper {
     max-height: 150px;
 }
+
+div.div-chat-box div.rdw-block-wrapper
+,div.div-chat-box div.rdw-fontfamily-wrapper
+,div.div-chat-box div.rdw-remove-wrapper
+,div.div-chat-box div.rdw-history-dropdown {
+    display: none;
+}

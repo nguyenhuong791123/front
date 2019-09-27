@@ -38,6 +38,7 @@ class Header extends C {
       ,isViewChat: false
       ,headers: this.props.headers
       ,listHeaders: {}
+      ,listChats: []
       ,showError: true
       ,variantError: VARIANT_TYPES.WARNING
       ,right: ''
@@ -123,6 +124,8 @@ class Header extends C {
         if(obj.id === 'a-chat-icon') {
           this.state.title = 'Messenger v0.1.0';
           this.state.isViewChat = true;
+        } else {
+          this.state.listChats = [];
         }
         if(obj.id === 'a-page-setting') {
           this.state.title = 'Page Setting';
@@ -281,8 +284,8 @@ class Header extends C {
 
   _onUpdateListHeaders(objs) {
     if(Utils.isEmpty(objs)) return;
-    this.state.listHeaders = objs;
-    console.log(this.state.listHeaders);
+    this.state.listChats.push(objs);
+    console.log(this.state.listChats);
     this.forceUpdate();
   }
 
@@ -325,6 +328,7 @@ class Header extends C {
                     isViewChat={ this.state.isViewChat }
                     title={ this.state.title }
                     objs={ this.state.listHeaders }
+                    chats= { this.state.listChats }
                     onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) } />
                 </div>      
               );

@@ -5,16 +5,18 @@ import { Editor } from 'react-draft-wysiwyg';
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
+import Html from "./HtmlUtils";
 import { isEmpty } from './Utils';
 import { EDITOR_RESET } from './EditorUtil';
 import { SYSTEM } from './Types';
+import { HTML_TAG, TYPE, ATTR } from "./HtmlTypes";
 import '../../css/CEditor.css';
-import { HTML_TAG } from "./HtmlTypes";
 
 class CEditor extends C {
   constructor(props) {
     super(props);
 
+    this._onClick = this._onClick.bind(this);
     this._onEditorStateChange = this._onEditorStateChange.bind(this);
 
     this.state = {
@@ -22,9 +24,25 @@ class CEditor extends C {
     }
   }
 
+  _onClick(e) {
+    const obj = Html.getSpan(e);
+    if(isEmpty(obj) || !Html.hasAttribute(obj, ATTR.ID)) return;
+    console.log(e.target);
+    console.log(obj);
+    if(obj.id === 'file') {
+      const file = document.getElementById('add_chat_file');
+      file.click();
+    }
+    if(obj.id === 'send') {
+      const editorState = this.state.editorState.getCurrentContent();
+      this.state.editorState = EditorState.createEmpty();
+      this.props.onUpdateEditor(editorState);
+    }
+  }
+
   _onEditorStateChange(editorState) {
     this.setState({ editorState });
-    this.props.onUpdateEditor(editorState.getCurrentContent());
+    // this.props.onUpdateEditor(editorState.getCurrentContent());
   };
 
   componentDidMount() {
@@ -38,10 +56,10 @@ class CEditor extends C {
     console.log(divEditor.childNodes[0]);
     console.log(divEditor.childNodes[0].childNodes[0]);
     const divUp = document.createElement(HTML_TAG.DIV);
-    ReactDOM.render((<span><FaUpload /></span>), divUp);
+    ReactDOM.render((<span id={ 'file' }><FaUpload onClick={ this._onClick.bind(this) } /></span>), divUp);
     divEditor.childNodes[0].childNodes[0].appendChild(divUp);
     const divSend = document.createElement(HTML_TAG.DIV);
-    ReactDOM.render((<span><FaPaperPlane /></span>), divSend);
+    ReactDOM.render((<span id={ 'send' }><FaPaperPlane onClick={ this._onClick.bind(this) } /></span>), divSend);
     divEditor.childNodes[0].childNodes[0].appendChild(divSend);
   }
 
@@ -55,6 +73,8 @@ class CEditor extends C {
           toolbarClassName="toolbar-class"
           toolbar={ EDITOR_RESET }
           onEditorStateChange={ this._onEditorStateChange.bind(this) } />
+
+        <input type={ TYPE.FILE } id={ 'add_chat_file' } />
       </div>
     );
   }
