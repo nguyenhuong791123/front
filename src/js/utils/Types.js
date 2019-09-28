@@ -14,6 +14,7 @@ export const SYSTEM = {
     ,IS_TAB_MENU: 'div-nav-tab-menu'
     ,IS_DIV_HEADER_FORM: 'div_header_form'
     ,IS_DIV_CHAT_BOX: 'div_chat_box'
+    ,IS_DIV_CHAT_LIST_BOX: 'div_chat_list_box'
     ,IS_DIV_EDITOR_BOX: 'div_editor_box'
     ,IS_DIV_RIGHT_BOX: 'div_right_box'
     ,IS_DIV_CUSTOMIZE_BOX: 'div_customize_box'

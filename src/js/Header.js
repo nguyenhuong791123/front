@@ -30,7 +30,7 @@ class Header extends C {
     this._onOpenBoxPhone = this._onOpenBoxPhone.bind(this);
     this._newWindow = this._newWindow.bind(this);
     this._onChangeTheme = this._onChangeTheme.bind(this);
-    this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
+    // this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -38,7 +38,7 @@ class Header extends C {
       ,isViewChat: false
       ,headers: this.props.headers
       ,listHeaders: {}
-      ,listChats: []
+      // ,listChats: []
       ,showError: true
       ,variantError: VARIANT_TYPES.WARNING
       ,right: ''
@@ -124,11 +124,10 @@ class Header extends C {
         if(obj.id === 'a-chat-icon') {
           this.state.title = 'Messenger v0.1.0';
           this.state.isViewChat = true;
-        } else {
-          this.state.listChats = [];
         }
         if(obj.id === 'a-page-setting') {
           this.state.title = 'Page Setting';
+          this.state.isViewChat = false;
           this._onSetListHeaders();
         } else {
           this.state.listHeaders = {};
@@ -282,12 +281,12 @@ class Header extends C {
     this.state.isViewChat = false;
   }
 
-  _onUpdateListHeaders(objs) {
-    if(Utils.isEmpty(objs)) return;
-    this.state.listChats.push(objs);
-    console.log(this.state.listChats);
-    this.forceUpdate();
-  }
+  // _onUpdateListHeaders(objs) {
+  //   if(Utils.isEmpty(objs)) return;
+  //   this.state.listChats.push(objs);
+  //   console.log(this.state.listChats);
+  //   this.forceUpdate();
+  // }
 
   UNSAFE_componentWillMount() {
     if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
@@ -328,8 +327,9 @@ class Header extends C {
                     isViewChat={ this.state.isViewChat }
                     title={ this.state.title }
                     objs={ this.state.listHeaders }
-                    chats= { this.state.listChats }
-                    onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) } />
+                    // chats= { this.state.listChats }
+                    // onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) }
+                    />
                 </div>      
               );
             }

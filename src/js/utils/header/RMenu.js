@@ -9,9 +9,10 @@ import FormBS4 from "react-jsonschema-form-bs4";
 
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
-import { isEmpty } from '../Utils';
-import { HTML_TAG } from '../HtmlTypes';
+import Dates from '../DateUtils';
 import { SYSTEM } from "../Types";
+import { isEmpty } from '../Utils';
+import { HTML_TAG, TYPE } from '../HtmlTypes';
 
 var styles = {
   bmBurgerButton: { position: 'fixed', width: '20px', height: '30px', right: '80px', top: '16px', color: 'white' },
@@ -51,18 +52,15 @@ class RMenu extends C {
     this.state = {
       isUser: this.props.isUser
       ,title: this.props.title
-      ,objs: (this.props.isViewChat)?this.props.chats:this.props.objs
-      ,chats: [
-        { id: 1, uId: 1, uname: 'abc', msg: 'dadfass', date: '2019/10/27 10:30' }
-        ,{ id: 2, uId: 2, uname: 'abc', msg: 'daartrgsfsdfass', date: '2019/10/26 20:30' }
-        ,{ id: 3, uId: 3, uname: 'def', msg: 'ngjdhdfbzdfgdfhtgfjdgbfgdfh', date: '2019/10/25 09:30' }
-      ]
+      ,objs: this.props.objs
+      ,chats: []
       ,isOpen: false
     }
   }
 
   _onClick(e) {
     const obj = Html.getSpan(e);
+    if(isEmpty(obj)) return;
     console.log(e.target);
     console.log(e.target.tagName);
     console.log(obj);
@@ -98,13 +96,23 @@ class RMenu extends C {
   }
 
   _onUpdateEditor(editorState) {
-    if(isEmpty(editorState)) return;
-    this.state.objs = editorState;
-    this.props.onUpdateListHeaders(this.state.objs);
+    const div = document.getElementById(SYSTEM.IS_DIV_CHAT_LIST_BOX);
+    if(isEmpty(editorState) || isEmpty(div)) return;
+    const user = { uLid: this.state.isUser.uLid, date: Dates.isDate(Dates.SYMBOL.HYPHEN, this.state.isUser.language) };
+    const chat = this._getObjChat(editorState, user, this.state.chats.length);
+    this.state.chats.push(chat);
+    div.appendChild(chat);
+    const divBox = document.getElementById(SYSTEM.IS_DIV_CHAT_BOX);
+    if(isEmpty(divBox)) return;
+    divBox.scrollTop = divBox.scrollHeight;
   }
 
   _getTitle() {
-    return( <div className="div-box-title">{ this.state.title }</div> );
+    return(
+      <div className="div-box-title">
+        <input type={ TYPE.FILE } id={ 'add_chat_file' } onChange={ this._onChange.bind(this) } />
+        { this.state.title }
+      </div> );
   }
 
   _onPageSetting(div) {
@@ -120,34 +128,14 @@ class RMenu extends C {
 
   _onChat(div) {
     if(isEmpty(div)) return;
-    const chats = [];
-    if(!isEmpty(this.state.objs) && this.state.objs.length > 0) {
-      this.state.objs.map((obj, index) => {
-        const cDiv = document.createElement(HTML_TAG.DIV);
-        cDiv.setAttribute('class', 'div-box-msg');
-        const text = (draftToHtml(convertToRaw(obj)));
-        cDiv.innerHTML = text;
-        chats.push(
-          <div key={ index } className={ "div-box-right" }>
-            <table>
-              <tbody>
-                <tr>
-                  <td>
-                    <span>{ obj.date }</span>
-                    <div className="div-box-msg"
-                      dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(obj))}}>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        );
-      });        
-    }
-
     const divChatBox = (<div id={ SYSTEM.IS_DIV_CHAT_BOX } className="div-chat-box">
-                          <div>{ chats }</div>
+                          <div id={ SYSTEM.IS_DIV_CHAT_LIST_BOX }>
+                            {(() => {
+                              this.state.chats.map((obj) => {
+                                return(obj);
+                              });
+                            })()}
+                          </div>
                           <div>
                             <CEditor onUpdateEditor= { this._onUpdateEditor.bind(this) } />
                           </div>
@@ -155,11 +143,34 @@ class RMenu extends C {
     ReactDOM.render(divChatBox, div);
   }
 
+  _getObjChat(obj, user, idx) {
+    if(isEmpty(obj) || isEmpty(idx)) return "";
+    const div = document.createElement(HTML_TAG.DIV);
+    div.className = "div-box-right";
+    const tbl = (
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <span>{ user.uLid } { user.date }</span>
+                          <div className="div-box-msg"
+                            dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(obj))}}>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                );
+    ReactDOM.render(tbl, div);
+    return div;
+  }
+
   UNSAFE_componentWillReceiveProps(props) {
     console.log('HEADER componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.title = props.title;
-    this.state.objs = (props.isViewChat)?props.chats:props.objs;
+    this.state.objs = props.objs;
+    // this.state.objs = (props.isViewChat)?props.chats:props.objs;
 
     const div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
     if(props.isViewChat) {

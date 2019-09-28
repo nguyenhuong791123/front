@@ -7,9 +7,9 @@ import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
 import Html from "./HtmlUtils";
 import { isEmpty } from './Utils';
-import { EDITOR_RESET } from './EditorUtil';
+import { EDITOR_RESET } from './EditorUtils';
 import { SYSTEM } from './Types';
-import { HTML_TAG, TYPE, ATTR } from "./HtmlTypes";
+import { HTML_TAG, ATTR } from "./HtmlTypes";
 import '../../css/CEditor.css';
 
 class CEditor extends C {
@@ -37,12 +37,12 @@ class CEditor extends C {
       const editorState = this.state.editorState.getCurrentContent();
       this.state.editorState = EditorState.createEmpty();
       this.props.onUpdateEditor(editorState);
+      this.forceUpdate();
     }
   }
 
   _onEditorStateChange(editorState) {
     this.setState({ editorState });
-    // this.props.onUpdateEditor(editorState.getCurrentContent());
   };
 
   componentDidMount() {
@@ -53,8 +53,6 @@ class CEditor extends C {
     const divChat = document.getElementById(SYSTEM.IS_DIV_CHAT_BOX);
     if(isEmpty(divChat)) return;
     divChat.style.height = (pDivChat.offsetHeight - (divEditor.offsetHeight + 105)) + 'px';
-    console.log(divEditor.childNodes[0]);
-    console.log(divEditor.childNodes[0].childNodes[0]);
     const divUp = document.createElement(HTML_TAG.DIV);
     ReactDOM.render((<span id={ 'file' }><FaUpload onClick={ this._onClick.bind(this) } /></span>), divUp);
     divEditor.childNodes[0].childNodes[0].appendChild(divUp);
@@ -73,8 +71,6 @@ class CEditor extends C {
           toolbarClassName="toolbar-class"
           toolbar={ EDITOR_RESET }
           onEditorStateChange={ this._onEditorStateChange.bind(this) } />
-
-        <input type={ TYPE.FILE } id={ 'add_chat_file' } />
       </div>
     );
   }

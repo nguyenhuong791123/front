@@ -1,39 +1,18 @@
-div.div-menu-right div.public-DraftEditor-content {
-    height: 120px;
-    max-height: 120px;
-    overflow-y: auto;
+div.rdw-editor-toolbar > div:nth-last-child(1)
+,div.rdw-editor-toolbar > div:nth-last-child(2) {
+  border: 1px solid #dee2e6;
+  padding-left: .2em;
+  padding-right: .2em;
+  padding-bottom: .2em;
+  margin-right: .2em;
+  margin-bottom: .5em;
 }
 
-div.div-menu-right div.public-DraftStyleDefault-block {
-    margin: .2em;
+div.rdw-editor-toolbar > div:hover {
+  cursor: pointer;
+  background-color: #cce5ff;
 }
 
-div.div-menu-right div.rdw-colorpicker-modal {
-    top: -175px;
-    left: -145px;
-    padding: .2em;
-}
-
-div.div-menu-right div.rdw-link-modal
-,div.div-menu-right div.rdw-emoji-modal
-,div.div-menu-right div.rdw-embedded-modal
-,div.div-menu-right div.rdw-image-modal {
-    top: -185px;
-    left: -200px;
-    padding: .2em;
-}
-
-div.div-menu-right div.rdw-link-modal {
-    height: 230px;
-}
-
-div.div-menu-right ul.rdw-dropdown-optionwrapper {
-    max-height: 150px;
-}
-
-div.div-chat-box div.rdw-block-wrapper
-,div.div-chat-box div.rdw-fontfamily-wrapper
-,div.div-chat-box div.rdw-remove-wrapper
-,div.div-chat-box div.rdw-history-dropdown {
-    display: none;
+div.rdw-editor-toolbar > div:nth-last-child(1) {
+  color: red;
 }
