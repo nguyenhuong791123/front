@@ -3,16 +3,16 @@ import ReactDOM from 'react-dom';
 import { convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 // import { Form } from 'react-bootstrap';
-import { FaRocketchat } from 'react-icons/fa';
+import { FaRocketchat, FaEllipsisV } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
 import FormBS4 from "react-jsonschema-form-bs4";
 
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
 import Dates from '../DateUtils';
-import { SYSTEM } from "../Types";
 import { isEmpty } from '../Utils';
-import { HTML_TAG, TYPE } from '../HtmlTypes';
+import { SYSTEM, OTHERS } from "../Types";
+import { HTML_TAG, TYPE, ATTR } from '../HtmlTypes';
 
 var styles = {
   bmBurgerButton: { position: 'fixed', width: '20px', height: '30px', right: '80px', top: '16px', color: 'white' },
@@ -54,6 +54,7 @@ class RMenu extends C {
       ,title: this.props.title
       ,objs: this.props.objs
       ,chats: []
+      ,file: undefined
       ,isOpen: false
     }
   }
@@ -92,27 +93,55 @@ class RMenu extends C {
   }
 
   _onChange(e) {
-    console.log(e.target);
+    const obj = e.target;
+    if(!isEmpty(obj) && Html.hasAttribute(obj, ATTR.ID) && obj.id === SYSTEM.IS_ADD_CHAT_FILE) {
+      const file = document.getElementById(SYSTEM.IS_ADD_CHAT_FILE);
+      if(isEmpty(file) || isEmpty(file.value) || isEmpty(file.files[0])) return;
+      const array = file.value.split(OTHERS.REGEX_FILE_NAME);
+      if(isEmpty(array)) return;
+      const blobUrl = window.URL.createObjectURL(file.files[0]);
+      this.state.sFile = { name: array[array.length - 1], data: blobUrl };
+      const div = document.getElementById(SYSTEM.IS_DIV_CHAT_FILE_BOX);
+      const fDiv = (
+        <div>
+          <span>✖️</span>
+          <span>{ this.state.sFile.name }</span>
+        </div>
+      );
+      ReactDOM.render(fDiv, div);
+      console.log(this.state.sFile);
+    }
   }
 
   _onUpdateEditor(editorState) {
     const div = document.getElementById(SYSTEM.IS_DIV_CHAT_LIST_BOX);
     if(isEmpty(editorState) || isEmpty(div)) return;
-    const user = { uLid: this.state.isUser.uLid, date: Dates.isDate(Dates.SYMBOL.HYPHEN, this.state.isUser.language) };
-    const chat = this._getObjChat(editorState, user, this.state.chats.length);
+    const chat = {
+      uLid: this.state.isUser.uLid
+      ,uId: this.state.isUser.uId
+      ,date: Dates.isMonthDay(Dates.SYMBOL.SLASH,this.state.isUser.language)
+      ,file: this.state.sFile
+      ,editorState: editorState };
+    const msg = this._getObjChat(chat, this.state.chats.length);
+    console.log(msg);
+    if(isEmpty(msg)) return;
     this.state.chats.push(chat);
-    div.appendChild(chat);
+    div.appendChild(msg);
+    this.state.sFile = undefined;
+    document.getElementById(SYSTEM.IS_DIV_CHAT_FILE_BOX).innerHTML = '';
+
     const divBox = document.getElementById(SYSTEM.IS_DIV_CHAT_BOX);
     if(isEmpty(divBox)) return;
     divBox.scrollTop = divBox.scrollHeight;
   }
 
   _getTitle() {
-    return(
+    return (
       <div className="div-box-title">
-        <input type={ TYPE.FILE } id={ 'add_chat_file' } onChange={ this._onChange.bind(this) } />
+        <input type={ TYPE.FILE } id={ SYSTEM.IS_ADD_CHAT_FILE } onChange={ this._onChange.bind(this) } />
         { this.state.title }
-      </div> );
+      </div>
+    );
   }
 
   _onPageSetting(div) {
@@ -131,20 +160,24 @@ class RMenu extends C {
     const divChatBox = (<div id={ SYSTEM.IS_DIV_CHAT_BOX } className="div-chat-box">
                           <div id={ SYSTEM.IS_DIV_CHAT_LIST_BOX }>
                             {(() => {
-                              this.state.chats.map((obj) => {
-                                return(obj);
+                              this.state.chats.map((chat) => {
+                                return(chat);
                               });
                             })()}
                           </div>
                           <div>
+                            <div id={ SYSTEM.IS_DIV_CHAT_FILE_BOX }></div>
                             <CEditor onUpdateEditor= { this._onUpdateEditor.bind(this) } />
                           </div>
                         </div>);
     ReactDOM.render(divChatBox, div);
   }
 
-  _getObjChat(obj, user, idx) {
+  _getObjChat(obj, idx) {
     if(isEmpty(obj) || isEmpty(idx)) return "";
+    const html = draftToHtml(convertToRaw(obj.editorState));
+    const htmlIsEmpty = html.replace('<p></p>', '');
+    if(isEmpty(html) || isEmpty(htmlIsEmpty) || htmlIsEmpty.length <= 1) return "";
     const div = document.createElement(HTML_TAG.DIV);
     div.className = "div-box-right";
     const tbl = (
@@ -152,9 +185,19 @@ class RMenu extends C {
                     <tbody>
                       <tr>
                         <td>
-                          <span>{ user.uLid } { user.date }</span>
+                          <span>{ obj.uLid } { obj.date }</span>
+                          {(() => {
+                              if(this.state.isUser.uId === obj.uId) {
+                                return(<FaEllipsisV />);
+                              }
+                          })()}
+                          {(() => {
+                              if(!isEmpty(obj.file)) {
+                                return(<img src={ obj.file.data } title={ obj.file.name }></img>);
+                              }
+                          })()}
                           <div className="div-box-msg"
-                            dangerouslySetInnerHTML={{__html: draftToHtml(convertToRaw(obj))}}>
+                            dangerouslySetInnerHTML={{__html: html}}>
                           </div>
                         </td>
                       </tr>

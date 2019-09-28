@@ -84,18 +84,6 @@ div.div-chat-box {
   overflow-y: auto;
 }
 
-div.div-chat-box > div:last-child {
-  position: absolute;
-  bottom: 6em;
-  width: 98%;
-  height: 200px;
-  max-height: 200px;
-}
-
-/* div.div-chat-box > div:last-child div#div_editor_box {
-  margin-top: 2em;
-} */
-
 div.div-chat-box > div:first-child {
   padding-right: .5em;
 }
@@ -118,6 +106,10 @@ div.div-chat-box > div:first-child span {
   font-size: 80%;
 }
 
+div.div-chat-box > div:first-child svg:hover {
+  cursor: pointer;
+}
+
 div.div-chat-box > div:first-child div.div-box-msg {
   width: 100%;
   border: 1px solid #dee2e6;
@@ -128,6 +120,19 @@ div.div-chat-box > div:first-child div.div-box-msg {
 
 div.div-chat-box > div:first-child div.div-box-left {
   text-align: left;
+}
+
+div.div-chat-box > div:last-child {
+  position: absolute;
+  bottom: 6em;
+  width: 98%;
+  height: 200px;
+  max-height: 200px;
+}
+
+div.div-chat-box > div:last-child > div:first-child {
+  position: absolute;
+  margin-top: -1.5em;
 }
 
 div.div-chat-box > div:last-child > span:hover {
