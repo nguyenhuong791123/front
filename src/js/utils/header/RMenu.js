@@ -1,5 +1,6 @@
 import React, { Component as C } from "react";
 import ReactDOM from 'react-dom';
+import { NavDropdown } from 'react-bootstrap';
 import { convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 // import { Form } from 'react-bootstrap';
@@ -11,7 +12,7 @@ import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
 import Dates from '../DateUtils';
 import { isEmpty } from '../Utils';
-import { SYSTEM, OTHERS } from "../Types";
+import { SYSTEM, OTHERS, VARIANT_TYPES, ACTION } from "../Types";
 import { HTML_TAG, TYPE, ATTR } from '../HtmlTypes';
 
 var styles = {
@@ -48,14 +49,17 @@ class RMenu extends C {
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onChange = this._onChange.bind(this);
     this._onUpdateEditor = this._onUpdateEditor.bind(this);
+    this._onEditChats = this._onEditChats.bind(this);
 
     this.state = {
       isUser: this.props.isUser
       ,title: this.props.title
       ,objs: this.props.objs
       ,chats: []
+      ,chat: undefined
       ,file: undefined
       ,isOpen: false
+      ,isOpenEdit: false
     }
   }
 
@@ -206,6 +210,31 @@ class RMenu extends C {
                 );
     ReactDOM.render(tbl, div);
     return div;
+  }
+
+  _onOpenEdit(e) {
+    const obj = e.target;
+    console.log(obj);
+    var idx = 0;
+    this.state.chat = this.state.chats[idx];
+    return(
+      <Alert show={ this.state.isOpenEdit } variant={ VARIANT_TYPES.LIGHT }>
+        <Nav.Link id={ ACTION.EDIT } onClick={ this._onEditChats.bind(this) } />
+        <Nav.Link id={ ACTION.DELETE } onClick={ this._onEditChats.bind(this) } />
+      </Alert>
+    );
+  }
+
+  _onEditChats(e) {
+    const obj = e.target;
+    if(isEmpty(obj) || !Html.hasAttribute(obj, ATTR.ID)) return;
+    if(obj.id === ACTION.DELETE) {
+      const idx = Array.from(this.state.chats).indexOf(this.state.chat);
+      delete this.state.chats[idx];  
+    }
+    if(obj.id === ACTION.EDIT) {
+      console.log(obj);
+    }
   }
 
   UNSAFE_componentWillReceiveProps(props) {
