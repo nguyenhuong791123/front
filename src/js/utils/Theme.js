@@ -1,5 +1,5 @@
 export const THEME = {
-    PATH: './dist/'
+    PATH: 'dist/'
     // ,FILE: '/bootstrap.css'
     ,FILE: '/bootstrap.min.css'
     ,getTheme: (theme) => {

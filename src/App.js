@@ -193,7 +193,7 @@ class App extends C {
 
     _addCssLink() {
         const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
-        const css_path = THEME.getTheme(this.state.isUser.theme);
+        const css_path = "http://192.168.10.80:8085/static/" + THEME.getTheme(this.state.isUser.theme);
         if(!Utils.isEmpty(obj)) {
             obj.href = css_path;
         } else {

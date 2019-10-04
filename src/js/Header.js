@@ -211,7 +211,8 @@ class Header extends C {
       div.setAttribute('id', SYSTEM.IS_DAILER_BOX);
       div.setAttribute('class', 'drag-and-drop');
       const rtc = document.createElement(HTML_TAG.OBJECT);
-      rtc.setAttribute('data', 'dailer.html');
+      rtc.setAttribute('data', 'http://192.168.10.80:8084');
+      // rtc.setAttribute('data', 'dailer.html');
       rtc.setAttribute('type', 'text/html');
       div.appendChild(rtc);
       div.appendChild(btn);

@@ -11,7 +11,7 @@ const ENVS = {
     ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'dev.crt')
     ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'dev.pem')
     ,host: '0.0.0.0'
-    ,port: 8080
+    ,port: 8081
     // ,port: 443
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
@@ -31,7 +31,7 @@ const ENVS = {
     ,dailercss: 'WebRTC.css'
     ,nodemodules: 'node_modules'
 };
-
+// let cookie;
 module.exports = {
     mode: ENVS.mode,
     context: ENVS.src,
@@ -111,6 +111,12 @@ module.exports = {
         //     cert: ENVS.sslcrt,
         //     ca: ENVS.sslpem,
         // }
+        ,proxy: {
+            '**': {
+              target: 'http://192.168.10.80:8084',
+              secure: false
+            }
+        }
     },
     devtool: (ENVS.mode === 'development') ? 'source-map' : 'none'
     ,
