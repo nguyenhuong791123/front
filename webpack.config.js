@@ -11,7 +11,7 @@ const ENVS = {
     ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'dev.crt')
     ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'dev.pem')
     ,host: '0.0.0.0'
-    ,port: 8080
+    ,port: 8081
     // ,port: 443
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
@@ -24,14 +24,14 @@ const ENVS = {
     ,public: path.resolve(__dirname, 'public')
     ,template: path.resolve(__dirname, 'public', 'index.html')
     ,favicon: 'favicon.ico'
-    ,publicsrc: 'src'
-    ,publiccss: 'dist'
-    ,publicsounds: 'sounds'
-    ,dailer: 'dailer.html'
-    ,dailercss: 'WebRTC.css'
+    // ,publicsrc: 'src'
+    // ,publiccss: 'dist'
+    // ,publicsounds: 'sounds'
+    // ,dailer: 'dailer.html'
+    // ,dailercss: 'WebRTC.css'
     ,nodemodules: 'node_modules'
 };
-
+// let cookie;
 module.exports = {
     mode: ENVS.mode,
     context: ENVS.src,
@@ -111,6 +111,13 @@ module.exports = {
         //     cert: ENVS.sslcrt,
         //     ca: ENVS.sslpem,
         // }
+        ,proxy: {
+            '/*': {
+              target: 'http://192.168.10.80:8084'
+              ,secure: false
+              ,changeOrigin: true
+            }
+        }
     },
     devtool: (ENVS.mode === 'development') ? 'source-map' : 'none'
     ,
@@ -125,11 +132,11 @@ module.exports = {
         })
         ,new CopyWebpackPlugin([
             { from: ENVS.public + ENVS.publicPath + ENVS.favicon, to: ENVS.favicon },
-            { from: ENVS.public + ENVS.publicPath + ENVS.dailer, to: ENVS.dailer },
-            { from: ENVS.public + ENVS.publicPath + ENVS.dailercss, to: ENVS.dailercss },
-            { from: ENVS.public + ENVS.publicPath + ENVS.publicsrc, to: ENVS.publicsrc },
-            { from: ENVS.public + ENVS.publicPath + ENVS.publiccss, to: ENVS.publiccss },
-            { from: ENVS.public + ENVS.publicPath + ENVS.publicsounds, to: ENVS.publicsounds },
+            // { from: ENVS.public + ENVS.publicPath + ENVS.dailer, to: ENVS.dailer },
+            // { from: ENVS.public + ENVS.publicPath + ENVS.dailercss, to: ENVS.dailercss },
+            // { from: ENVS.public + ENVS.publicPath + ENVS.publicsrc, to: ENVS.publicsrc },
+            // { from: ENVS.public + ENVS.publicPath + ENVS.publiccss, to: ENVS.publiccss },
+            // { from: ENVS.public + ENVS.publicPath + ENVS.publicsounds, to: ENVS.publicsounds },
         ]),
     ]
 }
