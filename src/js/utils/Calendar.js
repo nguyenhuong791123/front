@@ -8,7 +8,7 @@ import { MSG_TYPE } from './Types';
 import { HTML_TAG } from './HtmlTypes';
 import { isEmpty } from './Utils';
 import DateTime from './Date';
-import GetMsg from '../../msg/Msg';
+import Msg from '../../msg/Msg';
 
 class CalendarBox extends C {
     constructor(props) {
@@ -39,28 +39,28 @@ class CalendarBox extends C {
         console.log(this.state.language);
         const language = this.state.language;
         this.state.dayLabels = [
-            GetMsg(MSG_TYPE.CALENDAR, language, 'days')[1]
-            ,GetMsg(MSG_TYPE.CALENDAR, language, 'days')[2]
-            ,GetMsg(MSG_TYPE.CALENDAR, language, 'days')[3]
-            ,GetMsg(MSG_TYPE.CALENDAR, language, 'days')[4]
-            ,GetMsg(MSG_TYPE.CALENDAR, language, 'days')[5]
-            ,GetMsg(MSG_TYPE.CALENDAR, language, 'days')[6]
-            ,GetMsg(MSG_TYPE.CALENDAR, language, 'days')[0]
+            Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[1]
+            ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[2]
+            ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[3]
+            ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[4]
+            ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[5]
+            ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[6]
+            ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'days')[0]
         ]
 
         this.state.monthLabels = [
-                GetMsg(MSG_TYPE.CALENDAR, language, 'months')[1]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[2]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[3]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[4]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[5]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[6]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[7]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[8]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[9]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[10]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[11]
-                ,GetMsg(MSG_TYPE.CALENDAR, language, 'months')[12]]
+                Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[1]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[2]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[3]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[4]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[5]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[6]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[7]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[8]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[9]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[10]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[11]
+                ,Msg.getMsg(MSG_TYPE.CALENDAR, language, 'months')[12]]
     }
 
     _onChange(startDate, endDate) {

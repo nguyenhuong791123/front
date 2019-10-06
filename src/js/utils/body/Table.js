@@ -11,7 +11,7 @@ import CMenu from '../CMenu';
 import Utils from '../Utils';
 import { ACTION, INPUT_TYPE } from '../Types';
 import { HTML_TAG, ATTR, TYPE } from '../HtmlTypes';
-import GetMsg from '../../../msg/Msg';
+import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
 
 export default class Table extends C {
@@ -37,9 +37,9 @@ export default class Table extends C {
                 show: false
                 ,ids: []
                 ,items: [
-                  { type: ACTION.EDIT, label: GetMsg(null, this.props.isUser.language, 'bt_edit') }
-                  ,{ type: ACTION.DELETE, label: GetMsg(null, this.props.isUser.language, 'bt_delete') }
-                  ,{ type: ACTION.DOWNLOAD, label: GetMsg(null, this.props.isUser.language, 'bt_download') }
+                  { type: ACTION.EDIT, label: Msg.getMsg(null, this.props.isUser.language, 'bt_edit') }
+                  ,{ type: ACTION.DELETE, label: Msg.getMsg(null, this.props.isUser.language, 'bt_delete') }
+                  ,{ type: ACTION.DOWNLOAD, label: Msg.getMsg(null, this.props.isUser.language, 'bt_download') }
                 ]
               }
         };
@@ -154,7 +154,7 @@ export default class Table extends C {
             var style = ('style' in o)?o.style:'';
             var type = ('type' in o)?o.type:'';
             if(Utils.isEmpty(style)) style = { width: 100 };
-            const label = GetMsg(this.state.isUser.action, this.state.isUser.language, key);
+            const label = Msg.getMsg(this.state.isUser.action, this.state.isUser.language, key);
             var isLabel = <label>{ label }</label>;
             if(('filter' in o) && o.filter) {
                 isLabel = (<Form.Control type="text" placeholder={ label } onFocus={ this._onFocus.bind(this) } onKeyDown={ this._onThKeyDown.bind(this) } />);

@@ -33,6 +33,7 @@ export const HTML_TAG = {
     ,NAV: 'NAV'
     ,IMG: 'IMG'
     ,SPAN: 'SPAN'
+    ,PARAM: 'PARAM'
 }
 
 export const TYPE = {

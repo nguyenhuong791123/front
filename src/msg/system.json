@@ -2,10 +2,8 @@
     "sys":
       {
         "icon_url": "./images/favicon.ico"
-        ,"app_host": "192.168.10.6"
-        ,"app_port": "8085"
-        ,"api_host": ""
-        ,"api_port": ""
+        ,"app_css_host": "https://192.168.56.53:7002/static/"
+        ,"app_dailer_host": "http://192.168.56.53:8083"
       }
     ,"basic":
       {

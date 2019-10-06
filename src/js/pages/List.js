@@ -10,7 +10,7 @@ import Table from '../utils/body/Table';
 import { ACTION, PAGIN_PER, PAGIN_PER_LIST, INPUT_TYPE } from '../utils/Types';
 import { HTML_TAG } from '../utils/HtmlTypes';
 import Utils from '../utils/Utils';
-import GetMsg from '../../msg/Msg';
+import Msg from '../../msg/Msg';
 // import View from './View';
 
 import "../../css/List.css";
@@ -33,9 +33,9 @@ class List extends C {
             ,objs: {
                 show: false
                 ,items: [
-                    { type: ACTION.EDIT, label: GetMsg(null, this.props.isUser.language, 'bt_edit') }
-                    ,{ type: ACTION.DELETE, label: GetMsg(null, this.props.isUser.language, 'bt_delete') }
-                    ,{ type: ACTION.DOWNLOAD, label: GetMsg(null, this.props.isUser.language, 'bt_download') }
+                    { type: ACTION.EDIT, label: Msg.getMsg(null, this.props.isUser.language, 'bt_edit') }
+                    ,{ type: ACTION.DELETE, label: Msg.getMsg(null, this.props.isUser.language, 'bt_delete') }
+                    ,{ type: ACTION.DOWNLOAD, label: Msg.getMsg(null, this.props.isUser.language, 'bt_download') }
                 ]
             }
             ,total: 230
@@ -177,7 +177,7 @@ class List extends C {
                     <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
                     <Button onClick={ this._onClickCreate.bind(this) } variant="primary">
                         <FaPlus />
-                        { GetMsg(null, this.props.isUser.language, 'bt_create') }
+                        { Msg.getMsg(null, this.props.isUser.language, 'bt_create') }
                     </Button>
                     <Pagination
                         total={ this.state.total }

@@ -3,7 +3,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const ENVS = {
     mode:  (process.env && process.env.production) ? 'production' : 'development'
@@ -11,7 +11,7 @@ const ENVS = {
     ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'dev.crt')
     ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'dev.pem')
     ,host: '0.0.0.0'
-    ,port: 8081
+    ,port: 8080
     // ,port: 443
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
@@ -51,10 +51,10 @@ module.exports = {
                 ,loader: 'babel-loader'
                 ,options: {
                     presets: [
-                        "@babel/preset-env"
-                        ,"@babel/preset-react"
+                        '@babel/preset-env'
+                        ,'@babel/preset-react'
                     ]
-                    ,"compact": false
+                    ,'compact': false
                 }
             },
             {
@@ -99,30 +99,36 @@ module.exports = {
         host: ENVS.host
         ,port: ENVS.port
         ,compress: true
-        ,inline: true
+        ,inline: false
         ,contentBase: ENVS.output
         ,watchContentBase: true
         ,hot: true
         ,open: false
         ,historyApiFallback: true
+        ,watchOptions: { aggregateTimeout: 300, poll: 1000 }
         // ,http2: true
         // ,https: {
         //     key: ENVS.sslkey,
         //     cert: ENVS.sslcrt,
         //     ca: ENVS.sslpem,
         // }
-        ,proxy: {
-            '/*': {
-              target: 'http://192.168.10.80:8084'
-              ,secure: false
-              ,changeOrigin: true
-            }
-        }
-    },
-    devtool: (ENVS.mode === 'development') ? 'source-map' : 'none'
-    ,
+        // ,headers: {
+        //     'Access-Control-Allow-Origin': '*'
+        //     ,'Access-Control-Allow-Headers': '*'
+        //     ,'Access-Control-Allow-Credentials': 'true'
+        // }
+        // ,proxy: {
+        //     '**': {
+        //       target: 'http://192.168.56.53:8083'
+        //       ,secure: false
+        //       ,changeOrigin: true
+        //     }
+        // }
+    }
+    ,devtool: (ENVS.mode === 'development') ? 'cheap-module-source-map' : 'none'
+    //'source-map'
     // 'inline-source-map',
-    plugins: [
+    ,plugins: [
         new CleanWebpackPlugin()
         ,new webpack.HotModuleReplacementPlugin()
         ,new MiniCssExtractPlugin({ filename: ENVS.outfileCss })

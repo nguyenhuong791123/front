@@ -17,7 +17,7 @@ import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
 import '../../css/Customize.css';
-import GetMsg from '../../msg/Msg';
+import Msg from '../../msg/Msg';
 
 class Customize extends C {
   constructor(props) {
@@ -706,17 +706,17 @@ class Customize extends C {
   //       <div id='div_button_action' className={ className }>
   //           <Button onClick={ this._onOpenEdit.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
   //             <FaPlus />
-  //             { GetMsg(null, this.state.isUser.language, 'bt_add') }
+  //             { Msg.getMsg(null, this.state.isUser.language, 'bt_add') }
   //           </Button>
   //           <br />
   //           <Button onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
   //             <FaCheck />
-  //             { GetMsg(null, this.state.isUser.language, 'bt_insert') }
+  //             { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
   //           </Button>
   //           <br />
   //           <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.INFO }>
   //             <FaReply />
-  //             { GetMsg(null, this.state.isUser.language, 'bt_return') }
+  //             { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
   //           </Button>
   //           <br />
   //       </div>
@@ -1031,7 +1031,7 @@ class Customize extends C {
           onClick={ this._onCreateEditChange.bind(this) }
           variant={ VARIANT_TYPES.PRIMARY }>
           <FaPlus />
-          { GetMsg(null, this.props.isUser.language, 'bt_create') }
+          { Msg.getMsg(null, this.props.isUser.language, 'bt_create') }
         </Button>
 
         {(() => {

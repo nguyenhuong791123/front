@@ -14,7 +14,7 @@ import RMenu from './utils/header/RMenu';
 import TabMenu from './utils/header/TabMenu';
 // import AlertMsg from './utils/Alert';
 
-import GetMsg from '../msg/Msg';
+import Msg from '../msg/Msg';
 import '../css/Index.css';
 import '../css/SMenu.css';
 import '../css/Header.css';
@@ -211,9 +211,15 @@ class Header extends C {
       div.setAttribute('id', SYSTEM.IS_DAILER_BOX);
       div.setAttribute('class', 'drag-and-drop');
       const rtc = document.createElement(HTML_TAG.OBJECT);
-      rtc.setAttribute('data', 'http://192.168.10.80:8084');
+      rtc.setAttribute('data'
+        ,Msg.getSystemMsg('sys', 'app_dailer_host') +
+        '?theme=' + Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
       // rtc.setAttribute('data', 'dailer.html');
       rtc.setAttribute('type', 'text/html');
+      // const param = document.createElement(HTML_TAG.PARAM);
+      // param.setAttribute('name', 'theme');
+      // param.setAttribute('value', Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
+      // rtc.appendChild(param);
       div.appendChild(rtc);
       div.appendChild(btn);
       document.body.prepend(div);
@@ -407,7 +413,7 @@ class Header extends C {
                         {/* ユーザー情報 */}
                         <NavDropdown.Item action={ PAGE.USER } onClick={ this._onClick.bind(this) }>
                           { <FaUserCog /> }
-                          <span>{ GetMsg(null, this.state.isUser.language, 'bt_profile') }</span>
+                          <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_profile') }</span>
                         </NavDropdown.Item>
                         {/* 現頁設定 */}
                         {(() => {
@@ -415,7 +421,7 @@ class Header extends C {
                             return(
                               <NavDropdown.Item action={ PAGE.SETTING } onClick={ this._onClick.bind(this) } id='a-page-setting'>
                                 { <FaSitemap /> }
-                                <span>{ GetMsg(null, this.state.isUser.language, 'page_setting') }</span>
+                                <span>{ Msg.getMsg(null, this.state.isUser.language, 'page_setting') }</span>
                               </NavDropdown.Item>
                             );
                           }
@@ -423,13 +429,13 @@ class Header extends C {
                         {/* システム設定（管理者のみ表示） */}
                         <NavDropdown.Item action={ PAGE.SYSTEM } onClick={ this._onClick.bind(this) }>
                           { <FaLink /> }
-                          <span>{ GetMsg(null, this.state.isUser.language, 'system_setting') }</span>
+                          <span>{ Msg.getMsg(null, this.state.isUser.language, 'system_setting') }</span>
                         </NavDropdown.Item>
                         <NavDropdown.Divider />
                         {/* ログアウト */}
                         <Link to={ ACTION.SLASH } className='dropdown-item' onClick={ this._onLogout.bind(this) }>
                           { <FaKey /> }
-                          <span>{ GetMsg(null, this.state.isUser.language, 'bt_logout') }</span>
+                          <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_logout') }</span>
                         </Link>
                       </NavDropdown>
                     </div>

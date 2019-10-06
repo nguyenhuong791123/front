@@ -7,7 +7,7 @@ import { FaUpload, FaPaperPlane } from 'react-icons/fa';
 
 import Html from "./HtmlUtils";
 import { isEmpty } from './Utils';
-import { EDITOR_RESET } from './EditorUtils';
+import { EDITOR_RESET } from './EditorUtil';
 import { SYSTEM } from './Types';
 import { HTML_TAG, ATTR } from "./HtmlTypes";
 import '../../css/CEditor.css';

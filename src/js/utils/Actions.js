@@ -4,7 +4,7 @@ import { FaReply, FaCheck, FaPlus } from 'react-icons/fa';
 
 import { SYSTEM, VARIANT_TYPES } from './Types';
 import { isEmpty } from './Utils';
-import GetMsg from '../../msg/Msg';
+import Msg from '../../msg/Msg';
 
 export default class AlertAction extends C {
   constructor(props) {
@@ -67,7 +67,7 @@ export default class AlertAction extends C {
                 <div>
                   <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.INFO }>
                     <FaReply />
-                    { GetMsg(null, this.state.isUser.language, 'bt_return') }
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
                   </Button>
                   <br />
                 </div>  
@@ -81,7 +81,7 @@ export default class AlertAction extends C {
               return (
                 <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.INFO }>
                   <FaPlus />
-                  { GetMsg(null, this.state.isUser.language, 'bt_create') }
+                  { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
                 </Button>
               );
             }
@@ -93,7 +93,7 @@ export default class AlertAction extends C {
               return (
                 <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
                   <FaCheck />
-                  { GetMsg(null, this.state.isUser.language, 'bt_insert') }
+                  { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
                 </Button>
               );
             }

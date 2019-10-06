@@ -8,7 +8,7 @@ import StringUtil from 'util';
 import { ACTION, MSG_TYPE } from './utils/Types';
 import { isEmpty } from './utils/Utils';
 
-import GetMsg from '../msg/Msg';
+import Msg from '../msg/Msg';
 import "../css/Index.css";
 import '../css/Login.css';
 
@@ -62,13 +62,13 @@ class Login extends C {
       if(value.length <= 0) {
         dError.style.display = 'block';
         dError.innerText =
-          GetMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id')
-          + GetMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
-        // this._getMsg(MSG_TYPE.LOGIN, 'login_id') + this._getMsg(MSG_TYPE.ERROR, 'required');
+          Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id')
+          + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
+        // this._Msg.getMsg(MSG_TYPE.LOGIN, 'login_id') + this._Msg.getMsg(MSG_TYPE.ERROR, 'required');
       } else if(value.length > 8) {
         dError.style.display = 'block';
-        // var msg = StringUtil.format(this._getMsg(MSG_TYPE.ERROR, 'max_length'), 8, value.length - 8);
-        var msg = StringUtil.format(GetMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), 8, value.length - 8);
+        // var msg = StringUtil.format(this._Msg.getMsg(MSG_TYPE.ERROR, 'max_length'), 8, value.length - 8);
+        var msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), 8, value.length - 8);
         dError.innerText = msg;
       } else {
         dError.style.display = 'none';
@@ -112,7 +112,7 @@ class Login extends C {
       <div>
         <Alert id="div_alert_login" variant="success" className="div-center">
           {/* <Alert.Heading>{ <FaUnlockAlt /> }System Authorization{ <FaUnlockAlt /> }</Alert.Heading> */}
-          <Alert.Heading>{ GetMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'system_auth') }</Alert.Heading>
+          <Alert.Heading>{ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'system_auth') }</Alert.Heading>
           <hr />
           <Form noValidate validated={ this.state.validated } onSubmit={ this._onLogin.bind(this) }>
             <Form.Group>
@@ -120,10 +120,10 @@ class Login extends C {
                 type="text"
                 name="uLid"
                 onChange={ this._onChange.bind(this) }
-                placeholder={ GetMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id') }
+                placeholder={ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id') }
                 required />
               <Form.Control.Feedback type="invalid">
-                { GetMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id') }{ GetMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required') }
+                { Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id') }{ Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required') }
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
@@ -131,22 +131,22 @@ class Login extends C {
                 type="password"
                 name="pw"
                 onChange={ this._onChange.bind(this) }
-                placeholder={ GetMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password') }
+                placeholder={ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password') }
                 required />
               <Form.Control.Feedback type="invalid">
-                { GetMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password') }{ GetMsg(MSG_TYPE.ERROR, 'required') }
+                { Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password') }{ Msg.getMsg(MSG_TYPE.ERROR, 'required') }
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Control as="select" onChange={ this._onChangeSelect.bind(this) } value={ this.state.isUser.language }>
-                <option value="ja">{ GetMsg(null, this.state.isUser.language, 'ja') }</option>
-                <option value="en">{ GetMsg(null, this.state.isUser.language, 'en') }</option>
-                <option value="vn">{ GetMsg(null, this.state.isUser.language, 'vn') }</option>
+                <option value="ja">{ Msg.getMsg(null, this.state.isUser.language, 'ja') }</option>
+                <option value="en">{ Msg.getMsg(null, this.state.isUser.language, 'en') }</option>
+                <option value="vn">{ Msg.getMsg(null, this.state.isUser.language, 'vn') }</option>
               </Form.Control>
             </Form.Group>
 
             <Form.Group>
-              <Button type="submit">{ GetMsg(null, this.state.isUser.language, 'bt_login') }{ <FaSignInAlt /> }</Button>              
+              <Button type="submit">{ Msg.getMsg(null, this.state.isUser.language, 'bt_login') }{ <FaSignInAlt /> }</Button>              
             </Form.Group>
           </Form>
         </Alert>
