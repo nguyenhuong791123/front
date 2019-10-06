@@ -3,7 +3,7 @@
       {
         "icon_url": "./images/favicon.ico"
         ,"app_css_host": "https://192.168.56.53:7002/static/"
-        ,"app_dailer_host": "http://192.168.56.53:8083"
+        ,"app_dailer_host": "https://192.168.56.53:7003"
       }
     ,"basic":
       {

@@ -4,12 +4,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+/** MESSENGERS */
+const SysMsg = require('./src/msg/system.json');
 
 const ENVS = {
     mode:  (process.env && process.env.production) ? 'production' : 'development'
-    ,sslkey: path.resolve(__dirname, 'src', 'ssl', 'dev.key')
-    ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'dev.crt')
-    ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'dev.pem')
+    ,sslkey: path.resolve(__dirname, 'src', 'ssl', 'sc.key')
+    ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'sc.crt')
+    ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'sc.pem')
     ,host: '0.0.0.0'
     ,port: 8080
     // ,port: 443
@@ -30,6 +32,7 @@ const ENVS = {
     // ,dailer: 'dailer.html'
     // ,dailercss: 'WebRTC.css'
     ,nodemodules: 'node_modules'
+    ,origin: '*'//SysMsg['sys']['app_dailer_host']
 };
 // let cookie;
 module.exports = {
@@ -112,11 +115,11 @@ module.exports = {
         //     cert: ENVS.sslcrt,
         //     ca: ENVS.sslpem,
         // }
-        // ,headers: {
-        //     'Access-Control-Allow-Origin': '*'
-        //     ,'Access-Control-Allow-Headers': '*'
-        //     ,'Access-Control-Allow-Credentials': 'true'
-        // }
+        ,headers: {
+            'Access-Control-Allow-Origin': ENVS.origin
+            // ,'Access-Control-Allow-Headers': '*'
+            // ,'Access-Control-Allow-Credentials': 'true'
+        }
         // ,proxy: {
         //     '**': {
         //       target: 'http://192.168.56.53:8083'

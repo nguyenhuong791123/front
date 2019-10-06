@@ -73,6 +73,9 @@ export const ATTR = {
     ,MIN: 'min'
     ,MAX: 'max'
     ,FOR: 'for'
+    ,DATA: 'data'
+    ,SRC: 'src'
+    ,CROSSORIRIN: 'crossorigin'
 }
 
 export const MOUSE = {

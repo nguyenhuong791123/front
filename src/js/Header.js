@@ -5,7 +5,7 @@ import { Navbar, Nav, NavDropdown, Form, FormControl, Image } from 'react-bootst
 import { FaUser, FaSearch, FaTty, FaPhone, FaMailBulk, FaUserCog, FaSitemap, FaKey, FaLink, FaRocketchat } from 'react-icons/fa';
 
 import { PAGE_ACTION, ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
-import { HTML_TAG } from './utils/HtmlTypes';
+import { HTML_TAG, ATTR } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
 import Html from './utils/HtmlUtils';
 import Utils from './utils/Utils';
@@ -201,21 +201,22 @@ class Header extends C {
     var div = document.getElementById(SYSTEM.IS_DAILER_BOX);
     if(Utils.isEmpty(div)) {
       const btn = document.createElement(HTML_TAG.BUTTON);
-      btn.setAttribute('class', 'btn btn-warning');
+      btn.setAttribute(ATTR.CLASS, 'btn btn-warning');
       btn.innerText = '✖';
       btn.onclick = function() {
         var close = document.getElementById('a_dailer_box');
         if(!Utils.isEmpty(close)) close.click();
       }
       div = document.createElement(HTML_TAG.DIV);
-      div.setAttribute('id', SYSTEM.IS_DAILER_BOX);
-      div.setAttribute('class', 'drag-and-drop');
+      div.setAttribute(ATTR.ID, SYSTEM.IS_DAILER_BOX);
+      div.setAttribute(ATTR.CLASS, 'drag-and-drop');
       const rtc = document.createElement(HTML_TAG.OBJECT);
-      rtc.setAttribute('data'
+      rtc.setAttribute(ATTR.DATA
         ,Msg.getSystemMsg('sys', 'app_dailer_host') +
         '?theme=' + Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
       // rtc.setAttribute('data', 'dailer.html');
-      rtc.setAttribute('type', 'text/html');
+      rtc.setAttribute(ATTR.TYPE, 'text/html');
+      // rtc.setAttribute(ATTR.CROSSORIRIN, 'use-credentials');
       // const param = document.createElement(HTML_TAG.PARAM);
       // param.setAttribute('name', 'theme');
       // param.setAttribute('value', Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
