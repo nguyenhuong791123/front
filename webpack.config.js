@@ -13,7 +13,7 @@ const ENVS = {
     ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'sc.crt')
     ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'sc.pem')
     ,host: '0.0.0.0'
-    ,port: 8080
+    ,port: 8081
     // ,port: 443
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
@@ -108,6 +108,7 @@ module.exports = {
         ,hot: true
         ,open: false
         ,historyApiFallback: true
+        ,disableHostCheck: true
         ,watchOptions: { aggregateTimeout: 300, poll: 1000 }
         // ,http2: true
         // ,https: {
@@ -120,13 +121,13 @@ module.exports = {
             // ,'Access-Control-Allow-Headers': '*'
             // ,'Access-Control-Allow-Credentials': 'true'
         }
-        // ,proxy: {
-        //     '**': {
-        //       target: 'http://192.168.56.53:8083'
-        //       ,secure: false
-        //       ,changeOrigin: true
-        //     }
-        // }
+        ,proxy: {
+            '**': {
+              target: 'https://localsc.co.jp/'
+              ,secure: false
+              ,changeOrigin: true
+            }
+        }
     }
     ,devtool: (ENVS.mode === 'development') ? 'cheap-module-source-map' : 'none'
     //'source-map'
