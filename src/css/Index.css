@@ -81,6 +81,8 @@ div.drag-and-drop {
     position: absolute;
     z-index: 1000;
     display: none;
+    left: 80%;
+    top: 3em;
 }
 
 div.drag-and-drop object {
@@ -95,10 +97,15 @@ div.drag-and-drop button {
     margin-left: -.5em;
     margin-top: .5em;
     padding-left: .5em;
+    display: block;
 }
 
 div.drag-and-drop button:hover {
     margin-left: -2em;
+}
+
+div.drag-and-drop button.btn-dailer-box-move {
+    cursor: move;
 }
 
 div.div-customize-actions {
