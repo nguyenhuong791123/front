@@ -89,6 +89,7 @@ class Create extends C {
   };
 
   componentWillMount(){
+    console.log("Data submitted: ", this.props.onUpdateStateIsUser);
     this.state.schema = {
       type: "object",
       properties: {
@@ -133,27 +134,27 @@ class Create extends C {
     }
     this.state.uiSchema = {
       base_info: {
-        classNames: "div-top-box div-top-box-100 div-box-not-view-label"
-        ,password: { "ui:widget": "password", classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,deleted: { classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file div-box-not-view-label" }
-        ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file div-box-not-view-label" }
-        ,datetime: { classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,date: { classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,disabled: { "ui:disabled": true, classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,color: { "ui:widget": "color", classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,radio: { "ui:widget": "radio", "ui:options": { "inline": true }, "ui:help": "Yes No", classNames: "div-box div-box-25 div-box-not-view-label div-box-help-block-01" }
-        ,widgetOptions: { "ui:options": { backgroundColor: "yellow !important" }, classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,numberString: { classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,integer: { "ui:widget": "updown", "ui:placeholder": "Integer", classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,numberEnumRadio: { "ui:widget": "radio", "ui:help": "Radio 1 2 3", "ui:options": { "inline": true }, classNames: "div-box div-box-25 div-box-not-view-label div-box-help-block-01" }
-        ,numberEnum: { classNames: "div-box div-box-25 div-box-not-view-label" }
-        ,integerRange: { "ui:widget": "range", "ui:help": "integerRange", classNames: "div-box div-box-25 div-box-not-view-label div-box-help-block-02" }
-        ,integerRangeSteps: { "ui:widget": "range", "ui:help": "integerRangeSteps", classNames: "div-box div-box-25 div-box-not-view-label div-box-help-block-02" }
+        classNames: "div-top-box div-top-box-100"
+        ,password: { "ui:widget": "password", classNames: "div-box div-box-25" }
+        ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-25" }
+        ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-25" }
+        ,deleted: { classNames: "div-box div-box-25" }
+        ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-25" }
+        ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-25" }
+        ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
+        ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
+        ,datetime: { classNames: "div-box div-box-25" }
+        ,date: { classNames: "div-box div-box-25" }
+        ,disabled: { "ui:disabled": true, classNames: "div-box div-box-25" }
+        ,color: { "ui:widget": "color", classNames: "div-box div-box-25" }
+        ,radio: { "ui:widget": "radio", "ui:options": { "inline": true }, "ui:help": "Yes No", classNames: "div-box div-box-25 div-box-help-block-01" }
+        ,widgetOptions: { "ui:options": { backgroundColor: "yellow !important" }, classNames: "div-box div-box-25" }
+        ,numberString: { classNames: "div-box div-box-25" }
+        ,integer: { "ui:widget": "updown", "ui:placeholder": "Integer", classNames: "div-box div-box-25" }
+        ,numberEnumRadio: { "ui:widget": "radio", "ui:help": "Radio 1 2 3", "ui:options": { "inline": true }, classNames: "div-box div-box-25 div-box-help-block-01" }
+        ,numberEnum: { classNames: "div-box div-box-25" }
+        ,integerRange: { "ui:widget": "range", "ui:help": "integerRange", classNames: "div-box div-box-25 div-box-help-block-02" }
+        ,integerRangeSteps: { "ui:widget": "range", "ui:help": "integerRangeSteps", classNames: "div-box div-box-25 div-box-help-block-02" }
         // ,password: { "ui:widget": "password", classNames: "div-box div-box-33" }
         // ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-33" }
         // ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-33" }
@@ -177,20 +178,20 @@ class Create extends C {
       // }
       // base_info: {
       //   classNames: "div-top-box div-top-box-50"
-      //   ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-not-view-label div-box-25" }
-      //   ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-not-view-label div-box-25" }
-      //   ,deleted: { classNames: "div-box div-box-not-view-label div-box-25" }
-      //   ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-not-view-label div-box-25" }
-      //   ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-not-view-label div-box-25" }
-      //   ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-not-view-label div-box-25 div-box-file" }
-      //   ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-not-view-label div-box-25 div-box-file" }
-      //   ,datetime: { classNames: "div-box div-box-not-view-label div-box-25" }
-      //   ,date: { classNames: "div-box div-box-not-view-label div-box-25" }
+      //   ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-25" }
+      //   ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-25" }
+      //   ,deleted: { classNames: "div-box div-box-25" }
+      //   ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-25" }
+      //   ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-25" }
+      //   ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
+      //   ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
+      //   ,datetime: { classNames: "div-box div-box-25" }
+      //   ,date: { classNames: "div-box div-box-25" }
       // }
       // ,cust_info: {
       //   classNames: "div-top-box div-top-box-100"
-      //   ,cust_name_hira: { "ui:placeholder": "顧客名", classNames: "div-box div-box-not-view-label div-box-50" }
-      //   ,cust_name_kana: { "ui:placeholder": "顧客カナ", classNames: "div-box div-box-not-view-label div-box-50" }
+      //   ,cust_name_hira: { "ui:placeholder": "顧客名", classNames: "div-box div-box-50" }
+      //   ,cust_name_kana: { "ui:placeholder": "顧客カナ", classNames: "div-box div-box-50" }
       // }
       }
     }
@@ -221,8 +222,8 @@ class Create extends C {
     this._onClickBack();
   }
 
-  _onChange(type) {
-    console.log.bind(console, type);
+  _onChange() {
+    console.log(this.state.formData);
   }
 
   _onError(errors) {
@@ -248,6 +249,9 @@ class Create extends C {
     return errors;
   }
   
+  UNSAFE_componentWillUpdate() {
+    console.log(this.state.formData);
+  }
 
   render() {
     this.state.isUser.actions = PAGE_ACTION.CREATE;
@@ -258,7 +262,7 @@ class Create extends C {
         uiSchema={ this.state.uiSchema } 
         widgets={ this.state.widgets }
         formData={ this.state.formData }
-        onChange={ this._onChange("changed") }
+        onChange={ this._onChange.bind(this) }
         onSubmit={ this._onClickSubmit.bind(this) }
         validate={ this._onValidate.bind(this) }
         onError={ this._onError.bind(this) }>

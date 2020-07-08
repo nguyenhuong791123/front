@@ -107,6 +107,8 @@ class App extends C {
     _loadAuthCookies(isUser, callBack) {
         const objAuth = sessionService.loadUser('COOKIES');
         if(objAuth !== undefined) {
+            console.log('_loadAuthCookies');
+            console.log(objAuth);
             objAuth.then(function(data) {
                 const isUrl = history.location.pathname;
                 if(isUrl === ACTION.SLASH || data.info['path'] === ACTION.SLASH) {
@@ -150,6 +152,8 @@ class App extends C {
         const auth = { info: inIsUser, options: inOptions };
         // console.log(auth);
         const isUser = sessionService.loadUser('COOKIES');
+        console.log('COOKIES');
+        console.log(isUser);
         isUser.then(function(data) {
             if(!Utils.isEmpty(inIsUser)) {
                 var ukeys = Object.keys(inIsUser);

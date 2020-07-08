@@ -1,51 +1,29 @@
-function FetchLogin(uLid, pw, uri, redirect_uris, callback) {
-    const method = "POST";
-    var body = JSON.stringify({ username: uLid, password: pw, redirect_uris: redirect_uris });
-    let client = FetchAPI(uri + "/authorize", method, true, body)
-    client.then(function(data) {
-      body = "client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&grant_type=" + data.grant_type + "&code=" + data.code
-      let token = FetchAPI(uri + "/token", method, false, body)
-      token.then((data) => {
-        callback(data)
-      }).catch(function(error) {
-        console.log("Request _onLogin FetchAPI", error)
-      })
-    }).catch(function(error) {
-      console.log("Request _onLogin FetchLogin", error)
-    });
-}
-
-function FetchAPI(url, method, type, body, token, basicId, basicPw) {
-    var headers = { "Accept": "application/json" };
-    if(type) {
-        headers["Content-Type"] = "application/json"
-    } else {
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
+function postData(url, options, token) {
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
     }
 
     if (token !== undefined && token !== null) {
         headers['Authorization'] = 'Bearer ' + token
     }
 
-    if(basicId !== undefined && basicPw !== null) {
-        headers["Authorization"] = "Basic " + btoa(basicId + ":" + basicPw)
-    }
-
     // 既定のオプションには * が付いています
     return fetch(url, {
-        method: method
-        // ,mode: "cors"
-        // ,cache: "no-cache"
-        // ,credentials: "same-origin"
+        method: "POST"
+        ,mode: "cors"
+        ,cache: "no-cache"
+        ,credentials: "same-origin"
         ,headers: headers
-        // ,redirect: "follow"
-        // ,referrer: "no-referrer"
-        ,body: body
-    }).then(
-        status
-    ).then(function(response) {
-        return response.json(); 
-    }).then(function(json) {
+        ,redirect: "follow"
+        ,referrer: "no-referrer"
+        ,body: JSON.stringify(options)
+    }).then(status
+    ).then(res => {
+        if (res.ok) {
+          return res.json(); 
+        }
+    }).then(json => {
         return json;
     });
 }
@@ -61,6 +39,5 @@ var status = function status(response) {
     }
 }
 
-module.exports.FetchLogin = FetchLogin;
-module.exports.FetchAPI = FetchAPI;
+module.exports.postData = postData;
 module.exports.status = status;

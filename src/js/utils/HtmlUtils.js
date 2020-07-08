@@ -53,6 +53,43 @@ const object = {
       }
       return obj;
     }
+    ,getIdxTabSelected:(obj) => {
+      var arr = null;
+      if(obj.tagName === 'LABEL') {
+        obj = obj.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.childNodes[0];
+      }
+      arr = Array.from(obj.childNodes);
+      for(let i=0; i<arr.length; i++) {
+        if(obj.childNodes[i] === undefined
+          || obj.childNodes[i].getAttribute('aria-selected') !== 'true') continue;
+        return i;
+      }
+    }
+    ,getIdxParent:(obj) => {
+      var o = obj.parentElement.parentElement.parentElement.parentElement.parentElement;
+      if(o !== undefined && o.id !== undefined && o.id.startsWith('div_customize_')
+        && !Number.isNaN(Number(o.id.split('_')[2]))) return o.id.split('_')[2];
+      o = obj.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+      if(o !== undefined && o.id !== undefined && o.id.startsWith('div_customize_')
+        && !Number.isNaN(Number(o.id.split('_')[2]))) return o.id.split('_')[2];
+      o = obj.parentElement.parentElement.parentElement.parentElement;
+      if(o !== undefined && o.id !== undefined && o.id.startsWith('div_customize_')
+        && !Number.isNaN(Number(o.id.split('_')[2]))) return o.id.split('_')[2];
+      o = obj.parentElement;
+      if(o !== undefined && o.id !== undefined && o.id.startsWith('div_customize_')
+        && !Number.isNaN(Number(o.id.split('_')[2]))) return o.id.split('_')[2];
+      return null;
+    }
+    ,getDivParent:(obj) => {
+      var o = obj.parentElement.parentElement.parentElement.parentElement.parentElement;
+      if(o !== undefined && o.id !== undefined && o.id.startsWith('div_customize_')) return o;
+      o = obj.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
+      if(o !== undefined && o.id !== undefined && o.id.startsWith('div_customize_')) return o;
+      return null;
+    }
+    ,getLanguages:() => {
+      return ['ja', 'en', 'vn'];
+    }
 };
 
 module.exports = object;

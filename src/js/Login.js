@@ -1,17 +1,16 @@
-import React, { Component as C } from "react";
+import React, { Component as C } from 'react';
 import { withRouter } from "react-router-dom";
-import { connect } from "react-redux";
-import { Alert, Form, Button } from "react-bootstrap";
-import { FaSignInAlt } from "react-icons/fa";
-import StringUtil from "util";
+import { connect } from 'react-redux';
+import { Alert, Form, Button } from 'react-bootstrap';
+import { FaSignInAlt } from 'react-icons/fa';
+import StringUtil from 'util';
 
-import { ACTION, MSG_TYPE } from "./utils/Types";
-import { isEmpty } from "./utils/Utils";
-import { FetchLogin } from "./utils/Fetch";
+import { ACTION, MSG_TYPE } from './utils/Types';
+import { isEmpty } from './utils/Utils';
 
-import Msg from "../msg/Msg";
+import Msg from '../msg/Msg';
 import "../css/Index.css";
-import "../css/Login.css";
+import '../css/Login.css';
 
 class Login extends C {
   constructor(props){
@@ -21,14 +20,14 @@ class Login extends C {
     this._onChange = this._onChange.bind(this);
     this._onChangeSelect = this._onChangeSelect.bind(this);
 
-    console.log("LOGIN constructor !!!");
+    console.log('LOGIN constructor !!!');
     console.log(this.props.isUser);
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
       ,validated: true
-      ,uLid: ""
-      ,pw: ""
+      ,uLid: ''
+      ,pw: ''
     }
   }
 
@@ -44,21 +43,16 @@ class Login extends C {
         return;
       } else {
         // this.state.validated = true;
-        this.state.isUser["uLid"] = this.state.uLid;
-
-        FetchLogin(this.state.uLid, this.state.pw, Msg.getSystemMsg("sys", "app_token_host"), Msg.getSystemMsg("sys", "app_api_host"), this._loginCallBack);
+        this.state.isUser['uLid'] = this.state.uLid;
+        this.state.isUser['path'] = ACTION.SLASH + ACTION.LIST;
+        this.state.isUser['viewHeader'] = true;
+        console.log(this.state.isUser);
+        console.log(this.state.options);
+        this.props.onLogin(this.state.isUser, this.state.options);
+        this.props.history.push(ACTION.SLASH + ACTION.LIST);
+        // console.log(this.state);
       }
     }
-  }
-
-  _loginCallBack(data) {
-    console.log(data);
-    this.state.isUser["path"] = ACTION.SLASH + ACTION.LIST;
-    this.state.isUser["viewHeader"] = true;
-    console.log(this.state.isUser);
-    console.log(this.state.options);
-    this.props.onLogin(this.state.isUser, this.state.options);
-    this.props.history.push(ACTION.SLASH + ACTION.LIST);  
   }
 
   _onChange(e){
@@ -66,18 +60,18 @@ class Login extends C {
     const dError = e.target.parentElement.childNodes[1];
     if(!isEmpty(dError)) {
       if(value.length <= 0) {
-        dError.style.display = "block";
+        dError.style.display = 'block';
         dError.innerText =
-          Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, "login_id")
-          + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, "required");
-        // this._Msg.getMsg(MSG_TYPE.LOGIN, "login_id") + this._Msg.getMsg(MSG_TYPE.ERROR, "required");
+          Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id')
+          + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
+        // this._Msg.getMsg(MSG_TYPE.LOGIN, 'login_id') + this._Msg.getMsg(MSG_TYPE.ERROR, 'required');
       } else if(value.length > 8) {
-        dError.style.display = "block";
-        // var msg = StringUtil.format(this._Msg.getMsg(MSG_TYPE.ERROR, "max_length"), 8, value.length - 8);
-        var msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, "max_length"), 8, value.length - 8);
+        dError.style.display = 'block';
+        // var msg = StringUtil.format(this._Msg.getMsg(MSG_TYPE.ERROR, 'max_length'), 8, value.length - 8);
+        var msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), 8, value.length - 8);
         dError.innerText = msg;
       } else {
-        dError.style.display = "none";
+        dError.style.display = 'none';
       }
     }
     this.setState({ [e.target.name]: value });
@@ -91,12 +85,12 @@ class Login extends C {
   }
 
   componentDidMount() {
-    console.log("LOGIN componentDidMount !!!");
-    var div = document.getElementById("div_alert_login");
+    console.log('LOGIN componentDidMount !!!');
+    var div = document.getElementById('div_alert_login');
     if(!isEmpty(div)) {
       window.onresize = function(event) {
-        div.style.left = ((window.innerWidth/2) - (div.offsetWidth/2)) + "px";
-        div.style.marginTop = ((window.innerHeight - div.offsetHeight)/3) + "px";
+        div.style.left = ((window.innerWidth/2) - (div.offsetWidth/2)) + 'px';
+        div.style.marginTop = ((window.innerHeight - div.offsetHeight)/3) + 'px';
       };
       window.onresize();  
     }
@@ -104,21 +98,21 @@ class Login extends C {
   }
 
   _reLoadBody() {
-    var body = document.getElementById("div_body");
+    var body = document.getElementById('div_body');
     if(!isEmpty(body) && !isEmpty(body.className)) {
       body.className = body.className.replace("div-margin-right-22", "");
     }
   }
 
   render() {
-    console.log("Login Render!!!");
+    console.log('Login Render!!!');
     console.log(this.state);
 
     return (
       <div>
         <Alert id="div_alert_login" variant="success" className="div-center">
           {/* <Alert.Heading>{ <FaUnlockAlt /> }System Authorization{ <FaUnlockAlt /> }</Alert.Heading> */}
-          <Alert.Heading>{ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, "system_auth") }</Alert.Heading>
+          <Alert.Heading>{ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'system_auth') }</Alert.Heading>
           <hr />
           <Form noValidate validated={ this.state.validated } onSubmit={ this._onLogin.bind(this) }>
             <Form.Group>
@@ -126,10 +120,10 @@ class Login extends C {
                 type="text"
                 name="uLid"
                 onChange={ this._onChange.bind(this) }
-                placeholder={ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, "login_id") }
+                placeholder={ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id') }
                 required />
               <Form.Control.Feedback type="invalid">
-                { Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, "login_id") }{ Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, "required") }
+                { Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id') }{ Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required') }
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
@@ -137,22 +131,22 @@ class Login extends C {
                 type="password"
                 name="pw"
                 onChange={ this._onChange.bind(this) }
-                placeholder={ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, "password") }
+                placeholder={ Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password') }
                 required />
               <Form.Control.Feedback type="invalid">
-                { Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, "password") }{ Msg.getMsg(MSG_TYPE.ERROR, "required") }
+                { Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password') }{ Msg.getMsg(MSG_TYPE.ERROR, 'required') }
               </Form.Control.Feedback>
             </Form.Group>
             <Form.Group>
               <Form.Control as="select" onChange={ this._onChangeSelect.bind(this) } value={ this.state.isUser.language }>
-                <option value="ja">{ Msg.getMsg(null, this.state.isUser.language, "ja") }</option>
-                <option value="en">{ Msg.getMsg(null, this.state.isUser.language, "en") }</option>
-                <option value="vn">{ Msg.getMsg(null, this.state.isUser.language, "vn") }</option>
+                <option value="ja">{ Msg.getMsg(null, this.state.isUser.language, 'ja') }</option>
+                <option value="en">{ Msg.getMsg(null, this.state.isUser.language, 'en') }</option>
+                <option value="vn">{ Msg.getMsg(null, this.state.isUser.language, 'vn') }</option>
               </Form.Control>
             </Form.Group>
 
             <Form.Group>
-              <Button type="submit">{ Msg.getMsg(null, this.state.isUser.language, "bt_login") }{ <FaSignInAlt /> }</Button>              
+              <Button type="submit">{ Msg.getMsg(null, this.state.isUser.language, 'bt_login') }{ <FaSignInAlt /> }</Button>              
             </Form.Group>
           </Form>
         </Alert>

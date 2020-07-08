@@ -66,7 +66,7 @@ export default class AlertAction extends C {
               return (
                 <div>
                   <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.INFO }>
-                    <FaReply />
+                    {/* <FaReply /> */}
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
                   </Button>
                   <br />
@@ -80,7 +80,7 @@ export default class AlertAction extends C {
               || (!isEmpty(this.state.isUser.actions.create) && this.state.isUser.actions.create)) {
               return (
                 <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.INFO }>
-                  <FaPlus />
+                  {/* <FaPlus /> */}
                   { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
                 </Button>
               );
@@ -92,7 +92,7 @@ export default class AlertAction extends C {
               || (!isEmpty(this.state.isUser.actions.save) && this.state.isUser.actions.save)) {
               return (
                 <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
-                  <FaCheck />
+                  {/* <FaCheck /> */}
                   { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
                 </Button>
               );

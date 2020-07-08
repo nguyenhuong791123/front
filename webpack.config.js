@@ -5,7 +5,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 /** MESSENGERS */
-const SysMsg = require('./src/msg/system.json');
+// var SysMsg = require('./src/msg/system.json');
+// if(process.env && process.env.production) {
+//     SysMsg = require('./src/msg/system_production.json');
+// }
 
 const ENVS = {
     mode:  (process.env && process.env.production) ? 'production' : 'development'
@@ -13,7 +16,7 @@ const ENVS = {
     ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'sc.crt')
     ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'sc.pem')
     ,host: '0.0.0.0'
-    ,port: 8081
+    ,port: 8083
     // ,port: 443
     ,entry: path.resolve(__dirname, 'src', 'index.js')
     ,src: path.resolve(__dirname, 'src')
@@ -26,13 +29,14 @@ const ENVS = {
     ,public: path.resolve(__dirname, 'public')
     ,template: path.resolve(__dirname, 'public', 'index.html')
     ,favicon: 'favicon.ico'
-    // ,publicsrc: 'src'
-    // ,publiccss: 'dist'
-    // ,publicsounds: 'sounds'
-    // ,dailer: 'dailer.html'
-    // ,dailercss: 'WebRTC.css'
+    ,publicsrc: 'src'
+    ,publiccss: 'dist'
+    ,publicsounds: 'sounds'
+    ,dailer: 'dailer.html'
+    ,dailercss: 'WebRTC.css'
     ,nodemodules: 'node_modules'
     ,origin: '*'//SysMsg['sys']['app_dailer_host']
+    // ,origin: 'http://192.168.56.53:8082/'
 };
 // let cookie;
 module.exports = {
@@ -118,16 +122,18 @@ module.exports = {
         // }
         ,headers: {
             'Access-Control-Allow-Origin': ENVS.origin
-            // ,'Access-Control-Allow-Headers': '*'
+            // 'Access-Control-Allow-Headers': '*'
             // ,'Access-Control-Allow-Credentials': 'true'
+            // ,"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+            // ,"Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"        
         }
-        ,proxy: {
-            '**': {
-              target: 'https://localsc.co.jp/'
-              ,secure: false
-              ,changeOrigin: true
-            }
-        }
+        // ,proxy: {
+        //     '**': {
+        //       target: 'http://192.168.56.53:8083'
+        //       ,secure: false
+        //       ,changeOrigin: true
+        //     }
+        // }
     }
     ,devtool: (ENVS.mode === 'development') ? 'cheap-module-source-map' : 'none'
     //'source-map'
@@ -142,11 +148,11 @@ module.exports = {
         })
         ,new CopyWebpackPlugin([
             { from: ENVS.public + ENVS.publicPath + ENVS.favicon, to: ENVS.favicon },
-            // { from: ENVS.public + ENVS.publicPath + ENVS.dailer, to: ENVS.dailer },
-            // { from: ENVS.public + ENVS.publicPath + ENVS.dailercss, to: ENVS.dailercss },
-            // { from: ENVS.public + ENVS.publicPath + ENVS.publicsrc, to: ENVS.publicsrc },
-            // { from: ENVS.public + ENVS.publicPath + ENVS.publiccss, to: ENVS.publiccss },
-            // { from: ENVS.public + ENVS.publicPath + ENVS.publicsounds, to: ENVS.publicsounds },
+            { from: ENVS.public + ENVS.publicPath + ENVS.dailer, to: ENVS.dailer },
+            { from: ENVS.public + ENVS.publicPath + ENVS.dailercss, to: ENVS.dailercss },
+            { from: ENVS.public + ENVS.publicPath + ENVS.publicsrc, to: ENVS.publicsrc },
+            { from: ENVS.public + ENVS.publicPath + ENVS.publiccss, to: ENVS.publiccss },
+            { from: ENVS.public + ENVS.publicPath + ENVS.publicsounds, to: ENVS.publicsounds },
         ]),
     ]
 }

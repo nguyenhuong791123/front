@@ -38,21 +38,34 @@ export const HTML_TAG = {
 
 export const TYPE = {
     TEXT: 'text'
-    ,PASSWORD: 'password'
+    ,TEXTAREA: 'textarea'
+    ,DATE: 'date'
+    ,DATETIME: 'datetime'
+    ,TIME: 'time'
+    ,NUMBER: 'number'
     ,CHECKBOX: 'checkbox'
     ,RADIO: 'radio'
+    ,LIST: 'list'
     ,FILE: 'file'
-    ,HIDDEN: 'hidden'
-    ,SUBMIT: 'submit'
-    ,RESET: 'reset'
-    ,BUTTON: 'button'
     ,IMAGE: 'image'
-    ,DATE: 'date'
-    ,NUMBER: 'number'
-    ,DIV: 'div'
-    ,TAB: 'tab'
+    ,PASSWORD: 'password'
+    ,DISABLE: 'disabled'
+    ,HIDDEN: 'hidden'
+    // ,SUBMIT: 'submit'
+    // ,RESET: 'reset'
     ,COLOR: 'color'
+    ,DIV: 'div'
+    // ,TAB: 'tab'
     ,OBJECT: 'object'
+    ,BUTTON: 'button'
+}
+
+export const BOX_WIDTH = {
+    25: '25%'
+    ,33: '33%'
+    ,50: '50%'
+    ,75: '75%'
+    ,100: '100%'
 }
 
 export const ATTR = {
@@ -128,7 +141,7 @@ export const ALIGN = {
 }
 
 export const CUSTOMIZE = {
-    TYPE: 'type'
+    TYPE: 'item_type'
     ,BOX_WIDTH: 'box_width'
     ,REQUIRED: 'required'
     ,LABEL: 'label'
@@ -142,5 +155,9 @@ export const CUSTOMIZE = {
     ,TEXT_LAYOUT_COLOR: 'text_layout_color'
     ,TEXT_ALIGN: 'text_align'
     ,STYLE: 'style'
+    ,MULTIPLE_FILE: 'multiple_file'
+    ,BOOLEAN: 'boolean'
+    ,LANGUAGE:'language'
+    ,COLOR: 'color'
 }
 

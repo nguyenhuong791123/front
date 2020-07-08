@@ -2,10 +2,8 @@
     "sys":
       {
         "icon_url": "./images/favicon.ico"
-        ,"app_css_host": "http://192.168.10.9:8082/static/"
-        ,"app_dailer_host": "https://192.168.56.53:7003"
-        ,"app_token_host": "http://192.168.10.9:8084"
-        ,"app_api_host": "http://192.168.10.9:8085"
+        ,"app_css_host": "http://vmdev:8081/static/"
+        ,"app_dailer_host": "http://vmdev:8082/"
       }
     ,"basic":
       {

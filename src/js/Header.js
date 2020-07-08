@@ -5,7 +5,7 @@ import { Navbar, Nav, NavDropdown, Form, FormControl, Image } from 'react-bootst
 import { FaUser, FaSearch, FaTty, FaPhone, FaMailBulk, FaUserCog, FaSitemap, FaKey, FaLink, FaRocketchat } from 'react-icons/fa';
 
 import { PAGE_ACTION, ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
-import { HTML_TAG, ATTR, MOUSE } from './utils/HtmlTypes';
+import { HTML_TAG, ATTR } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
 import Html from './utils/HtmlUtils';
 import Utils from './utils/Utils';
@@ -31,10 +31,6 @@ class Header extends C {
     this._newWindow = this._newWindow.bind(this);
     this._onChangeTheme = this._onChangeTheme.bind(this);
     // this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
-
-    this._onMouseDown = this._onMouseDown.bind(this);
-    this._onMouseUp = this._onMouseUp.bind(this);
-    this._onMouseMove = this._onMouseMove.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -95,7 +91,7 @@ class Header extends C {
         // ,{ id: 25, view: LINK, target: 'target_25', label: 'label_25', level: 0, items: [] }
       ]
       ,title: ''
-      ,dailer: { register: false, isCall: false, audio: true, sound: true, show: false, isDown: false, top: '3em', left: '80%' }
+      ,dailer: { register: false, isCall: false, audio: true, sound: true, show: false, top: 50, left: 0 }
       ,chats: { room: {}, data: [] }
     };
   }
@@ -203,75 +199,56 @@ class Header extends C {
 
   _addBoostrapTheme() {
     var div = document.getElementById(SYSTEM.IS_DAILER_BOX);
-    document.body.addEventListener(MOUSE.MOUSEMOVE, this._onMouseMove.bind(this), true);
-    document.body.addEventListener(MOUSE.MOUSEUP, this._onMouseUp.bind(this), true);
     if(Utils.isEmpty(div)) {
-      const btn1 = document.createElement(HTML_TAG.BUTTON);
-      btn1.setAttribute(ATTR.CLASS, 'btn btn-warning btn-dailer-box-move');
-      btn1.innerText = '移';
-      btn1.addEventListener(MOUSE.MOUSEDOWN, this._onMouseDown.bind(this), true);
-      btn1.addEventListener(MOUSE.MOUSEUP, this._onMouseUp.bind(this), true);
+      var close = document.getElementById('a_dailer_box');
 
-      const btn2 = document.createElement(HTML_TAG.BUTTON);
-      btn2.setAttribute(ATTR.CLASS, 'btn btn-danger');
-      // btn.innerText = '✖';
-      btn2.innerText = '閉';
-      btn2.onclick = function() {
-        var close = document.getElementById('a_dailer_box');
-        if(!Utils.isEmpty(close)) close.click();
+      const btn = document.createElement(HTML_TAG.BUTTON);
+      btn.setAttribute(ATTR.CLASS, 'btn btn-warning');
+      btn.innerText = '✖';
+      btn.onclick = function() {
+        if(!Utils.isEmpty(close)) {
+          close.click();
+        }
       }
       div = document.createElement(HTML_TAG.DIV);
       div.setAttribute(ATTR.ID, SYSTEM.IS_DAILER_BOX);
       div.setAttribute(ATTR.CLASS, 'drag-and-drop');
       const rtc = document.createElement(HTML_TAG.OBJECT);
-      rtc.setAttribute(ATTR.DATA
-        ,Msg.getSystemMsg('sys', 'app_dailer_host') +
-        '?theme=' + Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
       rtc.setAttribute(ATTR.TYPE, 'text/html');
+      rtc.setAttribute('data', 'dailer.html');
+      // rtc.setAttribute(ATTR.DATA, Msg.getSystemMsg('sys', 'app_dailer_host'));
+      // rtc.setAttribute(ATTR.DATA
+      //   ,Msg.getSystemMsg('sys', 'app_dailer_host') +
+      //   '?theme=' + Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
+      // rtc.setAttribute(ATTR.CROSSORIRIN, 'anonymous');
+      // rtc.setAttribute(ATTR.CROSSORIRIN, 'use-credentials');
+      const param = document.createElement(HTML_TAG.PARAM);
+      param.setAttribute('id', 'theme_id');
+      param.setAttribute('name', 'theme');
+      param.setAttribute('value', Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
+      rtc.appendChild(param);
       div.appendChild(rtc);
-      div.appendChild(btn1);
-      div.appendChild(btn2);
+      div.appendChild(btn);
+
+      // Not Use When Run SubDomain
+      var cObj = close.getBoundingClientRect();
+      div.style.left = ((cObj.x + cObj.width) - 200) + 'px';
+      div.style.top = (cObj.y + cObj.height) + 'px';
+
       document.body.prepend(div);
     }
     this._setLocalStrageTheme(div);
   }
 
-  _onMouseDown(e) {
-    // console.log(e.target.tagName);
-    if(e.target.tagName !== HTML_TAG.BUTTON) {
-      this.state.dailer.isDown = false;
-      return;
-    }
-    var div = document.getElementById(SYSTEM.IS_DAILER_BOX);
-    if(Utils.isEmpty(div)) return;
-    this.state.dailer.isDown = true;
-    this.state.dailer.left = (div.offsetLeft - e.clientX);
-    this.state.dailer.top = (div.offsetTop - e.clientY);
-  }
-
-  _onMouseUp(e) {
-    // console.log(e.target.tagName);
-    this.state.dailer.isDown = false;
-    document.body.removeEventListener(MOUSE.MOUSEMOVE, this._onMouseMove.bind(this), false);
-    document.body.removeEventListener(MOUSE.MOUSEUP, this._onMouseUp.bind(this), false);
-  }
-
-  _onMouseMove(e) {
-    // console.log(e.target.tagName);
-    var div = document.getElementById(SYSTEM.IS_DAILER_BOX);
-    if (!this.state.dailer.isDown || Utils.isEmpty(div)) return;
-    div.style.left = (e.clientX + this.state.dailer.left) + 'px';
-    div.style.top  = (e.clientY + this.state.dailer.top) + 'px';
-  }
-
   _setLocalStrageTheme(isExists) {
-    const css_path = THEME.getTheme(this.state.isUser.theme);
+    // window.localStorage.setItem('theme', Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
+    // const css_path = THEME.getTheme(this.state.isUser.theme);
     if(Utils.isEmpty(isExists)) return;
     const obj = isExists.childNodes[0];
     if(Utils.isEmpty(obj) || Utils.isEmpty(obj.contentWindow)) return;
-    const link = obj.contentWindow.document.querySelector('#link_bootstrap_ippbx_id');
+    const link = obj.contentWindow.document.querySelector('#style_id');
     if(Utils.isEmpty(link)) return;
-    link.href = css_path;
+    link.href = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
   }
 
   _onChangeTheme(e) {
@@ -343,6 +320,7 @@ class Header extends C {
     this.state.options = props.options;
     this.state.headers = props.headers;
     this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
+    // this._setLocalStrageTheme();
   }
 
   render() {

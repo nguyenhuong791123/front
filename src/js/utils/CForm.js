@@ -9,11 +9,16 @@ class CForm extends C {
     constructor(props) {
         super(props);
 
+        this._onChange = this._onChange.bind(this);
         this._onError = this._onError.bind(this);
         this._onSelect = this._onSelect.bind(this);
     
         this.state = { isUser: this.props.isUser, form: this.props.form };
     };
+
+    _onChange(e) {
+        this.props.updateFormData(e);
+    }
 
     _onError(errors) {
         console.log('I have', errors.length, 'errors to fix');
@@ -21,13 +26,14 @@ class CForm extends C {
 
     _onSelect(tabIdx) {
         console.log(tabIdx);
+        console.log(this.state.form);
     }
 
     _getTabs(idx, items, active, className) {
         if(Utils.isEmpty(items) || items.length === 0) return "";
         const tabs = items.map((f, index) => {
-        const obj = Object.keys(f.schema.properties);
-        console.log(f.schema.properties);
+        // const obj = Object.keys(f.schema.properties);
+        // console.log(f.schema.properties);
         if(!Utils.inJson(f.schema, 'tab_name')) return "";
           const fKey = 'form_key_' + index;
             return(
@@ -37,6 +43,7 @@ class CForm extends C {
                         schema={ f.schema }
                         uiSchema={ f.ui }
                         formData={ f.data }
+                        onChange={ this._onChange.bind(this) }
                         onError={ this._onError.bind(this) }>
                         <button type="submit" className="btn-submit-form-hidden" />
                     </Form>
@@ -44,7 +51,7 @@ class CForm extends C {
             );
         });
         return (
-            <div key={ idx } id={ 'div' + idx } className={ className }>
+            <div key={ idx } id={ 'div_customize_' + idx } className={ className }>
                 <Tabs key={ idx } defaultActiveKey={ active } onSelect={ this._onSelect.bind(this) }>
                     { tabs }
                 </Tabs>
@@ -61,12 +68,13 @@ class CForm extends C {
             const className = Utils.inJson(o, 'class_name')?o.class_name:"";
             if(t === 'div') {
                 return(
-                    <div key={ index } id={ 'div' + index } className={ className }>
+                    <div key={ index } id={ 'div_customize_' + index } className={ className }>
                         <Form
                             key={ index }
                             schema={ o.object.schema }
                             uiSchema={ o.object.ui }
                             formData={ o.object.data }
+                            onChange={ this._onChange.bind(this) }
                             onError={ this._onError.bind(this) }>
                             <button type="submit" className="btn-submit-form-hidden" />
                         </Form>
@@ -79,6 +87,13 @@ class CForm extends C {
             }
         });
     }
+
+    // UNSAFE_componentWillUpdate(nextProps, nextState) {
+    //     console.log('CREATE FORM componentWillUpdate');
+    //     console.log(nextProps);
+    //     console.log(nextState);
+    //     console.log(this.state.form);
+    // }
 
     render() {
         return (

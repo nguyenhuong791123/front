@@ -2,7 +2,12 @@ button.btn-submit-form-hidden {
     display: none;
 }
 
-button.btn-create-item {
+button.btn-create-div {
+    position: absolute;
+    right: 4.5em;
+}
+
+button.btn-create-tab {
     position: absolute;
     right: .5em;
 }
@@ -20,13 +25,29 @@ div.div-customize-box > div.selected {
     border-color: red;
 }
 
+div.div-customize-box > div.div-box-25 {
+    width: 25%;
+    float: left;
+}
+
+div.div-customize-box > div.div-box-33 {
+    width: 33.3%;
+    float: left;
+}
+
 div.div-customize-box > div.div-box-50 {
     width: 50%;
     float: left;
 }
 
+div.div-customize-box > div.div-box-75 {
+    width: 75%;
+    float: left;
+}
+
 div.div-customize-box > div.div-box-100 {
     width: 100%;
+    display: inline-block;
 }
 
 div.div-overlay-box {
@@ -39,8 +60,8 @@ div.div-overlay-box {
 }
 
 div.div-overlay-box > div:first-child {
-    border: 5px solid #dee2e6;
-    border-radius: 1em;
+    /* border: 5px solid #dee2e6;
+    border-radius: 1em; */
     width: 40%;
     max-width: 40%;
     top: 10%;
@@ -60,7 +81,8 @@ div.div-overlay-box > div:first-child button {
 
 div.div-overlay-box > div:first-child > div {
     position: absolute;
-    margin-left: -5em;
+    /* margin-left: -5em; */
+    right: -4.5em;
     display: grid;
 }
 
@@ -69,7 +91,7 @@ table.table-overlay-box {
 }
 
 table.table-overlay-box tbody tr td {
-    padding: .2em;
+    padding: .1em;
 }
 
 table.table-overlay-box legend
@@ -90,6 +112,7 @@ table.table-overlay-box tbody tr td.td-not-break {
     word-break: keep-all;
     white-space: nowrap;
     text-align: right;
+    width: 15%;
 }
 
 table.table-overlay-box tbody tr td.td-view-box {
@@ -99,6 +122,7 @@ table.table-overlay-box tbody tr td.td-view-box {
 
 table.table-overlay-box tbody tr td:nth-child(2n+0) {
     text-align: left;
+    width: 35%;
 }
 
 div.div-customize-title-box {
@@ -111,4 +135,20 @@ div.div-customize-title-box > input
     width: 30%;
     margin-left: 0.5rem;
     margin-right: 0.5rem !important;
+}
+
+div.div-overlay-box-add-items {
+    overflow: auto;
+    overflow-x: auto;
+    max-height: 170px;
+}
+
+button.button-overlay-box-add-items {
+    width: .5em;
+    height: 2em;
+}
+
+button.button-overlay-box-add-items > svg {
+    margin-top: -.7em;
+    margin-left: -.5em;
 }
