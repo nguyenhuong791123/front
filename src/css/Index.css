@@ -26,14 +26,31 @@ div.form-group {
     margin-bottom: 0;
 }
 
-div.checkboxes {
-    border: 1px solid gainsboro;
-    padding-left: .1em;
+div.div-inline-box {
+    height: 81px;
 }
 
-div.not_inline > div.checkboxes {
-    height: 100px;
+div.not_inline > div.checkboxes
+,div.not_inline > div.field-radio-group {
+    height: 119px;
     overflow-y: auto;
+}
+
+div.div-box textarea {
+    height: 119px;
+}
+
+div.div-image-box {
+    height: 245px;
+    text-align: center;
+}
+
+div.div-image-box > label {
+    text-align: left;
+}
+
+div.div-image-box > img {
+    height: 202px;
 }
 
 /* 点滅 */
@@ -175,7 +192,7 @@ div.form-group fieldset legend::before {
 }
 
 div.form-group fieldset div.div-box {
-    /* height: 88px; */
+    /* height: 82px; */
     padding: 0.2em;
     float: left;
     margin: 0;
@@ -237,6 +254,10 @@ div.form-group fieldset div.div-box-100 {
 div.form-group fieldset div.div-box-display-contents {
     height: 86px;
 }
+
+/* div.form-check-inline {
+    height: 36px;
+} */
 
 div.form-group fieldset div.div-box-display-contents div.checkboxes div.form-check-inline:first-child {
     margin-left: 0.5em;

@@ -1,8 +1,11 @@
 import React, { Component as C } from 'react';
-import { Tabs, Tab } from 'react-bootstrap';
-import Form from 'react-jsonschema-form-bs4';
+import { Tabs, Tab, Button } from 'react-bootstrap';
+import FormBS4 from 'react-jsonschema-form-bs4';
+import { FaPlus } from 'react-icons/fa';
 
-import { SYSTEM } from '../utils/Types';
+import { SYSTEM, VARIANT_TYPES } from '../utils/Types';
+import { HTML_TAG } from '../utils/HtmlTypes';
+
 import Utils from './Utils';
 
 class CForm extends C {
@@ -17,6 +20,7 @@ class CForm extends C {
     };
 
     _onChange(e) {
+        console.log(e);
         this.props.updateFormData(e);
     }
 
@@ -32,26 +36,24 @@ class CForm extends C {
     _getTabs(idx, items, active, className) {
         if(Utils.isEmpty(items) || items.length === 0) return "";
         const tabs = items.map((f, index) => {
-        // const obj = Object.keys(f.schema.properties);
-        // console.log(f.schema.properties);
         if(!Utils.inJson(f.schema, 'tab_name')) return "";
-          const fKey = 'form_key_' + index;
+          const fKey = 'tab_' + index;
             return(
                 <Tab key={ index } eventKey={ index } title={  f.schema.tab_name }>
-                    <Form
+                    <FormBS4
                         key={ fKey }
                         schema={ f.schema }
                         uiSchema={ f.ui }
                         formData={ f.data }
                         onChange={ this._onChange.bind(this) }
                         onError={ this._onError.bind(this) }>
-                        <button type="submit" className="btn-submit-form-hidden" />
-                    </Form>
+                        <button type="submit" id={ 'tab_bt_' + index } className="btn-submit-form-hidden" />
+                    </FormBS4>
                 </Tab>
             );
         });
         return (
-            <div key={ idx } id={ 'div_customize_' + idx } className={ className }>
+            <div key={ idx } id={ 'div_customize_' + idx } idx={ idx } className={ className }>
                 <Tabs key={ idx } defaultActiveKey={ active } onSelect={ this._onSelect.bind(this) }>
                     { tabs }
                 </Tabs>
@@ -68,16 +70,16 @@ class CForm extends C {
             const className = Utils.inJson(o, 'class_name')?o.class_name:"";
             if(t === 'div') {
                 return(
-                    <div key={ index } id={ 'div_customize_' + index } className={ className }>
-                        <Form
+                    <div key={ index } id={ 'div_customize_' + index } idx={ index } className={ className }>
+                        <FormBS4
                             key={ index }
                             schema={ o.object.schema }
                             uiSchema={ o.object.ui }
                             formData={ o.object.data }
                             onChange={ this._onChange.bind(this) }
                             onError={ this._onError.bind(this) }>
-                            <button type="submit" className="btn-submit-form-hidden" />
-                        </Form>
+                            <button type="submit" id={ 'div_bt_' + index } className="btn-submit-form-hidden" />
+                        </FormBS4>
                     </div>
                 );
             } else if(t === 'tab' && o.object.length > 0) {
@@ -87,13 +89,6 @@ class CForm extends C {
             }
         });
     }
-
-    // UNSAFE_componentWillUpdate(nextProps, nextState) {
-    //     console.log('CREATE FORM componentWillUpdate');
-    //     console.log(nextProps);
-    //     console.log(nextState);
-    //     console.log(this.state.form);
-    // }
 
     render() {
         return (

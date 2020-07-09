@@ -1,23 +1,29 @@
-import { TYPE, CUSTOMIZE } from './HtmlTypes';
+// import React from 'react';
+import ImageBox from './Compoment/ImageBox';
+import TimeBox from './Compoment/TimeBox';
+import CheckBoxSingle from './Compoment/CheckBoxSingle';
+import CheckBoxInline from './Compoment/CheckBoxInline';
+import { TYPE, CUSTOMIZE, HTML_TAG } from './HtmlTypes';
+
 import Utils from './Utils';
 
 export const JSON_OBJ = {
   getJsonSchema: (obj, itemName, key, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
-    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX ];
+    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX , TYPE.LIST ];
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
   
     var json = { type: type, title: obj[key], idx: idx, obj: obj };
-    if(!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT])) {
-      if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-        json['file_name'] = obj[CUSTOMIZE.DEFAULT];
-      } else {
-        json['default'] = obj[CUSTOMIZE.DEFAULT];
-      }
-    }
+    // if(!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT])) {
+    //   if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+    //     json['file_name'] = obj[CUSTOMIZE.DEFAULT];
+    //   } else {
+    //     json['default'] = obj[CUSTOMIZE.DEFAULT];
+    //   }
+    // }
     if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
       json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
     }
@@ -29,26 +35,22 @@ export const JSON_OBJ = {
         json['format'] = 'data-url';
       }
     }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-      if(obj['list_checked'] && Utils.inJson(obj, 'lists')) {
-        if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-          json['type'] = 'number';
-          // json['enum'] = items;
-        } else {
-          json['type'] = 'array';
-        }
-        json['items'] = { type: 'string', '$ref': '#/definitions/' + itemName };
-        if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) json['uniqueItems'] = true;
-      } else {
-        json['type'] = 'boolean';
-        // json['default'] = false;
-      }
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, 'lists') && obj['lists'].length > 1) {
+      json['type'] = 'array';
+      json['uniqueItems'] = true;
+      json['items'] = { type: 'string', '$ref': '#/definitions/' + itemName };
     }
-    console.log(json);
+
+    if(Utils.inJson(obj, 'lists') && (obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
+        json['$ref'] = '#/definitions/' + itemName;
+        delete json['type'];
+    }
+
     return json;
   }
   ,getJsonUi: (obj, key) => {
-    console.log(obj);
+    // console.log(obj);
     var json = {};
     if(!Utils.isEmpty(obj[key])) {
       if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
@@ -58,51 +60,64 @@ export const JSON_OBJ = {
       }
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) json['classNames'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
+    if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) json['classNames'] += ' div-image-box';
 
     const array = [ TYPE.PASSWORD, TYPE.COLOR, TYPE.TEXTAREA, TYPE.RADIO ];
     if(array.includes(obj[CUSTOMIZE.TYPE])) {
         json['ui:widget'] = obj[CUSTOMIZE.TYPE];
     }
+
     if(obj[CUSTOMIZE.TYPE] === TYPE.DISABLE) {
       json['ui:disabled'] = true;
     }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && obj['list_checked'] || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-      if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) {
-        // json['ui:enumDisabled'] = ['multiply'];
-        json['ui:widget'] = 'checkboxes';
-        json['ui:autofocus'] = true;
-      } else {
-        // json['ui:widget'] = TYPE.RADIO;
-        if(!obj['list_checked']) json['ui:options'] = { inline: true };
-      }
-      if(obj['list_inline']) {
-        json['ui:options'] = { inline: true };
-      } else {
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+      if(obj['list_checked']) {
         json['classNames'] += ' not_inline';
+      } else {
+        json['ui:options'] = { "inline": true };
       }
     }
 
-      //{ "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-25" }
-  
-    console.log(json);
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) {
+      if(Utils.inJson(obj, 'lists') && obj['lists'].length > 1) {
+        if(obj['list_checked']) {
+          json['ui:widget'] = 'checkboxes';
+          json['ui:autofocus'] = true;
+          json['classNames'] += ' not_inline';
+        } else {
+          json['ui:widget'] = CheckBoxInline;
+        }
+      } else {
+        json['ui:widget'] = CheckBoxSingle;
+      }
+    }
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
+      json['ui:widget'] = ImageBox;
+    }
+    if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
+      json['ui:widget'] = TimeBox;
+    }
+    // console.log(json);
     return json;
   }
   ,getDefinitions:(obj) => {
     if(obj[CUSTOMIZE.TYPE] !== TYPE.CHECKBOX && obj[CUSTOMIZE.TYPE] !== TYPE.RADIO && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) return null;
-    if(obj['list_checked']) {
-      const items = Object.keys(obj['lists']).map(key => obj['lists'][key]);
-      var anyOf = [];
-      items.map((o) => {
-        if(obj[CUSTOMIZE.TYPE] !== TYPE.RADIO) {
-          anyOf.push({ type: 'string', const: o['value'], title: o['label'] });
-        } else {
-          anyOf.push({ type: 'string', enum: [ o['value'] ], title: o['label'] });
-        }
-      });  
-      if(Utils.isEmpty(anyOf)) return null;
-      return { type: 'string', anyOf: anyOf };
+    const items = Object.keys(obj['lists']).map(key => obj['lists'][key]);
+    var anyOf = [];
+    items.map((o) => {
+      if(obj[CUSTOMIZE.TYPE] !== TYPE.RADIO) {
+        anyOf.push({ type: 'string', enum: [ o['value'] ], title: o['label'] });
       } else {
-        return { type: 'boolean' };
+        anyOf.push({ const: o['value'], title: o['label'] });
+      }
+    });  
+    if(Utils.isEmpty(anyOf)) return null;
+    if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+      return { type: 'string', oneOf: anyOf };
+    } else {
+      return { type: 'string', anyOf: anyOf };
     }
   }
   ,getDatas:(obj) => {
@@ -119,6 +134,75 @@ export const JSON_OBJ = {
         }
       } else {
         return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?obj[CUSTOMIZE.DEFAULT]:'';
+      }
+    }
+  }
+  ,getEditJSONObject:(div, idx, language) => {
+    var jObj = {};
+    jObj[CUSTOMIZE.LANGUAGE] = language;
+    jObj[CUSTOMIZE.BOX_WIDTH] = 100;
+    if(div) {
+      jObj[CUSTOMIZE.TYPE] = TYPE.DIV;
+      jObj[CUSTOMIZE.LABEL + '_' + language] = HTML_TAG.DIV + '_' + (idx+'').padStart(2, '0');
+    } else {
+      jObj[CUSTOMIZE.TYPE] = TYPE.TAB;
+      jObj[CUSTOMIZE.LABEL + '_' + language] = HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0');
+    }
+    return jObj;
+  }
+  ,addTempData:(obj) => {
+    if(Utils.inJson(obj.data, 'reload')) {
+      delete obj.data['reload']
+    } else {
+      obj.data['reload'] = true;
+    }
+  }
+  ,getDafaultDivOrTab:(div, idx, jObj) => {
+    if(div) {
+      return {
+        object_type: 'div'
+        ,class_name: 'div-box-100'
+        ,idx: idx
+        ,object: {
+          schema: {
+            type: 'object',
+            title: HTML_TAG.DIV + '_' + (idx+'').padStart(2, '0'),
+            block: HTML_TAG.DIV,
+            fIdx: idx,
+            idx: 0,
+            properties: {},
+            definitions: {},
+            obj: jObj
+          },
+          ui: {},
+          data: {}
+        }
+      }
+    } else {
+      return {
+        object_type: 'tab'
+        ,active: 0
+        ,idx: idx
+        ,class_name: 'div-box-100'
+        ,object: [
+          {
+            schema: {
+                type: 'object',
+                tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'),
+                block: HTML_TAG.TAB,
+                fIdx: idx,
+                idx: 0,
+                properties: {},
+                definitions: {},
+                obj: jObj
+            },
+            ui: {},
+            data: {}
+          }
+          // ,{
+          //   schema: { type: 'object', tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'), block: HTML_TAG.TAB, fIdx: idx, idx: 1, properties: {}, definitions: {}, obj: jObj }, ui: {}, data: {}
+          // }
+        ]
       }
     }
   }

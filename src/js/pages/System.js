@@ -388,7 +388,7 @@ class System extends C {
         }
     }
 
-    componentWillReceiveProps(props) {
+    UNSAFE_componentWillReceiveProps(props) {
         this.state.isUser = props.isUser;
     }
 

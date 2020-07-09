@@ -2,11 +2,16 @@
 import React, { Component as C } from 'react';
 import { withRouter } from "react-router-dom";
 import { connect } from 'react-redux';
-import Form from "react-jsonschema-form-bs4";
-// import { Button } from 'react-bootstrap';
-// import { FaReply, FaCheck } from 'react-icons/fa';
 
 import Actions from '../utils/Actions';
+import CForm from '../utils/CForm';
+import ImageBox from '../utils/Compoment/ImageBox';
+import TimeBox from '../utils/Compoment/TimeBox';
+import CheckBoxSingle from '../utils/Compoment/CheckBoxSingle';
+import CheckBoxInline from '../utils/Compoment/CheckBoxInline';
+
+import Utils from '../utils/Utils';
+import { HTML_TAG } from '../utils/HtmlTypes';
 import { PAGE_ACTION, ACTION } from '../utils/Types';
 
 class Create extends C {
@@ -15,198 +20,211 @@ class Create extends C {
 
     this._onClickBack = this._onClickBack.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
-    this._onChange = this._onChange.bind(this);
+    this._updateFormData = this._updateFormData.bind(this);
     this._onError = this._onError.bind(this);
     this._onValidate = this._onValidate.bind(this)
 
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
-      ,schema: {
-        // title: "Widgets",
-        // type: "object",
-        // properties: {
-        //   base_info: {
-        //     type: "object"
-        //     ,title: "基本情報"
-        //     // ,required: [ "email", "uri" ]
-        //     ,properties: {
-        //       email: { type: "string", title: "メール", format: "email", }
-        //       ,uri: { type: "string", format: "uri", }
-        //     },
-        //   },
-          // cust_info: {
-          //   type: "object"
-          //   ,title: "顧客情報"
-          //   ,required: [ "cust_name_hira", "cust_name_kana" ]
-          //   ,properties: {
-          //     cust_name_hira: { type: "string" }
-          //     ,cust_name_kana: { type: "string" }
-          //   }
-          // }
-      //   },
-      },
-      uiSchema: {
-      //   base_info: {
-      //     classNames: "div-top-box div-top-box-100"
-      //     ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-50" }
-      //     ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-50" }
-      //   }
-        // ,cust_info: {
-        //   classNames: "div-top-box"
-        //   ,cust_name_hira: { "ui:placeholder": "顧客名", classNames: "div-box div-box-50" }
-        //   ,cust_name_kana: { "ui:placeholder": "顧客カナ", classNames: "div-box div-box-50" }
-        // }
-      }
-      ,formData: {}
-      // schema: {
-      //   title: "基本情報",
-      //   type: "object",
-      //   required: ["title", "description", "priority", "tags"],
-      //   properties: {
-      //     title: { type: "string", title: "Title", default: "A new task", minLength: 1, maxLength: 3 }
-      //     ,priority: { type: "string", title: "Priority", enum: ["Low", "Medium", "High"] }
-      //     ,tags: { type: "array", title: "Related Projects", items: { type: "string", enum: ["ProjA", "ProjB"] }, uniqueItems: true }
-      //     ,title2: { type: "string", title: "Title2", default: "A new task", minLength: 1, maxLength: 3 }
-      //     ,done: { type: "boolean", title: "Done?", default: false }
-      //     ,done2: { type: "boolean", title: "Done2?", default: false }
-      //     ,description: { type: "string", title: "Description of task" }
-      //   }
-      // }
-      // ,uiSchema: {
-      //   "ui:rootFieldId": "customizeForm",
-      //   title: { "ui:placeholder": "Title*", classNames: "div-box div-box-33" }
-      //   ,priority: { classNames: "div-box div-box-33" }
-      //   ,tags: { "ui:widget": "checkboxes", "ui:options": { inline: true }, classNames: "div-box div-box-33 div-box-display-contents" }
-      //   ,title2: { "ui:placeholder": "Title2*", classNames: "div-box div-box-33" }
-      //   ,done:{ classNames: "div-box div-box-33 div-box-checkbox" }
-      //   ,done2:{ classNames: "div-box div-box-33 div-box-checkbox" }
-      //   ,description: { "ui:widget": "textarea", "ui:options": { rows: 4 }, classNames: "div-box div-box-100" }
-      // }
-      // ,formData: { done: true }
-       ,widgets: {}
+      ,form: []
     }
   };
 
   componentWillMount(){
     console.log("Data submitted: ", this.props.onUpdateStateIsUser);
-    this.state.schema = {
-      type: "object",
-      properties: {
-        base_info: {
-          type: "object"
-          ,title: "基本情報"
-          // ,required: [ "file", "files" ]
-          ,properties: {
-            password: { "type": "string", "title": "Password", "minLength": 4 }
-            ,email: { type: "string", title: "メール", format: "email" }
-            ,uri: { type: "string", format: "uri" }
-            ,deleted: { type: "boolean", title: "削除", default: false }
-            // ,checkboxs: { type: "array", title: "Checkboxs", items: { type: "string", enum: [ "ProjA", "ProjB" ] }, uniqueItems: true }
-            ,checkboxs: { type: "array", title: "Checkboxs", items: { type: "string", enum: [ "ProjA", "ProjB" ] }, uniqueItems: true, }
-            ,user_flag: { type: "string", title: "ユーザー権限", anyOf: [{ "type": "string", "enum": [ 0 ], "title": "一般ユーザー" },{ "type": "string", "enum": [ 1], "title": "管理者" }]}
-            ,file: { "type": "string", "format": "data-url", "title": "Single file" }
-            ,files: { "type": "array", "title": "Multiple files", "items": { "type": "string", "format": "data-url" } }
-            ,datetime: { "type": "string", "format": "date-time" }
-            ,date: { "type": "string", "format": "date" }
-            ,disabled: { "type": "string", "default": "disabled string." }
-            ,color: { "type": "string", "title": "color picker", "default": "#151ce6" }
-            ,radio: { "type": "boolean", "title": "radio buttons" }
-            ,widgetOptions: { "title": "Custom widget with options", "type": "string", "default": "I am yellow" }
-            ,numberString: { "type": "number", "title": "Number" }
-            ,integer: { "title": "Integer", "type": "integer" }
-            ,numberEnum: { "type": "number", "title": "Number Select", "enum": [ 1, 2, 3 ] }
-            ,numberEnumRadio: { "type": "number", "title": "Number enum", "enum": [ 1, 2, 3 ] }
-            ,integerRange: { "title": "Integer range", "type": "integer", "minimum": 42, "maximum": 100 }
-            ,integerRangeSteps: { "title": "Integer range (by 10)", "type": "integer", "minimum": 50, "maximum": 100, "multipleOf": 10 }
+    this.state.form = [
+      {
+        "object_type": "div",
+        "class_name": "div-box div-box-50",
+        "idx": 2,
+        "object": {
+          "schema": {
+            "type": "object",
+            "title": "DIV01",
+            "block": "DIV",
+            "fIdx": 2,
+            "idx": 0,
+            "properties": {
+              "text_mqunjr8l": {
+                "type": "string",
+                "title": "1st",
+                "idx": 1,
+                "obj": {
+                  "label_ja": "1st",
+                  "placeholder_ja": "",
+                  "item_type": "text",
+                  "language": "ja",
+                  "box_width": 25,
+                  "item_name": "text_mqunjr8l"
+                }
+              }
+            },
+            "definitions": {},
+            "obj": {
+              "language": "ja",
+              "box_width": "50",
+              "item_type": "div",
+              "label_ja": "DIV01"
+            }
           },
+          "ui": {
+            "text_mqunjr8l": {
+              "classNames": "div-box div-box-25"
+            }
+          },
+          "data": {
+            "text_mqunjr8l": "",
+            "reload": true
+          }
         }
-        // ,cust_info: {
-        //   type: "object"
-        //   ,title: "顧客情報"
-        //   // ,required: [ "cust_name_hira", "cust_name_kana" ]
-        //   ,properties: {
-        //     cust_name_hira: { type: "string" }
-        //     ,cust_name_kana: { type: "string" }
-        //   }
-        // }
+      },
+      {
+        "object_type": "div",
+        "class_name": "div-box div-box-50",
+        "idx": 1,
+        "object": {
+          "schema": {
+            "type": "object",
+            "title": "DIV",
+            "block": "DIV",
+            "fIdx": 1,
+            "idx": 0,
+            "properties": {
+              "text_5n43s4k9": {
+                "type": "string",
+                "title": "2nd",
+                "idx": 1,
+                "obj": {
+                  "label_ja": "2nd",
+                  "placeholder_ja": "",
+                  "item_type": "text",
+                  "language": "ja",
+                  "box_width": 25,
+                  "item_name": "text_5n43s4k9"
+                }
+              }
+            },
+            "definitions": {},
+            "obj": {
+              "language": "ja",
+              "box_width": "50",
+              "item_type": "div",
+              "label_ja": "DIV"
+            }
+          },
+          "ui": {
+            "text_5n43s4k9": {
+              "classNames": "div-box div-box-25"
+            }
+          },
+          "data": {
+            "text_5n43s4k9": "",
+            "reload": true
+          }
+        }
+      },
+      {
+        "object_type": "tab",
+        "active": 0,
+        "idx": 0,
+        "class_name": "div-box-100",
+        "object": [
+          {
+            "schema": {
+              "type": "object",
+              "tab_name": "TAB",
+              "block": "TAB",
+              "fIdx": 0,
+              "idx": 0,
+              "properties": {
+                "text_vsajb8qs": {
+                  "type": "string",
+                  "title": "3rd",
+                  "idx": 0,
+                  "obj": {
+                    "label_ja": "3rd",
+                    "placeholder_ja": "",
+                    "item_type": "text",
+                    "language": "ja",
+                    "box_width": 25,
+                    "item_name": "text_vsajb8qs"
+                  }
+                }
+              },
+              "definitions": {},
+              "obj": {
+                "language": "ja",
+                "box_width": 100,
+                "label_ja": "TAB"
+              }
+            },
+            "ui": {
+              "text_vsajb8qs": {
+                "classNames": "div-box div-box-25"
+              }
+            },
+            "data": {
+              "text_vsajb8qs": "",
+              "reload": true
+            }
+          },
+          {
+            "schema": {
+              "type": "object",
+              "tab_name": "TAB",
+              "block": "TAB",
+              "fIdx": 0,
+              "idx": 1,
+              "properties": {},
+              "definitions": {},
+              "obj": {
+                "language": "ja",
+                "box_width": 100,
+                "label_ja": "TAB"
+              }
+            },
+            "ui": {},
+            "data": {}
+          }
+        ]
       }
-    }
-    this.state.uiSchema = {
-      base_info: {
-        classNames: "div-top-box div-top-box-100"
-        ,password: { "ui:widget": "password", classNames: "div-box div-box-25" }
-        ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-25" }
-        ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-25" }
-        ,deleted: { classNames: "div-box div-box-25" }
-        ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-25" }
-        ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-25" }
-        ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
-        ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
-        ,datetime: { classNames: "div-box div-box-25" }
-        ,date: { classNames: "div-box div-box-25" }
-        ,disabled: { "ui:disabled": true, classNames: "div-box div-box-25" }
-        ,color: { "ui:widget": "color", classNames: "div-box div-box-25" }
-        ,radio: { "ui:widget": "radio", "ui:options": { "inline": true }, "ui:help": "Yes No", classNames: "div-box div-box-25 div-box-help-block-01" }
-        ,widgetOptions: { "ui:options": { backgroundColor: "yellow !important" }, classNames: "div-box div-box-25" }
-        ,numberString: { classNames: "div-box div-box-25" }
-        ,integer: { "ui:widget": "updown", "ui:placeholder": "Integer", classNames: "div-box div-box-25" }
-        ,numberEnumRadio: { "ui:widget": "radio", "ui:help": "Radio 1 2 3", "ui:options": { "inline": true }, classNames: "div-box div-box-25 div-box-help-block-01" }
-        ,numberEnum: { classNames: "div-box div-box-25" }
-        ,integerRange: { "ui:widget": "range", "ui:help": "integerRange", classNames: "div-box div-box-25 div-box-help-block-02" }
-        ,integerRangeSteps: { "ui:widget": "range", "ui:help": "integerRangeSteps", classNames: "div-box div-box-25 div-box-help-block-02" }
-        // ,password: { "ui:widget": "password", classNames: "div-box div-box-33" }
-        // ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-33" }
-        // ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-33" }
-        // ,deleted: { classNames: "div-box div-box-33" }
-        // ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-33" }
-        // ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-33" }
-        // ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-33 div-box-file" }
-        // ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-33 div-box-file" }
-        // ,datetime: { classNames: "div-box div-box-33" }
-        // ,date: { classNames: "div-box div-box-33" }
-        // ,disabled: { "ui:disabled": true, classNames: "div-box div-box-33" }
-        // ,color: { "ui:widget": "color", classNames: "div-box div-box-33" }
-        // ,radio: { "ui:widget": "radio", "ui:options": { "inline": true }, classNames: "div-box div-box-33" }
-        // ,widgetOptions: { "ui:options": { backgroundColor: "yellow !important" }, classNames: "div-box div-box-33" }
-        // ,numberString: { classNames: "div-box div-box-33" }
-        // ,integer: { "ui:widget": "updown", classNames: "div-box div-box-33" }
-        // ,numberEnumRadio: { "ui:widget": "radio", "ui:options": { "inline": true }, classNames: "div-box div-box-33" }
-        // ,numberEnum: { classNames: "div-box div-box-33" }
-        // ,integerRange: { "ui:widget": "range", classNames: "div-box div-box-33" }
-        // ,integerRangeSteps: { "ui:widget": "range", classNames: "div-box div-box-33" }
-      // }
-      // base_info: {
-      //   classNames: "div-top-box div-top-box-50"
-      //   ,email: { "ui:placeholder": "メール", classNames: "div-box div-box-25" }
-      //   ,uri: { "ui:placeholder": "URL", classNames: "div-box div-box-25" }
-      //   ,deleted: { classNames: "div-box div-box-25" }
-      //   ,checkboxs: { "ui:widget": "checkboxes", "ui:options": { inline: true }, "ui:autofocus": true, classNames: "div-box div-box-25" }
-      //   ,user_flag: { "ui:placeholder": "ユーザー権限", classNames: "div-box div-box-25" }
-      //   ,file: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
-      //   ,files: { "ui:options": { "accept": ".pdf" }, classNames: "div-box div-box-25 div-box-file" }
-      //   ,datetime: { classNames: "div-box div-box-25" }
-      //   ,date: { classNames: "div-box div-box-25" }
-      // }
-      // ,cust_info: {
-      //   classNames: "div-top-box div-top-box-100"
-      //   ,cust_name_hira: { "ui:placeholder": "顧客名", classNames: "div-box div-box-50" }
-      //   ,cust_name_kana: { "ui:placeholder": "顧客カナ", classNames: "div-box div-box-50" }
-      // }
+    ]
+
+    this._onSortForms();
+  }
+
+  _onSortForms() {
+    var forms = this.state.form;
+    forms.map((f) => {
+      var objs = f.object;
+      if(Array.isArray(objs) && objs.length > 0) {
+        return objs.map((obj, idx) => {
+          var lists = Object.keys(obj.schema.properties).map((o) => { 
+            return { key: o, obj: obj.schema.properties[o] };
+          });
+          lists.sort((a, b) => ((a.obj.idx > b.obj.idx)?1:-1));
+          var properties = {};
+          for(let i=0; i<lists.length; i++) {
+            properties[lists[i].key] = lists[i].obj;
+          }
+          obj.schema.properties = properties;
+          return obj;
+        });
+      } else {
+        var lists = Object.keys(f.object.schema.properties).map((o) => { 
+          return { key: o, obj: f.object.schema.properties[o] };
+        });
+        lists.sort((a, b) => ((a.obj.idx > b.obj.idx)?1:-1));
+        var properties = {};
+        for(let i=0; i<lists.length; i++) {
+          properties[lists[i].key] = lists[i].obj;
+        }
+        objs.schema.properties = properties;
+        return objs;
       }
-    }
-    this.state.formData = {
-      base_info: {
-        // email: "Email"
-        // ,uri: "Url"
-        integerRange: 42
-        ,integerRangeSteps: 80
-      }
-      ,cust_info: {
-        // cust_name_hira: "Hira"
-        // ,cust_name_kana: "Kana"
-      }
-    }
+    });
+    forms.sort((a, b) => ((a.idx > b.idx)?1:-1));
   }
 
   _onClickBack() {
@@ -222,8 +240,17 @@ class Create extends C {
     this._onClickBack();
   }
 
-  _onChange() {
-    console.log(this.state.formData);
+  _updateFormData(e) {
+    if(!Utils.inJson(e, 'schema') || !Utils.inJson(e, 'formData')) return;
+    console.log(e);
+    const fIdx = e.schema.fIdx;
+    const idx = e.schema.idx;
+    if(e.schema.block === HTML_TAG.DIV) {
+      this.state.form[fIdx].object.data = e.formData;
+    }
+    if(e.schema.block === HTML_TAG.TAB) {
+      this.state.form[fIdx].object[idx].data = e.formData;
+    }
   }
 
   _onError(errors) {
@@ -257,22 +284,18 @@ class Create extends C {
     this.state.isUser.actions = PAGE_ACTION.CREATE;
 
     return (
-      <Form
-        schema={ this.state.schema }
-        uiSchema={ this.state.uiSchema } 
-        widgets={ this.state.widgets }
-        formData={ this.state.formData }
-        onChange={ this._onChange.bind(this) }
-        onSubmit={ this._onClickSubmit.bind(this) }
-        validate={ this._onValidate.bind(this) }
-        onError={ this._onError.bind(this) }>
-
+      <div>
+        <CForm
+          isUser={ this.state.isUser }
+          form={ this.state.form }
+          updateFormData={ this._updateFormData.bind(this) } />
         <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }
           onClickSubmit={ this._onClickSubmit.bind(this) } />
-      </Form>
+      </div>
     )
+
   };
 };
 

@@ -49,7 +49,7 @@ export default class AlertAction extends C {
     this._setLayoutActions();
   }
 
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     this.state.isUser = props.isUser;
   }
 

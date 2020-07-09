@@ -1,19 +1,15 @@
 
 import React, { Component as C } from 'react';
-// import ReactDOM from 'react-dom';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-// import FormBS4 from 'react-jsonschema-form-bs4';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaMinus } from 'react-icons/fa';
-// import CTabs from '../utils/CTabs';
 
 import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH } from '../utils/HtmlTypes';
-import { DEFAULT_DIV_BLOCK, DEFAULT_TAB_BLOCK } from '../utils/Default';
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
@@ -34,8 +30,9 @@ class Customize extends C {
     this._onClickDelete = this._onClickDelete.bind(this);
     this._onAlerEdit = this._onAlerEdit.bind(this);
     this._onCreateEditChange = this._onCreateEditChange.bind(this);
+    this._onClickSaveOrEditItems = this._onClickSaveOrEditItems.bind(this);
     this._onCreateDivOrTab = this._onCreateDivOrTab.bind(this);
-    this._onAddItemToLists = this._onAddItemToLists.bind(this);
+    this._onAddItemToDivTab = this._onAddItemToDivTab.bind(this);
     this._onRemoveItemToLists = this._onRemoveItemToLists.bind(this);
     this._updateFormData = this._updateFormData.bind(this);
 
@@ -46,8 +43,8 @@ class Customize extends C {
       ,form: []
       ,error_msgs: []
       ,alertActions: { show: false, class: '', style: {} }
-      ,alertDelete: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
-      ,alertCreateEdit: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
+      ,overlayDeleteBox: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
+      ,overlayCreateEditBox: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
       ,draggable: 0
       ,dragobject: null
       ,dragparent: null
@@ -71,12 +68,12 @@ class Customize extends C {
   }
 
   _onClickSubmit() {
-    var obj = this.state.form;
+    var obj = this.state.form[0].object;
     if(!Utils.isEmpty(obj)) {
       if(Array.isArray(obj)) {
-        obj = this.state.form[0].object[0].schema.properties;
+        obj = obj[0].schema.properties;
       } else {
-        obj = this.state.form[0].object.schema.properties;
+        obj = obj.schema.properties;
       }  
     }
 
@@ -89,328 +86,10 @@ class Customize extends C {
       }
       this.forceUpdate();
     } else {
-      console.log(this.state.form);
-      this._onClickBack();  
+      this._resetIdxJson();
+      console.log(JSON.stringify(this.state.form));
+      // this._onClickBack();
     }
-  }
-
-  UNSAFE_componentWillMount(){
-    var jObj = {};
-    // jObj[CUSTOMIZE.TYPE] = TYPE.DIV;
-    jObj[CUSTOMIZE.TYPE] = HTML_TAG.TAB;
-    jObj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
-    // jObj[CUSTOMIZE.LABEL + '_' + this.state.isUser.language] = 'DIV';
-    jObj[CUSTOMIZE.LABEL + '_' + this.state.isUser.language] = 'TAB';
-    jObj[CUSTOMIZE.BOX_WIDTH] = 100;
-
-    // this.state.form = [ {
-    //   object_type: 'div'
-    //   ,class_name: 'div-box-100'
-    //   ,object: {
-    //     schema: { type: 'object', title: 'DIV', block: HTML_TAG.DIV, idx: Object.keys(this.state.form).length + '_0', properties: {}, definitions: {}, obj:jObj },
-    //     ui: {},
-    //     data: {}
-    //   }
-    // }]
-    this.state.form = [
-      {
-        object_type: 'tab'
-        ,active: 0
-        ,class_name: 'div-box-100'
-        ,object: [
-          {
-            schema: { type: 'object', tab_name: 'TAB', block: HTML_TAG.TAB, idx: Object.keys(this.state.form).length + '_0', properties: {}, definitions: {}, obj:jObj},
-            ui: {}, data: {}
-          }
-          ,{
-            schema: { type: 'object', tab_name: 'TAB1', block: HTML_TAG.TAB, idx: Object.keys(this.state.form).length + '_1', properties: {}, definitions: {}, obj:jObj},
-            ui: {}, data: {}
-          }
-        ]
-      }
-    ]
-  //   this.state.form = [
-  //     {
-  //         object_type: 'div'
-  //         ,class_name: 'div-box-50'
-  //         ,object: {
-  //             schema: {
-  //                 type: 'object'
-  //                 // ,title: '顧客情報0'
-  //                 ,properties: {
-  //                     base_info: {
-  //                       type: 'object'
-  //                       ,idx: 0
-  //                       ,title: '顧客00'
-  //                       ,background: ''
-  //                       ,properties: {
-  //                         email: { type: 'string', title: 'メール', format: 'email',idx: 0 }
-  //                         ,uri: { type: 'string', format: 'uri',idx: 1 }
-  //                       },
-  //                     },
-  //                     cust_info: {
-  //                       type: 'object'
-  //                       ,idx: 1
-  //                       ,title: '顧客情報0'
-  //                       ,background: ''
-  //                       ,properties: {
-  //                           cust_name_hira: { type: 'string',idx: 0 }
-  //                       }
-  //                   }
-  //                 }
-  //             },
-  //             ui: {
-  //                 cust_info: {
-  //                     cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
-  //                 },
-  //                 base_info: {
-  //                   email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
-  //                   ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
-  //                 }
-  //             },
-  //             data: {}
-  //         }
-  //     },
-  //     {
-  //       object_type: 'div'
-  //       ,class_name: 'div-box-50'
-  //       ,object: {
-  //           schema: {
-  //               type: 'object'
-  //               // ,title: '顧客情報0'
-  //               ,properties: {
-  //                   cust_info: {
-  //                       type: 'object'
-  //                       ,idx: 0
-  //                       ,title: '顧客情報1'
-  //                       ,background: ''
-  //                       ,properties: {
-  //                           cust_name_hira: { type: 'string',idx: 0 }
-  //                       }
-  //                   }
-  //                   ,base_info: {
-  //                     type: 'object'
-  //                     ,idx: 1
-  //                     ,title: '顧客00'
-  //                     ,background: ''
-  //                     ,properties: {
-  //                       email: { type: 'string', title: 'メール', format: 'email',idx: 0 }
-  //                       ,uri: { type: 'string', format: 'uri',idx: 1 }
-  //                     },
-  //                   },
-  //               }
-  //           },
-  //           ui: {
-  //               cust_info: {
-  //                   // classNames: 'draggable-top-box div-top-box div-top-box-50',
-  //                   cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
-  //               },
-  //               base_info: {
-  //                 email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
-  //                 ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
-  //               }
-  //           },
-  //           data: {}
-  //       }
-  //   },
-  //     {
-  //         object_type: 'tab'
-  //         ,active: 0
-  //         ,class_name: 'div-box-50'
-  //         ,object: [
-  //             {
-  //                 schema: {
-  //                     type: 'object'
-  //                     ,tab_name: '顧客情報1'
-  //                     ,properties: {
-  //                         cust_info: {
-  //                             type: 'object'
-  //                             ,idx: 0
-  //                             ,properties: {
-  //                                 cust_name_hira: { type: 'string' }
-  //                                 ,cust_name_kana: { type: 'string' }
-  //                                 ,phone: { type: 'string' }
-  //                             }
-  //                         }
-  //                     }
-  //                 },
-  //                 ui: {
-  //                     cust_info: {
-  //                         // classNames: 'draggable-top-box div-top-box div-top-box-50',
-  //                         cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
-  //                         ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
-  //                         ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
-  //                     }
-  //                 },
-  //                 data: {}
-  //             },
-  //             {
-  //               schema: {
-  //                   type: 'object'
-  //                   ,tab_name: '顧客情報2'
-  //                   ,properties: {
-  //                       cust_info: {
-  //                           type: 'object'
-  //                           ,idx: 0
-  //                           ,background: ''
-  //                           ,properties: {
-  //                               cust_name_hira: { type: 'string' }
-  //                           }
-  //                       }
-  //                       ,base_info: {
-  //                         type: 'object'
-  //                         ,idx: 1
-  //                         ,background: ''
-  //                         ,properties: {
-  //                           email: { type: 'string', title: 'メール', format: 'email', }
-  //                           ,uri: { type: 'string', format: 'uri', }
-  //                         },
-  //                       },
-  //                   }
-  //               },
-  //               ui: {
-  //                   cust_info: {
-  //                       cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
-  //                   },
-  //                   base_info: {
-  //                     email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
-  //                     ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
-  //                   }
-  //               },
-  //               data: {}
-  //           }
-  //         ]
-  //     },
-  //     {
-  //         object_type: 'tab'
-  //         ,active: 0
-  //         ,class_name: 'div-box-50'
-  //         ,object: [
-  //             {
-  //                 schema: {
-  //                     type: 'object'
-  //                     ,tab_name: '顧客情報1'
-  //                     ,properties: {
-  //                         cust_info: {
-  //                             type: 'object'
-  //                             ,idx: 0
-  //                             ,properties: {
-  //                                 cust_name_hira: { type: 'string' }
-  //                                 ,cust_name_kana: { type: 'string' }
-  //                                 ,phone: { type: 'string' }
-  //                             }
-  //                         }
-  //                     }
-  //                 },
-  //                 ui: {
-  //                     cust_info: {
-  //                         // classNames: 'draggable-top-box div-top-box div-top-box-50',
-  //                         cust_name_hira: { 'ui:placeholder': '顧客1', classNames: 'div-box div-box-50' }
-  //                         ,cust_name_kana: { 'ui:placeholder': '顧客カナ1', classNames: 'div-box div-box-50' }
-  //                         ,phone: { 'ui:placeholder': 'Phone', classNames: 'div-box div-box-50' }
-  //                     }
-  //                 },
-  //                 data: {}
-  //             },
-  //             {
-  //               schema: {
-  //                   type: 'object'
-  //                   ,tab_name: '顧客情報2'
-  //                   ,properties: {
-  //                       cust_info: {
-  //                           type: 'object'
-  //                           ,idx: 0
-  //                           ,background: ''
-  //                           ,properties: {
-  //                               cust_name_hira: { type: 'string' }
-  //                           }
-  //                       }
-  //                       ,base_info: {
-  //                         type: 'object'
-  //                         ,idx: 1
-  //                         ,background: ''
-  //                         ,properties: {
-  //                           email: { type: 'string', title: 'メール', format: 'email', }
-  //                           ,uri: { type: 'string', format: 'uri', }
-  //                           ,text: { type: 'string' }
-  //                         },
-  //                       },
-  //                   }
-  //               },
-  //               ui: {
-  //                   cust_info: {
-  //                       cust_name_hira: { 'ui:placeholder': '顧客', classNames: 'div-box div-box-50' }
-  //                   },
-  //                   base_info: {
-  //                     email: { 'ui:placeholder': 'email', classNames: 'div-box div-box-50' }
-  //                     ,uri: { 'ui:placeholder': 'uri', classNames: 'div-box div-box-50' }
-  //                     ,text: { 'ui:placeholder': 'text' }
-  //                   }
-  //               },
-  //               data: {}
-  //           }
-  //         ]
-  //     }
-  // ]
-
-    // this.state.form.object.schema = {
-    //     // title: 'Widgets',
-    //     type: 'object'
-    //     ,page_name: '顧客情報'
-    //     ,properties: {
-    //       cust_info: {
-    //         type: 'object'
-    //         ,title: '顧客情報'
-    //         ,object_type: 'div'
-    //         ,background: ''
-    //         // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
-    //         ,properties: {
-    //           cust_name_hira: { type: 'string' }
-    //           ,cust_name_kana: { type: 'string' }
-    //         }
-    //       },
-    //       base_info: {
-    //         type: 'object'
-    //         ,title: '基本情報'
-    //         ,object_type: 'tab'
-    //         ,background: ''
-    //         // ,required: [ 'email', 'uri' ]
-    //         ,properties: {
-    //           email: { type: 'string', title: 'メール', format: 'email', }
-    //           ,uri: { type: 'string', format: 'uri', }
-    //         },
-    //       },
-    //       project_info: {
-    //         type: 'object'
-    //         ,object_type: 'tab'
-    //         ,title: '顧客情報2'
-    //         ,background: ''
-    //         // ,required: [ 'cust_name_hira', 'cust_name_kana' ]
-    //         ,properties: {
-    //           project_hira: { type: 'string' }
-    //           ,project_kana: { type: 'string' }
-    //         }
-    //       }
-    //     },
-    // }
-    // this.state.form.object.uiSchema = {
-    //     base_info: {
-    //       classNames: 'draggable-top-box div-top-box div-top-box-50'
-    //       ,email: { 'ui:placeholder': 'メール', classNames: 'div-box div-box-50' }
-    //       ,uri: { 'ui:placeholder': 'URL', classNames: 'div-box div-box-50' }
-    //     }
-    //     ,cust_info: {
-    //       classNames: 'draggable-top-box div-top-box div-top-box-50'
-    //       ,cust_name_hira: { 'ui:placeholder': '顧客名', classNames: 'div-box div-box-50' }
-    //       ,cust_name_kana: { 'ui:placeholder': '顧客カナ', classNames: 'div-box div-box-50' }
-    //     }
-    //     ,project_info: {
-    //       classNames: 'draggable-top-box div-top-box div-top-box-50'
-    //       ,project_hira: { 'ui:placeholder': '案件名', classNames: 'div-box div-box-50' }
-    //       ,project_kana: { 'ui:placeholder': 'カナ', classNames: 'div-box div-box-50' }
-    //     }
-    // }
-    // this.state.form.object.formData = {}
   }
 
   _addTopDivSelected(obj) {
@@ -597,8 +276,6 @@ class Customize extends C {
         a.after(this.state.dragobject);
       }
     }
-
-    this._resetIdxJson();
   }
 
   _onMouseOver(e) {
@@ -618,7 +295,7 @@ class Customize extends C {
     }
     this.state.alertActions.class = className;
     this.state.dragobject = obj;
-    console.log(this.state.form);
+    // console.log(this.state.form);
     this.forceUpdate();
   }
 
@@ -640,15 +317,57 @@ class Customize extends C {
   _resetIdxJson() {
     const obj = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(obj)) return;
-    const objs = Array.from(obj.childNodes);
+    var objs = Array.from(obj.childNodes);
+    var forms = this.state.form;
     objs.map((o, idx) => {
-      console.log(idx);
-      console.log(o);
+      const divIdx = o.getAttribute('idx');
+      if(!Utils.isEmpty(divIdx)) {
+        forms[divIdx].idx = idx;
+        o.setAttribute('idx', idx);
+        var childs = o.childNodes[0];
+        if(childs.tagName === HTML_TAG.FORM) {
+          childs = o.childNodes[0].childNodes[0].childNodes[0].childNodes;
+          forms[divIdx].object.schema.fIdx = idx;
+          var properties = forms[divIdx].object.schema.properties;
+          console.log(properties);
+          for(let i=0; i<childs.length; i++) {
+            if(childs[i].tagName !== HTML_TAG.DIV) continue;
+            const label = childs[i].childNodes[0];
+            const field = label.getAttribute('for').replace('root_', '');
+            console.log(field);
+            properties[field].idx = i;
+          }
+        } else {
+          const tabChilds = o.childNodes[0].childNodes;
+          const divChilds = o.childNodes[1].childNodes;
+          if(tabChilds.length !== divChilds.length) return;
+          for(let i=0; i<divChilds.length; i++) {
+            const tabIdx = tabChilds[i].getAttribute('data-rb-event-key');
+            var object = forms[divIdx].object[tabIdx];
+            object.schema.fIdx = idx;
+            object.schema.idx = i;
+            var properties = object.schema.properties;
+            childs = divChilds[i].childNodes[0].childNodes[0].childNodes[0].childNodes;
+            console.log(childs);
+            console.log(properties);
+            for(let o=0; o<childs.length; o++) {
+              if(childs[o].tagName !== HTML_TAG.DIV) continue;
+              const label = childs[o].childNodes[0];
+              console.log(label);
+              const field = label.getAttribute('for').replace('root_', '');
+              console.log(field);
+              properties[field].idx = o;
+              }  
+          }
+        }
+      }
     });
+    // console.log(this.state.form);
+    // console.log(forms);
   }
 
-  _onAlertActions() {
-    //console.log("_onAlertActions");
+  _onAlertDivTabButtons() {
+    //console.log("_onAlertDivTabButtons");
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj)) return;
 
@@ -665,7 +384,7 @@ class Customize extends C {
               <Button
                 type={ HTML_TAG.BUTTON }
                 onMouseOver={ this._onMouseOut.bind(this) }
-                onClick={ this._onOpenCreateItem.bind(this) }
+                onClick={ this._onOpenOverlayCreate.bind(this) }
                 variant={ VARIANT_TYPES.SECONDARY }>
                 <FaPlus />
               </Button>
@@ -676,14 +395,14 @@ class Customize extends C {
         <Button
           type={ HTML_TAG.BUTTON }
           onMouseOver={ this._onMouseOut.bind(this) }
-          onClick={ this._onOpenEditItem.bind(this) }
+          onClick={ this._onOpenOverlayEdit.bind(this) }
           variant={ VARIANT_TYPES.SECONDARY }>
           <FaEdit />
         </Button>
         <Button
           type={ HTML_TAG.BUTTON }
           onMouseOver={ this._onMouseOut.bind(this) }
-          onClick={ this._onOpenDelete.bind(this) }
+          onClick={ this._onOpenOverlayDelete.bind(this) }
           variant={ VARIANT_TYPES.DANGER }>
           <FaTrash />
         </Button>
@@ -691,7 +410,7 @@ class Customize extends C {
     );
   }
 
-  _onOpenEditItem() {
+  _onOpenOverlayEdit() {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
     this.state.mode = ACTION.EDIT;
@@ -715,19 +434,20 @@ class Customize extends C {
         properties = form.object.schema;
       }
     }
-    if(!Utils.isEmpty(properties)) this.state.alertCreateEdit.obj = properties.obj;  
+    if(!Utils.isEmpty(properties)) this.state.overlayCreateEditBox.obj = properties.obj;  
 
-    this.state.alertCreateEdit.msg = '「' + name + '」' + Msg.getMsg(null, this.state.isUser.language, 'bt_edit');
-    this.state.alertCreateEdit.show = true;
-    this.state.alertDelete.show = false;
+    const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
+    this.state.overlayCreateEditBox.msg = '「' + this.state.overlayCreateEditBox.obj[labelKey] + '」' + Msg.getMsg(null, this.state.isUser.language, 'bt_edit');
+    this.state.overlayCreateEditBox.show = true;
+    this.state.overlayDeleteBox.show = false;
     this.forceUpdate();
   }
 
-  _onOpenCreateItem() {
+  _onOpenOverlayCreate() {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
     this.state.mode = ACTION.CREATE;
-    const editObj = this.state.alertCreateEdit.obj;
+    const editObj = this.state.overlayCreateEditBox.obj;
     const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
     editObj[label_language] = '';
 
@@ -738,14 +458,13 @@ class Customize extends C {
     }
 
     editObj[CUSTOMIZE.TYPE] = TYPE.TEXT;
-    editObj[CUSTOMIZE.LABEL_ALIGN] = ALIGN.LEFT;
-    editObj[CUSTOMIZE.TEXT_ALIGN] = ALIGN.LEFT;
-    editObj[CUSTOMIZE.BOX_WIDTH] = 100;
+    // editObj[CUSTOMIZE.LABEL_ALIGN] = ALIGN.LEFT;
+    // editObj[CUSTOMIZE.TEXT_ALIGN] = ALIGN.LEFT;
     editObj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
 
-    this.state.alertCreateEdit.msg = Msg.getMsg(null, this.state.isUser.language, 'bt_create');
-    this.state.alertCreateEdit.show = true;
-    this.state.alertDelete.show = false;
+    this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'bt_create');
+    this.state.overlayCreateEditBox.show = true;
+    this.state.overlayDeleteBox.show = false;
     this.forceUpdate();
   }
 
@@ -773,70 +492,8 @@ class Customize extends C {
     });
   }
 
-  _onCreateEditChange(e) {
-    const obj = e.target;
-    if(Utils.isEmpty(obj)) return;
-    const name = obj.name;
-    const editObj = this.state.alertCreateEdit;
-    const type = editObj.obj[CUSTOMIZE.TYPE];
-
-    if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
-      var files = obj.files;
-      console.log(files);
-      if(Utils.isEmpty(files) || files.length <= 0) {
-        if(Utils.inJson(editObj.obj, 'file_data')) delete editObj.obj['file_data'];
-      } else {
-        this._fileToBase64(files, editObj);
-      }
-    } else {
-      var val = obj.value;
-      if(name === 'obj_lists'
-        && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.LIST)
-        && name !== CUSTOMIZE.LANGUAGE ) {
-        var idx = obj.id.split('_')[1];
-        if(Number.isNaN(Number(idx))) return;
-        var lObj = editObj.obj['lists'][idx];
-        if(obj.id.startsWith('values_')) {
-          lObj['value'] = obj.value;
-        } 
-        if(obj.id.startsWith('labels_')) {
-          lObj['label'] = obj.value;
-        }
-        editObj.obj['lists'][idx] = lObj;
-      } else {
-        if(obj.type === TYPE.CHECKBOX) {
-          val = obj.checked;
-        }
-        editObj.obj[name] = val;
-        if(type !== TYPE.CHECKBOX && type !== TYPE.RADIO && type !== TYPE.LIST && name !== CUSTOMIZE.LANGUAGE) {
-          delete editObj.obj['list_checked'];
-          delete editObj.obj['list_inline'];
-          delete editObj.obj['lists'];
-        } else if (name === CUSTOMIZE.LANGUAGE) {
-          const label_language = CUSTOMIZE.LABEL + '_' + val;
-          if (editObj.obj[label_language] === undefined) {
-            editObj.obj[label_language] = '';
-          }
-  
-          const placehoders = [ HTML_TAG.LEGEND, HTML_TAG.NAV ];
-          const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
-          if(!placehoders.includes(obj.tagName)) {
-            if (editObj.obj[placeholder_language] === undefined) {
-              editObj.obj[placeholder_language] = '';
-            }
-          }
-        }
-      }
-
-      if(Utils.inJson(editObj, 'file_data')) delete editObj['file_data'];
-    }
-
-    this.setState({ alertCreateEdit: editObj });
-    this.forceUpdate();
-  }
-
-  _onAddItemToLists() {
-    this.state.alertCreateEdit.obj['lists'].push({'valuel': '', 'label': ''});
+  _onAddItemToDivTab() {
+    this.state.overlayCreateEditBox.obj['lists'].push({'valuel': '', 'label': ''});
     this.forceUpdate();
   }
 
@@ -845,57 +502,26 @@ class Customize extends C {
     if(Utils.isEmpty(obj)) return;
     var idx = obj.id.split('_')[1];
     if(Number.isNaN(Number(idx))) return;
-    this.state.alertCreateEdit.obj['lists'].splice(idx, 1);
+    this.state.overlayCreateEditBox.obj['lists'].splice(idx, 1);
     this.forceUpdate();
   }
 
   _onCreateDivOrTab(e) {
     const obj = e.target;
     if(Utils.isEmpty(obj)) return;
-    console.log(this.state.form);
-    console.log(DEFAULT_DIV_BLOCK);
     if(obj.id === 'add_div') {
-      console.log(obj.id);
-      var jObj = {};
-      jObj[CUSTOMIZE.TYPE] = TYPE.DIV;
-      jObj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
-      jObj[CUSTOMIZE.LABEL + '_' + this.state.isUser.language] = 'DIV';
-      jObj[CUSTOMIZE.BOX_WIDTH] = 100;
-      this.state.form.push({
-        object_type: 'div'
-        ,class_name: 'div-box-100'
-        ,object: {
-          schema: { type: 'object', title: 'DIV', block: HTML_TAG.DIV, idx: Object.keys(this.state.form).length + '_0', properties: {}, definitions: {}, obj: jObj },
-          ui: {},
-          data: {}}
-    });
+      const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.form).length, this.state.isUser.language);
+      this.state.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.form).length, jObj));
     }
     if(obj.id === 'add_tab') {
-      var jObj = {};
-      jObj[CUSTOMIZE.TYPE] = HTML_TAG.TAB;
-      jObj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
-      jObj[CUSTOMIZE.LABEL + '_' + this.state.isUser.language] = 'TAB';
-      jObj[CUSTOMIZE.BOX_WIDTH] = 100;
-      console.log(obj.id);
-      this.state.form.push({
-        object_type: 'tab'
-        ,active: 0
-        ,class_name: 'div-box-100'
-        ,object: [
-          {
-            schema: { type: 'object', tab_name: 'TAB', block: HTML_TAG.TAB, idx: Object.keys(this.state.form).length + '_0', properties: {}, definitions: {}, obj: jObj },
-            ui: {}, data: {}
-        }
-        // , { schema: { type: 'object', tab_name: 'TAB1', block: HTML_TAG.TAB, idx: Object.keys(this.state.form).length + '_1', properties: {}, definitions: {}}, ui: {}, data: {} }
-      ]
-    });
+      const jObj = JSON_OBJ.getEditJSONObject(false, Object.keys(this.state.form).length, this.state.isUser.language);
+      this.state.form.push(JSON_OBJ.getDafaultDivOrTab(false, Object.keys(this.state.form).length, jObj));
     }
-    console.log(this.state.form);
     this.forceUpdate();
   }
 
   _onAlerEdit() {
-    if(!this.state.alertCreateEdit.show) return '';
+    if(!this.state.overlayCreateEditBox.show) return '';
     var items = [];
     var aligns = [];
     var widths = [];
@@ -918,19 +544,25 @@ class Customize extends C {
     }
 
     var obj = null;
-    var editObj = this.state.alertCreateEdit.obj;
+    var editObj = this.state.overlayCreateEditBox.obj;
     if(this.state.mode === ACTION.EDIT) {
       obj = this.state.dragobject;
       items.push( <option key={ items.length } value={ HTML_TAG.TAB }>{ 'tab' }</option> );
     }
 
+    var defaultType = TYPE.TEXT;
+    const dateType = [ TYPE.DATE, TYPE.DATETIME, TYPE.TIME ];
+    if(dateType.includes(editObj[CUSTOMIZE.TYPE])) {
+        defaultType = (editObj[CUSTOMIZE.TYPE] === TYPE.DATETIME)?'datetime-local':editObj[CUSTOMIZE.TYPE];
+    }
+
     return(
       <Alert
         id={ SYSTEM.IS_DIV_EDITOR_BOX }
-        show={ this.state.alertCreateEdit.show }
+        show={ this.state.overlayCreateEditBox.show }
         variant={ VARIANT_TYPES.LIGHT }
-        className={ this.state.alertCreateEdit.class }>
-        <div className='alert-light' style={ this.state.alertCreateEdit.style }>
+        className={ this.state.overlayCreateEditBox.class }>
+        <div className='alert-light' style={ this.state.overlayCreateEditBox.style }>
           <div>
             <Button
               type={ HTML_TAG.BUTTON }
@@ -949,7 +581,7 @@ class Customize extends C {
           <table className='table-overlay-box'>
             <tbody>
               <tr>
-                <td colSpan='4'><h4>{ this.state.alertCreateEdit.msg }</h4></td>
+                <td colSpan='4'><h4>{ this.state.overlayCreateEditBox.msg }</h4></td>
               </tr>
               {/* {(() => {
                 if (obj === null || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.NAV)) {
@@ -960,33 +592,33 @@ class Customize extends C {
                         {(() => {
                           if (this.state.mode === ACTION.EDIT) {
                             return(
-                              <Form.Control
+                              <FormControl
                                 disabled
                                 as={ HTML_TAG.SELECT }
                                 name={ CUSTOMIZE.TYPE }
                                 value={ editObj[CUSTOMIZE.TYPE] }
-                                onChange={ this._onCreateEditChange.bind(this) }> { items }</Form.Control>
+                                onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
                             );
                           } else {
                             return(
-                              <Form.Control
+                              <FormControl
                                 as={ HTML_TAG.SELECT }
                                 name={ CUSTOMIZE.TYPE }
                                 value={ editObj[CUSTOMIZE.TYPE] }
-                                onChange={ this._onCreateEditChange.bind(this) }> { items }</Form.Control>
+                                onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
                             );
                           }
                         })()}
                       </td>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_language') }</td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           as={ HTML_TAG.SELECT }
                           name={ CUSTOMIZE.LANGUAGE }
                           value={ editObj[CUSTOMIZE.LANGUAGE] }
                           onChange={ this._onCreateEditChange.bind(this) }>
                           { languages }
-                        </Form.Control>
+                        </FormControl>
                       </td>
                     </tr>
                   {/* );
@@ -1002,7 +634,7 @@ class Customize extends C {
                         <span className={ 'required' }>*</span>
                       </td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           type={ TYPE.TEXT }
                           name={ CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]}
                           // defaultValue={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
@@ -1011,11 +643,11 @@ class Customize extends C {
                       </td>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_width') }</td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           as={ HTML_TAG.SELECT }
                           name={ CUSTOMIZE.BOX_WIDTH }
                           defaultValue={ editObj[CUSTOMIZE.BOX_WIDTH] }
-                          onChange={ this._onCreateEditChange.bind(this) }> { widths }</Form.Control>
+                          onChange={ this._onCreateEditChange.bind(this) }> { widths }</FormControl>
                       </td>
                     </tr>    
                   {/* );
@@ -1036,11 +668,10 @@ class Customize extends C {
                     <tr>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder') }</td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           type={ TYPE.TEXT }
                           name={ CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE] }
-                          // defaultValue={ editObj[CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                          value={ editObj[CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
+                          defaultValue={ editObj[CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
                           onChange={ this._onCreateEditChange.bind(this) }/>
                       </td>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_required') }</td>
@@ -1106,8 +737,8 @@ class Customize extends C {
                             && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
                           return(
                             <td>
-                              <Form.Control
-                                type={ TYPE.TEXT }
+                              <FormControl
+                                type={ defaultType }
                                 name={ CUSTOMIZE.DEFAULT }
                                 defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
                                 onChange={ this._onCreateEditChange.bind(this) }/>
@@ -1141,11 +772,17 @@ class Customize extends C {
                         } else if(editObj[CUSTOMIZE.TYPE] === TYPE.COLOR) {
                           return(
                             <td>
+                              {/* <FormControl
+                                type={ TYPE.COLOR }
+                                name={ CUSTOMIZE.DEFAULT }
+                                defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
+                                onChange={ this._onCreateEditChange.bind(this) }/> */}
+
                               <input
                                 type={ TYPE.COLOR }
                                 name={ CUSTOMIZE.DEFAULT }
                                 defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                onChange={ this._onCreateEditChange.bind(this) }></input>  
+                                onChange={ this._onCreateEditChange.bind(this) } />
                             </td>
                           );
                         }
@@ -1170,7 +807,7 @@ class Customize extends C {
                         if (editObj[CUSTOMIZE.TYPE] !== TYPE.DISABLE && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
                           return(
                             <td>
-                              <Form.Control
+                              <FormControl
                                 type={ TYPE.NUMBER }
                                 name={ CUSTOMIZE.MAX_LENGTH }
                                 defaultValue={ editObj[CUSTOMIZE.MAX_LENGTH] }
@@ -1184,7 +821,7 @@ class Customize extends C {
                 }
               })()}
 
-              {(() => {
+              {/* {(() => {
                 if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
                     && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
                     && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE)
@@ -1209,13 +846,13 @@ class Customize extends C {
                       </td>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_align') }</td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           as={ HTML_TAG.SELECT }
                           name={ CUSTOMIZE.LABEL_ALIGN }
                           defaultValue={ editObj[CUSTOMIZE.LABEL_ALIGN] }
                           onChange={ this._onCreateEditChange.bind(this) }>
                           { aligns }
-                        </Form.Control>
+                        </FormControl>
                       </td>
                     </tr>
                   );
@@ -1255,18 +892,18 @@ class Customize extends C {
                       </td>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_align') }</td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           as={ HTML_TAG.SELECT }
                           name={ CUSTOMIZE.TEXT_ALIGN }
                           defaultValue={ editObj[CUSTOMIZE.TEXT_ALIGN] }
                           onChange={ this._onCreateEditChange.bind(this) }>
                           { aligns }
-                        </Form.Control>
+                        </FormControl>
                       </td>
                     </tr>
                   );
                 }
-              })()}
+              })()} */}
 
               {(() => {
                 if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
@@ -1279,7 +916,7 @@ class Customize extends C {
                     <tr>
                       <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_css_style') }</td>
                       <td>
-                        <Form.Control
+                        <FormControl
                           type={ TYPE.TEXT }
                           name={ CUSTOMIZE.STYLE }
                           defaultValue={ editObj[CUSTOMIZE.STYLE] }
@@ -1310,12 +947,12 @@ class Customize extends C {
                                 name={ 'list_checked' }
                                 checked={ editObj['list_checked'] }
                                 onChange={ this._onCreateEditChange.bind(this) }></input>
-                              <span style={{ marginLeft: '3em' }}>Inline</span>
+                              {/* <span style={{ marginLeft: '3em' }}>Inline</span>
                               <input
                                 type={ HTML_TAG.CHECKBOX }
                                 name={ 'list_inline' }
                                 checked={ editObj['list_inline'] }
-                                onChange={ this._onCreateEditChange.bind(this) }></input>
+                                onChange={ this._onCreateEditChange.bind(this) }></input> */}
                             </td>
                           );
                         }
@@ -1336,10 +973,16 @@ class Customize extends C {
                           <table className='table-overlay-box'>
                             <tbody>
                               {(() => {
-                                if ((this.state.alertCreateEdit.obj['list_checked'] && (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO))
-                                    || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+                                // if (this.state.overlayCreateEditBox.obj['list_checked'] && (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO)) {
+                                if (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
+                                  || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
+                                  || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
                                   if(editObj['lists'] === undefined) {
-                                    editObj['lists'] = [{ 'value': '', 'label': '' }];
+                                    if(editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+                                      editObj['lists'] = [{ 'value': '', 'label': '' }, { 'value': '', 'label': '' }];
+                                    } else {
+                                      editObj['lists'] = [{ 'value': '', 'label': '' }];
+                                    }
                                   }
                                   const objs = Array.from(editObj['lists']);
                                   return objs.map((o, idx) => {
@@ -1347,7 +990,7 @@ class Customize extends C {
                                       <tr key={ idx }>
                                         <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_id') }</td>
                                         <td>
-                                          <Form.Control
+                                          <FormControl
                                             type={ TYPE.TEXT }
                                             id={ 'values_' + idx }
                                             name={ 'obj_lists' }
@@ -1360,7 +1003,7 @@ class Customize extends C {
                                             <tbody>
                                               <tr>
                                                 <td>
-                                                  <Form.Control
+                                                  <FormControl
                                                     type={ TYPE.TEXT }
                                                     id={ 'labels_' + idx }
                                                     name={ 'obj_lists' }
@@ -1369,18 +1012,20 @@ class Customize extends C {
                                                 </td>
                                                 <td style={ {'width': 0} }>
                                                   {(() => {
-                                                    if(this.state.alertCreateEdit.obj['list_checked'] || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
-                                                      if(idx === 0) {
-                                                        return (
-                                                          <Button
-                                                            type={ TYPE.BUTTON }
-                                                            id={ 'btnitems_' + idx }
-                                                            className={ 'button-overlay-box-add-items' }
-                                                            onClick={ this._onAddItemToLists.bind(this) }
-                                                            variant={ VARIANT_TYPES.PRIMARY }>
-                                                            <FaPlus />
-                                                          </Button>
-                                                        );
+                                                    if(idx === 0) {
+                                                      return (
+                                                        <Button
+                                                          type={ TYPE.BUTTON }
+                                                          id={ 'btnitems_' + idx }
+                                                          className={ 'button-overlay-box-add-items' }
+                                                          onClick={ this._onAddItemToDivTab.bind(this) }
+                                                          variant={ VARIANT_TYPES.PRIMARY }>
+                                                          <FaPlus />
+                                                        </Button>
+                                                      );
+                                                    } else {
+                                                      if(editObj[CUSTOMIZE.TYPE] === TYPE.RADIO && idx === 1) {
+                                                        return('');
                                                       } else {
                                                         return (
                                                           <Button
@@ -1391,10 +1036,8 @@ class Customize extends C {
                                                             variant={ VARIANT_TYPES.SECONDARY }>
                                                             <FaMinus />
                                                           </Button>
-                                                        );
-                                                      }  
-                                                    } else {
-                                                      return('');
+                                                        );  
+                                                      }
                                                     }
                                                   })()}
                                                 </td>
@@ -1422,23 +1065,22 @@ class Customize extends C {
     );
   }
 
-  _onOpenDelete() {
+  _onOpenOverlayDelete() {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
-    this.state.alertDelete.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
-    this.state.alertDelete.show = true;
-    this.state.alertCreateEdit.show = false;
+    this.state.overlayDeleteBox.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
+    this.state.overlayDeleteBox.show = true;
+    this.state.overlayCreateEditBox.show = false;
     this.forceUpdate();
   }
 
   _onClickDelete() {
     const obj = this.state.dragobject;
-    console.log(obj);
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.NAV && obj.tagName !== HTML_TAG.LABEL)) return;
     if(obj.tagName === HTML_TAG.LEGEND) {
       if(!Html.hasAttribute(obj.parentElement, ATTR.ID)) return;
       const idx = Html.getIdxParent(obj);
-      if(!Number.isNaN(Number(idx))) delete this.state.form[idx];
+      if(!Number.isNaN(Number(idx))) this.state.form.splice(idx, 1);
     }
     if(obj.tagName === HTML_TAG.NAV) {
       const idx = Html.getIdxParent(obj);
@@ -1452,9 +1094,9 @@ class Customize extends C {
           break;
       }
       if(arr.length <= 1) {
-        delete this.state.form[idx];
+        this.state.form.splice(idx, 1);
       } else {
-        if(!Number.isNaN(Number(tabIdx))) delete this.state.form[idx].object[tabIdx];
+        if(!Number.isNaN(Number(tabIdx))) this.state.form[idx].object.splice(tabIdx, 1);
       }
     }
     if(obj.tagName === HTML_TAG.LABEL) {
@@ -1465,26 +1107,28 @@ class Customize extends C {
         isDiv = false;
       }
       const key = obj.getAttribute(ATTR.FOR).replace('root_', '');
-      const idxs = key.split('_');
+      // const idxs = key.split('_');
+      const idx = Html.getIdxParent(obj);
       if(isDiv) {
-        if(Utils.inJson(this.state.form[idxs[0]].object.schema.properties, key))
-          delete this.state.form[idxs[0]].object.schema.properties[key];
-        if(Utils.inJson(this.state.form[idxs[0]].object.ui, key))
-          delete this.state.form[idxs[0]].object.ui[key];
-        if(Utils.inJson(this.state.form[idxs[0]].object.data, key))
-          delete this.state.form[idxs[0]].object.data[key];
+        if(Utils.inJson(this.state.form[idx].object.schema.properties, key))
+          delete this.state.form[idx].object.schema.properties[key];
+        if(Utils.inJson(this.state.form[idx].object.ui, key))
+          delete this.state.form[idx].object.ui[key];
+        if(Utils.inJson(this.state.form[idx].object.data, key))
+          delete this.state.form[idx].object.data[key];
       } else {
-        if(Utils.inJson(this.state.form[idxs[0]].object[idxs[1]].schema.properties, key))
-          delete this.state.form[idxs[0]].object[idxs[1]].schema.properties[key];
-        if(Utils.inJson(this.state.form[idxs[0]].object[idxs[1]].ui, key))
-          delete this.state.form[idxs[0]].object[idxs[1]].ui[key];
-        if(Utils.inJson(this.state.form[idxs[0]].object[idxs[1]].data, key))
-          delete this.state.form[idxs[0]].object[idxs[1]].data[key];
+        const selTabIdx = Html.getIdxTabSelected(divParent.childNodes[0]);
+        if(Utils.inJson(this.state.form[idx].object[selTabIdx].schema.properties, key))
+          delete this.state.form[idx].object[selTabIdx].schema.properties[key];
+        if(Utils.inJson(this.state.form[idx].object[selTabIdx].ui, key))
+          delete this.state.form[idx].object[selTabIdx].ui[key];
+        if(Utils.inJson(this.state.form[idx].object[selTabIdx].data, key))
+          delete this.state.form[idx].object[selTabIdx].data[key];
       }
     }
 
     this.state.alertActions.show = false;
-    this.state.alertDelete.show = false;
+    this.state.overlayDeleteBox.show = false;
     this.forceUpdate();
   }
 
@@ -1501,21 +1145,24 @@ class Customize extends C {
 
   _onClickClose() {
     this.state.dragobject = null;
-    this.state.alertCreateEdit.obj = {};
-    this.state.alertDelete.show = false;
-    this.state.alertCreateEdit.show = false;
+    this.state.overlayCreateEditBox.obj = {};
+    this.state.overlayDeleteBox.show = false;
+    this.state.overlayCreateEditBox.show = false;
     this.forceUpdate();
   }
 
   _onClickSaveOrEditItems() {
     var div = this.state.dragobject.parentElement;
-    var obj = this.state.alertCreateEdit.obj;
+    var obj = this.state.overlayCreateEditBox.obj;
     if(Utils.isEmpty(div) || Utils.isEmpty(obj)) return;
     const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
     if(Utils.isEmpty(obj[labelKey])) {
-      this.state.alertCreateEdit.msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label') + Msg.getMsg(null, this.state.isUser.language, 'required');
+      this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label') + Msg.getMsg(null, this.state.isUser.language, 'required');
     } else if(obj[CUSTOMIZE.TYPE] === TYPE.DISABLE && Utils.isEmpty(obj[CUSTOMIZE.DEFAULT])) {
-      this.state.alertCreateEdit.msg = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(null, this.state.isUser.language, 'required');
+      this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(null, this.state.isUser.language, 'required');
+    } else if((obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)
+      && (Utils.isEmpty(obj['lists']) || Utils.isEmpty(obj['lists'][0]['value']) || Utils.isEmpty(obj['lists'][0]['label']))) {
+      this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(null, this.state.isUser.language, 'required');
     } else {
       if(this.state.mode === ACTION.EDIT
         && !div.id.startsWith('div_customize_')
@@ -1532,7 +1179,8 @@ class Customize extends C {
         && (this.state.dragobject.tagName === HTML_TAG.LEGEND || this.state.dragobject.tagName === HTML_TAG.NAV)) {
           idx = Html.getIdxParent(this.state.dragobject);
       }
-      const form = this.state.form[idx];
+
+      var form = this.state.form[idx];
       if(Utils.isEmpty(form)) return;
       var fObj = form.object;
       if(this.state.dragobject.tagName === HTML_TAG.NAV || Array.isArray(form.object)) {
@@ -1551,46 +1199,124 @@ class Customize extends C {
         if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) {
           form['class_name'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
         }
+
+        // Add temp field because Form update only change dataForm
+        JSON_OBJ.addTempData(fObj);
       } else {
         var itemName = '';
         if(this.state.mode === ACTION.EDIT && Utils.inJson(obj, 'item_name')) {
           itemName = obj['item_name'];
         } else {
-          itemName = fObj.schema.idx + '_' + obj[CUSTOMIZE.TYPE] + '_' + Math.random().toString(36).slice(-8);
+          itemName = obj[CUSTOMIZE.TYPE] + '_' + Math.random().toString(36).slice(-8);
         }
   
+        if(Utils.inJson(fObj.schema.properties, itemName)) {
+          delete fObj.schema.properties[itemName];
+        }    
+        const idx = Object.keys(fObj.schema.properties).length;
         const def = JSON_OBJ.getDefinitions(obj);
         if(!Utils.isEmpty(def)) {
           fObj.schema.definitions[itemName] = def;
-          fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, Object.keys(fObj.schema.properties).length);
+          fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
         } else {
-          fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, Object.keys(fObj.schema.properties).length);
+          fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
         }
   
         const placeholderKey = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
         fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, placeholderKey);
         fObj.data[itemName] = JSON_OBJ.getDatas(obj, itemName);
+        // Add temp field because Form update only change dataForm
+        JSON_OBJ.addTempData(fObj);
       }
+
       this.state.form[idx] = form;
-  
       this.state.dragobject = null;
-      this.state.alertCreateEdit.obj = {};
-      this.state.alertDelete.show = false;
-      this.state.alertCreateEdit.show = false;
+      this.state.overlayCreateEditBox.obj = {};
+      this.state.overlayDeleteBox.show = false;
+      this.state.overlayCreateEditBox.show = false;
+      // console.log(this.state.form);
     }
-    console.log(this.state.form[idx]);
     this.forceUpdate();
   }
 
-  _onAlertDelete() {
-    if(!this.state.alertDelete.show) return '';
+  _onCreateEditChange(e) {
+    const obj = e.target;
+    if(Utils.isEmpty(obj)) return;
+    const name = obj.name;
+    const editObj = this.state.overlayCreateEditBox;
+    const type = editObj.obj[CUSTOMIZE.TYPE];
+
+    if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
+      var files = obj.files;
+      console.log(files);
+      if(Utils.isEmpty(files) || files.length <= 0) {
+        if(Utils.inJson(editObj.obj, 'file_data')) delete editObj.obj['file_data'];
+      } else {
+        this._fileToBase64(files, editObj);
+      }
+    } else {
+      var val = obj.value;
+      if(name === 'obj_lists'
+        && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.LIST)
+        && name !== CUSTOMIZE.LANGUAGE ) {
+        var idx = obj.id.split('_')[1];
+        if(Number.isNaN(Number(idx))) return;
+        var lObj = editObj.obj['lists'][idx];
+        if(obj.id.startsWith('values_')) {
+          lObj['value'] = obj.value;
+        } 
+        if(obj.id.startsWith('labels_')) {
+          lObj['label'] = obj.value;
+        }
+        editObj.obj['lists'][idx] = lObj;
+      } else {
+        if(obj.type === TYPE.CHECKBOX) {
+          val = obj.checked;
+        }
+        editObj.obj[name] = val;
+        if(type !== TYPE.CHECKBOX && type !== TYPE.RADIO && type !== TYPE.LIST && name !== CUSTOMIZE.LANGUAGE) {
+          delete editObj.obj['list_checked'];
+          delete editObj.obj['lists'];
+        } else if (name === CUSTOMIZE.LANGUAGE) {
+          const label_language = CUSTOMIZE.LABEL + '_' + val;
+          if (editObj.obj[label_language] === undefined) {
+            editObj.obj[label_language] = '';
+          }
+  
+          const placehoders = [ HTML_TAG.LEGEND, HTML_TAG.NAV ];
+          const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
+          if(!placehoders.includes(obj.tagName)) {
+            if (editObj.obj[placeholder_language] === undefined) {
+              editObj.obj[placeholder_language] = '';
+            }
+          }
+        }
+      }
+
+      if(Utils.inJson(editObj, 'file_data')) delete editObj['file_data'];
+    }
+
+    if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_WIDTH])) {
+      if(editObj.obj[CUSTOMIZE.TYPE] === TYPE.DIV) {
+        editObj.obj[CUSTOMIZE.BOX_WIDTH] = 100;
+      } else {
+        editObj.obj[CUSTOMIZE.BOX_WIDTH] = 25;
+      }
+    }
+
+    this.setState({ overlayCreateEditBox: editObj });
+    this.forceUpdate();
+  }
+
+  _onoverlayDeleteBox() {
+    if(!this.state.overlayDeleteBox.show) return '';
     return(
       <Alert
-        show={ this.state.alertDelete.show }
+        show={ this.state.overlayDeleteBox.show }
         variant={ VARIANT_TYPES.LIGHT }
-        className={ this.state.alertDelete.class }>
-        <div className='alert-light' style={ this.state.alertDelete.style }>
-          <h4>{ this.state.alertDelete.msg }</h4>
+        className={ this.state.overlayDeleteBox.class }>
+        <div className='alert-light' style={ this.state.overlayDeleteBox.style }>
+          <h4>{ this.state.overlayDeleteBox.msg }</h4>
           <Button
             type={ HTML_TAG.BUTTON }
             onClick={ this._onClickDelete.bind(this) }
@@ -1610,11 +1336,6 @@ class Customize extends C {
 
   _onClickChangeMode() {
     this.state.mode = (this.state.mode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
-    this.state.form = [ {
-      object_type: 'div'
-      ,class_name: 'div-box-100'
-      ,object: { schema: { type: 'object', title: 'DIV', idx: 0, properties: {}}, ui: {}, data: {}}
-  } ];
     this.forceUpdate();
   }
 
@@ -1718,12 +1439,14 @@ class Customize extends C {
 
   _updateFormData(e) {
     if(!Utils.inJson(e, 'schema') || !Utils.inJson(e, 'formData')) return;
-    const idxs = e.schema.idx.split('_');
+    console.log(e);
+    const fIdx = e.schema.fIdx;
+    const idx = e.schema.idx;
     if(e.schema.block === HTML_TAG.DIV) {
-      this.state.form[idxs[0]].object.data = e.formData;
+      this.state.form[fIdx].object.data = e.formData;
     }
     if(e.schema.block === HTML_TAG.TAB) {
-      this.state.form[idxs[0]].object[idxs[1]].data = e.formData;
+      this.state.form[fIdx].object[idx].data = e.formData;
     }
   }
 
@@ -1737,8 +1460,7 @@ class Customize extends C {
     });
   }
 
-  UNSAFE_componentDidUpdate() {
-    console.log('CREATE UNSAFE_componentDidUpdate');
+  UNSAFE_componentWillUpdate() {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     this._onAddDragDrop(div);
   }
@@ -1750,8 +1472,12 @@ class Customize extends C {
     div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
     div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
     div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
-
     this._onAddDragDrop(div);
+  }
+
+  UNSAFE_componentWillMount(){
+    const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.form).length, this.state.isUser.language);
+    this.state.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.form).length, jObj));
   }
 
   render() {
@@ -1762,10 +1488,12 @@ class Customize extends C {
         { this._getErrorMsg() }
         { this._getTitle() }
         { this._onAlerEdit() }
-        { this._onAlertActions() }
-        { this._onAlertDelete() }
-        <CForm isUser={ this.state.isUser } form={ this.state.form } updateFormData={ this._updateFormData.bind(this) }>
-        </CForm>
+        { this._onAlertDivTabButtons() }
+        { this._onoverlayDeleteBox() }
+        <CForm
+          isUser={ this.state.isUser }
+          form={ this.state.form }
+          updateFormData={ this._updateFormData.bind(this) } />
         <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }
