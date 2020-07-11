@@ -1,5 +1,7 @@
 {
     "required": " is required."
-    ,"not_exists": " is incorrect."
+    ,"selected": " is not selected."
+    ,"not_exists": " is not exists."
+    ,"setting": " is not setting."
     ,"max_length": "%s max length is %d characters. Over %d"
 }

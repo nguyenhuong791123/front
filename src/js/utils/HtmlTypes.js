@@ -6,6 +6,7 @@ export const HTML_TAG = {
     ,RADIO: 'RADIO'
     ,SELECT: 'select'
     ,TEXT: 'TEXT'
+    ,TEXTAREA: 'TEXTAREA'
     ,OBJECT: 'OBJECT'
     ,IFRAME: 'IFRAME'
     ,BODY: 'BODY'
@@ -34,6 +35,7 @@ export const HTML_TAG = {
     ,IMG: 'IMG'
     ,SPAN: 'SPAN'
     ,PARAM: 'PARAM'
+    ,FIELDSET: 'FIELDSET'
 }
 
 export const TYPE = {
@@ -66,6 +68,14 @@ export const BOX_WIDTH = {
     ,50: '50%'
     ,75: '75%'
     ,100: '100%'
+}
+
+export const BOX_HEIGHT = {
+    89: '89px'
+    ,178: '178px'
+    ,267: '267px'
+    ,356: '356px'
+    ,445: '445px'
 }
 
 export const ATTR = {
@@ -143,6 +153,7 @@ export const ALIGN = {
 export const CUSTOMIZE = {
     TYPE: 'item_type'
     ,BOX_WIDTH: 'box_width'
+    ,BOX_HEIGHT: 'box_height'
     ,REQUIRED: 'required'
     ,LABEL: 'label'
     ,DEFAULT: 'default'

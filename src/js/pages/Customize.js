@@ -4,12 +4,13 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Alert, Button, Form, FormControl } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaMinus } from 'react-icons/fa';
+import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 
-import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH } from '../utils/HtmlTypes';
+import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
+import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT } from '../utils/HtmlTypes';
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
@@ -23,6 +24,7 @@ class Customize extends C {
 
     this._onClickBack = this._onClickBack.bind(this);
     this._onClickSubmit = this._onClickSubmit.bind(this);
+    this._onMouseOver = this._onMouseOver.bind(this);
     this._onMouseDown = this._onMouseDown.bind(this);
     this._onDragStart = this._onDragStart.bind(this);
     this._onDragOver = this._onDragOver.bind(this);
@@ -34,7 +36,7 @@ class Customize extends C {
     this._onCreateDivOrTab = this._onCreateDivOrTab.bind(this);
     this._onAddItemToDivTab = this._onAddItemToDivTab.bind(this);
     this._onRemoveItemToLists = this._onRemoveItemToLists.bind(this);
-    this._updateFormData = this._updateFormData.bind(this);
+    this._onUpdateFormData = this._onUpdateFormData.bind(this);
 
     this.state = {
       isUser: this.props.isUser
@@ -79,10 +81,10 @@ class Customize extends C {
 
     if(Utils.isEmpty(this.state.pageName) || Utils.isEmpty(obj) || Object.keys(obj).length <= 0) {
       if(Utils.isEmpty(this.state.pageName)) {
-        this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(null, this.props.isUser.language, 'required'));
+        this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required'));
       }
       if(Utils.isEmpty(obj) || Object.keys(obj).length <= 0) {
-        this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_fileld') + Msg.getMsg(null, this.props.isUser.language, 'setting'));
+        this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_fileld') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'setting'));
       }
       this.forceUpdate();
     } else {
@@ -287,7 +289,14 @@ class Customize extends C {
       || (!Utils.isEmpty(obj.className)) && obj.className.startsWith('form-')) return;
     obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.alertActions.show = true;
-    this.state.alertActions.style = { top: obj.offsetTop, left: (obj.offsetLeft + obj.offsetWidth) - 110 };
+    this.state.alertActions.style = { top: (obj.tagName === HTML_TAG.NAV)?(obj.offsetTop + 3):obj.offsetTop, left: (obj.offsetLeft + obj.offsetWidth) - 110 };
+    if(obj.tagName === HTML_TAG.NAV) {
+      var selected = obj.childNodes[obj.childNodes.length - 1];
+      this.state.alertActions.add_tab_style = { top: (selected.offsetTop + 3), left : (selected.offsetLeft + selected.offsetWidth) + 5 };
+      this.state.alertActions.add_tab_show = true;
+    } else {
+      this.state.alertActions.add_tab_show = false;
+    }
     var className = 'div-customize-actions';
     if(obj.tagName === HTML_TAG.LABEL && Utils.isEmpty(obj.className)) {
       className += ' div-customize-actions-child';
@@ -302,11 +311,13 @@ class Customize extends C {
   _onMouseOut(e) {
     const obj = Html.getButton(e);
     if(!Utils.isEmpty(obj.className) && obj.className.startsWith('form-')) return;
-    //console.log(obj.tagName);
+    // console.log(this.state.dragobject);
     if(obj.tagName === HTML_TAG.BUTTON) {
       this.state.alertActions.show = true;
+      if(this.state.dragobject.tagName === HTML_TAG.NAV) this.state.alertActions.add_tab_show = true;
     } else {
       this.state.alertActions.show = false;
+      this.state.alertActions.add_tab_show = false;
     }
     if(!Utils.isEmpty(this.state.dragobject)) {
       this.state.dragobject.removeEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
@@ -329,13 +340,14 @@ class Customize extends C {
           childs = o.childNodes[0].childNodes[0].childNodes[0].childNodes;
           forms[divIdx].object.schema.fIdx = idx;
           var properties = forms[divIdx].object.schema.properties;
-          console.log(properties);
+          // console.log(properties);
           for(let i=0; i<childs.length; i++) {
             if(childs[i].tagName !== HTML_TAG.DIV) continue;
             const label = childs[i].childNodes[0];
             const field = label.getAttribute('for').replace('root_', '');
-            console.log(field);
+            // console.log(field);
             properties[field].idx = i;
+            if(Utils.inJson(properties[field].obj, 'file_data')) delete properties[field].obj['file_data'];
           }
         } else {
           const tabChilds = o.childNodes[0].childNodes;
@@ -348,8 +360,8 @@ class Customize extends C {
             object.schema.idx = i;
             var properties = object.schema.properties;
             childs = divChilds[i].childNodes[0].childNodes[0].childNodes[0].childNodes;
-            console.log(childs);
-            console.log(properties);
+            // console.log(childs);
+            // console.log(properties);
             for(let o=0; o<childs.length; o++) {
               if(childs[o].tagName !== HTML_TAG.DIV) continue;
               const label = childs[o].childNodes[0];
@@ -357,13 +369,54 @@ class Customize extends C {
               const field = label.getAttribute('for').replace('root_', '');
               console.log(field);
               properties[field].idx = o;
-              }  
+              if(Utils.inJson(properties[field].obj, 'file_data')) delete properties[field].obj['file_data'];
+            }
           }
         }
       }
     });
     // console.log(this.state.form);
     // console.log(forms);
+  }
+
+  _onAddTabSchema() {
+    const obj = this.state.dragobject;
+    if(obj.tagName !== HTML_TAG.NAV) return;
+    const fIdx = Html.getIdxParent(obj);
+    var form = this.state.form[fIdx];
+    if(Utils.isEmpty(form)) return;
+    const idx = obj.childNodes.length;
+    const jObj = JSON_OBJ.getEditJSONObject(false, idx, this.state.isUser.language);
+    form.object.push(JSON_OBJ.getTabJson(fIdx, idx, jObj));
+    form.active = idx;
+    this.state.alertActions.add_tab_show = false;
+    this.forceUpdate();
+  }
+
+  _onAlertAddTabButtons() {
+    const obj = this.state.dragobject;
+    if(Utils.isEmpty(obj)) return;
+
+    if (obj.tagName === HTML_TAG.LEGEND || obj.tagName === HTML_TAG.NAV) {
+      return(
+        <Alert
+          show={ this.state.alertActions.add_tab_show }
+          variant={ VARIANT_TYPES.LIGHT }
+          className={ this.state.alertActions.class }
+          style={ this.state.alertActions.add_tab_style }>
+
+        <Button
+          type={ HTML_TAG.BUTTON }
+          onMouseOver={ this._onMouseOut.bind(this) }
+          onClick={ this._onAddTabSchema.bind(this) }
+          variant={ VARIANT_TYPES.SECONDARY }>
+          <FaPlus />
+        </Button>
+      </Alert>
+      );
+    } else {
+      return('');
+    }
   }
 
   _onAlertDivTabButtons() {
@@ -525,6 +578,7 @@ class Customize extends C {
     var items = [];
     var aligns = [];
     var widths = [];
+    var heights = [];
     var languages = [];
     var objs = Object.keys(TYPE);
     for (let i=0; i<objs.length; i++) {
@@ -538,7 +592,11 @@ class Customize extends C {
     for (let i=0; i<objs.length; i++) {
       widths.push( <option key={ i } value={ objs[i] }>{ BOX_WIDTH[objs[i]] }</option> );
     }
-    objs = Html.getLanguages();    
+    objs = Object.keys(BOX_HEIGHT);
+    for (let i=0; i<objs.length; i++) {
+      heights.push( <option key={ i } value={ objs[i] }>{ BOX_HEIGHT[objs[i]] }</option> );
+    }
+    objs = Html.getLanguages(); 
     for(let i=0; i<objs.length; i++) {
       languages.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
     }
@@ -555,6 +613,9 @@ class Customize extends C {
     if(dateType.includes(editObj[CUSTOMIZE.TYPE])) {
         defaultType = (editObj[CUSTOMIZE.TYPE] === TYPE.DATETIME)?'datetime-local':editObj[CUSTOMIZE.TYPE];
     }
+
+    if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_COLOR])) editObj[CUSTOMIZE.LABEL_COLOR] = '#';
+    if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR])) editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] = '#';
 
     return(
       <Alert
@@ -583,130 +644,85 @@ class Customize extends C {
               <tr>
                 <td colSpan='4'><h4>{ this.state.overlayCreateEditBox.msg }</h4></td>
               </tr>
-              {/* {(() => {
-                if (obj === null || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.NAV)) {
-                  return( */}
-                    <tr>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
-                      <td>
-                        {(() => {
-                          if (this.state.mode === ACTION.EDIT) {
-                            return(
-                              <FormControl
-                                disabled
-                                as={ HTML_TAG.SELECT }
-                                name={ CUSTOMIZE.TYPE }
-                                value={ editObj[CUSTOMIZE.TYPE] }
-                                onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
-                            );
-                          } else {
-                            return(
-                              <FormControl
-                                as={ HTML_TAG.SELECT }
-                                name={ CUSTOMIZE.TYPE }
-                                value={ editObj[CUSTOMIZE.TYPE] }
-                                onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
-                            );
-                          }
-                        })()}
-                      </td>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_language') }</td>
-                      <td>
+              <tr>
+                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
+                <td>
+                  {(() => {
+                    if (this.state.mode === ACTION.EDIT) {
+                      return(
+                        <FormControl
+                          disabled
+                          as={ HTML_TAG.SELECT }
+                          name={ CUSTOMIZE.TYPE }
+                          value={ editObj[CUSTOMIZE.TYPE] }
+                          onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
+                      );
+                    } else {
+                      return(
                         <FormControl
                           as={ HTML_TAG.SELECT }
-                          name={ CUSTOMIZE.LANGUAGE }
-                          value={ editObj[CUSTOMIZE.LANGUAGE] }
-                          onChange={ this._onCreateEditChange.bind(this) }>
-                          { languages }
-                        </FormControl>
-                      </td>
-                    </tr>
-                  {/* );
-                }
-              })()} */}
+                          name={ CUSTOMIZE.TYPE }
+                          value={ editObj[CUSTOMIZE.TYPE] }
+                          onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
+                      );
+                    }
+                  })()}
+                </td>
+                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_language') }</td>
+                <td>
+                  <FormControl
+                    as={ HTML_TAG.SELECT }
+                    name={ CUSTOMIZE.LANGUAGE }
+                    value={ editObj[CUSTOMIZE.LANGUAGE] }
+                    onChange={ this._onCreateEditChange.bind(this) }>
+                    { languages }
+                  </FormControl>
+                </td>
+              </tr>
 
-              {/* {(() => {
-                if (obj === null || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.NAV)) {
-                  return( */}
-                    <tr>
-                      <td className='td-not-break'>
-                        { Msg.getMsg(null, this.state.isUser.language, 'obj_label') }
-                        <span className={ 'required' }>*</span>
-                      </td>
-                      <td>
-                        <FormControl
-                          type={ TYPE.TEXT }
-                          name={ CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]}
-                          // defaultValue={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                          value={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                          onChange={ this._onCreateEditChange.bind(this) }/>
-                      </td>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_width') }</td>
-                      <td>
-                        <FormControl
-                          as={ HTML_TAG.SELECT }
-                          name={ CUSTOMIZE.BOX_WIDTH }
-                          defaultValue={ editObj[CUSTOMIZE.BOX_WIDTH] }
-                          onChange={ this._onCreateEditChange.bind(this) }> { widths }</FormControl>
-                      </td>
-                    </tr>    
-                  {/* );
-                }
-              })()} */}
+              <tr>
+                <td className='td-not-break'>
+                  { Msg.getMsg(null, this.state.isUser.language, 'obj_label') }
+                  <span className={ 'required' }>*</span>
+                </td>
+                <td>
+                  <FormControl
+                    type={ TYPE.TEXT }
+                    name={ CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]}
+                    // defaultValue={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
+                    value={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                </td>
+                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_width') }</td>
+                <td>
+                  <table>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <FormControl
+                            as={ HTML_TAG.SELECT }
+                            name={ CUSTOMIZE.BOX_WIDTH }
+                            defaultValue={ editObj[CUSTOMIZE.BOX_WIDTH] }
+                            onChange={ this._onCreateEditChange.bind(this) }> { widths }</FormControl>
+                        </td>
+                        <td style={ { width: '40px', textAlign: 'right'} }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_height') }</td>
+                        <td>
+                          <FormControl
+                            as={ HTML_TAG.SELECT }
+                            name={ CUSTOMIZE.BOX_HEIGHT }
+                            defaultValue={ editObj[CUSTOMIZE.BOX_HEIGHT] }
+                            onChange={ this._onCreateEditChange.bind(this) }> { heights }</FormControl>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
 
               {(() => {
-                if (editObj[CUSTOMIZE.TYPE] !== TYPE.DISABLE
-                    && obj === null 
+                if (obj === null 
                     && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
                     && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB
-                    || (obj !== null
-                        && obj.tagName !== HTML_TAG.LEGEND
-                        && obj.tagName !== HTML_TAG.NAV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)) {
-                  return(
-                    <tr>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder') }</td>
-                      <td>
-                        <FormControl
-                          type={ TYPE.TEXT }
-                          name={ CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE] }
-                          defaultValue={ editObj[CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                          onChange={ this._onCreateEditChange.bind(this) }/>
-                      </td>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_required') }</td>
-                          <td>
-                            <input
-                              type={ HTML_TAG.CHECKBOX }
-                              name={ CUSTOMIZE.REQUIRED }
-                              defaultChecked={ editObj[CUSTOMIZE.REQUIRED] }
-                              onChange={ this._onCreateEditChange.bind(this) }></input>
-                            {(() => {
-                              if (editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-                                return(<span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_multiple_files') }</span>);
-                              }
-                            })()}
-                            {(() => {
-                              if (editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-                                return(
-                                  <input
-                                    type={ HTML_TAG.CHECKBOX }
-                                    name={ CUSTOMIZE.MULTIPLE_FILE }
-                                    defaultChecked={ editObj[CUSTOMIZE.MULTIPLE_FILE] }
-                                    onChange={ this._onCreateEditChange.bind(this) }></input>
-                                );
-                              }
-                            })()}
-                        </td>
-                    </tr>  
-                  );
-                }
-              })()}
-
-              {(() => {
-                if ((obj === null
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)
                     || (obj !== null
                         && obj.tagName !== HTML_TAG.LEGEND
                         && obj.tagName !== HTML_TAG.NAV
@@ -772,12 +788,6 @@ class Customize extends C {
                         } else if(editObj[CUSTOMIZE.TYPE] === TYPE.COLOR) {
                           return(
                             <td>
-                              {/* <FormControl
-                                type={ TYPE.COLOR }
-                                name={ CUSTOMIZE.DEFAULT }
-                                defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                onChange={ this._onCreateEditChange.bind(this) }/> */}
-
                               <input
                                 type={ TYPE.COLOR }
                                 name={ CUSTOMIZE.DEFAULT }
@@ -787,9 +797,92 @@ class Customize extends C {
                           );
                         }
                       })()}
+                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_required') }</td>
+                          <td style={ { height: '40px' } }>
+                            <input
+                              type={ HTML_TAG.CHECKBOX }
+                              name={ CUSTOMIZE.REQUIRED }
+                              defaultChecked={ editObj[CUSTOMIZE.REQUIRED] }
+                              onChange={ this._onCreateEditChange.bind(this) }></input>
+                          {(() => {
+                            if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+                              return(<span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_type') }</span>)
+                            }
+                          })()}
+                          {(() => {
+                            if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+                              return(
+                                <input
+                                  type={ HTML_TAG.CHECKBOX }
+                                  name={ 'list_checked' }
+                                  checked={ editObj['list_checked'] }
+                                  onChange={ this._onCreateEditChange.bind(this) }></input>          
+                              );
+                            }
+                          })()}
+                        </td>
+                    </tr>  
+                  );
+                }
+              })()}
+
+              {(() => {
+                if ((obj === null
+                    && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
+                    && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)
+                    || (obj !== null
+                        && obj.tagName !== HTML_TAG.LEGEND
+                        && obj.tagName !== HTML_TAG.NAV
+                        && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
+                        && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)) {
+                  return(
+                    <tr>
+                      {(() => {
+                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
+                          return(
+                            <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder') }</td>
+                          );
+                        } else if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+                          return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_multiple') }</td>)
+                        }
+                      })()}
+                      {(() => {
+                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
+                          return(
+                            <td>
+                              <FormControl
+                                type={ TYPE.TEXT }
+                                name={ CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE] }
+                                value={ editObj[CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
+                                onChange={ this._onCreateEditChange.bind(this) }/>
+                            </td>
+                          );
+                        } else if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+                          return(
+                            <td>
+                              <input
+                                type={ HTML_TAG.CHECKBOX }
+                                name={ CUSTOMIZE.MULTIPLE_FILE }
+                                defaultChecked={ editObj[CUSTOMIZE.MULTIPLE_FILE] }
+                                onChange={ this._onCreateEditChange.bind(this) }></input>
+                            </td>
+                          );
+                        }
+                      })()}
 
                       {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.DISABLE && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
+                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.FILE
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
                           return(
                             <td className='td-not-break'>
                               {(() => {
@@ -804,7 +897,12 @@ class Customize extends C {
                         }
                       })()}
                       {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.DISABLE && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
+                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.FILE
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
                           return(
                             <td>
                               <FormControl
@@ -820,6 +918,31 @@ class Customize extends C {
                   );
                 }
               })()}
+
+              <tr>
+                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_label') }</td>
+                <td>
+                  <input
+                    type={ TYPE.COLOR }
+                    name={ CUSTOMIZE.LABEL_COLOR }
+                    defaultValue={ editObj[CUSTOMIZE.LABEL_COLOR] }
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
+                  <span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_background') }</span>
+                  <input
+                    type={ TYPE.COLOR }
+                    name={ CUSTOMIZE.LABEL_LAYOUT_COLOR }
+                    defaultValue={ editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] }
+                    onChange={ this._onCreateEditChange.bind(this) }></input>
+                </td>
+                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_css_style') }</td>
+                <td>
+                  <FormControl
+                    type={ TYPE.TEXT }
+                    name={ CUSTOMIZE.STYLE }
+                    defaultValue={ editObj[CUSTOMIZE.STYLE] }
+                    onChange={ this._onCreateEditChange.bind(this) }/>
+                </td>
+              </tr>
 
               {/* {(() => {
                 if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
@@ -905,7 +1028,7 @@ class Customize extends C {
                 }
               })()} */}
 
-              {(() => {
+              {/* {(() => {
                 if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
                     && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
                     && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE)
@@ -937,22 +1060,11 @@ class Customize extends C {
                             || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
                           return(
                             <td>
-                              {/* <Form.Check
-                                type={ TYPE.CHECKBOX }
-                                name={ 'list_checked' }
-                                defaultChecked={ editObj['list_checked'] }
-                                onChange={ this._onCreateEditChange.bind(this) }/> */}
                               <input
                                 type={ HTML_TAG.CHECKBOX }
                                 name={ 'list_checked' }
                                 checked={ editObj['list_checked'] }
                                 onChange={ this._onCreateEditChange.bind(this) }></input>
-                              {/* <span style={{ marginLeft: '3em' }}>Inline</span>
-                              <input
-                                type={ HTML_TAG.CHECKBOX }
-                                name={ 'list_inline' }
-                                checked={ editObj['list_inline'] }
-                                onChange={ this._onCreateEditChange.bind(this) }></input> */}
                             </td>
                           );
                         }
@@ -960,7 +1072,7 @@ class Customize extends C {
                     </tr>
                   );
                 }
-              })()}
+              })()} */}
 
               {(() => {
                 if (editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
@@ -1151,19 +1263,53 @@ class Customize extends C {
     this.forceUpdate();
   }
 
+  _onValidateSaveOrEditItems(obj) {
+    var error = null;
+    var labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
+    var labelPlaceholder = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
+    const languages = Html.getLanguages();
+    if(Utils.isEmpty(obj[labelKey])) {
+      const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label');
+      error = msg + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
+    }
+    if(Utils.isEmpty(error) && !Utils.isEmpty(obj[labelKey])) {
+      const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label');
+      for(let i=0; i<languages.length; i++) {
+        labelKey = CUSTOMIZE.LABEL + '_' + languages[i];
+        if(Utils.isEmpty(obj[labelKey]) || obj[labelKey].length <= 30) continue;
+        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (obj[labelKey].length - 30));
+        break;
+      }
+    }
+    if(Utils.isEmpty(error) && !Utils.isEmpty(obj[labelPlaceholder])) {
+      const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder');
+      for(let i=0; i<languages.length; i++) {
+        labelPlaceholder = CUSTOMIZE.LABEL + '_' + languages[i];
+        if(Utils.isEmpty(obj[labelKey]) || obj[labelKey].length <= 30) continue;
+        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (obj[labelPlaceholder].length - 30));
+        break;
+      }
+    }
+    if(Utils.isEmpty(error)
+      && (obj[CUSTOMIZE.TYPE] === TYPE.DISABLE && Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))
+      || (obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj['file_data']))) {
+      error = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
+    }
+    if(Utils.isEmpty(error)
+      && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)
+      && (Utils.isEmpty(obj['lists']) || Utils.isEmpty(obj['lists'][0]['value']) || Utils.isEmpty(obj['lists'][0]['label']))) {
+        error = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
+    }
+    return error;
+  }
+
   _onClickSaveOrEditItems() {
     var div = this.state.dragobject.parentElement;
-    var obj = this.state.overlayCreateEditBox.obj;
+    var editBox = this.state.overlayCreateEditBox;
+    var obj = editBox.obj;
     if(Utils.isEmpty(div) || Utils.isEmpty(obj)) return;
-    const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-    if(Utils.isEmpty(obj[labelKey])) {
-      this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label') + Msg.getMsg(null, this.state.isUser.language, 'required');
-    } else if(obj[CUSTOMIZE.TYPE] === TYPE.DISABLE && Utils.isEmpty(obj[CUSTOMIZE.DEFAULT])) {
-      this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(null, this.state.isUser.language, 'required');
-    } else if((obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)
-      && (Utils.isEmpty(obj['lists']) || Utils.isEmpty(obj['lists'][0]['value']) || Utils.isEmpty(obj['lists'][0]['label']))) {
-      this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(null, this.state.isUser.language, 'required');
-    } else {
+    editBox.msg = this._onValidateSaveOrEditItems(obj);
+    if(Utils.isEmpty(editBox.msg)) {
       if(this.state.mode === ACTION.EDIT
         && !div.id.startsWith('div_customize_')
         && this.state.dragobject.tagName === HTML_TAG.LABEL) {
@@ -1189,6 +1335,7 @@ class Customize extends C {
         fObj = form.object;
       }
 
+      const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
       if(this.state.mode === ACTION.EDIT
         && (this.state.dragobject.tagName === HTML_TAG.LEGEND || this.state.dragobject.tagName === HTML_TAG.NAV)) {
         if(this.state.dragobject.tagName === HTML_TAG.NAV) {
@@ -1207,12 +1354,9 @@ class Customize extends C {
         if(this.state.mode === ACTION.EDIT && Utils.inJson(obj, 'item_name')) {
           itemName = obj['item_name'];
         } else {
-          itemName = obj[CUSTOMIZE.TYPE] + '_' + Math.random().toString(36).slice(-8);
+          itemName = obj[CUSTOMIZE.TYPE] + '_' + Math.random().toString(36).slice(-10);
         }
   
-        if(Utils.inJson(fObj.schema.properties, itemName)) {
-          delete fObj.schema.properties[itemName];
-        }    
         const idx = Object.keys(fObj.schema.properties).length;
         const def = JSON_OBJ.getDefinitions(obj);
         if(!Utils.isEmpty(def)) {
@@ -1221,10 +1365,12 @@ class Customize extends C {
         } else {
           fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
         }
+        fObj.schema['requireds'] = JSON_OBJ.getRequiredItem(obj, itemName, fObj.schema['requireds']);
   
         const placeholderKey = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
         fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, placeholderKey);
-        fObj.data[itemName] = JSON_OBJ.getDatas(obj, itemName);
+        fObj.data[itemName] = JSON_OBJ.getDefaultDatas(obj, itemName);
+
         // Add temp field because Form update only change dataForm
         JSON_OBJ.addTempData(fObj);
       }
@@ -1234,7 +1380,7 @@ class Customize extends C {
       this.state.overlayCreateEditBox.obj = {};
       this.state.overlayDeleteBox.show = false;
       this.state.overlayCreateEditBox.show = false;
-      // console.log(this.state.form);
+      console.log(this.state.form);
     }
     this.forceUpdate();
   }
@@ -1245,6 +1391,24 @@ class Customize extends C {
     const name = obj.name;
     const editObj = this.state.overlayCreateEditBox;
     const type = editObj.obj[CUSTOMIZE.TYPE];
+    // if(name === CUSTOMIZE.TYPE) {
+    //   const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
+    //   const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
+    //   editObj.obj[label_language] = '';
+    //   editObj.obj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
+    //   if(Utils.inJson(editObj.obj, placeholder_language)) delete editObj.obj[placeholder_language];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.REQUIRED)) delete editObj.obj[CUSTOMIZE.REQUIRED];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.DEFAULT)) delete editObj.obj[CUSTOMIZE.DEFAULT];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MAX_LENGTH)) delete editObj.obj[CUSTOMIZE.MAX_LENGTH];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MULTIPLE_FILE)) delete editObj.obj[CUSTOMIZE.MULTIPLE_FILE];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_COLOR];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_LAYOUT_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_LAYOUT_COLOR];
+    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.STYLE)) delete editObj.obj[CUSTOMIZE.STYLE];
+    //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO)
+    //     if(Utils.inJson(editObj.obj, 'list_checked')) delete editObj.obj['list_checked'];
+    //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO && type !== CUSTOMIZE.LIST)
+    //     if(Utils.inJson(editObj.obj, 'lists')) delete editObj.obj['lists'];
+    // }
 
     if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
       var files = obj.files;
@@ -1282,13 +1446,9 @@ class Customize extends C {
           if (editObj.obj[label_language] === undefined) {
             editObj.obj[label_language] = '';
           }
-  
-          const placehoders = [ HTML_TAG.LEGEND, HTML_TAG.NAV ];
           const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
-          if(!placehoders.includes(obj.tagName)) {
-            if (editObj.obj[placeholder_language] === undefined) {
-              editObj.obj[placeholder_language] = '';
-            }
+          if (editObj.obj[placeholder_language] === undefined) {
+            editObj.obj[placeholder_language] = '';
           }
         }
       }
@@ -1308,7 +1468,7 @@ class Customize extends C {
     this.forceUpdate();
   }
 
-  _onoverlayDeleteBox() {
+  _onOverlayDeleteBox() {
     if(!this.state.overlayDeleteBox.show) return '';
     return(
       <Alert
@@ -1437,7 +1597,7 @@ class Customize extends C {
     }
   }
 
-  _updateFormData(e) {
+  _onUpdateFormData(e) {
     if(!Utils.inJson(e, 'schema') || !Utils.inJson(e, 'formData')) return;
     console.log(e);
     const fIdx = e.schema.fIdx;
@@ -1452,7 +1612,6 @@ class Customize extends C {
 
   _getErrorMsg() {
     if(Utils.isEmpty(this.state.error_msgs) || this.state.error_msgs.length <= 0) return '';
-    // setTimeout(function(){ this.state.error_msgs = [] }, 3000);
     return this.state.error_msgs.map((o, idx) => {
       return(
         <div key={ idx } className={ 'invalid-feedback' } style={ {display: 'block'} }>{ o }</div>
@@ -1489,11 +1648,12 @@ class Customize extends C {
         { this._getTitle() }
         { this._onAlerEdit() }
         { this._onAlertDivTabButtons() }
-        { this._onoverlayDeleteBox() }
+        { this._onOverlayDeleteBox() }
+        { this._onAlertAddTabButtons() }
         <CForm
           isUser={ this.state.isUser }
           form={ this.state.form }
-          updateFormData={ this._updateFormData.bind(this) } />
+          updateFormData={ this._onUpdateFormData.bind(this) } />
         <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }

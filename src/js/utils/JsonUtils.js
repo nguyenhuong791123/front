@@ -1,29 +1,39 @@
 // import React from 'react';
 import ImageBox from './Compoment/ImageBox';
 import TimeBox from './Compoment/TimeBox';
-import CheckBoxSingle from './Compoment/CheckBoxSingle';
-import CheckBoxInline from './Compoment/CheckBoxInline';
+import RadioBox from './Compoment/RadioBox';
+import CheckBox from './Compoment/CheckBox';
+// import CheckBoxSingle from './Compoment/CheckBoxSingle';
+// import CheckBoxInline from './Compoment/CheckBoxInline';
+import Html from '../utils/HtmlUtils'
 import { TYPE, CUSTOMIZE, HTML_TAG } from './HtmlTypes';
 
 import Utils from './Utils';
 
 export const JSON_OBJ = {
-  getJsonSchema: (obj, itemName, key, idx) => {
+  getRequiredItem:(obj, itemName, requireds) => {
+    var reqs = requireds;
+    if(obj[CUSTOMIZE.REQUIRED]) {
+      const errorMsg = { item_name: itemName };
+      const objs = Html.getLanguages();
+      objs.map((o) => {
+        errorMsg[CUSTOMIZE.LABEL + '_' + o] = obj[CUSTOMIZE.LABEL + '_' + o];
+      });
+      if(!Utils.inArray(reqs, itemName)) reqs.push(errorMsg);
+    } else {
+      if(Utils.inArray(reqs, itemName)) reqs.splice(reqs.indexOf(itemName), 1);
+    }
+    return reqs;
+  }
+  ,getJsonSchema: (obj, itemName, key, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
-    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX , TYPE.LIST ];
+    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX , TYPE.LIST, TYPE.HIDDEN ];
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
   
     var json = { type: type, title: obj[key], idx: idx, obj: obj };
-    // if(!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT])) {
-    //   if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-    //     json['file_name'] = obj[CUSTOMIZE.DEFAULT];
-    //   } else {
-    //     json['default'] = obj[CUSTOMIZE.DEFAULT];
-    //   }
-    // }
     if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
       json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
     }
@@ -36,10 +46,16 @@ export const JSON_OBJ = {
       }
     }
 
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, 'lists') && obj['lists'].length > 1) {
-      json['type'] = 'array';
-      json['uniqueItems'] = true;
-      json['items'] = { type: 'string', '$ref': '#/definitions/' + itemName };
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, 'lists')) {
+      if(obj['list_checked']) {
+        json['type'] = 'array';
+        json['uniqueItems'] = true;  
+        json['items'] = { type: 'string', '$ref': '#/definitions/' + itemName };
+      } else {
+        json['$ref'] = '#/definitions/' + itemName;
+        delete json['type'];
+      }
+      json['list_checked'] = obj['list_checked'];
     }
 
     if(Utils.inJson(obj, 'lists') && (obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
@@ -50,7 +66,7 @@ export const JSON_OBJ = {
     return json;
   }
   ,getJsonUi: (obj, key) => {
-    // console.log(obj);
+    console.log(obj);
     var json = {};
     if(!Utils.isEmpty(obj[key])) {
       if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
@@ -60,11 +76,20 @@ export const JSON_OBJ = {
       }
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) json['classNames'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
+    if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + obj[CUSTOMIZE.BOX_HEIGHT];
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) json['classNames'] += ' div-image-box';
+    if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) json['classNames'] += ' div-file-box';
+    if((obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
+      || obj[CUSTOMIZE.TYPE] === TYPE.RADIO)  
+      && !obj['list_checked']) json['classNames'] += ' div-inline';
 
     const array = [ TYPE.PASSWORD, TYPE.COLOR, TYPE.TEXTAREA, TYPE.RADIO ];
     if(array.includes(obj[CUSTOMIZE.TYPE])) {
         json['ui:widget'] = obj[CUSTOMIZE.TYPE];
+    }
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.HIDDEN) {
+      json['ui:widget'] = 'hidden';
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.DISABLE) {
@@ -72,24 +97,16 @@ export const JSON_OBJ = {
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-      if(obj['list_checked']) {
-        json['classNames'] += ' not_inline';
-      } else {
-        json['ui:options'] = { "inline": true };
-      }
+      json['ui:widget'] = RadioBox;
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) {
-      if(Utils.inJson(obj, 'lists') && obj['lists'].length > 1) {
-        if(obj['list_checked']) {
-          json['ui:widget'] = 'checkboxes';
-          json['ui:autofocus'] = true;
-          json['classNames'] += ' not_inline';
-        } else {
-          json['ui:widget'] = CheckBoxInline;
-        }
+      if(obj['list_checked']) {
+        json['ui:widget'] = 'checkboxes';
+        json['ui:autofocus'] = true;
+        json['classNames'] += ' div-not-inline';
       } else {
-        json['ui:widget'] = CheckBoxSingle;
+        json['ui:widget'] = CheckBox;
       }
     }
 
@@ -99,7 +116,26 @@ export const JSON_OBJ = {
     if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       json['ui:widget'] = TimeBox;
     }
-    // console.log(json);
+
+    if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {
+      json[CUSTOMIZE.MAX_LENGTH] = obj[CUSTOMIZE.MAX_LENGTH];
+    }
+
+    var style = '';
+    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_COLOR])) {
+      style += 'color:' + obj[CUSTOMIZE.LABEL_COLOR] + ';';
+    }
+    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_LAYOUT_COLOR])) {
+      style += 'background-color:' + obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] + ';';
+    }
+    if(!Utils.isEmpty(obj[CUSTOMIZE.STYLE])) {
+      style += obj[CUSTOMIZE.STYLE];
+    }
+    if(!Utils.isEmpty(style)) {
+      json['style'] = style;
+    }
+
+    console.log(json);
     return json;
   }
   ,getDefinitions:(obj) => {
@@ -120,8 +156,8 @@ export const JSON_OBJ = {
       return { type: 'string', anyOf: anyOf };
     }
   }
-  ,getDatas:(obj) => {
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && obj['list_checked']) {
+  ,getDefaultDatas:(obj) => {
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && (obj['list_checked'] || obj['lists'].length > 1)) {
       return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?[obj[CUSTOMIZE.DEFAULT]]:[];
     } else {
       if(obj[CUSTOMIZE.TYPE] === TYPE.FILE || obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
@@ -151,16 +187,18 @@ export const JSON_OBJ = {
     return jObj;
   }
   ,addTempData:(obj) => {
-    if(Utils.inJson(obj.data, 'reload')) {
-      delete obj.data['reload']
-    } else {
-      obj.data['reload'] = true;
-    }
+    obj.data['reload'] = !obj.data['reload'];
+    // if(Utils.inJson(obj.data, 'reload')) {
+    //   delete obj.data['reload']
+    // } else {
+    //   obj.data['reload'] = true;
+    // }
   }
-  ,getDafaultDivOrTab:(div, idx, jObj) => {
-    if(div) {
+  ,getDafaultDivOrTab:(isDiv, idx, jObj) => {
+    if(isDiv) {
       return {
         object_type: 'div'
+        ,object_key: 'page_'+ Math.random().toString(36).slice(-10)
         ,class_name: 'div-box-100'
         ,idx: idx
         ,object: {
@@ -172,6 +210,7 @@ export const JSON_OBJ = {
             idx: 0,
             properties: {},
             definitions: {},
+            requireds: [],
             obj: jObj
           },
           ui: {},
@@ -181,6 +220,7 @@ export const JSON_OBJ = {
     } else {
       return {
         object_type: 'tab'
+        ,object_key: 'page_'+ Math.random().toString(36).slice(-10)
         ,active: 0
         ,idx: idx
         ,class_name: 'div-box-100'
@@ -194,6 +234,7 @@ export const JSON_OBJ = {
                 idx: 0,
                 properties: {},
                 definitions: {},
+                requireds: [],
                 obj: jObj
             },
             ui: {},
@@ -204,6 +245,23 @@ export const JSON_OBJ = {
           // }
         ]
       }
+    }
+  }
+  ,getTabJson:(fIdx, idx, jObj) => {
+    return {
+      schema: {
+          type: 'object',
+          tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'),
+          block: HTML_TAG.TAB,
+          fIdx: fIdx,
+          idx: idx,
+          properties: {},
+          definitions: {},
+          requireds: [],
+          obj: jObj
+      },
+      ui: {},
+      data: {}
     }
   }
 };

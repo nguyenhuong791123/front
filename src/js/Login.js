@@ -68,7 +68,8 @@ class Login extends C {
       } else if(value.length > 8) {
         dError.style.display = 'block';
         // var msg = StringUtil.format(this._Msg.getMsg(MSG_TYPE.ERROR, 'max_length'), 8, value.length - 8);
-        var msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), 8, value.length - 8);
+        var msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password');
+        msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 8, value.length - 8);
         dError.innerText = msg;
       } else {
         dError.style.display = 'none';

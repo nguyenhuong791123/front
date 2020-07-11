@@ -18,6 +18,18 @@
     background-color: #cce5ff !important;
 }
 
+label.form-check-label
+,label.form-check-label {
+    width: 100%;
+    background: transparent;
+}
+
+label.form-check-label:hover
+,label.form-check-label:hover {
+    color: gainsboro;
+    cursor: pointer;
+}
+
 div._loading_overlay_wrapper {
     position: unset;
 }
@@ -26,23 +38,47 @@ div.form-group {
     margin-bottom: 0;
 }
 
-div.div-inline-box {
-    height: 81px;
+div.div-inline-box
+,div.div-file-box {
+    /* height: 81px; */
+    height: 89px;
 }
 
-div.not_inline > div.checkboxes
-,div.not_inline > div.field-radio-group {
+div.div-not-inline > div.checkboxes
+,div.div-not-inline > div.field-radio-group {
     height: 119px;
     overflow-y: auto;
+    padding-left: .5em;
+}
+
+div.checkboxes > div.form-check {
+    padding-right: .5em;
+    padding-top: .3em;
+}
+
+div.div-inline > div.checkboxes
+,div.div-inline > div.form-check-inline
+,div.div-inline > div.field-radio-group {
+    height: 38px;
+    display: flex;
+    overflow-x: auto;
+    padding-left: .5em;
 }
 
 div.div-box textarea {
     height: 119px;
+    padding: .2em;
 }
 
 div.div-image-box {
-    height: 245px;
+    height: 249px;
     text-align: center;
+}
+
+div.div-box label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 div.div-image-box > label {
@@ -196,7 +232,7 @@ div.form-group fieldset div.div-box {
     padding: 0.2em;
     float: left;
     margin: 0;
-    /* border: 1px solid gainsboro; */
+    border: 1px solid gainsboro;
 }
 
 div.form-group > label {
@@ -249,6 +285,26 @@ div.form-group fieldset div.div-box-75 {
 
 div.form-group fieldset div.div-box-100 {
     width: 100%;
+}
+
+div.form-group fieldset div.div-box-height-89 {
+    height: 89px;
+}
+
+div.form-group fieldset div.div-box-height-178 {
+    height: 178px;
+}
+
+div.form-group fieldset div.div-box-height-267 {
+    height: 267px;
+}
+
+div.form-group fieldset div.div-box-height-356 {
+    height: 356px;
+}
+
+div.form-group fieldset div.div-box-height-445 {
+    height: 445px;
 }
 
 div.form-group fieldset div.div-box-display-contents {

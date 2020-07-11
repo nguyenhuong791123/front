@@ -20,7 +20,6 @@ class CForm extends C {
     };
 
     _onChange(e) {
-        console.log(e);
         this.props.updateFormData(e);
     }
 
@@ -37,10 +36,11 @@ class CForm extends C {
         if(Utils.isEmpty(items) || items.length === 0) return "";
         const tabs = items.map((f, index) => {
         if(!Utils.inJson(f.schema, 'tab_name')) return "";
-          const fKey = 'tab_' + index;
+            const fKey = 'tab_' + index;
             return(
                 <Tab key={ index } eventKey={ index } title={  f.schema.tab_name }>
                     <FormBS4
+                        // idPrefix={ index + "-tab" }
                         key={ fKey }
                         schema={ f.schema }
                         uiSchema={ f.ui }
@@ -72,6 +72,7 @@ class CForm extends C {
                 return(
                     <div key={ index } id={ 'div_customize_' + index } idx={ index } className={ className }>
                         <FormBS4
+                            // idPrefix={ index + "-div" }
                             key={ index }
                             schema={ o.object.schema }
                             uiSchema={ o.object.ui }
@@ -89,6 +90,14 @@ class CForm extends C {
             }
         });
     }
+
+    // UNSAFE_componentWillReceiveProps(nextProps) {
+    //     if (this.props.form !== nextProps.form) {
+    //         this.setState({
+    //             form: nextProps.form > this.props.form,
+    //         });
+    //     }
+    // }
 
     render() {
         return (

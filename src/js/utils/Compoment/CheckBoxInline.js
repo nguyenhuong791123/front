@@ -18,7 +18,7 @@ export default class CheckBoxInline extends C {
         const objs = Array.from(this.props.schema.obj.lists);
         return objs.map((obj, idx) => {
             return (
-            <div key={ idx } className={ 'form-check-inline' }>
+            <div key={ idx } className={ 'form-check' }>
                 <input type={ 'checkbox' }
                 id={ this.props.id + '_' + idx }
                 value={ obj['value'] }
