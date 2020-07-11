@@ -10,7 +10,7 @@ import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS } from '../utils/HtmlTypes';
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
@@ -580,6 +580,7 @@ class Customize extends C {
     var widths = [];
     var heights = [];
     var languages = [];
+    var options = [];
     var objs = Object.keys(TYPE);
     for (let i=0; i<objs.length; i++) {
       items.push( <option key={ i } value={ TYPE[objs[i]] }>{ TYPE[objs[i]] }</option> );
@@ -600,6 +601,12 @@ class Customize extends C {
     for(let i=0; i<objs.length; i++) {
       languages.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
     }
+    objs = OPTIONS; 
+    options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+    for(let i=0; i<objs.length; i++) {
+      options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
+    }
+
 
     var obj = null;
     var editObj = this.state.overlayCreateEditBox.obj;
@@ -804,22 +811,6 @@ class Customize extends C {
                               name={ CUSTOMIZE.REQUIRED }
                               defaultChecked={ editObj[CUSTOMIZE.REQUIRED] }
                               onChange={ this._onCreateEditChange.bind(this) }></input>
-                          {(() => {
-                            if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-                              return(<span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_type') }</span>)
-                            }
-                          })()}
-                          {(() => {
-                            if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-                              return(
-                                <input
-                                  type={ HTML_TAG.CHECKBOX }
-                                  name={ 'list_checked' }
-                                  checked={ editObj['list_checked'] }
-                                  onChange={ this._onCreateEditChange.bind(this) }></input>          
-                              );
-                            }
-                          })()}
                         </td>
                     </tr>  
                   );
@@ -943,6 +934,45 @@ class Customize extends C {
                     onChange={ this._onCreateEditChange.bind(this) }/>
                 </td>
               </tr>
+
+              {(() => {
+                if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
+                  || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
+                  || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+                  return(
+                    <tr>
+                      {(() => {
+                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+                          return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_type') }</td>);
+                        }
+                      })()}
+                      {(() => {
+                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+                          return(
+                            <td>
+                              <input
+                                type={ HTML_TAG.CHECKBOX }
+                                name={ 'list_checked' }
+                                checked={ editObj['list_checked'] }
+                                onChange={ this._onCreateEditChange.bind(this) }></input>
+                            </td>    
+                          );
+                        }
+                      })()}
+                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_option') }</td>
+                      <td>
+                        <FormControl
+                            as={ HTML_TAG.SELECT }
+                            name={ 'list_option' }
+                            defaultValue={ editObj['list_option'] }
+                            onChange={ this._onCreateEditChange.bind(this) }>
+                            { options }
+                        </FormControl>
+                      </td>
+                    </tr>
+                  );
+                }
+              })()}
 
               {/* {(() => {
                 if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
@@ -1297,7 +1327,8 @@ class Customize extends C {
     }
     if(Utils.isEmpty(error)
       && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)
-      && (Utils.isEmpty(obj['lists']) || Utils.isEmpty(obj['lists'][0]['value']) || Utils.isEmpty(obj['lists'][0]['label']))) {
+      && (Utils.isEmpty(obj['lists']) || Utils.isEmpty(obj['lists'][0]['value']) || Utils.isEmpty(obj['lists'][0]['label']))
+      && Utils.isEmpty(obj['list_option'])) {
         error = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
     }
     return error;
@@ -1347,8 +1378,7 @@ class Customize extends C {
           form['class_name'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
         }
 
-        // Add temp field because Form update only change dataForm
-        JSON_OBJ.addTempData(fObj);
+        JSON_OBJ.addHiddenFieldFormReload(fObj);
       } else {
         var itemName = '';
         if(this.state.mode === ACTION.EDIT && Utils.inJson(obj, 'item_name')) {
@@ -1371,8 +1401,7 @@ class Customize extends C {
         fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, placeholderKey);
         fObj.data[itemName] = JSON_OBJ.getDefaultDatas(obj, itemName);
 
-        // Add temp field because Form update only change dataForm
-        JSON_OBJ.addTempData(fObj);
+        JSON_OBJ.addHiddenFieldFormReload(fObj);
       }
 
       this.state.form[idx] = form;
@@ -1462,6 +1491,9 @@ class Customize extends C {
       } else {
         editObj.obj[CUSTOMIZE.BOX_WIDTH] = 25;
       }
+    }
+    if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_HEIGHT])) {
+      editObj.obj[CUSTOMIZE.BOX_HEIGHT] = 89;
     }
 
     this.setState({ overlayCreateEditBox: editObj });

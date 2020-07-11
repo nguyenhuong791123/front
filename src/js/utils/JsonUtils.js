@@ -47,15 +47,10 @@ export const JSON_OBJ = {
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, 'lists')) {
-      if(obj['list_checked']) {
-        json['type'] = 'array';
-        json['uniqueItems'] = true;  
-        json['items'] = { type: 'string', '$ref': '#/definitions/' + itemName };
-      } else {
-        json['$ref'] = '#/definitions/' + itemName;
-        delete json['type'];
-      }
       json['list_checked'] = obj['list_checked'];
+      json['list_option'] = obj['list_option'];
+      json['$ref'] = '#/definitions/' + itemName;
+      delete json['type'];
     }
 
     if(Utils.inJson(obj, 'lists') && (obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
@@ -79,9 +74,13 @@ export const JSON_OBJ = {
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + obj[CUSTOMIZE.BOX_HEIGHT];
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) json['classNames'] += ' div-image-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) json['classNames'] += ' div-file-box';
-    if((obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
-      || obj[CUSTOMIZE.TYPE] === TYPE.RADIO)  
-      && !obj['list_checked']) json['classNames'] += ' div-inline';
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+      if(!obj['list_checked'] && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+        json['classNames'] += ' div-inline';
+      } else {
+        json['classNames'] += ' div-not-inline';
+      }
+    }
 
     const array = [ TYPE.PASSWORD, TYPE.COLOR, TYPE.TEXTAREA, TYPE.RADIO ];
     if(array.includes(obj[CUSTOMIZE.TYPE])) {
@@ -102,12 +101,9 @@ export const JSON_OBJ = {
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) {
       if(obj['list_checked']) {
-        json['ui:widget'] = 'checkboxes';
-        json['ui:autofocus'] = true;
         json['classNames'] += ' div-not-inline';
-      } else {
-        json['ui:widget'] = CheckBox;
       }
+      json['ui:widget'] = CheckBox;
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
@@ -186,13 +182,16 @@ export const JSON_OBJ = {
     }
     return jObj;
   }
-  ,addTempData:(obj) => {
-    obj.data['reload'] = !obj.data['reload'];
-    // if(Utils.inJson(obj.data, 'reload')) {
-    //   delete obj.data['reload']
-    // } else {
-    //   obj.data['reload'] = true;
-    // }
+  ,addHiddenFieldFormReload:(obj) => {
+    if(Utils.inJson(obj.schema.properties, 'hidden_form_reload')) {
+      delete obj.schema.properties['hidden_form_reload'];
+      delete obj.ui['hidden_form_reload'];
+      delete obj.data['hidden_form_reload'];
+    } else {
+      obj.schema.properties['hidden_form_reload'] = { 'type': 'string' };
+      obj.ui['hidden_form_reload'] = { 'ui:widget': 'hidden'};
+      obj.data['hidden_form_reload'] = true;
+    }
   }
   ,getDafaultDivOrTab:(isDiv, idx, jObj) => {
     if(isDiv) {

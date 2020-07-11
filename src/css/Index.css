@@ -44,9 +44,39 @@ div.div-inline-box
     height: 89px;
 }
 
+div.div-box-height-89 > div.checkboxes
+,div.div-box-height-89 > div.field-radio-group
+,div.div-box-height-89 > img {
+    height: 35px;
+}
+
+div.div-box-height-178 > div.checkboxes
+,div.div-box-height-178 > div.field-radio-group
+,div.div-box-height-178 > img {
+    height: 125px;
+}
+
+div.div-box-height-267 > div.checkboxes
+,div.div-box-height-267 > div.field-radio-group
+,div.div-box-height-267 > img {
+    height: 215px;
+}
+
+div.div-box-height-356 > div.checkboxes
+,div.div-box-height-356 > div.field-radio-group
+,div.div-box-height-356 > img {
+    height: 305px;
+}
+
+div.div-box-height-445 > div.checkboxes
+,div.div-box-height-445 > div.field-radio-group
+,div.div-box-height-445 > img {
+    height: 395px;
+}
+
 div.div-not-inline > div.checkboxes
 ,div.div-not-inline > div.field-radio-group {
-    height: 119px;
+    /* height: 119px; */
     overflow-y: auto;
     padding-left: .5em;
 }
@@ -70,23 +100,18 @@ div.div-box textarea {
     padding: .2em;
 }
 
-div.div-image-box {
-    height: 249px;
-    text-align: center;
-}
-
 div.div-box label {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
 }
 
-div.div-image-box > label {
-    text-align: left;
+div.div-image-box {
+    text-align: center;
 }
 
-div.div-image-box > img {
-    height: 202px;
+div.div-image-box > label {
+    text-align: left;
 }
 
 /* 点滅 */

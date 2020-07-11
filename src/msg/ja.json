@@ -75,6 +75,7 @@
   ,"obj_text": "テキスト"
   ,"obj_css_style": "スタイル"
   ,"obj_list_type": "リスト"
+  ,"obj_list_option": "既存リスト"
   ,"obj_id": "ID"
   ,"obj_value": "値"
 }

@@ -47,7 +47,7 @@ export const TYPE = {
     ,NUMBER: 'number'
     ,CHECKBOX: 'checkbox'
     ,RADIO: 'radio'
-    ,LIST: 'list'
+    ,LIST: 'select'
     ,FILE: 'file'
     ,IMAGE: 'image'
     ,PASSWORD: 'password'
@@ -56,9 +56,9 @@ export const TYPE = {
     // ,SUBMIT: 'submit'
     // ,RESET: 'reset'
     ,COLOR: 'color'
-    ,DIV: 'div'
+    // ,DIV: 'div'
     // ,TAB: 'tab'
-    ,OBJECT: 'object'
+    // ,OBJECT: 'object'
     ,BUTTON: 'button'
 }
 
@@ -172,3 +172,8 @@ export const CUSTOMIZE = {
     ,COLOR: 'color'
 }
 
+export const OPTIONS = [
+    'group_auth',
+    'user_auth',
+    'city'
+]
