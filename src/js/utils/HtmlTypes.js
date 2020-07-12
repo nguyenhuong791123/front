@@ -47,7 +47,7 @@ export const TYPE = {
     ,NUMBER: 'number'
     ,CHECKBOX: 'checkbox'
     ,RADIO: 'radio'
-    ,LIST: 'select'
+    ,SELECT: 'select'
     ,FILE: 'file'
     ,IMAGE: 'image'
     ,PASSWORD: 'password'

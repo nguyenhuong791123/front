@@ -1,6 +1,6 @@
 import React, { Component as C } from 'react';
-import Utils from '../Utils';
 import { CUSTOMIZE, OPTIONS_KEY } from '../HtmlTypes';
+import Utils from '../Utils';
 
 export default class SelectBox extends C {
     _getOptions() {

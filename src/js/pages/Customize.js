@@ -8,6 +8,7 @@ import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
+import CustomizeBox from '../utils/CustomizeBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';
@@ -31,11 +32,11 @@ class Customize extends C {
     this._onDragDrop = this._onDragDrop.bind(this);
     this._onClickDelete = this._onClickDelete.bind(this);
     this._onAlerEdit = this._onAlerEdit.bind(this);
-    this._onCreateEditChange = this._onCreateEditChange.bind(this);
+    // this._onCreateEditChange = this._onCreateEditChange.bind(this);
     this._onClickSaveOrEditItems = this._onClickSaveOrEditItems.bind(this);
     this._onCreateDivOrTab = this._onCreateDivOrTab.bind(this);
-    this._onAddItemToDivTab = this._onAddItemToDivTab.bind(this);
-    this._onRemoveItemToLists = this._onRemoveItemToLists.bind(this);
+    // this._onAddItemToDivTab = this._onAddItemToDivTab.bind(this);
+    // this._onRemoveItemToLists = this._onRemoveItemToLists.bind(this);
     this._onUpdateFormData = this._onUpdateFormData.bind(this);
 
     this.state = {
@@ -340,10 +341,15 @@ class Customize extends C {
           childs = o.childNodes[0].childNodes[0].childNodes[0].childNodes;
           forms[divIdx].object.schema.fIdx = idx;
           var properties = forms[divIdx].object.schema.properties;
+          if(Utils.inJson(properties, 'hidden_form_reload')) {
+            delete properties['hidden_form_reload'];
+            if(Utils.inJson(forms[divIdx].object.data, 'hidden_form_reload')) delete forms[divIdx].object.data['hidden_form_reload'];
+          }
           // console.log(properties);
           for(let i=0; i<childs.length; i++) {
             if(childs[i].tagName !== HTML_TAG.DIV) continue;
             const label = childs[i].childNodes[0];
+            if(Utils.isEmpty(label.getAttribute('for'))) continue;
             const field = label.getAttribute('for').replace('root_', '');
             // console.log(field);
             properties[field].idx = i;
@@ -359,6 +365,10 @@ class Customize extends C {
             object.schema.fIdx = idx;
             object.schema.idx = i;
             var properties = object.schema.properties;
+            if(Utils.inJson(properties, 'hidden_form_reload')) {
+              delete properties['hidden_form_reload'];
+              if(Utils.inJson(object.data, 'hidden_form_reload')) delete object.data['hidden_form_reload'];
+            }
             childs = divChilds[i].childNodes[0].childNodes[0].childNodes[0].childNodes;
             // console.log(childs);
             // console.log(properties);
@@ -545,19 +555,19 @@ class Customize extends C {
     });
   }
 
-  _onAddItemToDivTab() {
-    this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].push({'valuel': '', 'label': ''});
-    this.forceUpdate();
-  }
+  // _onAddItemToDivTab() {
+  //   this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].push({'valuel': '', 'label': ''});
+  //   this.forceUpdate();
+  // }
 
-  _onRemoveItemToLists(e) {
-    var obj = Html.getButton(e);
-    if(Utils.isEmpty(obj)) return;
-    var idx = obj.id.split('_')[1];
-    if(Number.isNaN(Number(idx))) return;
-    this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].splice(idx, 1);
-    this.forceUpdate();
-  }
+  // _onRemoveItemToLists(e) {
+  //   var obj = Html.getButton(e);
+  //   if(Utils.isEmpty(obj)) return;
+  //   var idx = obj.id.split('_')[1];
+  //   if(Number.isNaN(Number(idx))) return;
+  //   this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].splice(idx, 1);
+  //   this.forceUpdate();
+  // }
 
   _onCreateDivOrTab(e) {
     const obj = e.target;
@@ -573,55 +583,60 @@ class Customize extends C {
     this.forceUpdate();
   }
 
+  _onUpdateEditBox(editBox) {
+    this.setState({ overlayCreateEditBox: editBox });
+    this.forceUpdate();
+  }
+
   _onAlerEdit() {
     if(!this.state.overlayCreateEditBox.show) return '';
-    var items = [];
-    var aligns = [];
-    var widths = [];
-    var heights = [];
-    var languages = [];
-    var options = [];
-    var objs = Object.keys(TYPE);
-    for (let i=0; i<objs.length; i++) {
-      items.push( <option key={ i } value={ TYPE[objs[i]] }>{ TYPE[objs[i]] }</option> );
-    }
-    objs = Object.keys(ALIGN);
-    for (let i=0; i<objs.length; i++) {
-      aligns.push( <option key={ i } value={ ALIGN[objs[i]] }>{ ALIGN[objs[i]] }</option> );
-    }
-    objs = Object.keys(BOX_WIDTH);
-    for (let i=0; i<objs.length; i++) {
-      widths.push( <option key={ i } value={ objs[i] }>{ BOX_WIDTH[objs[i]] }</option> );
-    }
-    objs = Object.keys(BOX_HEIGHT);
-    for (let i=0; i<objs.length; i++) {
-      heights.push( <option key={ i } value={ objs[i] }>{ BOX_HEIGHT[objs[i]] }</option> );
-    }
-    objs = Html.getLanguages(); 
-    for(let i=0; i<objs.length; i++) {
-      languages.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
-    }
-    objs = OPTIONS; 
-    options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
-    for(let i=0; i<objs.length; i++) {
-      options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
-    }
+    // var items = [];
+    // var aligns = [];
+    // var widths = [];
+    // var heights = [];
+    // var languages = [];
+    // var options = [];
+    // var objs = Object.keys(TYPE);
+    // for (let i=0; i<objs.length; i++) {
+    //   items.push( <option key={ i } value={ TYPE[objs[i]] }>{ TYPE[objs[i]] }</option> );
+    // }
+    // objs = Object.keys(ALIGN);
+    // for (let i=0; i<objs.length; i++) {
+    //   aligns.push( <option key={ i } value={ ALIGN[objs[i]] }>{ ALIGN[objs[i]] }</option> );
+    // }
+    // objs = Object.keys(BOX_WIDTH);
+    // for (let i=0; i<objs.length; i++) {
+    //   widths.push( <option key={ i } value={ objs[i] }>{ BOX_WIDTH[objs[i]] }</option> );
+    // }
+    // objs = Object.keys(BOX_HEIGHT);
+    // for (let i=0; i<objs.length; i++) {
+    //   heights.push( <option key={ i } value={ objs[i] }>{ BOX_HEIGHT[objs[i]] }</option> );
+    // }
+    // objs = Html.getLanguages(); 
+    // for(let i=0; i<objs.length; i++) {
+    //   languages.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
+    // }
+    // objs = OPTIONS; 
+    // options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+    // for(let i=0; i<objs.length; i++) {
+    //   options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
+    // }
 
-    var obj = null;
-    var editObj = this.state.overlayCreateEditBox.obj;
-    if(this.state.mode === ACTION.EDIT) {
-      obj = this.state.dragobject;
-      items.push( <option key={ items.length } value={ HTML_TAG.TAB }>{ 'tab' }</option> );
-    }
+    // var obj = null;
+    // var editObj = this.state.overlayCreateEditBox.obj;
+    // if(this.state.mode === ACTION.EDIT) {
+    //   obj = this.state.dragobject;
+    //   items.push( <option key={ items.length } value={ HTML_TAG.TAB }>{ 'tab' }</option> );
+    // }
 
-    var defaultType = TYPE.TEXT;
-    const dateType = [ TYPE.DATE, TYPE.DATETIME, TYPE.TIME ];
-    if(dateType.includes(editObj[CUSTOMIZE.TYPE])) {
-        defaultType = (editObj[CUSTOMIZE.TYPE] === TYPE.DATETIME)?'datetime-local':editObj[CUSTOMIZE.TYPE];
-    }
+    // var defaultType = TYPE.TEXT;
+    // const dateType = [ TYPE.DATE, TYPE.DATETIME, TYPE.TIME ];
+    // if(dateType.includes(editObj[CUSTOMIZE.TYPE])) {
+    //     defaultType = (editObj[CUSTOMIZE.TYPE] === TYPE.DATETIME)?'datetime-local':editObj[CUSTOMIZE.TYPE];
+    // }
 
-    if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_COLOR])) editObj[CUSTOMIZE.LABEL_COLOR] = '#';
-    if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR])) editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] = '#';
+    // if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_COLOR])) editObj[CUSTOMIZE.LABEL_COLOR] = '#';
+    // if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR])) editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] = '#';
 
     return(
       <Alert
@@ -645,7 +660,14 @@ class Customize extends C {
             </Button>
           </div>
 
-          <table className='table-overlay-box'>
+          <CustomizeBox
+            isUser={ this.props.isUser }
+            mode={ this.state.mode }
+            dragobject={ this.state.dragobject }
+            editBox={ this.state.overlayCreateEditBox }
+            updateEditBox={ this._onUpdateEditBox.bind(this) }/>
+
+          {/* <table className='table-overlay-box'>
             <tbody>
               <tr>
                 <td colSpan='4'><h4>{ this.state.overlayCreateEditBox.msg }</h4></td>
@@ -759,7 +781,7 @@ class Customize extends C {
                             && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
                               if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
                                 || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
-                                || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+                                || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
                                   var defaultOptions = [];
                                   defaultOptions.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
                                   if(Utils.inJson(editObj, OPTIONS_KEY.OPTIONS)) {
@@ -959,16 +981,16 @@ class Customize extends C {
               {(() => {
                 if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
                   || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
-                  || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+                  || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
                   return(
                     <tr>
                       {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
                           return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_type') }</td>);
                         }
                       })()}
                       {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
                           return(
                             <td>
                               <input
@@ -993,7 +1015,7 @@ class Customize extends C {
                     </tr>
                   );
                 }
-              })()}
+              })()} */}
 
               {/* {(() => {
                 if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
@@ -1125,7 +1147,9 @@ class Customize extends C {
                 }
               })()} */}
 
-              {(() => {
+
+
+              {/* {(() => {
                 if (editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
                   && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
                   && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB
@@ -1140,7 +1164,7 @@ class Customize extends C {
                                 // if (this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTION_CHECKED] && (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO)) {
                                 if (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
                                   || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
-                                  || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+                                  || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
                                   if(editObj[OPTIONS_KEY.OPTIONS] === undefined) {
                                     if(editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
                                       editObj[OPTIONS_KEY.OPTIONS] = [{ 'value': '', 'label': '' }, { 'value': '', 'label': '' }];
@@ -1223,7 +1247,7 @@ class Customize extends C {
                 }
               })()}
             </tbody>
-          </table>
+          </table> */}
         </div>
       </Alert>
     );
@@ -1348,7 +1372,7 @@ class Customize extends C {
       error = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
     }
     if(Utils.isEmpty(error)
-      && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)
+      && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT)
       && (Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS]) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['value']) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['label']))
       && Utils.isEmpty(obj[OPTIONS_KEY.OPTION_LIST])) {
         error = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
@@ -1437,96 +1461,96 @@ class Customize extends C {
     this.forceUpdate();
   }
 
-  _onCreateEditChange(e) {
-    const obj = e.target;
-    if(Utils.isEmpty(obj)) return;
-    const name = obj.name;
-    const editObj = this.state.overlayCreateEditBox;
-    const type = editObj.obj[CUSTOMIZE.TYPE];
-    // if(name === CUSTOMIZE.TYPE) {
-    //   const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-    //   const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
-    //   editObj.obj[label_language] = '';
-    //   editObj.obj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
-    //   if(Utils.inJson(editObj.obj, placeholder_language)) delete editObj.obj[placeholder_language];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.REQUIRED)) delete editObj.obj[CUSTOMIZE.REQUIRED];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.DEFAULT)) delete editObj.obj[CUSTOMIZE.DEFAULT];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MAX_LENGTH)) delete editObj.obj[CUSTOMIZE.MAX_LENGTH];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MULTIPLE_FILE)) delete editObj.obj[CUSTOMIZE.MULTIPLE_FILE];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_COLOR];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_LAYOUT_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_LAYOUT_COLOR];
-    //   if(Utils.inJson(editObj.obj, CUSTOMIZE.STYLE)) delete editObj.obj[CUSTOMIZE.STYLE];
-    //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO)
-    //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTION_CHECKED)) delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
-    //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO && type !== CUSTOMIZE.LIST)
-    //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTIONS)) delete editObj.obj[OPTIONS_KEY.OPTIONS];
-    // }
+  // _onCreateEditChange(e) {
+  //   const obj = e.target;
+  //   if(Utils.isEmpty(obj)) return;
+  //   const name = obj.name;
+  //   const editObj = this.state.overlayCreateEditBox;
+  //   const type = editObj.obj[CUSTOMIZE.TYPE];
+  //   // if(name === CUSTOMIZE.TYPE) {
+  //   //   const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
+  //   //   const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
+  //   //   editObj.obj[label_language] = '';
+  //   //   editObj.obj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
+  //   //   if(Utils.inJson(editObj.obj, placeholder_language)) delete editObj.obj[placeholder_language];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.REQUIRED)) delete editObj.obj[CUSTOMIZE.REQUIRED];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.DEFAULT)) delete editObj.obj[CUSTOMIZE.DEFAULT];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MAX_LENGTH)) delete editObj.obj[CUSTOMIZE.MAX_LENGTH];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MULTIPLE_FILE)) delete editObj.obj[CUSTOMIZE.MULTIPLE_FILE];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_COLOR];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_LAYOUT_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_LAYOUT_COLOR];
+  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.STYLE)) delete editObj.obj[CUSTOMIZE.STYLE];
+  //   //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO)
+  //   //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTION_CHECKED)) delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
+  //   //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO && type !== CUSTOMIZE.LIST)
+  //   //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTIONS)) delete editObj.obj[OPTIONS_KEY.OPTIONS];
+  //   // }
 
-    if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
-      var files = obj.files;
-      console.log(files);
-      if(Utils.isEmpty(files) || files.length <= 0) {
-        if(Utils.inJson(editObj.obj, 'file_data')) delete editObj.obj['file_data'];
-      } else {
-        this._fileToBase64(files, editObj);
-      }
-      delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
-      delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
-      delete editObj.obj[OPTIONS_KEY.OPTIONS];
-    } else {
-      var val = obj.value;
-      if(name === 'obj_lists'
-        && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.LIST)
-        && name !== CUSTOMIZE.LANGUAGE ) {
-        var idx = obj.id.split('_')[1];
-        if(Number.isNaN(Number(idx))) return;
-        var lObj = editObj.obj[OPTIONS_KEY.OPTIONS][idx];
-        if(obj.id.startsWith('values_')) {
-          lObj['value'] = obj.value;
-        } 
-        if(obj.id.startsWith('labels_')) {
-          lObj['label'] = obj.value;
-        }
-        editObj.obj[OPTIONS_KEY.OPTIONS][idx] = lObj;
-      } else {
-        if(obj.type === TYPE.CHECKBOX) {
-          val = obj.checked;
-        }
-        editObj.obj[name] = val;
-        const options = [TYPE.CHECKBOX, TYPE.RADIO, TYPE.LIST];
-        if(!options.includes(type) && !options.includes(name) && name !== CUSTOMIZE.LANGUAGE) {
-          delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
-          delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
-          delete editObj.obj[OPTIONS_KEY.OPTIONS];
-        } else if (name === CUSTOMIZE.LANGUAGE) {
-          const label_language = CUSTOMIZE.LABEL + '_' + val;
-          if (editObj.obj[label_language] === undefined) {
-            editObj.obj[label_language] = '';
-          }
-          const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
-          if (editObj.obj[placeholder_language] === undefined) {
-            editObj.obj[placeholder_language] = '';
-          }
-        }
-      }
+  //   if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
+  //     var files = obj.files;
+  //     console.log(files);
+  //     if(Utils.isEmpty(files) || files.length <= 0) {
+  //       if(Utils.inJson(editObj.obj, 'file_data')) delete editObj.obj['file_data'];
+  //     } else {
+  //       this._fileToBase64(files, editObj);
+  //     }
+  //     delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
+  //     delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
+  //     delete editObj.obj[OPTIONS_KEY.OPTIONS];
+  //   } else {
+  //     var val = obj.value;
+  //     if(name === 'obj_lists'
+  //       && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.SELECT)
+  //       && name !== CUSTOMIZE.LANGUAGE ) {
+  //       var idx = obj.id.split('_')[1];
+  //       if(Number.isNaN(Number(idx))) return;
+  //       var lObj = editObj.obj[OPTIONS_KEY.OPTIONS][idx];
+  //       if(obj.id.startsWith('values_')) {
+  //         lObj['value'] = obj.value;
+  //       } 
+  //       if(obj.id.startsWith('labels_')) {
+  //         lObj['label'] = obj.value;
+  //       }
+  //       editObj.obj[OPTIONS_KEY.OPTIONS][idx] = lObj;
+  //     } else {
+  //       if(obj.type === TYPE.CHECKBOX) {
+  //         val = obj.checked;
+  //       }
+  //       editObj.obj[name] = val;
+  //       const options = [TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT];
+  //       if(!options.includes(type) && !options.includes(name) && name !== CUSTOMIZE.LANGUAGE) {
+  //         delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
+  //         delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
+  //         delete editObj.obj[OPTIONS_KEY.OPTIONS];
+  //       } else if (name === CUSTOMIZE.LANGUAGE) {
+  //         const label_language = CUSTOMIZE.LABEL + '_' + val;
+  //         if (editObj.obj[label_language] === undefined) {
+  //           editObj.obj[label_language] = '';
+  //         }
+  //         const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
+  //         if (editObj.obj[placeholder_language] === undefined) {
+  //           editObj.obj[placeholder_language] = '';
+  //         }
+  //       }
+  //     }
 
-      if(Utils.inJson(editObj, 'file_data')) delete editObj['file_data'];
-    }
+  //     if(Utils.inJson(editObj, 'file_data')) delete editObj['file_data'];
+  //   }
 
-    if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_WIDTH])) {
-      if(editObj.obj[CUSTOMIZE.TYPE] === TYPE.DIV) {
-        editObj.obj[CUSTOMIZE.BOX_WIDTH] = 100;
-      } else {
-        editObj.obj[CUSTOMIZE.BOX_WIDTH] = 25;
-      }
-    }
-    if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_HEIGHT])) {
-      editObj.obj[CUSTOMIZE.BOX_HEIGHT] = 89;
-    }
+  //   if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_WIDTH])) {
+  //     if(editObj.obj[CUSTOMIZE.TYPE] === TYPE.DIV) {
+  //       editObj.obj[CUSTOMIZE.BOX_WIDTH] = 100;
+  //     } else {
+  //       editObj.obj[CUSTOMIZE.BOX_WIDTH] = 25;
+  //     }
+  //   }
+  //   if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_HEIGHT])) {
+  //     editObj.obj[CUSTOMIZE.BOX_HEIGHT] = 89;
+  //   }
 
-    this.setState({ overlayCreateEditBox: editObj });
-    this.forceUpdate();
-  }
+  //   this.setState({ overlayCreateEditBox: editObj });
+  //   this.forceUpdate();
+  // }
 
   _onOverlayDeleteBox() {
     if(!this.state.overlayDeleteBox.show) return '';
@@ -1595,7 +1619,7 @@ class Customize extends C {
                   type={ HTML_TAG.TEXT }
                   defaultValue={ this.state.pageName }
                   onChange={ this._onChange.bind(this) }
-                  placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(null, this.props.isUser.language, 'required') }
+                  placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required') }
                   className="mr-sm-2" />
                 <Button
                   type={ TYPE.BUTTON }

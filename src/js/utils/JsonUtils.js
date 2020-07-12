@@ -30,7 +30,7 @@ export const JSON_OBJ = {
   ,getJsonSchema: (obj, itemName, key, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
-    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.LIST, TYPE.HIDDEN ];
+    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.COLOR, TYPE.DISABLE, TYPE.HIDDEN ];
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
@@ -49,24 +49,16 @@ export const JSON_OBJ = {
     }
 
     if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS)
-      && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
+      && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT)) {
         json[OPTIONS_KEY.OPTION_CHECKED] = obj[OPTIONS_KEY.OPTION_CHECKED];
         json[OPTIONS_KEY.OPTION_LIST] = obj[OPTIONS_KEY.OPTION_LIST];
         json[OPTIONS_KEY.OPTIONS] = obj[OPTIONS_KEY.OPTIONS];
         json[CUSTOMIZE.REQUIRED] = obj[CUSTOMIZE.REQUIRED];
     }
 
-    // if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, OPTIONS_KEY.OPTIONS)) {
-    //   json[OPTIONS_KEY.OPTION_CHECKED] = obj[OPTIONS_KEY.OPTION_CHECKED];
-    //   json[OPTIONS_KEY.OPTION_LIST] = obj[OPTIONS_KEY.OPTION_LIST];
-    //   json['$ref'] = '#/definitions/' + itemName;
-    //   delete json['type'];
-    // }
-
-    // if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS) && (obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
-    //     json['$ref'] = '#/definitions/' + itemName;
-    //     delete json['type'];
-    // }
+    if([ TYPE.IMAGE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT ].includes(type)) {
+      delete json['type']; 
+    }
 
     return json;
   }
@@ -84,8 +76,8 @@ export const JSON_OBJ = {
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + obj[CUSTOMIZE.BOX_HEIGHT];
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) json['classNames'] += ' div-image-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) json['classNames'] += ' div-file-box';
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST) {
-      if(!obj[OPTIONS_KEY.OPTION_CHECKED] && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
+      if(!obj[OPTIONS_KEY.OPTION_CHECKED] && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
         json['classNames'] += ' div-inline';
       } else {
         json['classNames'] += ' div-not-inline';
@@ -116,7 +108,7 @@ export const JSON_OBJ = {
       json['ui:widget'] = RadioBox;
     }
 
-    if(obj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+    if(obj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
       json['ui:widget'] = SelectBox;
     }
 
@@ -126,16 +118,16 @@ export const JSON_OBJ = {
     if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       json['ui:widget'] = TimeBox;
     }
-
+  
     if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {
       json[CUSTOMIZE.MAX_LENGTH] = obj[CUSTOMIZE.MAX_LENGTH];
     }
 
     var style = '';
-    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_COLOR])) {
+    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_COLOR]) && obj[CUSTOMIZE.LABEL_COLOR] !== '#') {
       style += 'color:' + obj[CUSTOMIZE.LABEL_COLOR] + ';';
     }
-    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_LAYOUT_COLOR])) {
+    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_LAYOUT_COLOR]) && obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] !== '#') {
       style += 'background-color:' + obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] + ';';
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.STYLE])) {
@@ -145,11 +137,14 @@ export const JSON_OBJ = {
       json['style'] = style;
     }
 
+    if(obj[CUSTOMIZE.REQUIRED]) {
+      json[CUSTOMIZE.REQUIRED] = obj[CUSTOMIZE.REQUIRED];
+    }
     console.log(json);
     return json;
   }
   ,getDefinitions:(obj) => {
-    if(obj[CUSTOMIZE.TYPE] !== TYPE.CHECKBOX && obj[CUSTOMIZE.TYPE] !== TYPE.RADIO && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) return null;
+    if(obj[CUSTOMIZE.TYPE] !== TYPE.CHECKBOX && obj[CUSTOMIZE.TYPE] !== TYPE.RADIO && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) return null;
     const items = Object.keys(obj[OPTIONS_KEY.OPTIONS]).map(key => obj[OPTIONS_KEY.OPTIONS][key]);
     var anyOf = [];
     items.map((o) => {
