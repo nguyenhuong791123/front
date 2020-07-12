@@ -1410,13 +1410,14 @@ class Customize extends C {
         }
   
         const idx = Object.keys(fObj.schema.properties).length;
-        const def = JSON_OBJ.getDefinitions(obj);
-        if(!Utils.isEmpty(def)) {
-          fObj.schema.definitions[itemName] = def;
-          fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
-        } else {
-          fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
-        }
+        // const def = JSON_OBJ.getDefinitions(obj);
+        // if(!Utils.isEmpty(def)) {
+        //   fObj.schema.definitions[itemName] = def;
+        //   fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
+        // } else {
+        //   fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
+        // }
+        fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
         fObj.schema['requireds'] = JSON_OBJ.getRequiredItem(obj, itemName, fObj.schema['requireds']);
   
         const placeholderKey = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
@@ -1492,7 +1493,8 @@ class Customize extends C {
           val = obj.checked;
         }
         editObj.obj[name] = val;
-        if(name !== TYPE.CHECKBOX && name !== TYPE.RADIO && name !== TYPE.LIST && name !== CUSTOMIZE.LANGUAGE) {
+        const options = [TYPE.CHECKBOX, TYPE.RADIO, TYPE.LIST];
+        if(!options.includes(type) && !options.includes(name) && name !== CUSTOMIZE.LANGUAGE) {
           delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
           delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
           delete editObj.obj[OPTIONS_KEY.OPTIONS];
