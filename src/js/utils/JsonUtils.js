@@ -1,12 +1,14 @@
 // import React from 'react';
 import ImageBox from './Compoment/ImageBox';
 import TimeBox from './Compoment/TimeBox';
-import RadioBox from './Compoment/RadioBox';
 import CheckBox from './Compoment/CheckBox';
+import RadioBox from './Compoment/RadioBox';
+import SelectBox from './Compoment/SelectBox';
+
 // import CheckBoxSingle from './Compoment/CheckBoxSingle';
 // import CheckBoxInline from './Compoment/CheckBoxInline';
 import Html from '../utils/HtmlUtils'
-import { TYPE, CUSTOMIZE, HTML_TAG } from './HtmlTypes';
+import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
 
 import Utils from './Utils';
 
@@ -28,7 +30,7 @@ export const JSON_OBJ = {
   ,getJsonSchema: (obj, itemName, key, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
-    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX , TYPE.LIST, TYPE.HIDDEN ];
+    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.IMAGE, TYPE.COLOR, TYPE.DISABLE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.LIST, TYPE.HIDDEN ];
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
@@ -46,17 +48,25 @@ export const JSON_OBJ = {
       }
     }
 
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, 'lists')) {
-      json['list_checked'] = obj['list_checked'];
-      json['list_option'] = obj['list_option'];
-      json['$ref'] = '#/definitions/' + itemName;
-      delete json['type'];
+    if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS)
+      && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
+        json[OPTIONS_KEY.OPTION_CHECKED] = obj[OPTIONS_KEY.OPTION_CHECKED];
+        json[OPTIONS_KEY.OPTION_LIST] = obj[OPTIONS_KEY.OPTION_LIST];
+        json[OPTIONS_KEY.OPTIONS] = obj[OPTIONS_KEY.OPTIONS];
+        json[CUSTOMIZE.REQUIRED] = obj[CUSTOMIZE.REQUIRED];
     }
 
-    if(Utils.inJson(obj, 'lists') && (obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
-        json['$ref'] = '#/definitions/' + itemName;
-        delete json['type'];
-    }
+    // if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && Utils.inJson(obj, OPTIONS_KEY.OPTIONS)) {
+    //   json[OPTIONS_KEY.OPTION_CHECKED] = obj[OPTIONS_KEY.OPTION_CHECKED];
+    //   json[OPTIONS_KEY.OPTION_LIST] = obj[OPTIONS_KEY.OPTION_LIST];
+    //   json['$ref'] = '#/definitions/' + itemName;
+    //   delete json['type'];
+    // }
+
+    // if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS) && (obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)) {
+    //     json['$ref'] = '#/definitions/' + itemName;
+    //     delete json['type'];
+    // }
 
     return json;
   }
@@ -75,7 +85,7 @@ export const JSON_OBJ = {
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) json['classNames'] += ' div-image-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) json['classNames'] += ' div-file-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST) {
-      if(!obj['list_checked'] && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
+      if(!obj[OPTIONS_KEY.OPTION_CHECKED] && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) {
         json['classNames'] += ' div-inline';
       } else {
         json['classNames'] += ' div-not-inline';
@@ -95,15 +105,19 @@ export const JSON_OBJ = {
       json['ui:disabled'] = true;
     }
 
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) {
+      if(obj[OPTIONS_KEY.OPTION_CHECKED]) {
+        json['classNames'] += ' div-not-inline';
+      }
+      json['ui:widget'] = CheckBox;
+    }
+
     if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
       json['ui:widget'] = RadioBox;
     }
 
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX) {
-      if(obj['list_checked']) {
-        json['classNames'] += ' div-not-inline';
-      }
-      json['ui:widget'] = CheckBox;
+    if(obj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+      json['ui:widget'] = SelectBox;
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
@@ -136,7 +150,7 @@ export const JSON_OBJ = {
   }
   ,getDefinitions:(obj) => {
     if(obj[CUSTOMIZE.TYPE] !== TYPE.CHECKBOX && obj[CUSTOMIZE.TYPE] !== TYPE.RADIO && obj[CUSTOMIZE.TYPE] !== TYPE.LIST) return null;
-    const items = Object.keys(obj['lists']).map(key => obj['lists'][key]);
+    const items = Object.keys(obj[OPTIONS_KEY.OPTIONS]).map(key => obj[OPTIONS_KEY.OPTIONS][key]);
     var anyOf = [];
     items.map((o) => {
       if(obj[CUSTOMIZE.TYPE] !== TYPE.RADIO) {
@@ -153,7 +167,7 @@ export const JSON_OBJ = {
     }
   }
   ,getDefaultDatas:(obj) => {
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && (obj['list_checked'] || obj['lists'].length > 1)) {
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && (obj[OPTIONS_KEY.OPTION_CHECKED] || obj[OPTIONS_KEY.OPTIONS].length > 1)) {
       return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?[obj[CUSTOMIZE.DEFAULT]]:[];
     } else {
       if(obj[CUSTOMIZE.TYPE] === TYPE.FILE || obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {

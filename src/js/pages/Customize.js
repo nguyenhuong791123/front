@@ -10,7 +10,7 @@ import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
@@ -546,7 +546,7 @@ class Customize extends C {
   }
 
   _onAddItemToDivTab() {
-    this.state.overlayCreateEditBox.obj['lists'].push({'valuel': '', 'label': ''});
+    this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].push({'valuel': '', 'label': ''});
     this.forceUpdate();
   }
 
@@ -555,7 +555,7 @@ class Customize extends C {
     if(Utils.isEmpty(obj)) return;
     var idx = obj.id.split('_')[1];
     if(Number.isNaN(Number(idx))) return;
-    this.state.overlayCreateEditBox.obj['lists'].splice(idx, 1);
+    this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].splice(idx, 1);
     this.forceUpdate();
   }
 
@@ -606,7 +606,6 @@ class Customize extends C {
     for(let i=0; i<objs.length; i++) {
       options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
     }
-
 
     var obj = null;
     var editObj = this.state.overlayCreateEditBox.obj;
@@ -758,15 +757,37 @@ class Customize extends C {
                             && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
                             && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
                             && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
-                          return(
-                            <td>
-                              <FormControl
-                                type={ defaultType }
-                                name={ CUSTOMIZE.DEFAULT }
-                                defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                onChange={ this._onCreateEditChange.bind(this) }/>
-                            </td>
-                          );
+                              if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
+                                || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
+                                || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
+                                  var defaultOptions = [];
+                                  defaultOptions.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+                                  if(Utils.inJson(editObj, OPTIONS_KEY.OPTIONS)) {
+                                    editObj[OPTIONS_KEY.OPTIONS].map((o, idx) => {
+                                      if(!Utils.isEmpty(o['value']) && !Utils.isEmpty(o['label']))
+                                        defaultOptions.push( <option key={ idx } value={ o['value'] }>{ o['label'] }</option> );
+                                    });
+                                  }
+                                  return(
+                                    <td>
+                                      <FormControl
+                                        as={ HTML_TAG.SELECT }
+                                        name={ CUSTOMIZE.DEFAULT }
+                                        defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
+                                        onChange={ this._onCreateEditChange.bind(this) }> { defaultOptions }</FormControl>
+                                    </td>
+                                  );
+                              } else {
+                                return(
+                                  <td>
+                                    <FormControl
+                                      type={ defaultType }
+                                      name={ CUSTOMIZE.DEFAULT }
+                                      defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
+                                      onChange={ this._onCreateEditChange.bind(this) }/>
+                                  </td>
+                                );      
+                              }
                         } else if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
                           return(
                             <td>
@@ -952,8 +973,8 @@ class Customize extends C {
                             <td>
                               <input
                                 type={ HTML_TAG.CHECKBOX }
-                                name={ 'list_checked' }
-                                checked={ editObj['list_checked'] }
+                                name={ OPTIONS_KEY.OPTION_CHECKED }
+                                checked={ editObj[OPTIONS_KEY.OPTION_CHECKED] }
                                 onChange={ this._onCreateEditChange.bind(this) }></input>
                             </td>    
                           );
@@ -963,8 +984,8 @@ class Customize extends C {
                       <td>
                         <FormControl
                             as={ HTML_TAG.SELECT }
-                            name={ 'list_option' }
-                            defaultValue={ editObj['list_option'] }
+                            name={ OPTIONS_KEY.OPTION_LIST }
+                            defaultValue={ editObj[OPTIONS_KEY.OPTION_LIST] }
                             onChange={ this._onCreateEditChange.bind(this) }>
                             { options }
                         </FormControl>
@@ -1092,8 +1113,8 @@ class Customize extends C {
                             <td>
                               <input
                                 type={ HTML_TAG.CHECKBOX }
-                                name={ 'list_checked' }
-                                checked={ editObj['list_checked'] }
+                                name={ OPTIONS_KEY.OPTION_CHECKED }
+                                checked={ editObj[OPTIONS_KEY.OPTION_CHECKED] }
                                 onChange={ this._onCreateEditChange.bind(this) }></input>
                             </td>
                           );
@@ -1107,7 +1128,8 @@ class Customize extends C {
               {(() => {
                 if (editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
                   && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                  && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB) {
+                  && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB
+                  && Utils.isEmpty(editObj[OPTIONS_KEY.OPTION_LIST])) {
                   return(
                     <tr>
                       <td colSpan='4'>
@@ -1115,18 +1137,18 @@ class Customize extends C {
                           <table className='table-overlay-box'>
                             <tbody>
                               {(() => {
-                                // if (this.state.overlayCreateEditBox.obj['list_checked'] && (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO)) {
+                                // if (this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTION_CHECKED] && (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO)) {
                                 if (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
                                   || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
                                   || editObj[CUSTOMIZE.TYPE] === TYPE.LIST) {
-                                  if(editObj['lists'] === undefined) {
+                                  if(editObj[OPTIONS_KEY.OPTIONS] === undefined) {
                                     if(editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-                                      editObj['lists'] = [{ 'value': '', 'label': '' }, { 'value': '', 'label': '' }];
+                                      editObj[OPTIONS_KEY.OPTIONS] = [{ 'value': '', 'label': '' }, { 'value': '', 'label': '' }];
                                     } else {
-                                      editObj['lists'] = [{ 'value': '', 'label': '' }];
+                                      editObj[OPTIONS_KEY.OPTIONS] = [{ 'value': '', 'label': '' }];
                                     }
                                   }
-                                  const objs = Array.from(editObj['lists']);
+                                  const objs = Array.from(editObj[OPTIONS_KEY.OPTIONS]);
                                   return objs.map((o, idx) => {
                                     return(
                                       <tr key={ idx }>
@@ -1327,8 +1349,8 @@ class Customize extends C {
     }
     if(Utils.isEmpty(error)
       && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.LIST)
-      && (Utils.isEmpty(obj['lists']) || Utils.isEmpty(obj['lists'][0]['value']) || Utils.isEmpty(obj['lists'][0]['label']))
-      && Utils.isEmpty(obj['list_option'])) {
+      && (Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS]) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['value']) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['label']))
+      && Utils.isEmpty(obj[OPTIONS_KEY.OPTION_LIST])) {
         error = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
     }
     return error;
@@ -1434,9 +1456,9 @@ class Customize extends C {
     //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_LAYOUT_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_LAYOUT_COLOR];
     //   if(Utils.inJson(editObj.obj, CUSTOMIZE.STYLE)) delete editObj.obj[CUSTOMIZE.STYLE];
     //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO)
-    //     if(Utils.inJson(editObj.obj, 'list_checked')) delete editObj.obj['list_checked'];
+    //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTION_CHECKED)) delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
     //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO && type !== CUSTOMIZE.LIST)
-    //     if(Utils.inJson(editObj.obj, 'lists')) delete editObj.obj['lists'];
+    //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTIONS)) delete editObj.obj[OPTIONS_KEY.OPTIONS];
     // }
 
     if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
@@ -1447,6 +1469,9 @@ class Customize extends C {
       } else {
         this._fileToBase64(files, editObj);
       }
+      delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
+      delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
+      delete editObj.obj[OPTIONS_KEY.OPTIONS];
     } else {
       var val = obj.value;
       if(name === 'obj_lists'
@@ -1454,22 +1479,23 @@ class Customize extends C {
         && name !== CUSTOMIZE.LANGUAGE ) {
         var idx = obj.id.split('_')[1];
         if(Number.isNaN(Number(idx))) return;
-        var lObj = editObj.obj['lists'][idx];
+        var lObj = editObj.obj[OPTIONS_KEY.OPTIONS][idx];
         if(obj.id.startsWith('values_')) {
           lObj['value'] = obj.value;
         } 
         if(obj.id.startsWith('labels_')) {
           lObj['label'] = obj.value;
         }
-        editObj.obj['lists'][idx] = lObj;
+        editObj.obj[OPTIONS_KEY.OPTIONS][idx] = lObj;
       } else {
         if(obj.type === TYPE.CHECKBOX) {
           val = obj.checked;
         }
         editObj.obj[name] = val;
-        if(type !== TYPE.CHECKBOX && type !== TYPE.RADIO && type !== TYPE.LIST && name !== CUSTOMIZE.LANGUAGE) {
-          delete editObj.obj['list_checked'];
-          delete editObj.obj['lists'];
+        if(name !== TYPE.CHECKBOX && name !== TYPE.RADIO && name !== TYPE.LIST && name !== CUSTOMIZE.LANGUAGE) {
+          delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
+          delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
+          delete editObj.obj[OPTIONS_KEY.OPTIONS];
         } else if (name === CUSTOMIZE.LANGUAGE) {
           const label_language = CUSTOMIZE.LABEL + '_' + val;
           if (editObj.obj[label_language] === undefined) {

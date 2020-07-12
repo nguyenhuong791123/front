@@ -172,6 +172,12 @@ export const CUSTOMIZE = {
     ,COLOR: 'color'
 }
 
+export const OPTIONS_KEY = {
+    OPTIONS: 'options',
+    OPTION_CHECKED: 'option_checked',
+    OPTION_LIST: 'option_list',
+}
+
 export const OPTIONS = [
     'group_auth',
     'user_auth',
