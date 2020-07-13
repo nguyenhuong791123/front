@@ -52,7 +52,7 @@ class Customize extends C {
       ,dragobject: null
       ,dragparent: null
       ,mode: ACTION.CREATE
-      ,menus: [
+      ,pages: [
         { id: 1, target: 'target_00', label: 'label_00' }
         ,{ id: 3, target: 'target_001', label: 'label_001' }
         ,{ id: 5, target: 'target_0000', label: 'label_0000' }
@@ -344,6 +344,7 @@ class Customize extends C {
           if(Utils.inJson(properties, 'hidden_form_reload')) {
             delete properties['hidden_form_reload'];
             if(Utils.inJson(forms[divIdx].object.data, 'hidden_form_reload')) delete forms[divIdx].object.data['hidden_form_reload'];
+            if(Utils.inJson(forms[divIdx].object.ui, 'hidden_form_reload')) delete forms[divIdx].object.ui['hidden_form_reload'];
           }
           // console.log(properties);
           for(let i=0; i<childs.length; i++) {
@@ -368,6 +369,7 @@ class Customize extends C {
             if(Utils.inJson(properties, 'hidden_form_reload')) {
               delete properties['hidden_form_reload'];
               if(Utils.inJson(object.data, 'hidden_form_reload')) delete object.data['hidden_form_reload'];
+              if(Utils.inJson(object.ui, 'hidden_form_reload')) delete object.ui['hidden_form_reload'];
             }
             childs = divChilds[i].childNodes[0].childNodes[0].childNodes[0].childNodes;
             // console.log(childs);
@@ -544,16 +546,16 @@ class Customize extends C {
     console.log(this.state.pageName);
   }
 
-  _fileToBase64(files, editObj) {
-    editObj.obj['file_data'] = [];
-    Object.keys(files).map(i => {
-      var reader = new FileReader();
-      reader.onload = function () {
-        editObj.obj['file_data'].push(reader.result);
-      };
-      reader.readAsDataURL(files[i]);
-    });
-  }
+  // _fileToBase64(files, editObj) {
+  //   editObj.obj['file_data'] = [];
+  //   Object.keys(files).map(i => {
+  //     var reader = new FileReader();
+  //     reader.onload = function () {
+  //       editObj.obj['file_data'].push(reader.result);
+  //     };
+  //     reader.readAsDataURL(files[i]);
+  //   });
+  // }
 
   // _onAddItemToDivTab() {
   //   this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].push({'valuel': '', 'label': ''});
@@ -665,6 +667,7 @@ class Customize extends C {
             mode={ this.state.mode }
             dragobject={ this.state.dragobject }
             editBox={ this.state.overlayCreateEditBox }
+            pages={ this.state.pages }
             updateEditBox={ this._onUpdateEditBox.bind(this) }/>
 
           {/* <table className='table-overlay-box'>
@@ -1367,14 +1370,13 @@ class Customize extends C {
       }
     }
     if(Utils.isEmpty(error)
-      && (obj[CUSTOMIZE.TYPE] === TYPE.DISABLE && Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))
+      && (Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]) && (obj[CUSTOMIZE.TYPE] === TYPE.HIDDEN || obj[CUSTOMIZE.TYPE] === TYPE.DISABLE))
       || (obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj['file_data']))) {
       error = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
     }
     if(Utils.isEmpty(error)
       && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT)
-      && (Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS]) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['value']) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['label']))
-      && Utils.isEmpty(obj[OPTIONS_KEY.OPTION_LIST])) {
+      && (!Array.isArray(obj[OPTIONS_KEY.OPTIONS]) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['value']) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['label']))) {
         error = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
     }
     return error;
@@ -1434,15 +1436,9 @@ class Customize extends C {
         }
   
         const idx = Object.keys(fObj.schema.properties).length;
-        // const def = JSON_OBJ.getDefinitions(obj);
-        // if(!Utils.isEmpty(def)) {
-        //   fObj.schema.definitions[itemName] = def;
-        //   fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
-        // } else {
-        //   fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
-        // }
+        obj['language'] = this.state.isUser.language;
         fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
-        fObj.schema['requireds'] = JSON_OBJ.getRequiredItem(obj, itemName, fObj.schema['requireds']);
+        // fObj.schema['requireds'] = JSON_OBJ.getRequiredItem(obj, itemName, fObj.schema['requireds']);
   
         const placeholderKey = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
         fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, placeholderKey);
@@ -1585,10 +1581,10 @@ class Customize extends C {
 
   _getTitle() {
     var items = [];
-    const menus = this.state.menus;
+    const pages = this.state.pages;
     items.push( <option key={ 'frist_option' } value={ '0' }>{ '---' }</option> );
-    for (let i=0; i<menus.length; i++) {
-      items.push( <option key={ i } value={ menus[i].id }>{ menus[i].label }</option> );
+    for (let i=0; i<pages.length; i++) {
+      items.push( <option key={ i } value={ pages[i].id }>{ pages[i].label }</option> );
     }
     return(
       <div>
@@ -1703,9 +1699,80 @@ class Customize extends C {
     });
   }
 
-  UNSAFE_componentWillUpdate() {
+  _onAddAttribute(object) {
+    var objs = Object.keys(object.ui);
+    if(!Array.isArray(objs) || objs.length <= 0) return;
+    objs.map((o) => {
+      const field = o;
+      const obj = object.ui[o];
+      const root = document.getElementById('root_' + field);
+      if(!Utils.isEmpty(root)) {
+        var div = root.parentElement;
+        if(field.split('_')[0] === TYPE.FILE) {
+          div = root.parentElement.parentElement.parentElement;
+        }
+        if(!Utils.isEmpty(div)) {
+          if((Utils.inJson(obj, CUSTOMIZE.REQUIRED) && obj[CUSTOMIZE.REQUIRED])
+            || (Utils.inJson(obj, CUSTOMIZE.STYLE) && !Utils.isEmpty(obj[CUSTOMIZE.STYLE]))) {
+  
+            var l = div.getElementsByTagName(HTML_TAG.LABEL)[0];
+            if(field.split('_')[0] === TYPE.FILE) {
+              l = div.getElementsByTagName(HTML_TAG.LABEL)[0];
+            }
+            if(!Utils.isEmpty(l)) {
+              const label = l.innerHTML;
+              if(label.indexOf('<font') === -1
+                && Utils.inJson(obj, CUSTOMIZE.REQUIRED)
+                && obj[CUSTOMIZE.REQUIRED]) {
+                l.innerHTML = label + "<font class='required'>*</font>";
+              }
+              const style = l.style;
+              if(Utils.inJson(obj, CUSTOMIZE.STYLE)
+                && !Utils.isEmpty(obj[CUSTOMIZE.STYLE])
+                && style !== obj[CUSTOMIZE.STYLE]) {
+                l.setAttribute('style', obj[CUSTOMIZE.STYLE]);
+              }
+            }
+          }
+        }
+        // var input = document.getElementById('root_' + field);
+        // if(!Utils.isEmpty(input)) {
+        //   if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
+        //     const divs = Array.from(input.childNodes);
+        //     divs.map((o) => {
+        //       input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
+        //       if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
+        //     });
+        //   } else {
+        //     input.setAttribute("disabled", true);
+        //   }
+        // }
+      }
+    });
+  }
+
+  _onFormAddAttribute() {
+    this.state.form.map((f) => {
+      var objs = f.object;
+      if(Array.isArray(objs) && objs.length > 0) {
+        objs.map((obj) => {
+          this._onAddAttribute(obj);
+        });
+      } else {
+        this._onAddAttribute(objs);
+      }
+    });
+  }
+
+  // UNSAFE_componentWillUpdate() {
+  //   const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+  //   this._onAddDragDrop(div);
+  // }
+
+  componentDidUpdate() {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     this._onAddDragDrop(div);
+    this._onFormAddAttribute();
   }
 
   componentDidMount() {
@@ -1728,6 +1795,11 @@ class Customize extends C {
 
     return (
       <div>
+        <Actions
+          isUser={ this.state.isUser }
+          onClickBack={ this._onClickBack.bind(this) }
+          onClickSubmit={ this._onClickSubmit.bind(this) } />
+
         { this._getErrorMsg() }
         { this._getTitle() }
         { this._onAlerEdit() }
@@ -1738,10 +1810,6 @@ class Customize extends C {
           isUser={ this.state.isUser }
           form={ this.state.form }
           updateFormData={ this._onUpdateFormData.bind(this) } />
-        <Actions
-          isUser={ this.state.isUser }
-          onClickBack={ this._onClickBack.bind(this) }
-          onClickSubmit={ this._onClickSubmit.bind(this) } />
       </div>
     )
   };

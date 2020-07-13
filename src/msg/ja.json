@@ -30,11 +30,12 @@
   ,"bt_list": "リスト"
 
   ,"base_info": "基本情報"
+  ,"page_list": "ページ一覧"
   ,"system_setting": "システム設定"
   ,"page_setting": "ページ設定"
   ,"company_auth": "会社管理"
-  ,"group_auth": "グルーブ管理"
-  ,"user_auth": "ユーザー管理"
+  ,"groups": "グルーブ管理"
+  ,"users": "ユーザー管理"
   ,"schedule_auth": "スケジュール"
   ,"customer_auth": "顧客管理"
   ,"mente_auth": "メンテナンス"
@@ -49,6 +50,8 @@
   ,"post_mask": "〒"
   ,"city": "当道府県"
   ,"address": "住所"
+  ,"sex": "性別"
+  ,"exists": "有無"
 
   ,"title_page": "ページ名"
   ,"title_fileld": "項目"

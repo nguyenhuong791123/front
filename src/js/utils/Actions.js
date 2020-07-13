@@ -29,36 +29,37 @@ export default class AlertAction extends C {
     this.props.onClickSubmit();
   }
 
-  _setLayoutActions(){
-    this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
-    var body = document.getElementById('div_body');
-    // console.log(body);
-    var bts = document.getElementById('div_button_action');
-    // console.log(bts);
-    if(!isEmpty(bts) && !isEmpty(body.className)) {
-      var btClass = bts.className;
-      if(body.className.indexOf("div-margin-right-22") !== -1) {
-        bts.className = btClass + " " + body.className;
-      } else {
-        bts.className = btClass.replace(" div-margin-right-22", "");
-      }
-    }
-  }
+  // _setLayoutActions(){
+  //   this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
+  //   var body = document.getElementById('div_body');
+  //   // console.log(body);
+  //   var bts = document.getElementById('div_button_action');
+  //   // console.log(bts);
+  //   if(!isEmpty(bts) && !isEmpty(body.className)) {
+  //     var btClass = bts.className;
+  //     if(body.className.indexOf("div-margin-right-22") !== -1) {
+  //       bts.className = btClass + " " + body.className;
+  //     } else {
+  //       bts.className = btClass.replace(" div-margin-right-22", "");
+  //     }
+  //   }
+  // }
 
-  componentDidMount() {
-    this._setLayoutActions();
-  }
+  // componentDidMount() {
+  //   this._setLayoutActions();
+  // }
 
   UNSAFE_componentWillReceiveProps(props) {
     this.state.isUser = props.isUser;
   }
 
   render() {
-    const className = (!isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
+    // const className = (!isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN)?'div-actions-box':'div-not-windown-actions-box';
     // this.state.isUser.actions = { back: false, create: true, save: true };
     // console.log(this.state);
     return (
-        <div id="div_button_action" className={ className }>
+        // <div id="div_button_action" className={ className }>
+        <div id="div_button_action" className={ 'div-actions-box' }>
           {(() => {
             if(isEmpty(this.state.isUser.actions)
               || isEmpty(this.state.isUser.actions.back)

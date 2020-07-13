@@ -10,7 +10,8 @@ export default class RadioBox extends C {
         const objs = Array.from(def.options);
         const className = (this.props.schema.obj[OPTIONS_KEY.OPTION_CHECKED])?'form-check':'form-check-inline'
         return objs.map((obj, idx) => {
-            const checked = (!Utils.isEmpty(this.props.value) && this.props.value === obj['value'])?true:false;
+            var value = (!Utils.isEmpty(this.props.value) && !Number.isNaN(Number(this.props.value)))?parseInt(this.props.value):this.props.value;
+            const checked = (value === obj['value'])?true:false;
             return (
                 <div key={ idx } className={ className }>
                     <input type={ 'radio' }
@@ -28,7 +29,7 @@ export default class RadioBox extends C {
 
     render() {
         return (
-            <div className={ 'field-radio-group' }>
+            <div className={ 'field-radio-group' } id={ this.props.id }>
                 { this._getRadioBox() }
             </div>
         );  

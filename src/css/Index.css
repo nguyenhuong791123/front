@@ -46,32 +46,57 @@ div.div-inline-box
 
 div.div-box-height-89 > div.checkboxes
 ,div.div-box-height-89 > div.field-radio-group
-,div.div-box-height-89 > img {
-    height: 35px;
+,div.div-box-height-89 > img
+,div.div-box-height-89 > textarea {
+    height: 37px;
 }
 
 div.div-box-height-178 > div.checkboxes
 ,div.div-box-height-178 > div.field-radio-group
-,div.div-box-height-178 > img {
+,div.div-box-height-178 > img
+,div.div-box-height-178 > textarea {
     height: 125px;
 }
 
 div.div-box-height-267 > div.checkboxes
 ,div.div-box-height-267 > div.field-radio-group
-,div.div-box-height-267 > img {
+,div.div-box-height-267 > img
+,div.div-box-height-267 > textarea {
     height: 215px;
 }
 
 div.div-box-height-356 > div.checkboxes
 ,div.div-box-height-356 > div.field-radio-group
-,div.div-box-height-356 > img {
+,div.div-box-height-356 > img
+,div.div-box-height-356 > textarea {
     height: 305px;
 }
 
 div.div-box-height-445 > div.checkboxes
 ,div.div-box-height-445 > div.field-radio-group
-,div.div-box-height-445 > img {
+,div.div-box-height-445 > img
+,div.div-box-height-445 > textarea {
     height: 395px;
+}
+
+div.div-box-height-89 div#div_table_body {
+    height: 15px;
+}
+
+div.div-box-height-178 div#div_table_body {
+    height: 103px;
+}
+
+div.div-box-height-267 div#div_table_body {
+    height: 193px;
+}
+
+div.div-box-height-356 div#div_table_body {
+    height: 283px;
+}
+
+div.div-box-height-445 div#div_table_body {
+    height: 373px;
 }
 
 div.div-not-inline > div.checkboxes
@@ -96,7 +121,7 @@ div.div-inline > div.checkboxes
 }
 
 div.div-box textarea {
-    height: 119px;
+    /* height: 119px; */
     padding: .2em;
 }
 
@@ -112,6 +137,10 @@ div.div-image-box {
 
 div.div-image-box > label {
     text-align: left;
+}
+
+div.div-customize-table > div.div-table {
+    margin-top: -0.5em;
 }
 
 /* 点滅 */
@@ -385,25 +414,29 @@ div.dropdown-menu a.dropdown-item svg {
 }
 
 div.div-actions-box {
+    display: flex;
+    position: absolute;
+    right: 0.5em;
+}
+
+/* div.div-actions-box {
     display: grid;
     padding: 0.2em;
     top: 20%;
-    /* bottom: 20%; */
     float: right;
-    /* right: -5.5em; */
     right: -4em;
     position: absolute;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     z-index: 1;
-}
+} */
 
-div.div-actions-box:hover {
+/* div.div-actions-box:hover {
     right: 0;
-}
+} */
 
 div.div-actions-box button {
-    margin: 0.2em;
+    margin-right: 0.4em;
 }
 
 div.div-not-windown-actions-box {

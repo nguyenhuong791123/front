@@ -11,7 +11,8 @@ export default class CheckBox extends C {
         if(divs === undefined) return;
         divs.map((o) => {
             const input = o.childNodes[0];
-            if(input.tagName === 'INPUT' && input.checked) checkeds.push(input.value);
+            var value = (!Utils.isEmpty(input.value) && !Number.isNaN(Number(input.value)))?parseInt(input.value):input.value;
+            if(input.tagName === 'INPUT' && input.checked) checkeds.push(value);
         });
         this.props.onChange(checkeds);
     }
@@ -22,8 +23,12 @@ export default class CheckBox extends C {
         if(!Utils.inJson(def, OPTIONS_KEY.OPTIONS)) return('Not List!!!');
         const objs = Array.from(def.options);
         if(objs.length > 1) {
+            var values = this.props.value;
+            values.map((o) => {
+                return (!Utils.isEmpty(o) && !Number.isNaN(Number(o)))?parseInt(o):o;
+            });
             return objs.map((obj, idx) => {
-                const checked = (!Utils.isEmpty(this.props.value) && this.props.value.includes(obj['value']))?true:false;
+                const checked = (!Utils.isEmpty(values) && values.includes(obj['value']))?true:false;
                 return (
                     <div key={ idx } className={ 'form-check' }>
                         <input type={ 'checkbox' }
@@ -38,7 +43,8 @@ export default class CheckBox extends C {
             });    
         } else {
             var obj = objs[0];
-            const checked = (!Utils.isEmpty(this.props.value) && this.props.value === obj['value'])?true:false;
+            var value = (!Utils.isEmpty(this.props.value) && !Number.isNaN(Number(this.props.value)))?parseInt(this.props.value):this.props.value;
+            const checked = (value === obj['value'])?true:false;
             return (
                 <div className={ 'form-check' }>
                     <input
@@ -61,7 +67,7 @@ export default class CheckBox extends C {
 
     render() {
         return (
-            <div className={ 'checkboxes' }>
+            <div className={ 'checkboxes' } id={ this.props.id }>
                 { this._getCheckBox() }
             </div>
         );  

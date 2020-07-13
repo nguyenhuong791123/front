@@ -60,6 +60,7 @@ export const TYPE = {
     // ,TAB: 'tab'
     // ,OBJECT: 'object'
     ,BUTTON: 'button'
+    ,CHILDENS: 'childens'
 }
 
 export const BOX_WIDTH = {
@@ -175,11 +176,13 @@ export const CUSTOMIZE = {
 export const OPTIONS_KEY = {
     OPTIONS: 'options',
     OPTION_CHECKED: 'option_checked',
-    OPTION_LIST: 'option_list',
+    OPTION_TARGET: 'option_target',
 }
 
 export const OPTIONS = [
-    'group_auth',
-    'user_auth',
-    'city'
+    'groups',
+    'users',
+    'city',
+    'sex',
+    'exists'
 ]

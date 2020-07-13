@@ -4,6 +4,7 @@ import TimeBox from './Compoment/TimeBox';
 import CheckBox from './Compoment/CheckBox';
 import RadioBox from './Compoment/RadioBox';
 import SelectBox from './Compoment/SelectBox';
+import TableBox from './Compoment/TableBox';
 
 // import CheckBoxSingle from './Compoment/CheckBoxSingle';
 // import CheckBoxInline from './Compoment/CheckBoxInline';
@@ -13,29 +14,29 @@ import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
 import Utils from './Utils';
 
 export const JSON_OBJ = {
-  getRequiredItem:(obj, itemName, requireds) => {
-    var reqs = requireds;
-    if(obj[CUSTOMIZE.REQUIRED]) {
-      const errorMsg = { item_name: itemName };
-      const objs = Html.getLanguages();
-      objs.map((o) => {
-        errorMsg[CUSTOMIZE.LABEL + '_' + o] = obj[CUSTOMIZE.LABEL + '_' + o];
-      });
-      if(!Utils.inArray(reqs, itemName)) reqs.push(errorMsg);
-    } else {
-      if(Utils.inArray(reqs, itemName)) reqs.splice(reqs.indexOf(itemName), 1);
-    }
-    return reqs;
-  }
-  ,getJsonSchema: (obj, itemName, key, idx) => {
+  // getRequiredItem:(obj, itemName, requireds) => {
+  //   var reqs = requireds;
+  //   if(obj[CUSTOMIZE.REQUIRED]) {
+  //     const errorMsg = { item_name: itemName };
+  //     const objs = Html.getLanguages();
+  //     objs.map((o) => {
+  //       errorMsg[CUSTOMIZE.LABEL + '_' + o] = obj[CUSTOMIZE.LABEL + '_' + o];
+  //     });
+  //     if(!Utils.inArray(reqs, itemName)) reqs.push(errorMsg);
+  //   } else {
+  //     if(Utils.inArray(reqs, itemName)) reqs.splice(reqs.indexOf(itemName), 1);
+  //   }
+  //   return reqs;
+  // },
+  getJsonSchema: (obj, itemName, key, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
-    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.COLOR, TYPE.DISABLE, TYPE.HIDDEN ];
+    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.COLOR, TYPE.DISABLE, TYPE.HIDDEN, TYPE.IMAGE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS ];
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
   
-    var json = { type: type, title: obj[key], idx: idx, obj: obj };
+    var json = { type: type, title: obj[key], idx: idx, language: obj['language'], obj: obj };
     if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
       json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
     }
@@ -51,18 +52,18 @@ export const JSON_OBJ = {
     if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS)
       && (obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT)) {
         json[OPTIONS_KEY.OPTION_CHECKED] = obj[OPTIONS_KEY.OPTION_CHECKED];
-        json[OPTIONS_KEY.OPTION_LIST] = obj[OPTIONS_KEY.OPTION_LIST];
+        json[OPTIONS_KEY.OPTION_TARGET] = obj[OPTIONS_KEY.OPTION_TARGET];
         json[OPTIONS_KEY.OPTIONS] = obj[OPTIONS_KEY.OPTIONS];
         json[CUSTOMIZE.REQUIRED] = obj[CUSTOMIZE.REQUIRED];
     }
 
-    if([ TYPE.IMAGE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT ].includes(type)) {
-      delete json['type']; 
-    }
+    // if([ TYPE.IMAGE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT ].includes(type)) {
+    //   delete json['type']; 
+    // }
 
     return json;
   }
-  ,getJsonUi: (obj, key) => {
+  ,getJsonUi: (obj, key, idx) => {
     console.log(obj);
     var json = {};
     if(!Utils.isEmpty(obj[key])) {
@@ -83,6 +84,7 @@ export const JSON_OBJ = {
         json['classNames'] += ' div-not-inline';
       }
     }
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS && idx === 1) json['classNames'] += ' div-list-not-titile';
 
     const array = [ TYPE.PASSWORD, TYPE.COLOR, TYPE.TEXTAREA, TYPE.RADIO ];
     if(array.includes(obj[CUSTOMIZE.TYPE])) {
@@ -103,20 +105,21 @@ export const JSON_OBJ = {
       }
       json['ui:widget'] = CheckBox;
     }
-
     if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
       json['ui:widget'] = RadioBox;
     }
-
     if(obj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
       json['ui:widget'] = SelectBox;
     }
-
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
       json['ui:widget'] = ImageBox;
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       json['ui:widget'] = TimeBox;
+    }
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
+      json['classNames'] += ' div-customize-table';
+      json['ui:widget'] = TableBox;
     }
   
     if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {
@@ -143,24 +146,24 @@ export const JSON_OBJ = {
     console.log(json);
     return json;
   }
-  ,getDefinitions:(obj) => {
-    if(obj[CUSTOMIZE.TYPE] !== TYPE.CHECKBOX && obj[CUSTOMIZE.TYPE] !== TYPE.RADIO && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) return null;
-    const items = Object.keys(obj[OPTIONS_KEY.OPTIONS]).map(key => obj[OPTIONS_KEY.OPTIONS][key]);
-    var anyOf = [];
-    items.map((o) => {
-      if(obj[CUSTOMIZE.TYPE] !== TYPE.RADIO) {
-        anyOf.push({ type: 'string', enum: [ o['value'] ], title: o['label'] });
-      } else {
-        anyOf.push({ const: o['value'], title: o['label'] });
-      }
-    });  
-    if(Utils.isEmpty(anyOf)) return null;
-    if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-      return { type: 'string', oneOf: anyOf };
-    } else {
-      return { type: 'string', anyOf: anyOf };
-    }
-  }
+  // ,getDefinitions:(obj) => {
+  //   if(obj[CUSTOMIZE.TYPE] !== TYPE.CHECKBOX && obj[CUSTOMIZE.TYPE] !== TYPE.RADIO && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) return null;
+  //   const items = Object.keys(obj[OPTIONS_KEY.OPTIONS]).map(key => obj[OPTIONS_KEY.OPTIONS][key]);
+  //   var anyOf = [];
+  //   items.map((o) => {
+  //     if(obj[CUSTOMIZE.TYPE] !== TYPE.RADIO) {
+  //       anyOf.push({ type: 'string', enum: [ o['value'] ], title: o['label'] });
+  //     } else {
+  //       anyOf.push({ const: o['value'], title: o['label'] });
+  //     }
+  //   });  
+  //   if(Utils.isEmpty(anyOf)) return null;
+  //   if(obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+  //     return { type: 'string', oneOf: anyOf };
+  //   } else {
+  //     return { type: 'string', anyOf: anyOf };
+  //   }
+  // }
   ,getDefaultDatas:(obj) => {
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && (obj[OPTIONS_KEY.OPTION_CHECKED] || obj[OPTIONS_KEY.OPTIONS].length > 1)) {
       return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?[obj[CUSTOMIZE.DEFAULT]]:[];
@@ -173,8 +176,10 @@ export const JSON_OBJ = {
             return obj['file_data'][0];
           }
         }
+      } else if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
+        return (!Utils.isEmpty(obj[TYPE.CHILDENS]) && !Number.isNaN(Number(obj[TYPE.CHILDENS])))?parseInt(obj[TYPE.CHILDENS]):obj[TYPE.CHILDENS];
       } else {
-        return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?obj[CUSTOMIZE.DEFAULT]:'';
+        return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]) && !Number.isNaN(Number(obj[CUSTOMIZE.DEFAULT])))?parseInt(obj[CUSTOMIZE.DEFAULT]):obj[CUSTOMIZE.DEFAULT];
       }
     }
   }
@@ -241,7 +246,7 @@ export const JSON_OBJ = {
                 fIdx: idx,
                 idx: 0,
                 properties: {},
-                definitions: {},
+                // definitions: {},
                 requireds: [],
                 obj: jObj
             },
@@ -264,7 +269,7 @@ export const JSON_OBJ = {
           fIdx: fIdx,
           idx: idx,
           properties: {},
-          definitions: {},
+          // definitions: {},
           requireds: [],
           obj: jObj
       },

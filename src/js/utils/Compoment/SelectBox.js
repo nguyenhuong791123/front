@@ -16,9 +16,14 @@ export default class SelectBox extends C {
     }
 
     render() {
+        // const def = this.props.schema;
+        // if(!Utils.inJson(def, OPTIONS_KEY.OPTIONS)) return('Not List!!!');
+        // const value = this.props.value;
+
         return (
             <select
                 id={ this.props.id }
+                multiple={ false }
                 className="form-control"
                 value={ this.props.value }
                 onChange={() => this.props.onChange(event.target.value)}>

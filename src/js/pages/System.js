@@ -423,14 +423,17 @@ class System extends C {
 
         return (
             <div>
+                <Actions
+                    isUser={ this.state.isUser }
+                    onClickAdd={ this._onClickAdd.bind(this) }
+                    onClickSubmit={ this._onClickSubmit.bind(this) } />
+                <div className="div-title">
+                    <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
+                </div>
+
                 <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
                     { this._getAllList() }
                 </div>
-
-                <Actions
-                        isUser={ this.state.isUser }
-                        onClickAdd={ this._onClickAdd.bind(this) }
-                        onClickSubmit={ this._onClickSubmit.bind(this) } />
             </div>
         )
     };

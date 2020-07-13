@@ -1,9 +1,14 @@
-div.div-pagin {
+div.div-pagin
+,div.div-title {
     width: 100%;
     padding: .2em;
     display: inline-block;
     margin-bottom: -1em;
     padding-top: .3em;
+}
+
+div.div-title {
+    margin-bottom: .3em;
 }
 
 div.div-pagin button
@@ -15,12 +20,17 @@ div.div-pagin button {
     margin-left: .5em;
 }
 
+div.div-title h5 {
+    margin-top: .5em;
+}
+
 div.div-pagin h5 {
     position: absolute;
     margin-top: .5em;
 }
 
-div.div-pagin h5::before {
+div.div-pagin h5::before
+,div.div-title h5::before {
     content: '★ ';
 }
 
