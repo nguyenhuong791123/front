@@ -1,4 +1,9 @@
-div.div-table div#div_table_header {
+div.div-table > div {
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+/* div.div-table div#div_table_header {
     overflow-x: auto;
     overflow-x: hidden;
 }
@@ -6,7 +11,7 @@ div.div-table div#div_table_header {
 div.div-table div:last-child {
     overflow-x: auto;
     overflow-y: auto;
-}
+} */
 
 table.table {
     margin-bottom: 0;

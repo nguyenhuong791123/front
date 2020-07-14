@@ -1,33 +1,35 @@
 import React, { Component as C } from 'react';
-// import onClickOutside from 'react-onclickoutside';
 import ReactLightCalendar from '@lls/react-light-calendar';
 import '@lls/react-light-calendar/dist/index.css';
 import '../../css/Calendar.css';
 
 import { MSG_TYPE } from './Types';
-import { HTML_TAG } from './HtmlTypes';
-import { isEmpty } from './Utils';
+import { HTML_TAG, MOUSE } from './HtmlTypes';
+import { isEmpty, inJson } from './Utils';
 import DateTime from './Date';
 import Msg from '../../msg/Msg';
 
-class CalendarBox extends C {
+class Calendar extends C {
     constructor(props) {
         super(props)
 
         this._onChange = this._onChange.bind(this);
         const date = new Date()
         const start = date.getTime()
+        const datetime = (inJson(props, 'schema') && !isEmpty(props.schema['datetime']))?props.schema.datetime:props.datetime;
+        const language = (inJson(props, 'schema') && !isEmpty(props.schema['language']))?props.schema.language:props.language;
+        const timezone = (language === 'ja')?'JST':'UTC';
         // const language = this.props.language;
         this.state = {
-            show: this.props.show
-            ,objId: this.props.objId
-            ,fromTo: this.props.fromTo
-            ,datetime: this.props.datetime
-            ,range: this.props.range
-            ,timezone: this.props.timezone
-            ,language: this.props.language
-            ,top: this.props.top
-            ,left: this.props.left
+            // show: this.props.show
+            // ,
+            id: this.props.objId
+            ,range: (isEmpty(props.range))?false:true
+            ,datetime: (datetime === true)?true:false
+            ,timezone: timezone
+            ,language: (isEmpty(language))?'ja':language
+            ,top: props.top
+            ,left: props.left
             ,start
             ,end: new Date(start).setDate(date.getDate() + 6)
             ,dayLabels: []
@@ -35,7 +37,8 @@ class CalendarBox extends C {
         }
     }
 
-    _getDayMonthLabel() {
+    _onSetDefaultCalendar() {
+        this._onSetValueToCalendar();
         console.log(this.state.language);
         const language = this.state.language;
         this.state.dayLabels = [
@@ -65,45 +68,90 @@ class CalendarBox extends C {
 
     _onChange(startDate, endDate) {
         if(isEmpty(startDate)) return;
-        const start = DateTime.dateTime(new Date(startDate), this.state.language, this.state.datetime, null);
-        this.setState({ start: startDate, end: endDate });
-        if(this.state.fromTo) {
+        var start = DateTime.dateTime(new Date(startDate), this.state.language, this.state.datetime, null);
+        if(this.state.range) {
             if(!isEmpty(endDate)) {
                 const end = DateTime.dateTime(new Date(endDate), this.state.language, this.state.datetime, null);
-                this._getValueToObj(start + '～' + end);
+                this._onGetValueFromCalendar(start + '～' + end);
                 return this.props.onChangeCalendar(start, end);
             }
+            this.setState({ start: startDate, end: endDate });
         } else {
-            this._getValueToObj();
-            return this.props.onChangeCalendar(start, '');
+            if(this.state.start === startDate && endDate > startDate) {
+                start = DateTime.dateTime(new Date(endDate), this.state.language, this.state.datetime, null);
+            }
+            this.setState({ start: startDate });
+            // console.log(start);
+            // console.log(end);
+            this._onGetValueFromCalendar();
+            return this.props.onChangeCalendar(start);
         }
     }
 
-    _getValueToObj(val) {
+    _onChangeAtDate(startDate) {
+        if(isEmpty(startDate)) return;
+        const start = DateTime.dateTime(new Date(startDate), this.state.language, this.state.datetime, null);
+        this.setState({ start: startDate });
+        this._onGetValueFromCalendar();
+        return this.props.onChangeCalendar(start);
+}
+
+    _onSetValueToCalendar() {
+        const p = document.getElementById(this.state.id);
+        if(isEmpty(p)) return;
+        var obj = null;
+        if(p.tagName === HTML_TAG.TH) {
+            obj = p.childNodes[0];
+        }
+        if(isEmpty(obj) && p.tagName === HTML_TAG.INPUT) {
+            obj = p;
+        }
+        if(isEmpty(obj) || isEmpty(obj.value)) return;    
+        const vals = obj.value.split('～');
+        if(this.state.range) {
+            if(!DateTime.isDate(vals[1]) || !DateTime.isDate(vals[0])) return;
+            this.state.start = new Date(Date.parse(vals[0])).getTime();
+            this.state.end = new Date(Date.parse(vals[1])).getTime();
+        } else {
+            if(!DateTime.isDate(vals[0])) return;
+            this.state.start = new Date(Date.parse(vals[0])).getTime();
+        }
+    }
+
+    _onGetValueFromCalendar(val) {
         if(isEmpty(val)) return;
-        const p = document.getElementById(this.state.objId);
+        const p = document.getElementById(this.state.id);
         const obj = p.childNodes[0];
         if(isEmpty(obj) || obj.tagName !== HTML_TAG.INPUT) return;
         obj.value = val;
     }
 
-    // handleClickOutside = (e) => {
-    //     const obj = e.target;
-    //     const className = ('class' in obj)?obj.className:'';
-    //     console.log(className);
-    //     if(!isEmpty(className) && className.indexOf('rlc-') !== -1) return;
-    //     const cBox = document.getElementById('div_calendar_box_view');
-    //     if(!isEmpty(cBox)) cBox.remove();
-    // }
+    _onMouseOut() {
+        var div = document.getElementById('div_calendar_box_' + this.state.id);
+        div.style.display = 'none';
+    }
+
+    _onMouseOver() {
+        var div = document.getElementById('div_calendar_box_' + this.state.id);
+        div.style.display = 'block';
+    }
 
     componentWillMount() {
-        this._getDayMonthLabel();
+        this._onSetDefaultCalendar();
+    }
+
+    componentDidMount() {
+        var div = document.getElementById('div_calendar_box_' + this.state.id);
+        if(!isEmpty(div)) {
+            div.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
+            div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
+        }
     }
 
     render() {
         const style = { top: this.state.top, left: this.state.left }
         return (
-            <div id='div_calendar_box' className='div-calendar-box' style={ style }>
+            <div id={ 'div_calendar_box_' + this.state.id } className='div-calendar-box' style={ style }>
                 {(() => {
                     if(this.state.datetime && this.state.range) {
                         return (
@@ -112,7 +160,6 @@ class CalendarBox extends C {
                                 monthLabels={ this.state.monthLabels }
                                 startDate={ this.state.start }
                                 endDate={ this.state.end }
-                                timezone={ this.state.timezone }
                                 onChange={ this._onChange.bind(this) } range displayTime />        
                         );
                     }
@@ -123,7 +170,6 @@ class CalendarBox extends C {
                                 monthLabels={ this.state.monthLabels }
                                 startDate={ this.state.start }
                                 endDate={ this.state.end }
-                                timezone={ this.state.timezone }
                                 onChange={ this._onChange.bind(this) } range />        
                         );
                     }
@@ -133,19 +179,17 @@ class CalendarBox extends C {
                                 dayLabels={ this.state.dayLabels }
                                 monthLabels={ this.state.monthLabels }
                                 startDate={ this.state.start }
-                                endDate={ this.state.end }
-                                timezone={ this.state.timezone }
                                 onChange={ this._onChange.bind(this) } displayTime />        
                         );
                     }
                     if(!this.state.datetime && !this.state.range) {
                         return (
                             <ReactLightCalendar
+                                // markedDays={date => date < new Date().getTime()}
+                                disableDates={date => date >= new Date().getTime() }
                                 dayLabels={ this.state.dayLabels }
                                 monthLabels={ this.state.monthLabels }
                                 startDate={ this.state.start }
-                                endDate={ this.state.end }
-                                timezone={ this.state.timezone }
                                 onChange={ this._onChange.bind(this) } />        
                         );
                     }
@@ -154,5 +198,4 @@ class CalendarBox extends C {
         );
     }
 }
-export default CalendarBox;
-// export default onClickOutside(CalendarBox);
+export default Calendar;

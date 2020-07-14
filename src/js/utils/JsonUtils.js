@@ -5,6 +5,7 @@ import CheckBox from './Compoment/CheckBox';
 import RadioBox from './Compoment/RadioBox';
 import SelectBox from './Compoment/SelectBox';
 import TableBox from './Compoment/TableBox';
+import InputCalendarBox from './Compoment/InputCalendarBox';
 
 // import CheckBoxSingle from './Compoment/CheckBoxSingle';
 // import CheckBoxInline from './Compoment/CheckBoxInline';
@@ -38,8 +39,11 @@ export const JSON_OBJ = {
   
     var json = { type: type, title: obj[key], idx: idx, language: obj['language'], obj: obj };
     if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
-      json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
+      json['datetime'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?false:true;
     }
+    // if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
+    //   json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
+    // }
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
       if(obj[CUSTOMIZE.MULTIPLE_FILE]) {
         json['type'] = 'array';
@@ -113,6 +117,9 @@ export const JSON_OBJ = {
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
       json['ui:widget'] = ImageBox;
+    }
+    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
+      json['ui:widget'] = InputCalendarBox;
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       json['ui:widget'] = TimeBox;

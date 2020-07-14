@@ -9,7 +9,7 @@ import View from '../../pages/View';
 import CMenu from '../CMenu';
 
 import Utils from '../Utils';
-import { ACTION, INPUT_TYPE } from '../Types';
+import { ACTION } from '../Types';
 import { HTML_TAG, ATTR, TYPE } from '../HtmlTypes';
 import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
@@ -55,7 +55,7 @@ export default class Table extends C {
     _onFocus(e) {
         console.log('_onFocus');
         console.log(e.target);
-        this._getCalendar(e);
+        this._onViewCalendar(e);
     }
 
     _onThKeyDown(e) {
@@ -68,7 +68,7 @@ export default class Table extends C {
     _onTrClick(e) {
         var obj = this._getObjTr(e);
         if(Utils.isEmpty(obj)) return;
-        const checked = document.getElementById('input_checkbox_all');
+        const checked = document.getElementById('input_checkbox_all_' + this.state.id);
         if(!Utils.isEmpty(checked)) checked.checked = false;
         var body =  this._getTBody();
         this._removeTrView(body);
@@ -140,7 +140,7 @@ export default class Table extends C {
     }
 
     _onScroll(e) {
-        const divHeader = document.getElementById('div_table_header');
+        const divHeader = document.getElementById('div_table_header_' + this.props.id);
         var scroll = e.target.scrollLeft;
         if(Utils.isEmpty(scroll)) return;
         divHeader.style.marginLeft = -scroll + 'px';
@@ -158,9 +158,24 @@ export default class Table extends C {
             if(Utils.isEmpty(style)) style = { width: 100 };
             // const label = Msg.getMsg(this.state.isUser.action, this.state.isUser.language, key);
             var isLabel = <label>{ o.label }</label>;
-            // if(('filter' in o) && o.filter) {
-            //     isLabel = (<Form.Control type="text" placeholder={ o.label } onFocus={ this._onFocus.bind(this) } onKeyDown={ this._onThKeyDown.bind(this) } />);
-            // }
+            if(('filter' in o) && o.filter) {
+                if(type === TYPE.DATE || type === TYPE.DATETIME) {
+                    isLabel = (<Form.Control
+                                    readOnly
+                                    type={ HTML_TAG.INPUT }
+                                    style={ { backgroundColor: 'white' } }
+                                    placeholder={ o.label }
+                                    onFocus={ this._onFocus.bind(this) }
+                                    onKeyDown={ this._onThKeyDown.bind(this) } />);
+                } else {
+                    isLabel = (<Form.Control
+                                    type={ HTML_TAG.INPUT }
+                                    style={ { backgroundColor: 'white' } }
+                                    placeholder={ o.label }
+                                    onFocus={ this._onFocus.bind(this) }
+                                    onKeyDown={ this._onThKeyDown.bind(this) } />);
+                }
+            }
             if(o.sort) {
                 if(!Utils.isEmpty(style)) {
                     return(<th key={ index } id={ o.field } type={ type } style={ style } onClick={ this._onSort.bind(this) }>{ isLabel }</th>);
@@ -177,12 +192,12 @@ export default class Table extends C {
         });
 
         return(
-            <div id="div_table_header">
+            <div id={ "div_table_header_" + this.props.id }>
                <table className='table table-sm table-bordered'>
                 <thead>
                     <tr>
                         <th>
-                            <input id='input_checkbox_all' type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                            <input id={ 'input_checkbox_all_' + this.props.id } type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
                         </th>
                         { ths }
                     </tr>
@@ -228,7 +243,7 @@ export default class Table extends C {
         });
 
         return(
-            <div id="div_table_body" onScroll={ this._onScroll.bind(this) }>
+            <div id={ "div_table_body_" + this.props.id } className={ 'div-table-body' } onScroll={ this._onScroll.bind(this) }>
                 <table className='table table-sm table-striped table-bordered table-hover'><tbody>{ trs }</tbody></table>
             </div>
         );
@@ -251,7 +266,7 @@ export default class Table extends C {
     }
 
     _getTBody() {
-        var tBody = document.getElementById('div_table_body').childNodes[0];
+        var tBody = document.getElementById('div_table_body' + this.props.id).childNodes[0];
         if(Utils.isEmpty(tBody) || Utils.isEmpty(tBody.childNodes[0])) return;
         if(tBody.childNodes[0].tagName === HTML_TAG.TBODY) tBody = tBody.childNodes[0];
         return tBody;
@@ -286,20 +301,18 @@ export default class Table extends C {
         }
     }
 
-    _getCalendar(e) {
+    _onViewCalendar(e) {
         this._removeCalendar();
         const obj = e.target.parentElement;
         const type = obj.getAttribute('type');
         if(Utils.isEmpty(obj)
             || obj.tagName !== HTML_TAG.TH
-            || (type !== INPUT_TYPE.DATETIME && type !== INPUT_TYPE.DATE)) return;
-        const datetime = (type === INPUT_TYPE.DATETIME)?true:false;
+            || (type !== TYPE.DATETIME && type !== TYPE.DATE)) return;
+        const datetime = (type === TYPE.DATETIME)?true:false;
         const cBox = document.createElement(HTML_TAG.DIV);
         cBox.id = 'div_calendar_box_view';
         obj.appendChild(cBox);
-        // console.log(this.state.isUser);
         ReactDOM.render(<Calendar
-            show={ true }
             objId={ obj.id }
             fromTo={ true }
             range={ true }
@@ -307,7 +320,7 @@ export default class Table extends C {
             language={ this.state.language }
             onChangeCalendar={ this._onChangeCalendar.bind(this) } />
             ,document.getElementById(cBox.id));
-        const cal = document.getElementById('div_calendar_box');
+        const cal = document.getElementById('div_calendar_box_' + obj.id);
         const boxX = cal.offsetLeft + cal.offsetWidth;
         if(boxX > window.innerWidth) {
             cal.style.left = (window.innerWidth - (cal.offsetWidth + 5)) + 'px';
@@ -341,9 +354,9 @@ export default class Table extends C {
             columns: [
                 { field: 'id', label: 'AAAA', sort: false, filter: false }
                 ,{ field: 'name', label: 'BBBB', sort: true, filter: true, style: { width: 500 } }
-                ,{ field: 'price3', label: 'CCCC', type: INPUT_TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
-                ,{ field: 'price4', label: 'DDDD', type: INPUT_TYPE.DATETIME, sort: true, filter: true }
-                ,{ field: 'price5', label: 'EEEE', sort: true, type: INPUT_TYPE.DATETIME, filter: true }
+                ,{ field: 'price3', label: 'CCCC', type: TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
+                ,{ field: 'price4', label: 'DDDD', type: TYPE.DATETIME, sort: true, filter: true }
+                ,{ field: 'price5', label: 'EEEE', sort: true, type: TYPE.DATETIME, filter: true }
             ]
             ,datas:[
                 { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }

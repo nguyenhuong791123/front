@@ -157,6 +157,7 @@ export default class CustomizeBox extends C {
         if(Utils.isEmpty(editBox.obj[CUSTOMIZE.BOX_WIDTH])) {
           if(editBox.obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
             editBox.obj[CUSTOMIZE.BOX_WIDTH] = 100;
+            editBox.obj[CUSTOMIZE.BOX_HEIGHT] = 178;
           } else {
             editBox.obj[CUSTOMIZE.BOX_WIDTH] = 25;
           }

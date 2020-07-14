@@ -61,20 +61,48 @@ class Login extends C {
     if(!isEmpty(dError)) {
       if(value.length <= 0) {
         dError.style.display = 'block';
-        dError.innerText =
-          Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id')
-          + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
-        // this._Msg.getMsg(MSG_TYPE.LOGIN, 'login_id') + this._Msg.getMsg(MSG_TYPE.ERROR, 'required');
-      } else if(value.length > 8) {
+        var msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id');
+        if(e.target.name === 'pw') msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password');
+        dError.innerText = msg + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
+      } else if(e.target.name === 'pw' && value.length > 8) {
         dError.style.display = 'block';
-        // var msg = StringUtil.format(this._Msg.getMsg(MSG_TYPE.ERROR, 'max_length'), 8, value.length - 8);
         var msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password');
-        msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 8, value.length - 8);
+        var max = 8;
+        msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, max, value.length - max);
+        dError.innerText = msg;
+      } else if(e.target.name === 'uLid' && value.length > 50) {
+        dError.style.display = 'block';
+        var msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id');
+        var max = 50;
+        msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, max, value.length - max);
         dError.innerText = msg;
       } else {
         dError.style.display = 'none';
       }
     }
+
+    // if(!isEmpty(dError)) {
+    //   if(value.length <= 0) {
+    //     dError.style.display = 'block';
+    //     dError.innerText =
+    //       Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id')
+    //       + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
+    //   } else if(e.target.name === 'pw' && value.length > 8) {
+    //     dError.style.display = 'block';
+    //     var msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'password');
+    //     var max = 8;
+    //     msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, max, value.length - max);
+    //     dError.innerText = msg;
+    //   } else if(e.target.name === 'uLid' && value.length > 50) {
+    //     dError.style.display = 'block';
+    //     var msg = Msg.getMsg(MSG_TYPE.LOGIN, this.state.isUser.language, 'login_id');
+    //     var max = 50;
+    //     msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, max, value.length - max);
+    //     dError.innerText = msg;
+    //   } else {
+    //     dError.style.display = 'none';
+    //   }
+    // }
     this.setState({ [e.target.name]: value });
   }
 

@@ -18,6 +18,12 @@
     background-color: #cce5ff !important;
 }
 
+select {
+    padding: 0.3em !important;
+    margin-left: .1em;
+    margin-right: .1em;
+}
+
 label.form-check-label
 ,label.form-check-label {
     width: 100%;
@@ -36,6 +42,10 @@ div._loading_overlay_wrapper {
 
 div.form-group {
     margin-bottom: 0;
+}
+
+div.div-time-box {
+    display: inline-flex;
 }
 
 div.div-inline-box
@@ -79,24 +89,24 @@ div.div-box-height-445 > div.checkboxes
     height: 395px;
 }
 
-div.div-box-height-89 div#div_table_body {
-    height: 15px;
+div.div-box-height-89 div.div-table-body {
+    height: 7px;
 }
 
-div.div-box-height-178 div#div_table_body {
-    height: 103px;
+div.div-box-height-178 div.div-table-body {
+    height: 95px;
 }
 
-div.div-box-height-267 div#div_table_body {
-    height: 193px;
+div.div-box-height-267 div.div-table-body {
+    height: 185px;
 }
 
-div.div-box-height-356 div#div_table_body {
-    height: 283px;
+div.div-box-height-356 div.div-table-body {
+    height: 275px;
 }
 
-div.div-box-height-445 div#div_table_body {
-    height: 373px;
+div.div-box-height-445 div.div-table-body {
+    height: 365px;
 }
 
 div.div-not-inline > div.checkboxes

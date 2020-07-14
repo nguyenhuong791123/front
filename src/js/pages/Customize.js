@@ -1735,18 +1735,23 @@ class Customize extends C {
             }
           }
         }
-        // var input = document.getElementById('root_' + field);
-        // if(!Utils.isEmpty(input)) {
-        //   if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
-        //     const divs = Array.from(input.childNodes);
-        //     divs.map((o) => {
-        //       input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
-        //       if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
-        //     });
-        //   } else {
-        //     input.setAttribute("disabled", true);
-        //   }
-        // }
+
+        var input = document.getElementById('root_' + field);
+        if(!Utils.isEmpty(input)) {
+          if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
+            const divs = Array.from(input.childNodes);
+            divs.map((o) => {
+              input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
+              if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
+            });
+          } else {
+            input.setAttribute("disabled", true);
+            if(!Utils.isEmpty(input.id) && (input.id.indexOf(TYPE.DATE) !== -1 || input.id.indexOf(TYPE.DATETIME) !== -1)) {
+              input.removeAttribute('readonly');
+              input.style.removeProperty("background-color");
+            }
+          }
+        }
       }
     });
   }

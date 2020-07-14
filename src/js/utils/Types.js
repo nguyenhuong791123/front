@@ -35,11 +35,6 @@ export const TAB_MENU_TYPE = {
     ,PRIVIOUS: '◀︎'
 }
 
-export const INPUT_TYPE = {
-    DATE: 'date'
-    ,DATETIME: 'datetime'
-}
-
 export const VARIANT_TYPES = {
     OUTLINE: 'outline-'
     ,PRIMARY: 'primary'
