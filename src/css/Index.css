@@ -109,6 +109,31 @@ div.div-box-height-445 div.div-table-body {
     height: 365px;
 }
 
+div.div-box-height-89 > canvas {
+    height: 37px !important;
+    width: 37px !important;
+}
+
+div.div-box-height-178 > canvas {
+    height: 125px !important;
+    width: 125px !important;
+}
+
+div.div-box-height-267 > canvas {
+    height: 212px!important;
+    width: 212px!important;
+}
+
+div.div-box-height-356 > canvas {
+    height: 300px!important;
+    width: 300px!important;
+}
+
+div.div-box-height-445 > canvas  {
+    height: 390px!important;
+    width: 390px!important;
+}
+
 div.div-not-inline > div.checkboxes
 ,div.div-not-inline > div.field-radio-group {
     /* height: 119px; */

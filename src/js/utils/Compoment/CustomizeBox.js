@@ -2,12 +2,12 @@ import React, { Component as C } from 'react';
 import { Button, Form, FormControl } from 'react-bootstrap';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 
-import { VARIANT_TYPES, ACTION } from './Types';
-import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';
-import Html from './HtmlUtils'
-import Utils from './Utils';
+import { VARIANT_TYPES, ACTION } from '../Types';
+import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../HtmlTypes';
+import Html from '../HtmlUtils'
+import Utils from '../Utils';
 
-import Msg from '../../msg/Msg';
+import Msg from '../../../msg/Msg';
 
 export default class CustomizeBox extends C {
     constructor(props) {
@@ -673,7 +673,8 @@ export default class CustomizeBox extends C {
                 {(() => {
                     if (editBox[CUSTOMIZE.TYPE] === TYPE.CHILDENS
                         || editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE
-                        || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN) {
+                        || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN
+                        || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
                         const pages = this.state.pages;
                         var listPages = [];
                         if(editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN) {

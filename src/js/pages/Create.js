@@ -12,7 +12,7 @@ import RadioBox from '../utils/Compoment/RadioBox';
 import CheckBox from '../utils/Compoment/CheckBox';
 import SelectBox from '../utils/Compoment/SelectBox';
 import TableBox from '../utils/Compoment/TableBox';
-import InputCalendarBox from '../utils/Compoment/InputCalendarBox';
+import InputCalendarBox from '../utils/Compoment/CalendarBox';
 
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';

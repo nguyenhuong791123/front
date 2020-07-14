@@ -8,7 +8,7 @@ import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
-import CustomizeBox from '../utils/CustomizeBox';
+import CustomizeBox from '../utils/Compoment/CustomizeBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';

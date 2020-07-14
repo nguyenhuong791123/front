@@ -9,7 +9,7 @@ import { MSG_TYPE } from '../Types';
 import { isEmpty, inJson } from '../Utils';
 import Msg from '../../../msg/Msg';
 
-export default  class InputCalendarBox extends C {
+export default  class CalendarBox extends C {
     constructor(props) {
         super(props)
 
