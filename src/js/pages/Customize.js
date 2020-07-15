@@ -8,7 +8,7 @@ import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
-import CustomizeBox from '../utils/Compoment/CustomizeBox';
+import CustomizeBox from '../utils/CustomizeBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';
@@ -1735,23 +1735,18 @@ class Customize extends C {
             }
           }
         }
-
-        var input = document.getElementById('root_' + field);
-        if(!Utils.isEmpty(input)) {
-          if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
-            const divs = Array.from(input.childNodes);
-            divs.map((o) => {
-              input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
-              if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
-            });
-          } else {
-            input.setAttribute("disabled", true);
-            if(!Utils.isEmpty(input.id) && (input.id.indexOf(TYPE.DATE) !== -1 || input.id.indexOf(TYPE.DATETIME) !== -1)) {
-              input.removeAttribute('readonly');
-              input.style.removeProperty("background-color");
-            }
-          }
-        }
+        // var input = document.getElementById('root_' + field);
+        // if(!Utils.isEmpty(input)) {
+        //   if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
+        //     const divs = Array.from(input.childNodes);
+        //     divs.map((o) => {
+        //       input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
+        //       if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
+        //     });
+        //   } else {
+        //     input.setAttribute("disabled", true);
+        //   }
+        // }
       }
     });
   }

@@ -10,7 +10,6 @@
     "history": "^4.9.0",
     "mobile-detect": "^1.4.3",
     "node-sass": "^4.14.1",
-    "qrcode.react": "^1.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-draft-wysiwyg": "^1.14.5",

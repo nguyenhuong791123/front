@@ -12,7 +12,6 @@ import RadioBox from '../utils/Compoment/RadioBox';
 import CheckBox from '../utils/Compoment/CheckBox';
 import SelectBox from '../utils/Compoment/SelectBox';
 import TableBox from '../utils/Compoment/TableBox';
-import InputCalendarBox from '../utils/Compoment/CalendarBox';
 
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
@@ -46,7 +45,7 @@ class Create extends C {
     this.state.form = [
       {
         "object_type": "div",
-        "object_key": "page_nz8uv4e4u1",
+        "object_key": "page_okkjk65698",
         "class_name": "div-box-100",
         "idx": 0,
         "object": {
@@ -57,136 +56,130 @@ class Create extends C {
             "fIdx": 0,
             "idx": 0,
             "properties": {
-              "text_qvu72u6dvz": {
+              "text_yj0jjyiu4h": {
                 "type": "string",
                 "title": "Text",
-                "idx": 3,
-                "language": "ja",
+                "idx": 1,
                 "obj": {
                   "label_ja": "Text",
                   "placeholder_ja": "Placeholder",
                   "item_type": "text",
                   "language": "ja",
-                  "label_color": "#4379a3",
-                  "label_layout_color": "#d8baba",
+                  "label_color": "#c58c8c",
+                  "label_layout_color": "#303e88",
                   "box_width": 25,
                   "box_height": 89,
                   "default": "デフォルト",
-                  "max_length": "30",
                   "required": true,
-                  "item_name": "text_qvu72u6dvz"
+                  "max_length": "30",
+                  "item_name": "text_yj0jjyiu4h"
                 }
               },
-              "textarea_o9syv8jtiy": {
+              "textarea_gkvv40nv9a": {
                 "type": "string",
-                "title": "TextArea",
-                "idx": 9,
-                "language": "ja",
+                "title": "Textarea",
+                "idx": 2,
                 "obj": {
-                  "label_ja": "TextArea",
+                  "label_ja": "Textarea",
                   "placeholder_ja": "Placeholder",
                   "item_type": "textarea",
                   "language": "ja",
-                  "label_color": "#44639c",
-                  "label_layout_color": "#a77272",
+                  "label_color": "#d9b4b4",
+                  "label_layout_color": "#42459a",
                   "box_width": 25,
-                  "box_height": "178",
+                  "box_height": 89,
                   "default": "デフォルト",
                   "max_length": "500",
                   "required": true,
-                  "item_name": "textarea_o9syv8jtiy"
+                  "item_name": "textarea_gkvv40nv9a"
                 }
               },
-              "date_7x8j2w1ngl": {
+              "date_qeis620i4e": {
                 "type": "string",
                 "title": "Date",
-                "idx": 1,
-                "language": "ja",
+                "idx": 3,
                 "obj": {
                   "label_ja": "Date",
                   "placeholder_ja": "",
                   "item_type": "date",
                   "language": "ja",
-                  "label_color": "#379a55",
-                  "label_layout_color": "#cd9d9d",
+                  "label_color": "#d3abab",
+                  "label_layout_color": "#1d3d58",
                   "box_width": 25,
                   "box_height": 89,
+                  "default": "2020-07-13",
                   "required": true,
-                  "item_name": "date_7x8j2w1ngl",
-                  "default": "2020-07-14"
+                  "item_name": "date_qeis620i4e"
                 },
-                "datetime": false
+                "format": "date"
               },
-              "datetime_vth4kc4bfd": {
+              "datetime_oz3lf5bsn6": {
                 "type": "string",
-                "title": "DateTime",
-                "idx": 2,
-                "language": "ja",
+                "title": "Datetime",
+                "idx": 4,
                 "obj": {
-                  "label_ja": "DateTime",
+                  "label_ja": "Datetime",
                   "placeholder_ja": "",
                   "item_type": "datetime",
                   "language": "ja",
-                  "label_color": "#569cae",
-                  "label_layout_color": "#c06262",
+                  "label_color": "#906464",
+                  "label_layout_color": "#2b8c5f",
                   "box_width": 25,
                   "box_height": 89,
-                  "default": "2020-07-14T21:55",
+                  "default": "2020-07-13T20:07",
                   "required": true,
-                  "item_name": "datetime_vth4kc4bfd"
+                  "item_name": "datetime_oz3lf5bsn6"
                 },
-                "datetime": true
+                "format": "date-time"
               },
-              "time_ljhcsxhe7c": {
+              "time_rcifjv8ash": {
                 "type": "string",
                 "title": "Time",
-                "idx": 4,
-                "language": "ja",
+                "idx": 5,
                 "obj": {
                   "label_ja": "Time",
                   "placeholder_ja": "",
                   "item_type": "time",
                   "language": "ja",
-                  "label_color": "#d0bb53",
-                  "label_layout_color": "#5b3e7e",
+                  "label_color": "#b771c1",
+                  "label_layout_color": "#823030",
                   "box_width": 25,
                   "box_height": 89,
-                  "default": "21:56",
+                  "default": "20:07",
                   "required": true,
-                  "item_name": "time_ljhcsxhe7c"
+                  "item_name": "time_rcifjv8ash"
                 }
               },
-              "number_7b80mdxqat": {
+              "number_xcu2iops9s": {
                 "type": "number",
                 "title": "Number",
-                "idx": 5,
-                "language": "ja",
+                "idx": 6,
                 "obj": {
                   "label_ja": "Number",
                   "placeholder_ja": "Placeholder",
                   "item_type": "number",
                   "language": "ja",
-                  "label_color": "#986161",
-                  "label_layout_color": "#baeaf3",
+                  "label_color": "#75ce73",
+                  "label_layout_color": "#346a93",
                   "box_width": 25,
                   "box_height": 89,
+                  "default": "2",
                   "max_length": "9",
                   "required": true,
-                  "item_name": "number_7b80mdxqat"
+                  "item_name": "number_xcu2iops9s"
                 }
               },
-              "checkbox_bwwmzg64uj": {
+              "checkbox_yz205w4y28": {
                 "type": "string",
-                "title": "CheckBox one",
-                "idx": 6,
-                "language": "ja",
+                "title": "Checkbox One",
+                "idx": 7,
                 "obj": {
-                  "label_ja": "CheckBox one",
+                  "label_ja": "Checkbox One",
                   "placeholder_ja": "",
                   "item_type": "checkbox",
                   "language": "ja",
-                  "label_color": "#d09a9a",
-                  "label_layout_color": "#50798b",
+                  "label_color": "#e8c0c0",
+                  "label_layout_color": "#1d2c4e",
                   "box_width": 25,
                   "box_height": 89,
                   "options": [
@@ -195,30 +188,26 @@ class Create extends C {
                       "label": "QQQQQ"
                     }
                   ],
-                  "required": true,
-                  "item_name": "checkbox_bwwmzg64uj",
-                  "default": "1"
+                  "item_name": "checkbox_yz205w4y28"
                 },
                 "options": [
                   {
                     "value": 1,
                     "label": "QQQQQ"
                   }
-                ],
-                "required": true
+                ]
               },
-              "checkbox_pfecu0oxsf": {
+              "checkbox_z76ojqxm4j": {
                 "type": "string",
-                "title": "CheckBox in",
-                "idx": 7,
-                "language": "ja",
+                "title": "Checbox in List",
+                "idx": 8,
                 "obj": {
-                  "label_ja": "CheckBox in",
+                  "label_ja": "Checbox in List",
                   "placeholder_ja": "",
                   "item_type": "checkbox",
                   "language": "ja",
-                  "label_color": "#508795",
-                  "label_layout_color": "#8e5d5d",
+                  "label_color": "#533455",
+                  "label_layout_color": "#2a245c",
                   "box_width": 25,
                   "box_height": 89,
                   "options": [
@@ -228,9 +217,276 @@ class Create extends C {
                     }
                   ],
                   "option_target": "groups",
+                  "default": "",
+                  "item_name": "checkbox_z76ojqxm4j"
+                },
+                "option_target": "groups",
+                "options": [
+                  {
+                    "value": 1,
+                    "label": "User1"
+                  }
+                ]
+              },
+              "checkbox_34hh4lrpia": {
+                "type": "string",
+                "title": "Checkbox list",
+                "idx": 9,
+                "obj": {
+                  "label_ja": "Checkbox list",
+                  "placeholder_ja": "",
+                  "item_type": "checkbox",
+                  "language": "ja",
+                  "label_color": "#417b9f",
+                  "label_layout_color": "#207e23",
+                  "box_width": 25,
+                  "box_height": 89,
+                  "options": [
+                    {
+                      "value": 1,
+                      "label": "QQQQQ"
+                    },
+                    {
+                      "value": 2,
+                      "label": "WWWWW"
+                    },
+                    {
+                      "value": 3,
+                      "label": "AAAAA"
+                    },
+                    {
+                      "value": 4,
+                      "label": "SSSSS"
+                    },
+                    {
+                      "value": 5,
+                      "label": "RRRRR"
+                    }
+                  ],
+                  "option_checked": true,
+                  "item_name": "checkbox_34hh4lrpia"
+                },
+                "option_checked": true,
+                "options": [
+                  {
+                    "value": 1,
+                    "label": "QQQQQ"
+                  },
+                  {
+                    "value": 2,
+                    "label": "WWWWW"
+                  },
+                  {
+                    "value": 3,
+                    "label": "AAAAA"
+                  },
+                  {
+                    "value": 4,
+                    "label": "SSSSS"
+                  },
+                  {
+                    "value": 5,
+                    "label": "RRRRR"
+                  }
+                ]
+              },
+              "radio_9gor1chp0k": {
+                "type": "string",
+                "title": "Radio One",
+                "idx": 10,
+                "obj": {
+                  "label_ja": "Radio One",
+                  "placeholder_ja": "",
+                  "item_type": "radio",
+                  "language": "ja",
+                  "label_color": "#6940a5",
+                  "label_layout_color": "#822b2b",
+                  "box_width": 25,
+                  "box_height": 89,
+                  "options": [
+                    {
+                      "value": 1,
+                      "label": "QQQQQ"
+                    },
+                    {
+                      "value": 2,
+                      "label": "WWWWW"
+                    }
+                  ],
+                  "item_name": "radio_9gor1chp0k",
+                  "required": true
+                },
+                "options": [
+                  {
+                    "value": 1,
+                    "label": "QQQQQ"
+                  },
+                  {
+                    "value": 2,
+                    "label": "WWWWW"
+                  }
+                ],
+                "required": true
+              },
+              "radio_u2t8ucyltn": {
+                "type": "string",
+                "title": "Radio List",
+                "idx": 11,
+                "obj": {
+                  "label_ja": "Radio List",
+                  "placeholder_ja": "",
+                  "item_type": "radio",
+                  "language": "ja",
+                  "label_color": "#ecc1c1",
+                  "label_layout_color": "#392b7d",
+                  "box_width": 25,
+                  "box_height": 89,
+                  "options": [
+                    {
+                      "value": 1,
+                      "label": "QQQQQ"
+                    },
+                    {
+                      "value": 2,
+                      "label": "WWWWW"
+                    },
+                    {
+                      "value": 3,
+                      "label": "SSSSS"
+                    },
+                    {
+                      "value": 4,
+                      "label": "DDDDD"
+                    },
+                    {
+                      "value": 5,
+                      "label": "FFFFF"
+                    }
+                  ],
+                  "option_checked": true,
+                  "item_name": "radio_u2t8ucyltn",
+                  "required": true
+                },
+                "option_checked": true,
+                "options": [
+                  {
+                    "value": 1,
+                    "label": "QQQQQ"
+                  },
+                  {
+                    "value": 2,
+                    "label": "WWWWW"
+                  },
+                  {
+                    "value": 3,
+                    "label": "SSSSS"
+                  },
+                  {
+                    "value": 4,
+                    "label": "DDDDD"
+                  },
+                  {
+                    "value": 5,
+                    "label": "FFFFF"
+                  }
+                ],
+                "required": true
+              },
+              "radio_ozoehgh8xi": {
+                "type": "string",
+                "title": "Radio in",
+                "idx": 12,
+                "obj": {
+                  "label_ja": "Radio in",
+                  "placeholder_ja": "",
+                  "item_type": "radio",
+                  "language": "ja",
+                  "label_color": "#b46464",
+                  "label_layout_color": "#2e948d",
+                  "box_width": 25,
+                  "box_height": 89,
+                  "options": [
+                    {
+                      "value": 1,
+                      "label": "User1"
+                    }
+                  ],
+                  "option_target": "users",
                   "default": "1",
                   "required": true,
-                  "item_name": "checkbox_pfecu0oxsf"
+                  "item_name": "radio_ozoehgh8xi"
+                },
+                "option_target": "users",
+                "options": [
+                  {
+                    "value": 1,
+                    "label": "User1"
+                  }
+                ],
+                "required": true
+              },
+              "select_4w5jwxwdyn": {
+                "type": "string",
+                "title": "Select",
+                "idx": 13,
+                "obj": {
+                  "label_ja": "Select",
+                  "placeholder_ja": "",
+                  "item_type": "select",
+                  "language": "ja",
+                  "label_color": "#bf5a5a",
+                  "label_layout_color": "#89721f",
+                  "box_width": 25,
+                  "box_height": 89,
+                  "options": [
+                    {
+                      "value": 1,
+                      "label": "QQQQQ"
+                    },
+                    {
+                      "value": 2,
+                      "label": "WWWWW"
+                    }
+                  ],
+                  "default": "2",
+                  "required": true,
+                  "item_name": "select_4w5jwxwdyn"
+                },
+                "options": [
+                  {
+                    "value": 1,
+                    "label": "QQQQQ"
+                  },
+                  {
+                    "value": 2,
+                    "label": "WWWWW"
+                  }
+                ],
+                "required": true
+              },
+              "select_u9in5h4b7f": {
+                "type": "string",
+                "title": "Select in",
+                "idx": 14,
+                "obj": {
+                  "label_ja": "Select in",
+                  "placeholder_ja": "",
+                  "item_type": "select",
+                  "language": "ja",
+                  "label_color": "#c16767",
+                  "label_layout_color": "#244570",
+                  "box_width": 25,
+                  "box_height": 89,
+                  "options": [
+                    {
+                      "value": 1,
+                      "label": "User1"
+                    }
+                  ],
+                  "option_target": "groups",
+                  "default": "",
+                  "required": true,
+                  "item_name": "select_u9in5h4b7f"
                 },
                 "option_target": "groups",
                 "options": [
@@ -241,366 +497,115 @@ class Create extends C {
                 ],
                 "required": true
               },
-              "checkbox_b36j7knwnq": {
-                "type": "string",
-                "title": "CheckBox List",
-                "idx": 8,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "CheckBox List",
-                  "placeholder_ja": "",
-                  "item_type": "checkbox",
-                  "language": "ja",
-                  "label_color": "#ca8c8c",
-                  "label_layout_color": "#386c99",
-                  "box_width": 25,
-                  "box_height": 89,
-                  "options": [
-                    {
-                      "value": 1,
-                      "label": "CCCCC"
-                    },
-                    {
-                      "value": 2,
-                      "label": "DDDDD"
-                    },
-                    {
-                      "value": 3,
-                      "label": "SSSSS"
-                    },
-                    {
-                      "value": 4,
-                      "label": "AAAA"
-                    },
-                    {
-                      "value": 5,
-                      "label": "WWWWW"
-                    },
-                    {
-                      "value": 6,
-                      "label": "QQQQQ"
-                    }
-                  ],
-                  "option_checked": true,
-                  "default": "3",
-                  "required": true,
-                  "item_name": "checkbox_b36j7knwnq"
-                },
-                "option_checked": true,
-                "options": [
-                  {
-                    "value": 1,
-                    "label": "CCCCC"
-                  },
-                  {
-                    "value": 2,
-                    "label": "DDDDD"
-                  },
-                  {
-                    "value": 3,
-                    "label": "SSSSS"
-                  },
-                  {
-                    "value": 4,
-                    "label": "AAAA"
-                  },
-                  {
-                    "value": 5,
-                    "label": "WWWWW"
-                  },
-                  {
-                    "value": 6,
-                    "label": "QQQQQ"
-                  }
-                ],
-                "required": true
-              },
-              "radio_z9b5nu94js": {
-                "type": "string",
-                "title": "Radio in",
-                "idx": 10,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "Radio in",
-                  "placeholder_ja": "",
-                  "item_type": "radio",
-                  "language": "ja",
-                  "label_color": "#814c90",
-                  "label_layout_color": "#8f4242",
-                  "box_width": 25,
-                  "box_height": 89,
-                  "options": [
-                    {
-                      "value": 1,
-                      "label": "QQQQQ"
-                    },
-                    {
-                      "value": 2,
-                      "label": "AAAAA"
-                    }
-                  ],
-                  "default": "2",
-                  "item_name": "radio_z9b5nu94js",
-                  "required": true
-                },
-                "options": [
-                  {
-                    "value": 1,
-                    "label": "QQQQQ"
-                  },
-                  {
-                    "value": 2,
-                    "label": "AAAAA"
-                  }
-                ],
-                "required": true
-              },
-              "radio_p0qy0somcy": {
-                "type": "string",
-                "title": "Radio List",
-                "idx": 11,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "Radio List",
-                  "placeholder_ja": "",
-                  "item_type": "radio",
-                  "language": "ja",
-                  "label_color": "#a67777",
-                  "label_layout_color": "#344c83",
-                  "box_width": 25,
-                  "box_height": 89,
-                  "options": [
-                    {
-                      "value": 1,
-                      "label": "EEEEE"
-                    },
-                    {
-                      "value": 2,
-                      "label": "QQQQQ"
-                    },
-                    {
-                      "value": 3,
-                      "label": "DDDDD"
-                    },
-                    {
-                      "value": 4,
-                      "label": "AAAAA"
-                    },
-                    {
-                      "value": 5,
-                      "label": "SSSSS"
-                    },
-                    {
-                      "value": 6,
-                      "label": "ZZZZZ"
-                    }
-                  ],
-                  "default": "3",
-                  "required": true,
-                  "item_name": "radio_p0qy0somcy"
-                },
-                "options": [
-                  {
-                    "value": 1,
-                    "label": "EEEEE"
-                  },
-                  {
-                    "value": 2,
-                    "label": "QQQQQ"
-                  },
-                  {
-                    "value": 3,
-                    "label": "DDDDD"
-                  },
-                  {
-                    "value": 4,
-                    "label": "AAAAA"
-                  },
-                  {
-                    "value": 5,
-                    "label": "SSSSS"
-                  },
-                  {
-                    "value": 6,
-                    "label": "ZZZZZ"
-                  }
-                ],
-                "required": true
-              },
-              "select_kwqg0490eb": {
-                "type": "string",
-                "title": "Select",
-                "idx": 12,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "Select",
-                  "placeholder_ja": "",
-                  "item_type": "select",
-                  "language": "ja",
-                  "label_color": "#665095",
-                  "label_layout_color": "#b67777",
-                  "box_width": 25,
-                  "box_height": 89,
-                  "options": [
-                    {
-                      "value": 1,
-                      "label": "QQQQQ"
-                    },
-                    {
-                      "value": 2,
-                      "label": "AAAAA"
-                    },
-                    {
-                      "value": 3,
-                      "label": "SSSSS"
-                    },
-                    {
-                      "value": 4,
-                      "label": "EEEEE"
-                    }
-                  ],
-                  "default": "2",
-                  "required": true,
-                  "item_name": "select_kwqg0490eb"
-                },
-                "options": [
-                  {
-                    "value": 1,
-                    "label": "QQQQQ"
-                  },
-                  {
-                    "value": 2,
-                    "label": "AAAAA"
-                  },
-                  {
-                    "value": 3,
-                    "label": "SSSSS"
-                  },
-                  {
-                    "value": 4,
-                    "label": "EEEEE"
-                  }
-                ],
-                "required": true
-              },
-              "file_u3klqjktel": {
+              "file_a3ath91eab": {
                 "type": "string",
                 "title": "File",
-                "idx": 13,
-                "language": "ja",
+                "idx": 15,
                 "obj": {
                   "label_ja": "File",
                   "placeholder_ja": "",
                   "item_type": "file",
                   "language": "ja",
-                  "label_color": "#533777",
-                  "label_layout_color": "#225b77",
+                  "label_color": "#223077",
+                  "label_layout_color": "#cb5252",
                   "box_width": 25,
                   "box_height": 89,
                   "required": true,
-                  "max_length": "5",
-                  "item_name": "file_u3klqjktel"
+                  "item_name": "file_a3ath91eab"
                 },
                 "format": "data-url"
               },
-              "file_2uyl0qn93h": {
+              "file_o0xl2ywr7w": {
                 "type": "array",
                 "title": "File Multi",
-                "idx": 14,
-                "language": "ja",
+                "idx": 16,
                 "obj": {
                   "label_ja": "File Multi",
                   "placeholder_ja": "",
                   "item_type": "file",
                   "language": "ja",
-                  "label_color": "#6e4087",
-                  "label_layout_color": "#347f7d",
+                  "label_color": "#f0b7b7",
+                  "label_layout_color": "#3c2b54",
                   "box_width": 25,
                   "box_height": 89,
-                  "multiple_file": true,
                   "required": true,
-                  "max_length": "5",
-                  "item_name": "file_2uyl0qn93h"
+                  "multiple_file": true,
+                  "item_name": "file_o0xl2ywr7w"
                 },
                 "items": {
                   "type": "string",
                   "format": "data-url"
                 }
               },
-              "password_bz55trgzcr": {
+              "password_u7c07xfz94": {
                 "type": "string",
                 "title": "Password",
-                "idx": 15,
-                "language": "ja",
+                "idx": 17,
                 "obj": {
                   "label_ja": "Password",
                   "placeholder_ja": "Placeholder",
                   "item_type": "password",
                   "language": "ja",
-                  "label_color": "#704242",
-                  "label_layout_color": "#32798b",
+                  "label_color": "#9e4747",
+                  "label_layout_color": "#217d4e",
                   "box_width": 25,
                   "box_height": 89,
                   "required": true,
-                  "max_length": "8",
-                  "item_name": "password_bz55trgzcr"
+                  "item_name": "password_u7c07xfz94"
                 }
               },
-              "disabled_it2f6yrvto": {
+              "disabled_byf9t34wt8": {
                 "type": "string",
-                "title": "Disable",
-                "idx": 17,
-                "language": "ja",
+                "title": "Disabled",
+                "idx": 18,
                 "obj": {
-                  "label_ja": "Disable",
+                  "label_ja": "Disabled",
                   "placeholder_ja": "",
                   "item_type": "disabled",
                   "language": "ja",
-                  "label_color": "#337574",
-                  "label_layout_color": "#8d6f30",
+                  "label_color": "#c59b9b",
+                  "label_layout_color": "#195d2d",
                   "box_width": 25,
                   "box_height": 89,
                   "childens": 1,
                   "default": "デフォルト",
-                  "item_name": "disabled_it2f6yrvto"
+                  "item_name": "disabled_byf9t34wt8"
                 }
               },
-              "childens_kn5kaptqb1": {
-                "type": "string",
-                "title": "Pages",
-                "idx": 16,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "Pages",
-                  "placeholder_ja": "",
-                  "item_type": "childens",
-                  "language": "ja",
-                  "label_color": "#497d97",
-                  "label_layout_color": "#64a084",
-                  "box_width": "75",
-                  "box_height": 178,
-                  "childens": 1,
-                  "style": "font-weight: bold;",
-                  "item_name": "childens_kn5kaptqb1"
-                }
-              },
-              "color_c6qwbn44co": {
+              "color_d5z4vhkqyd": {
                 "type": "string",
                 "title": "Color",
-                "idx": 18,
-                "language": "ja",
+                "idx": 19,
                 "obj": {
                   "label_ja": "Color",
                   "placeholder_ja": "",
                   "item_type": "color",
                   "language": "ja",
-                  "label_color": "#ecb6b6",
-                  "label_layout_color": "#2c8081",
+                  "label_color": "#4c2790",
+                  "label_layout_color": "#8b8718",
                   "box_width": 25,
                   "box_height": 89,
-                  "default": "#292197",
+                  "childens": 1,
+                  "default": "#ad4848",
                   "required": true,
-                  "item_name": "color_c6qwbn44co"
+                  "item_name": "color_d5z4vhkqyd"
+                }
+              },
+              "childens_x1w5wqbb92": {
+                "type": "string",
+                "title": "List",
+                "idx": 20,
+                "obj": {
+                  "label_ja": "List",
+                  "placeholder_ja": "",
+                  "item_type": "childens",
+                  "language": "ja",
+                  "label_color": "#4e51b1",
+                  "label_layout_color": "#1a895f",
+                  "box_width": 100,
+                  "box_height": 89,
+                  "childens": 1,
+                  "item_name": "childens_x1w5wqbb92"
                 }
               }
             },
@@ -613,126 +618,128 @@ class Create extends C {
             }
           },
           "ui": {
-            "text_qvu72u6dvz": {
+            "text_yj0jjyiu4h": {
               "ui:placeholder": "Placeholder",
               "classNames": "div-box div-box-25 div-box-height-89",
               "max_length": "30",
-              "style": "color:#4379a3;background-color:#d8baba;",
+              "style": "color:#c58c8c;background-color:#303e88;",
               "required": true
             },
-            "textarea_o9syv8jtiy": {
+            "textarea_gkvv40nv9a": {
               "ui:placeholder": "Placeholder",
-              "classNames": "div-box div-box-25 div-box-height-178",
+              "classNames": "div-box div-box-25 div-box-height-89",
               "ui:widget": "textarea",
               "max_length": "500",
-              "style": "color:#44639c;background-color:#a77272;",
+              "style": "color:#d9b4b4;background-color:#42459a;",
               "required": true
             },
-            "date_7x8j2w1ngl": {
+            "date_qeis620i4e": {
               "classNames": "div-box div-box-25 div-box-height-89",
-              "style": "color:#379a55;background-color:#cd9d9d;",
+              "style": "color:#d3abab;background-color:#1d3d58;",
               "required": true
             },
-            "datetime_vth4kc4bfd": {
+            "datetime_oz3lf5bsn6": {
               "classNames": "div-box div-box-25 div-box-height-89",
-              "style": "color:#569cae;background-color:#c06262;",
+              "style": "color:#906464;background-color:#2b8c5f;",
               "required": true
             },
-            "time_ljhcsxhe7c": {
+            "time_rcifjv8ash": {
               "classNames": "div-box div-box-25 div-box-height-89",
-              "style": "color:#d0bb53;background-color:#5b3e7e;",
+              "style": "color:#b771c1;background-color:#823030;",
               "required": true
             },
-            "number_7b80mdxqat": {
+            "number_xcu2iops9s": {
               "ui:placeholder": "Placeholder",
               "classNames": "div-box div-box-25 div-box-height-89",
               "max_length": "9",
-              "style": "color:#986161;background-color:#baeaf3;",
+              "style": "color:#75ce73;background-color:#346a93;",
               "required": true
             },
-            "checkbox_bwwmzg64uj": {
+            "checkbox_yz205w4y28": {
               "classNames": "div-box div-box-25 div-box-height-89 div-inline",
-              "style": "color:#d09a9a;background-color:#50798b;",
-              "required": true
+              "style": "color:#e8c0c0;background-color:#1d2c4e;"
             },
-            "checkbox_pfecu0oxsf": {
+            "checkbox_z76ojqxm4j": {
               "classNames": "div-box div-box-25 div-box-height-89 div-inline",
-              "style": "color:#508795;background-color:#8e5d5d;",
-              "required": true
+              "style": "color:#533455;background-color:#2a245c;"
             },
-            "checkbox_b36j7knwnq": {
+            "checkbox_34hh4lrpia": {
               "classNames": "div-box div-box-25 div-box-height-89 div-not-inline div-not-inline",
-              "style": "color:#ca8c8c;background-color:#386c99;",
-              "required": true
+              "style": "color:#417b9f;background-color:#207e23;"
             },
-            "radio_z9b5nu94js": {
+            "radio_9gor1chp0k": {
               "classNames": "div-box div-box-25 div-box-height-89 div-inline",
-              "style": "color:#814c90;background-color:#8f4242;",
+              "style": "color:#6940a5;background-color:#822b2b;",
               "required": true
             },
-            "radio_p0qy0somcy": {
-              "classNames": "div-box div-box-25 div-box-height-89 div-inline",
-              "style": "color:#a67777;background-color:#344c83;",
-              "required": true
-            },
-            "select_kwqg0490eb": {
+            "radio_u2t8ucyltn": {
               "classNames": "div-box div-box-25 div-box-height-89 div-not-inline",
-              "style": "color:#665095;background-color:#b67777;",
+              "style": "color:#ecc1c1;background-color:#392b7d;",
               "required": true
             },
-            "file_u3klqjktel": {
+            "radio_ozoehgh8xi": {
+              "classNames": "div-box div-box-25 div-box-height-89 div-inline",
+              "style": "color:#b46464;background-color:#2e948d;",
+              "required": true
+            },
+            "select_4w5jwxwdyn": {
+              "classNames": "div-box div-box-25 div-box-height-89 div-not-inline",
+              "style": "color:#bf5a5a;background-color:#89721f;",
+              "required": true
+            },
+            "select_u9in5h4b7f": {
+              "classNames": "div-box div-box-25 div-box-height-89 div-not-inline",
+              "style": "color:#c16767;background-color:#244570;",
+              "required": true
+            },
+            "file_a3ath91eab": {
               "classNames": "div-box div-box-25 div-box-height-89 div-file-box",
-              "max_length": "5",
-              "style": "color:#533777;background-color:#225b77;",
+              "style": "color:#223077;background-color:#cb5252;",
               "required": true
             },
-            "file_2uyl0qn93h": {
+            "file_o0xl2ywr7w": {
               "classNames": "div-box div-box-25 div-box-height-89 div-file-box",
-              "max_length": "5",
-              "style": "color:#6e4087;background-color:#347f7d;",
+              "style": "color:#f0b7b7;background-color:#3c2b54;",
               "required": true
             },
-            "password_bz55trgzcr": {
+            "password_u7c07xfz94": {
               "ui:placeholder": "Placeholder",
               "classNames": "div-box div-box-25 div-box-height-89",
               "ui:widget": "password",
-              "max_length": "8",
-              "style": "color:#704242;background-color:#32798b;",
+              "style": "color:#9e4747;background-color:#217d4e;",
               "required": true
             },
-            "disabled_it2f6yrvto": {
+            "disabled_byf9t34wt8": {
               "classNames": "div-box div-box-25 div-box-height-89",
               "ui:disabled": true,
-              "style": "color:#337574;background-color:#8d6f30;"
+              "style": "color:#c59b9b;background-color:#195d2d;"
             },
-            "childens_kn5kaptqb1": {
-              "classNames": "div-box div-box-75 div-box-height-178 div-customize-table",
-              "style": "color:#497d97;background-color:#64a084;font-weight: bold;"
-            },
-            "color_c6qwbn44co": {
+            "color_d5z4vhkqyd": {
               "classNames": "div-box div-box-25 div-box-height-89",
               "ui:widget": "color",
-              "style": "color:#ecb6b6;background-color:#2c8081;",
+              "style": "color:#4c2790;background-color:#8b8718;",
               "required": true
+            },
+            "childens_x1w5wqbb92": {
+              "classNames": "div-box div-box-100 div-box-height-89 div-customize-table",
+              "style": "color:#4e51b1;background-color:#1a895f;"
             }
           },
           "data": {
-            "text_qvu72u6dvz": "デフォルト",
-            "textarea_o9syv8jtiy": "デフォルト",
-            "date_7x8j2w1ngl": "2020-07-04",
-            "datetime_vth4kc4bfd": "2020-07-14T21:55",
-            "time_ljhcsxhe7c": "21:56",
-            "checkbox_bwwmzg64uj": 1,
-            "checkbox_pfecu0oxsf": 1,
-            "checkbox_b36j7knwnq": [
-              "3"
-            ],
-            "radio_z9b5nu94js": 2,
-            "radio_p0qy0somcy": 3,
-            "select_kwqg0490eb": 2,
-            "disabled_it2f6yrvto": "デフォルト",
-            "childens_kn5kaptqb1": 1,
-            "color_c6qwbn44co": "#292197"
+            "text_yj0jjyiu4h": "デフォルト",
+            "textarea_gkvv40nv9a": "デフォルト",
+            "date_qeis620i4e": "2020-07-13",
+            "datetime_oz3lf5bsn6": "2020-07-13T20:07",
+            "time_rcifjv8ash": "20:07",
+            "number_xcu2iops9s": 2,
+            "checkbox_z76ojqxm4j": "",
+            "checkbox_34hh4lrpia": [],
+            "radio_ozoehgh8xi": 1,
+            "select_4w5jwxwdyn": 2,
+            "select_u9in5h4b7f": "",
+            "disabled_byf9t34wt8": "デフォルト",
+            "color_d5z4vhkqyd": "#ad4848",
+            "childens_x1w5wqbb92": 1
           }
         }
       }
@@ -780,7 +787,7 @@ class Create extends C {
 
   _formatUiWidget(ui) {
     const uiKeys = Object.keys(ui);
-    const targets = [ TYPE.IMAGE, TYPE.TIME, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS, TYPE.DATE, TYPE.DATETIME ];
+    const targets = [ TYPE.IMAGE, TYPE.TIME, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS ];
     uiKeys.map((o) => {
       const field = o.split('_')[0];
       if(!Utils.isEmpty(field) && (targets.includes(field))) {
@@ -790,7 +797,6 @@ class Create extends C {
         if(field === TYPE.CHECKBOX && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = CheckBox;
         if(field === TYPE.SELECT && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = SelectBox;
         if(field === TYPE.CHILDENS && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = TableBox;
-        if((field === TYPE.DATE || field === TYPE.DATETIME) && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = InputCalendarBox;
       }
     });
   }
@@ -870,7 +876,7 @@ class Create extends C {
                 l.innerHTML = "<font class='required'>" + error + "</font>";
                 setTimeout(function() {
                   l.innerHTML = label;
-                }, 2000);  
+                }, 3000);  
               }
             }
           }
@@ -937,7 +943,7 @@ class Create extends C {
   //             l.innerHTML = "<font class='required'>" + msg + "</font>";
   //             setTimeout(function() {
   //               l.innerHTML = label;
-  //             }, 2000);
+  //             }, 3000);
   //           } else {
   //             l.innerHTML = label + "<font class='required'>*</font>";
   //           }
@@ -1031,26 +1037,6 @@ class Create extends C {
       } else {
         object.data[field] = '';
       }
-    } else if(type === TYPE.CHILDENS) {
-      const key = target.getAttribute('for');
-      const div = document.getElementById(key);
-      if(Utils.isEmpty(div) || Array.from(div.childNodes).length < 2) return;
-      const headers = div.childNodes[1];
-      if(Utils.isEmpty(headers) || Utils.isEmpty(headers.id) || headers.id.indexOf(key) === -1) return;
-      const tr = headers.childNodes[0].getElementsByTagName(HTML_TAG.TR)[0];
-      if(Utils.isEmpty(tr)) return;
-      const ths = Array.from(tr.childNodes);
-      ths.map((o) => {
-        const obj = o.childNodes[0];
-        if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.INPUT) {
-          if(obj.getAttribute('type') === TYPE.CHECKBOX && obj.checked) {
-            // obj.checked = false;
-            obj.click();
-          } else {
-            obj.value = '';
-          }
-        }
-      });
     } else {
       object.data[field] = '';
     }

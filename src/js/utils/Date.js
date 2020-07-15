@@ -20,9 +20,4 @@ function dateTime(date, language, datetime, pattern) {
     }
 }
 
-function isDate(date) {
-    return!!(function(d){return(d!=='Invalid Date'&&!isNaN(d))})(new Date(date));
-}
-
 module.exports.dateTime = dateTime;
-module.exports.isDate = isDate;

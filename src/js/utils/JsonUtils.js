@@ -5,10 +5,12 @@ import CheckBox from './Compoment/CheckBox';
 import RadioBox from './Compoment/RadioBox';
 import SelectBox from './Compoment/SelectBox';
 import TableBox from './Compoment/TableBox';
-import CalendarBox from './Compoment/CalendarBox';
-import QRCodeBox from './Compoment/QRCodeBox';
 
+// import CheckBoxSingle from './Compoment/CheckBoxSingle';
+// import CheckBoxInline from './Compoment/CheckBoxInline';
+import Html from '../utils/HtmlUtils'
 import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
+
 import Utils from './Utils';
 
 export const JSON_OBJ = {
@@ -29,34 +31,15 @@ export const JSON_OBJ = {
   getJsonSchema: (obj, itemName, key, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
-    const array = [
-      TYPE.TEXT,
-      TYPE.TEXTAREA,
-      TYPE.PASSWORD,
-      TYPE.DATE,
-      TYPE.DATETIME,
-      TYPE.TIME,
-      TYPE.FILE,
-      TYPE.COLOR,
-      TYPE.DISABLE,
-      TYPE.HIDDEN,
-      TYPE.IMAGE,
-      TYPE.CHECKBOX,
-      TYPE.RADIO,
-      TYPE.SELECT,
-      TYPE.CHILDENS,
-      TYPE.QRCODE ];
+    const array = [ TYPE.TEXT, TYPE.TEXTAREA, TYPE.PASSWORD, TYPE.DATE, TYPE.DATETIME, TYPE.TIME, TYPE.FILE, TYPE.COLOR, TYPE.DISABLE, TYPE.HIDDEN, TYPE.IMAGE, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS ];
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
   
     var json = { type: type, title: obj[key], idx: idx, language: obj['language'], obj: obj };
     if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
-      json['datetime'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?false:true;
+      json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
     }
-    // if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
-    //   json['format'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?'date':'date-time';
-    // }
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
       if(obj[CUSTOMIZE.MULTIPLE_FILE]) {
         json['type'] = 'array';
@@ -92,6 +75,7 @@ export const JSON_OBJ = {
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) json['classNames'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + obj[CUSTOMIZE.BOX_HEIGHT];
+    if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) json['classNames'] += ' div-image-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) json['classNames'] += ' div-file-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
       if(!obj[OPTIONS_KEY.OPTION_CHECKED] && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
@@ -100,6 +84,7 @@ export const JSON_OBJ = {
         json['classNames'] += ' div-not-inline';
       }
     }
+    if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS && idx === 1) json['classNames'] += ' div-list-not-titile';
 
     const array = [ TYPE.PASSWORD, TYPE.COLOR, TYPE.TEXTAREA, TYPE.RADIO ];
     if(array.includes(obj[CUSTOMIZE.TYPE])) {
@@ -127,23 +112,14 @@ export const JSON_OBJ = {
       json['ui:widget'] = SelectBox;
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
-      json['classNames'] += ' div-image-box';
       json['ui:widget'] = ImageBox;
-    }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
-      json['ui:widget'] = CalendarBox;
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       json['ui:widget'] = TimeBox;
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
-      if(TYPE.CHILDENS && idx === 1) json['classNames'] += ' div-list-not-title';
       json['classNames'] += ' div-customize-table';
       json['ui:widget'] = TableBox;
-    }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
-      json['classNames'] += ' div-image-box';
-      json['ui:widget'] = QRCodeBox;
     }
   
     if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {

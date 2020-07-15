@@ -61,7 +61,6 @@ export const TYPE = {
     // ,OBJECT: 'object'
     ,BUTTON: 'button'
     ,CHILDENS: 'childens'
-    ,QRCODE: 'qrcode'
 }
 
 export const BOX_WIDTH = {

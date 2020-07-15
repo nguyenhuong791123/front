@@ -185,7 +185,7 @@ class App extends C {
         console.log(isUser);
         this.state.isUser = isUser.info;
         this.state.options = isUser.options;
-        // this._addCssLink();
+        this._addCssLink();
         if(isUser.info.action === PAGE.SYSTEM) {
             history.push(ACTION.SLASH + isUser.info.action);
         } else {
@@ -196,24 +196,24 @@ class App extends C {
         this.forceUpdate();
     }
 
-    // _addCssLink() {
-    //     const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
-    //     const css_path = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
-    //     if(!Utils.isEmpty(obj)) {
-    //         obj.href = css_path;
-    //     } else {
-    //         const css = document.createElement(HTML_TAG.LINK);
-    //         css.id = SYSTEM.IS_CSS_LINK_ID;
-    //         css.setAttribute('rel', 'stylesheet');
-    //         css.setAttribute('href', css_path);
-    //         const head = document.getElementsByTagName(HTML_TAG.HEAD)[0];
-    //         head.appendChild(css);    
-    //     }
-    // }
+    _addCssLink() {
+        const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
+        const css_path = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
+        if(!Utils.isEmpty(obj)) {
+            obj.href = css_path;
+        } else {
+            const css = document.createElement(HTML_TAG.LINK);
+            css.id = SYSTEM.IS_CSS_LINK_ID;
+            css.setAttribute('rel', 'stylesheet');
+            css.setAttribute('href', css_path);
+            const head = document.getElementsByTagName(HTML_TAG.HEAD)[0];
+            head.appendChild(css);    
+        }
+    }
 
     UNSAFE_componentWillMount() {
         this._loadAuthCookies(this.state.isUser, this._updateStateIsUser);
-        // this._addCssLink();
+        this._addCssLink();
     }
 
     componentDidMount() {

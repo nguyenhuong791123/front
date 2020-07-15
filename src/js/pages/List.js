@@ -7,8 +7,8 @@ import { FaPlus } from 'react-icons/fa';
 import Pagination from '../utils/body/Pagin';
 import Table from '../utils/body/Table';
 
-import { ACTION, PAGIN_PER, PAGIN_PER_LIST } from '../utils/Types';
-import { HTML_TAG, TYPE } from '../utils/HtmlTypes';
+import { ACTION, PAGIN_PER, PAGIN_PER_LIST, INPUT_TYPE } from '../utils/Types';
+import { HTML_TAG } from '../utils/HtmlTypes';
 import Utils from '../utils/Utils';
 import Msg from '../../msg/Msg';
 // import View from './View';
@@ -76,7 +76,7 @@ class List extends C {
                 columns: [
                     { field: 'id', text: 'AAA', sort: false, filter: false }
                     ,{ field: 'name', text: 'BBB', sort: true, filter: true, style: { width: 500 } }
-                    ,{ field: 'price3', text: 'CCC', type: TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
+                    ,{ field: 'price3', text: 'CCC', type: INPUT_TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
                 ]
                 ,datas:[
                     { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }
@@ -88,9 +88,9 @@ class List extends C {
                 columns: [
                     { field: 'id', text: '', sort: false, filter: false }
                     ,{ field: 'name', text: '', sort: true, filter: true, style: { width: 500 } }
-                    ,{ field: 'price3', text: '', type: TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
-                    ,{ field: 'price4', text: '', type: TYPE.DATETIME, sort: true, filter: true }
-                    ,{ field: 'price5', text: '', sort: true, type: TYPE.DATETIME, filter: true }
+                    ,{ field: 'price3', text: '', type: INPUT_TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
+                    ,{ field: 'price4', text: '', type: INPUT_TYPE.DATETIME, sort: true, filter: true }
+                    ,{ field: 'price5', text: '', sort: true, type: INPUT_TYPE.DATETIME, filter: true }
                 ]
                 ,datas:[
                     { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }
