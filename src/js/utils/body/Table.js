@@ -9,7 +9,7 @@ import View from '../../pages/View';
 import CMenu from '../CMenu';
 
 import Utils from '../Utils';
-import { ACTION, INPUT_TYPE } from '../Types';
+import { ACTION } from '../Types';
 import { HTML_TAG, ATTR, TYPE } from '../HtmlTypes';
 import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
@@ -57,10 +57,12 @@ export default class Table extends C {
     }
 
     _onThKeyDown(e) {
+        console.log('_onFocus');
         console.log(e);
         console.log(e.target);
         console.log(e.key);
         console.log(e.keyCode);
+        this._getCalendar(e);
     }
 
     _onTrClick(e) {
@@ -290,8 +292,8 @@ export default class Table extends C {
         const type = obj.getAttribute('type');
         if(Utils.isEmpty(obj)
             || obj.tagName !== HTML_TAG.TH
-            || (type !== INPUT_TYPE.DATETIME && type !== INPUT_TYPE.DATE)) return;
-        const datetime = (type === INPUT_TYPE.DATETIME)?true:false;
+            || (type !== TYPE.DATETIME && type !== TYPE.DATE)) return;
+        const datetime = (type === TYPE.DATETIME)?true:false;
         const cBox = document.createElement(HTML_TAG.DIV);
         cBox.id = 'div_calendar_box_view';
         obj.appendChild(cBox);
@@ -305,7 +307,7 @@ export default class Table extends C {
             language={ this.state.isUser.language }
             onChangeCalendar={ this._onChangeCalendar.bind(this) } />
             ,document.getElementById(cBox.id));
-        const cal = document.getElementById('div_calendar_box');
+        const cal = document.getElementById('div_calendar_box_' + obj.id);
         const boxX = cal.offsetLeft + cal.offsetWidth;
         if(boxX > window.innerWidth) {
             cal.style.left = (window.innerWidth - (cal.offsetWidth + 5)) + 'px';

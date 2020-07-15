@@ -23,10 +23,12 @@ export default class CheckBox extends C {
         if(!Utils.inJson(def, OPTIONS_KEY.OPTIONS)) return('Not List!!!');
         const objs = Array.from(def.options);
         if(objs.length > 1) {
-            var values = this.props.value;
-            values.map((o) => {
-                return (!Utils.isEmpty(o) && !Number.isNaN(Number(o)))?parseInt(o):o;
-            });
+            var values = [];
+            if(!Utils.isEmpty(this.props.value) && Array.isArray(this.props.value)) {
+                values = this.props.value.map((o) => {
+                    return (!Utils.isEmpty(o) && !Number.isNaN(Number(o)))?parseInt(o):o;
+                });    
+            }
             return objs.map((obj, idx) => {
                 const checked = (!Utils.isEmpty(values) && values.includes(obj['value']))?true:false;
                 return (

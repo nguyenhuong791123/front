@@ -61,6 +61,7 @@ export const TYPE = {
     // ,OBJECT: 'object'
     ,BUTTON: 'button'
     ,CHILDENS: 'childens'
+    ,QRCODE: 'qrcode'
 }
 
 export const BOX_WIDTH = {
@@ -171,6 +172,7 @@ export const CUSTOMIZE = {
     ,BOOLEAN: 'boolean'
     ,LANGUAGE:'language'
     ,COLOR: 'color'
+    ,QRAPPLINK: 'qr_app_link'
 }
 
 export const OPTIONS_KEY = {

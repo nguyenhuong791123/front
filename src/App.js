@@ -15,6 +15,7 @@ import Msg from './msg/Msg';
 
 /* global chrome */
 import P404 from './js/error/P404';
+import Error from './js/error/Error';
 import Header from './js/Header';
 import Footer from './js/Footer';
 import Login from './js/Login';
@@ -48,10 +49,16 @@ class App extends C {
 
         this.state = {
             loading: true
-            ,copyright: 'Copyright ©2018 VNEXT All Rights Reserved.'
+            ,company: {
+                copyright: 'Copyright ©2018 VNEXT All Rights Reserved.'
+                ,url: 'https://vnext.co.jp/company-info.html'
+                ,icon: 'favicon.ico'
+            }
             ,isUser: AuthSession.isUserInit(null).info
-            // ,isUser: { device: this.props.ua.device, language: this.props.ua.language, viewHeader: false }
             ,options: AuthSession.isUserInit(null).options
+            ,error: null
+            ,errorInfo: null
+            ,hasError: false
         }
     }
 
@@ -59,9 +66,10 @@ class App extends C {
     //     return AuthSession.isUserInit(null).info;
     // }
 
-    _setViewHeader(isView) {
-        this.state.isUser.viewHeader = isView;
-        this.forceUpdate();
+    _setViewHeader(isUser) {
+        this.state.isUser = isUser;
+        this._onUpdatePromise(this.state.isUser, this.state.options, this._onUpdateIsUserCallBack.bind(this));
+        // this.forceUpdate();
     }
 
     _doLogin(isUser, options) {
@@ -95,6 +103,7 @@ class App extends C {
         console.log(this.state);
         const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
         if(!Utils.isEmpty(div)) div.remove();
+        this.state.hasError = false;
         this.forceUpdate();
         AuthSession.doLogout().then(() => {
             sessionService.deleteSession();
@@ -106,11 +115,13 @@ class App extends C {
 
     _loadAuthCookies(isUser, callBack) {
         const objAuth = sessionService.loadUser('COOKIES');
+        this.state.hasError = false;
         if(objAuth !== undefined) {
             console.log('_loadAuthCookies');
             console.log(objAuth);
             objAuth.then(function(data) {
                 const isUrl = history.location.pathname;
+                if(isUrl.indexOf(ACTION.ERROR) !== -1) this._doLogout();
                 if(isUrl === ACTION.SLASH || data.info['path'] === ACTION.SLASH) {
                     data.info['path'] = ACTION.SLASH;
                     data.info['viewHeader'] = false;
@@ -185,7 +196,7 @@ class App extends C {
         console.log(isUser);
         this.state.isUser = isUser.info;
         this.state.options = isUser.options;
-        this._addCssLink();
+        // this._addCssLink();
         if(isUser.info.action === PAGE.SYSTEM) {
             history.push(ACTION.SLASH + isUser.info.action);
         } else {
@@ -196,24 +207,24 @@ class App extends C {
         this.forceUpdate();
     }
 
-    _addCssLink() {
-        const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
-        const css_path = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
-        if(!Utils.isEmpty(obj)) {
-            obj.href = css_path;
-        } else {
-            const css = document.createElement(HTML_TAG.LINK);
-            css.id = SYSTEM.IS_CSS_LINK_ID;
-            css.setAttribute('rel', 'stylesheet');
-            css.setAttribute('href', css_path);
-            const head = document.getElementsByTagName(HTML_TAG.HEAD)[0];
-            head.appendChild(css);    
-        }
-    }
+    // _addCssLink() {
+    //     const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
+    //     const css_path = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
+    //     if(!Utils.isEmpty(obj)) {
+    //         obj.href = css_path;
+    //     } else {
+    //         const css = document.createElement(HTML_TAG.LINK);
+    //         css.id = SYSTEM.IS_CSS_LINK_ID;
+    //         css.setAttribute('rel', 'stylesheet');
+    //         css.setAttribute('href', css_path);
+    //         const head = document.getElementsByTagName(HTML_TAG.HEAD)[0];
+    //         head.appendChild(css);    
+    //     }
+    // }
 
     UNSAFE_componentWillMount() {
         this._loadAuthCookies(this.state.isUser, this._updateStateIsUser);
-        this._addCssLink();
+        // this._addCssLink();
     }
 
     componentDidMount() {
@@ -229,6 +240,16 @@ class App extends C {
         console.log(this.state['headers']);
     }
 
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        this.state.error = error;
+        this.state.errorInfo = errorInfo;
+        this.forceUpdate();
+    }    
+
     render() {
         console.log('APP Render !!!');
         console.log(chrome.app);
@@ -237,80 +258,109 @@ class App extends C {
                 <LoadingOverlay active={ this.state.loading } spinner text='Loading your content...' />
 
                 <Provider store={ store }>
-                    <Router history={ history }>
-                        <div id='div_header'>
-                            <Header
-                                isUser={ this.state.isUser }
-                                options={ this.state.options }
-                                headers={ this.state['headers'] }
-                                onUpdateUser={ this._onUpdatePromise.bind(this) }
-                                onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
-                                onLogout={ this._doLogout.bind(this) } />
-                        </div>
-                        <div id='div_body'>
-                            <Switch>
-                                <Route
-                                    exact path={ ACTION.SLASH }
-                                    render={ ({ props }) => <Login
-                                                                isUser={ this.state.isUser }
-                                                                options={ this.state.options }
-                                                                onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
-                                                                onLogin={ this._doLogin.bind(this) }
-                                                                {...this.props} />} />
-                                <Route
-                                    path={ ACTION.SLASH + ACTION.LIST }
-                                    render={ ({ props }) => <List
-                                                                isUser={ this.state.isUser }
-                                                                options={ this.state.options }
-                                                                onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
-                                                                onUpdateListHeaders={ this._updateListHeaders.bind(this) }
-                                                                {...this.props} />} />
-                                <Route
-                                    path={ ACTION.SLASH + ACTION.CREATE }
-                                    render={ ({ props }) => <Create
-                                                                isUser={ this.state.isUser }
-                                                                options={ this.state.options }
-                                                                onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
-                                                                {...this.props} />} />
-                                <Route
-                                    path={ ACTION.SLASH + ACTION.EDIT }
-                                    render={ ({ props }) => <Create
-                                                                isUser={ this.state.isUser }
-                                                                options={ this.state.options }
-                                                                onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
-                                                                 {...this.props} />} />
-                                <Route
-                                    path={ ACTION.SLASH + ACTION.VIEW }
-                                    render={ ({ props }) => <View isUser={ this.state.isUser } {...this.props} />} />
-                                <Route
-                                    path={ ACTION.SLASH + PAGE.CUSTOMIZE }
-                                    render={ ({ props }) => <Customize
-                                                                isUser={ this.state.isUser }
-                                                                options={ this.state.options }
-                                                                onUpdateUser={ this._onUpdatePromise.bind(this) }
-                                                                onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
-                                                                {...this.props} />} />
-                                <Route
-                                    path={ ACTION.SLASH + PAGE.SYSTEM }
-                                    render={ ({ props }) => <System
-                                                                isUser={ this.state.isUser }
-                                                                options={ this.state.options }
-                                                                onUpdateUser={ this._onUpdatePromise.bind(this) }
-                                                                onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
-                                                                {...this.props} />} />
+                {(() => {
+                    if(this.state.hasError) {
+                        const error = this.state.error;
+                        const errorInfo = this.state.errorInfo;
+                        return(
+                            <Router history={ history }>
                                 <Route
                                     exact
-                                    render={ ({ props }) => <P404 isUser={ this.state.isUser }
-                                                                viewHeader={ this._setViewHeader.bind(this) }
+                                    render={ ({ props }) => <Error
+                                                                error={ error }
+                                                                errorInfo={ errorInfo }
                                                                 onLogout={ this._doLogout.bind(this) }
-                                                                {...this.props} />} />
-                            </Switch>
-                        </div>
-                    </Router>
+                                                                {...this.props} /> } />
+                            </Router>
+                        );
+                    } else {
+                        return(
+                            <Router history={ history }>
+                                <div id='div_header'>
+                                    <Header
+                                        company={ this.state.company }
+                                        isUser={ this.state.isUser }
+                                        options={ this.state.options }
+                                        headers={ this.state['headers'] }
+                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
+                                        onLogout={ this._doLogout.bind(this) } />
+                                </div>
+                                <div id='div_body'>
+                                    <Switch>
+                                        <Route
+                                            exact path={ ACTION.SLASH }
+                                            render={ ({ props }) => <Login
+                                                                        isUser={ this.state.isUser }
+                                                                        options={ this.state.options }
+                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        onLogin={ this._doLogin.bind(this) }
+                                                                        {...this.props} />} />
+                                        <Route
+                                            path={ ACTION.SLASH + ACTION.LIST }
+                                            render={ ({ props }) => <List
+                                                                        isUser={ this.state.isUser }
+                                                                        options={ this.state.options }
+                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        onUpdateListHeaders={ this._updateListHeaders.bind(this) }
+                                                                        {...this.props} />} />
+                                        <Route
+                                            path={ ACTION.SLASH + ACTION.CREATE }
+                                            render={ ({ props }) => <Create
+                                                                        isUser={ this.state.isUser }
+                                                                        options={ this.state.options }
+                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        {...this.props} />} />
+                                        <Route
+                                            path={ ACTION.SLASH + ACTION.EDIT }
+                                            render={ ({ props }) => <Create
+                                                                        isUser={ this.state.isUser }
+                                                                        options={ this.state.options }
+                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        {...this.props} />} />
+                                        <Route
+                                            path={ ACTION.SLASH + ACTION.VIEW }
+                                            render={ ({ props }) => <View isUser={ this.state.isUser } {...this.props} />} />
+                                        <Route
+                                            path={ ACTION.SLASH + PAGE.CUSTOMIZE }
+                                            render={ ({ props }) => <Customize
+                                                                        isUser={ this.state.isUser }
+                                                                        options={ this.state.options }
+                                                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
+                                                                        {...this.props} />} />
+                                        <Route
+                                            path={ ACTION.SLASH + PAGE.SYSTEM }
+                                            render={ ({ props }) => <System
+                                                                        isUser={ this.state.isUser }
+                                                                        options={ this.state.options }
+                                                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
+                                                                        {...this.props} />} />
+                                        <Route
+                                            exact
+                                            path={ ACTION.SLASH + PAGE.ERROR }
+                                            render={ ({ props }) => <Error
+                                                                        error={ this.state.error }
+                                                                        errorInfo={ this.state.errorInfo }
+                                                                        {...this.props} />} />
+        
+                                        <Route
+                                            exact
+                                            render={ ({ props }) => <P404 isUser={ this.state.isUser }
+                                                                        viewHeader={ this._setViewHeader.bind(this) }
+                                                                        onLogout={ this._doLogout.bind(this) }
+                                                                        {...this.props} />} />
+                                    </Switch>
+                                </div>
+                            </Router>
+                        );
+                    }
+                })()}
                 </Provider>
 
                 <div id='div_footer' className='bg-light div-footer'>
-                    <Footer copyright={ this.state.copyright } viewFooter={ !this.state.isUser.viewHeader } />
+                    <Footer company={ this.state.company } viewFooter={ !this.state.isUser.viewHeader } />
                 </div>
             </div>
         );

@@ -40,6 +40,8 @@
   ,"customer_auth": "顧客管理"
   ,"mente_auth": "メンテナンス"
 
+  ,"and": "そして"
+  ,"or": "又は"
   ,"tel": "電話番号"
   ,"mobile": "携帯"
   ,"fax": "FAX"
@@ -81,5 +83,6 @@
   ,"obj_list_option": "既存リスト"
   ,"obj_id": "ID"
   ,"obj_value": "値"
+  ,"obj_qr_app_link": "URL"
 }
   

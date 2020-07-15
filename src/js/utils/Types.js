@@ -35,11 +35,6 @@ export const TAB_MENU_TYPE = {
     ,PRIVIOUS: '◀︎'
 }
 
-export const INPUT_TYPE = {
-    DATE: 'date'
-    ,DATETIME: 'datetime'
-}
-
 export const VARIANT_TYPES = {
     OUTLINE: 'outline-'
     ,PRIMARY: 'primary'
@@ -85,6 +80,7 @@ export const PAGE = {
     ,MAIL: 'mail'
     ,CHAT: 'chat'
     ,CUSTOMIZE: 'customize'
+    ,ERROR: 'error'
 };
 
 export const PAGE_ACTION = {
@@ -131,4 +127,12 @@ export const NUMBER = {
 
 export const OTHERS = {
     REGEX_FILE_NAME: /\\|\\/
+}
+
+export const OBJECT = {
+    DIV_BODY_ID: 'div_table_body_'
+    ,DIV_HEADER_ID: 'div_table_header_'
+    ,INPUT_CHECK_ALL_ID: 'input_checkbox_all_'
+    ,DIV_CALENDAR_BOX_ID: 'div_calendar_box_'
+    ,DIV_CALENDAR_BOX_VIEW_ID: 'div_calendar_box_view'
 }

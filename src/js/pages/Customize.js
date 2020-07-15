@@ -8,7 +8,7 @@ import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
-import CustomizeBox from '../utils/CustomizeBox';
+import CustomizeBox from '../utils/Compoment/CustomizeBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
 import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';
@@ -1370,8 +1370,7 @@ class Customize extends C {
       }
     }
     if(Utils.isEmpty(error)
-      && (Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]) && (obj[CUSTOMIZE.TYPE] === TYPE.HIDDEN || obj[CUSTOMIZE.TYPE] === TYPE.DISABLE))
-      || (obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj['file_data']))) {
+      && obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj['file_data'])) {
       error = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
     }
     if(Utils.isEmpty(error)
@@ -1379,6 +1378,15 @@ class Customize extends C {
       && (!Array.isArray(obj[OPTIONS_KEY.OPTIONS]) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['value']) || Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS][0]['label']))) {
         error = Msg.getMsg(null, this.state.isUser.language, 'bt_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
     }
+    if(Utils.isEmpty(error)
+      && ((obj[CUSTOMIZE.TYPE] === TYPE.QRCODE || obj[CUSTOMIZE.TYPE] === TYPE.HIDDEN || obj[CUSTOMIZE.TYPE] === TYPE.DISABLE)
+      && Utils.isEmpty(obj[CUSTOMIZE.DEFAULT])
+      && Utils.isEmpty(obj[TYPE.CHILDENS]))) {
+      error = Msg.getMsg(null, this.state.isUser.language, 'obj_default');
+      error += Msg.getMsg(null, this.state.isUser.language, 'or');
+      error += Msg.getMsg(null, this.state.isUser.language, 'page_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
+    }
+    // return "<font class='required'>" + error + '</font>';
     return error;
   }
 
@@ -1432,7 +1440,7 @@ class Customize extends C {
         if(this.state.mode === ACTION.EDIT && Utils.inJson(obj, 'item_name')) {
           itemName = obj['item_name'];
         } else {
-          itemName = obj[CUSTOMIZE.TYPE] + '_' + Math.random().toString(36).slice(-10);
+          itemName = obj[CUSTOMIZE.TYPE] + '_' + Utils.getUUID();
         }
   
         const idx = Object.keys(fObj.schema.properties).length;
@@ -1735,18 +1743,23 @@ class Customize extends C {
             }
           }
         }
-        // var input = document.getElementById('root_' + field);
-        // if(!Utils.isEmpty(input)) {
-        //   if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
-        //     const divs = Array.from(input.childNodes);
-        //     divs.map((o) => {
-        //       input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
-        //       if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
-        //     });
-        //   } else {
-        //     input.setAttribute("disabled", true);
-        //   }
-        // }
+
+        var input = document.getElementById('root_' + field);
+        if(!Utils.isEmpty(input)) {
+          if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
+            const divs = Array.from(input.childNodes);
+            divs.map((o) => {
+              input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
+              if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
+            });
+          } else {
+            input.setAttribute("disabled", true);
+            if(!Utils.isEmpty(input.id) && (input.id.indexOf(TYPE.DATE) !== -1 || input.id.indexOf(TYPE.DATETIME) !== -1)) {
+              input.removeAttribute('readonly');
+              input.style.removeProperty("background-color");
+            }
+          }
+        }
       }
     });
   }

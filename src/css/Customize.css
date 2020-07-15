@@ -62,10 +62,10 @@ div.div-overlay-box {
 div.div-overlay-box > div:first-child {
     /* border: 5px solid #dee2e6;
     border-radius: 1em; */
-    width: 40%;
-    max-width: 40%;
+    width: 50%;
+    max-width: 50%;
     top: 10%;
-    left: 30%;
+    left: 25%;
     padding: .5em;
     display: inline-table;
     position: absolute;

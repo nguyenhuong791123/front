@@ -21,7 +21,7 @@ class Footer extends C {
     return (
       <div>
         <span>
-          { this.props.copyright }
+          { this.props.company.copyright }
         </span>
       </div>
     );

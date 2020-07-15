@@ -4,6 +4,7 @@ import StringUtil from 'util';
 
 import Calendar from '../Calendar';
 import DateTime from '../Date';
+import DateUtil from '../DateUtils';
 import { HTML_TAG } from '../HtmlTypes';
 import { MSG_TYPE } from '../Types';
 import { isEmpty, inJson } from '../Utils';
@@ -73,7 +74,7 @@ export default  class CalendarBox extends C {
     componentWillReceiveProps() {
         console.log(this.props);
         if(isEmpty(this.props['value'])) return;
-        if(!DateTime.isDate(this.props['value'])) {
+        if(!DateUtil.isDateType(this.props['value'])) {
             const obj = document.getElementById(this.state.id);
             const div = obj.parentElement;
             var l = div.getElementsByTagName(HTML_TAG.LABEL)[0];

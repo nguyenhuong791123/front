@@ -303,8 +303,10 @@ export default class CustomizeBox extends C {
                                             { Msg.getMsg(null, this.state.isUser.language, 'obj_default') }
                                             {(() => {
                                                 if (editBox[CUSTOMIZE.TYPE] === TYPE.IMAGE
-                                                    || editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE
-                                                    || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN) {
+                                                    || (Utils.isEmpty(editBox[TYPE.CHILDENS]) 
+                                                        && (editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE
+                                                        || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN
+                                                        || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE))) {
                                                     return(<span className={ 'required' }>*</span>);
                                                 }
                                             })()}
@@ -392,21 +394,35 @@ export default class CustomizeBox extends C {
                             {(() => {
                                 if(editBox[CUSTOMIZE.TYPE] !== TYPE.DISABLE
                                     && editBox[CUSTOMIZE.TYPE] !== TYPE.HIDDEN
-                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS) {
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE) {
                                     return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_required') }</td>);
+                                } else if(editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
+                                    return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_qr_app_link') }</td>);
                                 }
                             })()}
                             {(() => {
                                 if(editBox[CUSTOMIZE.TYPE] !== TYPE.DISABLE
                                     && editBox[CUSTOMIZE.TYPE] !== TYPE.HIDDEN
-                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS) {
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE) {
                                     return(
                                         <td style={ { height: '40px' } }>
                                             <input
-                                            type={ HTML_TAG.CHECKBOX }
-                                            name={ CUSTOMIZE.REQUIRED }
-                                            defaultChecked={ editBox[CUSTOMIZE.REQUIRED] }
-                                            onChange={ this._onChange.bind(this) }></input>
+                                                type={ HTML_TAG.CHECKBOX }
+                                                name={ CUSTOMIZE.REQUIRED }
+                                                defaultChecked={ editBox[CUSTOMIZE.REQUIRED] }
+                                                onChange={ this._onChange.bind(this) }></input>
+                                        </td>
+                                    );
+                                } else if(editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
+                                    return(
+                                        <td style={ { height: '40px' } }>
+                                            <input
+                                                type={ HTML_TAG.CHECKBOX }
+                                                name={ CUSTOMIZE.QRAPPLINK }
+                                                defaultChecked={ editBox[CUSTOMIZE.QRAPPLINK] }
+                                                onChange={ this._onChange.bind(this) }></input>
                                         </td>
                                     );
                                 }
@@ -677,18 +693,19 @@ export default class CustomizeBox extends C {
                         || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
                         const pages = this.state.pages;
                         var listPages = [];
-                        if(editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN) {
-                            listPages.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
-                        }
+                        // if(editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
+                        //     listPages.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+                        // }
+                        listPages.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
                         if(Array.isArray(pages) && pages.length > 0) {
                             for (let i=0; i<pages.length; i++) {
                                 listPages.push( <option key={ i } value={ pages[i].id }>{ pages[i].label }</option> );
                             }
                         }
-                        if(Utils.isEmpty(editBox[TYPE.CHILDENS])) editBox[TYPE.CHILDENS] = pages[0].id;
+                        // if(Utils.isEmpty(editBox[TYPE.CHILDENS])) editBox[TYPE.CHILDENS] = pages[0].id;
                         return(
                             <tr>
-                                <td>{ Msg.getMsg(null, this.state.isUser.language, 'page_list') }</td>
+                                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'page_list') }</td>
                                 <td>
                                     <FormControl
                                         as={ HTML_TAG.SELECT }

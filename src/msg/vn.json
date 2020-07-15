@@ -36,6 +36,8 @@
   ,"customer_auth": "Customer Management"
   ,"mente_auth": "Maintenance"
 
+  ,"and": "And"
+  ,"or": "Or"
   ,"tel": "Tel"
   ,"mobile": "Mobile"
   ,"fax": "Fax"
@@ -77,5 +79,6 @@
   ,"obj_list_option": "At List"
   ,"obj_id": "ID"
   ,"obj_value": "Value"
+  ,"obj_qr_app_link": "URL"
 }
   

@@ -1,16 +1,17 @@
 
 import React, { Component as C } from 'react';
 import ReactDOM from 'react-dom';
-import { Form } from 'react-bootstrap';
-import { FaRegEye } from 'react-icons/fa';
+import { Alert, Button, FormControl } from 'react-bootstrap';
+import { FaRegEye, FaSort } from 'react-icons/fa';
 
 import Calendar from '../Calendar';
 import View from '../../pages/View';
 import CMenu from '../CMenu';
 
+import Html from '../HtmlUtils';
 import Utils from '../Utils';
-import { ACTION, INPUT_TYPE } from '../Types';
-import { HTML_TAG, ATTR, TYPE } from '../HtmlTypes';
+import { ACTION, VARIANT_TYPES, OBJECT } from '../Types';
+import { HTML_TAG, ATTR, TYPE, MOUSE } from '../HtmlTypes';
 import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
 
@@ -29,9 +30,11 @@ export default class Table extends C {
         this._onFocus = this._onFocus.bind(this);
 
         const language = this.props.schema.language;
+        // delete this.props.value;
         this.state = {
             pageId: this.props.value
             ,language: language
+            ,sort: { show: false, sort: true, obj: null, style: {} }
             ,columns: []
             ,datas: []
             ,isCols: []
@@ -55,7 +58,7 @@ export default class Table extends C {
     _onFocus(e) {
         console.log('_onFocus');
         console.log(e.target);
-        this._getCalendar(e);
+        this._onViewCalendar(e);
     }
 
     _onThKeyDown(e) {
@@ -68,7 +71,7 @@ export default class Table extends C {
     _onTrClick(e) {
         var obj = this._getObjTr(e);
         if(Utils.isEmpty(obj)) return;
-        const checked = document.getElementById('input_checkbox_all');
+        const checked = document.getElementById(OBJECT.INPUT_CHECK_ALL_ID + this.state.id);
         if(!Utils.isEmpty(checked)) checked.checked = false;
         var body =  this._getTBody();
         this._removeTrView(body);
@@ -140,11 +143,30 @@ export default class Table extends C {
     }
 
     _onScroll(e) {
-        const divHeader = document.getElementById('div_table_header');
-        var scroll = e.target.scrollLeft;
+        var obj = e.target;
+        if(Utils.isEmpty(obj) || Utils.isEmpty(obj.id)) return;
+        const id = (obj.id.indexOf(OBJECT.DIV_BODY_ID) !== -1)?obj.id.replace('body', 'header'):obj.id.replace('header', 'body');
+        const div = document.getElementById(id);
+        var scroll = obj.scrollLeft;
         if(Utils.isEmpty(scroll)) return;
-        divHeader.style.marginLeft = -scroll + 'px';
+        div.style.marginLeft = -scroll + 'px';
     }
+
+    // _onHeaderScroll(e) {
+    //     console.log(e.target);
+    //     const divHeader = document.getElementById(OBJECT.DIV_BODY_ID + this.props.id);
+    //     var scroll = e.target.scrollLeft;
+    //     if(Utils.isEmpty(scroll)) return;
+    //     divHeader.style.marginLeft = -scroll + 'px';
+    // }
+
+    // _onBodyScroll(e) {
+    //     console.log(e.target);
+    //     const divHeader = document.getElementById(OBJECT.DIV_HEADER_ID + this.props.id);
+    //     var scroll = e.target.scrollLeft;
+    //     if(Utils.isEmpty(scroll)) return;
+    //     divHeader.style.marginLeft = -scroll + 'px';
+    // }
 
     _getHeader() {
         // [ { field: 'name', text: '', sort: true, filter: true, style: { width: '100px', minWidth: '100px', maxWidth: '100px' } } ]
@@ -158,31 +180,46 @@ export default class Table extends C {
             if(Utils.isEmpty(style)) style = { width: 100 };
             // const label = Msg.getMsg(this.state.isUser.action, this.state.isUser.language, key);
             var isLabel = <label>{ o.label }</label>;
-            // if(('filter' in o) && o.filter) {
-            //     isLabel = (<Form.Control type="text" placeholder={ o.label } onFocus={ this._onFocus.bind(this) } onKeyDown={ this._onThKeyDown.bind(this) } />);
-            // }
+            if(('filter' in o) && o.filter) {
+                if(type === TYPE.DATE || type === TYPE.DATETIME) {
+                    isLabel = (<FormControl
+                                    readOnly
+                                    type={ HTML_TAG.INPUT }
+                                    style={ { backgroundColor: 'white' } }
+                                    placeholder={ o.label }
+                                    onFocus={ this._onFocus.bind(this) }
+                                    onKeyDown={ this._onThKeyDown.bind(this) } />);
+                } else {
+                    isLabel = (<FormControl
+                                    type={ HTML_TAG.INPUT }
+                                    style={ { backgroundColor: 'white' } }
+                                    placeholder={ o.label }
+                                    onFocus={ this._onFocus.bind(this) }
+                                    onKeyDown={ this._onThKeyDown.bind(this) } />);
+                }
+            }
             if(o.sort) {
                 if(!Utils.isEmpty(style)) {
-                    return(<th key={ index } id={ o.field } type={ type } style={ style } onClick={ this._onSort.bind(this) }>{ isLabel }</th>);
+                    return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
                 } else {
-                    return(<th key={ index } id={ o.field } type={ type } style={ style } onClick={ this._onSort.bind(this) }>{ isLabel }</th>);
+                    return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
                 }
             } else {
                 if(!Utils.isEmpty(style)) {
-                    return(<th key={ index } id={ o.field } type={ type } style={ style }>{ isLabel }</th>);
+                    return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
                 } else {
-                    return(<th key={ index } id={ o.field } type={ type } style={ style }>{ isLabel }</th>);
+                    return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
                 }
             }
         });
 
         return(
-            <div id="div_table_header">
+            <div id={ OBJECT.DIV_HEADER_ID + this.props.id } onScroll={ this._onScroll.bind(this) }>
                <table className='table table-sm table-bordered'>
                 <thead>
                     <tr>
                         <th>
-                            <input id='input_checkbox_all' type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                            <input id={ OBJECT.INPUT_CHECK_ALL_ID + this.props.id } type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
                         </th>
                         { ths }
                     </tr>
@@ -228,7 +265,7 @@ export default class Table extends C {
         });
 
         return(
-            <div id="div_table_body" onScroll={ this._onScroll.bind(this) }>
+            <div id={ OBJECT.DIV_BODY_ID + this.props.id } className={ 'div-table-body' } onScroll={ this._onScroll.bind(this) }>
                 <table className='table table-sm table-striped table-bordered table-hover'><tbody>{ trs }</tbody></table>
             </div>
         );
@@ -251,7 +288,7 @@ export default class Table extends C {
     }
 
     _getTBody() {
-        var tBody = document.getElementById('div_table_body').childNodes[0];
+        var tBody = document.getElementById(OBJECT.DIV_BODY_ID + this.props.id).childNodes[0];
         if(Utils.isEmpty(tBody) || Utils.isEmpty(tBody.childNodes[0])) return;
         if(tBody.childNodes[0].tagName === HTML_TAG.TBODY) tBody = tBody.childNodes[0];
         return tBody;
@@ -286,20 +323,18 @@ export default class Table extends C {
         }
     }
 
-    _getCalendar(e) {
+    _onViewCalendar(e) {
         this._removeCalendar();
         const obj = e.target.parentElement;
         const type = obj.getAttribute('type');
         if(Utils.isEmpty(obj)
             || obj.tagName !== HTML_TAG.TH
-            || (type !== INPUT_TYPE.DATETIME && type !== INPUT_TYPE.DATE)) return;
-        const datetime = (type === INPUT_TYPE.DATETIME)?true:false;
+            || (type !== TYPE.DATETIME && type !== TYPE.DATE)) return;
+        const datetime = (type === TYPE.DATETIME)?true:false;
         const cBox = document.createElement(HTML_TAG.DIV);
-        cBox.id = 'div_calendar_box_view';
+        cBox.id = OBJECT.DIV_CALENDAR_BOX_VIEW_ID;
         obj.appendChild(cBox);
-        // console.log(this.state.isUser);
         ReactDOM.render(<Calendar
-            show={ true }
             objId={ obj.id }
             fromTo={ true }
             range={ true }
@@ -307,10 +342,16 @@ export default class Table extends C {
             language={ this.state.language }
             onChangeCalendar={ this._onChangeCalendar.bind(this) } />
             ,document.getElementById(cBox.id));
-        const cal = document.getElementById('div_calendar_box');
-        const boxX = cal.offsetLeft + cal.offsetWidth;
+        const cal = document.getElementById(OBJECT.DIV_CALENDAR_BOX_ID + obj.id);
+        const pos = obj.getBoundingClientRect();
+        if(Utils.isEmpty(pos)) return;
+        const boxX = pos.x + cal.offsetWidth;
         if(boxX > window.innerWidth) {
             cal.style.left = (window.innerWidth - (cal.offsetWidth + 5)) + 'px';
+        } else if(pos.x < 0) {
+            cal.style.left = '0px';
+        } else {
+            cal.style.left = pos.x + 'px';
         }
     }
 
@@ -321,29 +362,83 @@ export default class Table extends C {
     }
 
     _removeCalendar() {
-        const cal = document.getElementById('div_calendar_box_view');
+        const cal = document.getElementById(OBJECT.DIV_CALENDAR_BOX_VIEW_ID);
         if(Utils.isEmpty(cal)) return;
         cal.remove();
     }
 
-    // componentDidMount() {
-    //     window.onresize = function(event) {
-    //         const divHeader = document.getElementById('div_table_header');
-    //         const divBody = document.getElementById('div_table_body');
-    //         if(Utils.isEmpty(divHeader) || Utils.isEmpty(divBody)) return;
-    //         divBody.style.height = (window.innerHeight - (110 + divHeader.offsetHeight)) + 'px';
-    //     };
-    //     window.onresize();  
-    // }
+    _onThMouseOver(e) {
+        var obj = e.target;
+        if(Utils.isEmpty(obj)) return;
+        if(obj.tagName !== HTML_TAG.TH) {
+            obj = obj.parentElement;
+        }
+        if(obj.tagName !== HTML_TAG.TH || Utils.isEmpty(obj.id)) return;
+        obj.addEventListener(MOUSE.MOUSEOUT, this._onThMouseOut.bind(this), false);
+        const pos = obj.getBoundingClientRect();
+        if(Utils.isEmpty(pos)) return;
+        this.state.sort.obj = obj;
+        this.state.sort.style = { top: (pos.top + 3), left : (pos.x + pos.width) - 30 };
+        this.state.sort.show = true;
+        this.forceUpdate();
+    }
+
+    _onThMouseOut(e) {
+        const obj = Html.getButton(e);
+        if(Utils.isEmpty(obj)) return;
+        if(obj.tagName === HTML_TAG.BUTTON && obj.className.indexOf('btn-hidden') !== -1) {
+            this.state.sort.show = true;
+        } else {
+            this.state.sort.show = false;
+        }
+        if(!Utils.isEmpty(this.state.sort.obj)) {
+            this.state.sort.obj.removeEventListener(MOUSE.MOUSEOUT, this._onThMouseOut.bind(this), false);
+        }
+        this.forceUpdate();
+    }
+
+    _onSortButtonClick() {
+        if(Utils.isEmpty(this.state.sort) || Utils.isEmpty(this.state.sort.obj)) return;
+        // console.log(this.state.sort);
+        const key = this.state.sort.obj.id;
+        if(this.state.sort.sort) {
+            this.state.datas.sort((a, b) => ((a[key] > b[key])?1:-1));
+            this.state.sort.sort = false;
+        } else {
+            this.state.datas.sort((a, b) => ((b[key] > a[key])?1:-1));
+            this.state.sort.sort = true;
+        }
+        this.forceUpdate();
+    }
+
+    _onSortButtons() {
+        return(
+            <Alert
+                show={ this.state.sort.show }
+                variant={ VARIANT_TYPES.LIGHT }
+                style={ this.state.sort.style }
+                className={ 'div-customize-actions div-customize-actions-child' }>
+    
+            <Button
+                type={ HTML_TAG.BUTTON }
+                className={ 'btn-hidden' }
+                onMouseOver={ this._onThMouseOut.bind(this) }
+                onClick={ this._onSortButtonClick.bind(this) }
+                variant={ VARIANT_TYPES.SECONDARY }>
+                <FaSort />
+            </Button>
+          </Alert>
+        );
+    }
 
     componentWillMount() {
         const list = {
             columns: [
                 { field: 'id', label: 'AAAA', sort: false, filter: false }
                 ,{ field: 'name', label: 'BBBB', sort: true, filter: true, style: { width: 500 } }
-                ,{ field: 'price3', label: 'CCCC', type: INPUT_TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
-                ,{ field: 'price4', label: 'DDDD', type: INPUT_TYPE.DATETIME, sort: true, filter: true }
-                ,{ field: 'price5', label: 'EEEE', sort: true, type: INPUT_TYPE.DATETIME, filter: true }
+                ,{ field: 'price3', label: 'CCCC', type: TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
+                ,{ field: 'price4', label: 'DDDD', type: TYPE.DATETIME, sort: true, filter: true }
+                ,{ field: 'price5', label: 'EEEE', sort: true, type: TYPE.DATETIME, filter: true }
             ]
             ,datas:[
                 { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }
@@ -397,6 +492,7 @@ export default class Table extends C {
     render() {
         return (
             <div className='div-table' id={ this.props.id }>
+                { this._onSortButtons() }
                 { <CMenu ref={ this.divContextMenuRef } objs={ this.state.actions }/> }
                 { this._getHeader() }
                 { this._getBody() }

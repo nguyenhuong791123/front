@@ -4,5 +4,14 @@
     ,"not_exists": "を間違っています。"
     ,"setting": "を設定してください。"
     ,"max_length": "%sの長さは[%d]文字です、[%d]を越えています。"
+    ,"not_date": "%sは日付形でなければなりません。[%s]"
+
+    ,"send_to_login_page": "ログイン画面へ"
+    ,"system_error": "☆ システム内部エラー発生しました。"
+    ,"page_not_found": "☆ ページを見つかりませんでした。"
+    ,"administrator_notify": "・ システム管理者へ連絡するか「ログイン画面」のリンクを押下して再度ログインをしてください。"
+    ,"error_msg": "・ エラーメッセージ"
+    ,"error_stack": "・ エラースタック"
+    ,"error_detail": "・ エラー詳細"
 }
   

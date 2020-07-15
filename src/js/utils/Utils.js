@@ -62,6 +62,17 @@ var getQueryLocale = function(props, language) {
     return isEmpty(language)?'ja':language;
 }
 
+var getLocationURL = function() {
+    var url = window.location.origin;
+    if(!isEmpty(url)) return url;
+    return window.location.protocol + '//' + window.location.host;
+}
+
+var getUUID = function(max) {
+    if(Number.isNaN(Number(max))) return Math.random().toString(36).slice(-max);
+    return Math.random().toString(36).slice(-8);
+}
+
 module.exports.isNull = isNull;
 module.exports.isEmpty = isEmpty;
 module.exports.isReplace = isReplace;
@@ -72,3 +83,5 @@ module.exports.inArray = inArray;
 module.exports.inJson = inJson;
 module.exports.getJsonValue = getJsonValue;
 module.exports.getQueryLocale = getQueryLocale;
+module.exports.getLocationURL = getLocationURL;
+module.exports.getUUID = getUUID;
