@@ -1,0 +1,21 @@
+div.div-dailer-box {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+
+    object {
+        height: 100vh;
+        position: absolute;    
+    }
+
+    button {
+        cursor: pointer;
+        margin-left: -.5em;
+        margin-top: .5em;
+        padding-left: .5em;    
+    }
+
+    button:hover {
+        margin-left: -2em;
+    }
+}

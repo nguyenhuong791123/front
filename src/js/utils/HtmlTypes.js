@@ -65,19 +65,28 @@ export const TYPE = {
 }
 
 export const BOX_WIDTH = {
-    25: '25%'
+    10: '10%'
+    ,15: '15%'
+    ,25: '25%'
     ,33: '33%'
     ,50: '50%'
     ,75: '75%'
+    ,85: '85%'
+    ,90: '90%'
     ,100: '100%'
 }
 
 export const BOX_HEIGHT = {
-    89: '89px'
-    ,178: '178px'
-    ,267: '267px'
-    ,356: '356px'
-    ,445: '445px'
+    80: '80px'
+    ,160: '160px'
+    ,240: '240px'
+    ,320: '320px'
+    ,400: '400px'
+    ,480: '480px'
+    ,560: '560px'
+    ,640: '640px'
+    ,720: '720px'
+    ,800: '800px'
 }
 
 export const ATTR = {
@@ -179,6 +188,9 @@ export const OPTIONS_KEY = {
     OPTIONS: 'options',
     OPTION_CHECKED: 'option_checked',
     OPTION_TARGET: 'option_target',
+    OPTION_REGEX: 'option_regex',
+    OPTIONS_ITEM: 'option_item',
+    OPTIONS_FILE: 'option_file'
 }
 
 export const OPTIONS = [
@@ -187,4 +199,15 @@ export const OPTIONS = [
     'city',
     'sex',
     'exists'
+]
+
+export const REGEXS = [
+    '-',
+    '/',
+    '|',
+    '*',
+    '$',
+    '%',
+    '&',
+    '@'
 ]

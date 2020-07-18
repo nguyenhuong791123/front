@@ -1,0 +1,29 @@
+nav {
+    padding: 0 !important;
+
+    a {
+        text-decoration: none;
+
+        img {
+            width: 2em;
+            height: 2em;
+        }
+        span {
+            padding: .3em;
+        }
+    }
+    a:hover {
+        text-decoration: none;
+    }
+
+    div.div-header-form {
+        display: flex;
+        right: 0;
+        position: absolute;
+        
+        > input
+        ,> select {
+            margin-top: .5em;
+        }
+    }
+}

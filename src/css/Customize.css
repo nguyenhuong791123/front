@@ -4,24 +4,24 @@ button.btn-submit-form-hidden {
 
 button.btn-create-div {
     position: absolute;
-    right: 14.2em;
+    right: 13.6em;
 }
 
 button.btn-create-tab {
     position: absolute;
-    right: 10em;
+    right: 9.5em;
 }
 
 /* div.div-customize-box < nav:hover {
     background: #80808026;
 } */
 
-div.div-customize-box > div {
+/* div.div-customize-box > div {
     border: 1px solid #dee2e6;
     border-radius: .5em;
-}
+} */
 
-div.div-customize-box > div.selected {
+/* div.div-customize-box > div.selected {
     border-color: red;
 }
 
@@ -48,7 +48,7 @@ div.div-customize-box > div.div-box-75 {
 div.div-customize-box > div.div-box-100 {
     width: 100%;
     display: inline-block;
-}
+} */
 
 div.div-overlay-box {
     position: absolute;
@@ -140,7 +140,7 @@ div.div-customize-title-box > input
 div.div-overlay-box-add-items {
     overflow: auto;
     overflow-x: auto;
-    max-height: 170px;
+    max-height: 460px;
 }
 
 button.button-overlay-box-add-items {

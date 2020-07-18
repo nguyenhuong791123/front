@@ -331,10 +331,21 @@ class TabMenu extends C {
         this._onResizeWindown(document.getElementById(SYSTEM.IS_TAB_MENU));
     }
 
+    // _onResizeWindown(div) {
+    //     window.onresize = function(event) {
+    //     }
+    //     window.onresize();
+    // }
+
     _onResizeWindown(div) {
         if(Utils.isEmpty(div)) return;
         const aWidth = (this.state.isUser.uLid === SYSTEM.IS_ADMIN)?140:0;
         window.onresize = function(event) {
+            const divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+            if(!Utils.isEmpty(divBody)) {
+                divBody.style.height = (window.innerHeight - 105) + 'px';
+            }
+    
             if(Utils.isEmpty(div)) return;
             const divContent = div.childNodes[0].childNodes[2];
             if(!Utils.isEmpty(divContent)
@@ -382,7 +393,7 @@ class TabMenu extends C {
                     next.style.display = DISPLAY_TYPE.NONE;
                 }
             } else {
-                console.log(div);
+                // console.log(div);
                 const divParent = div.parentElement;
                 if(divParent.id !== 'tab_menu_1') return;
                 if(window.innerWidth < WINDOWN_WIDTH) {

@@ -290,7 +290,8 @@ class Customize extends C {
       || (!Utils.isEmpty(obj.className)) && obj.className.startsWith('form-')) return;
     obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.alertActions.show = true;
-    this.state.alertActions.style = { top: (obj.tagName === HTML_TAG.NAV)?(obj.offsetTop + 3):obj.offsetTop, left: (obj.offsetLeft + obj.offsetWidth) - 110 };
+    const pos = obj.getBoundingClientRect();
+    this.state.alertActions.style = { top: (obj.tagName === HTML_TAG.NAV)?(pos.y + 3):pos.y, left: (obj.offsetLeft + obj.offsetWidth) - 110 };
     if(obj.tagName === HTML_TAG.NAV) {
       var selected = obj.childNodes[obj.childNodes.length - 1];
       this.state.alertActions.add_tab_style = { top: (selected.offsetTop + 3), left : (selected.offsetLeft + selected.offsetWidth) + 5 };
@@ -300,8 +301,9 @@ class Customize extends C {
     }
     var className = 'div-customize-actions';
     if(obj.tagName === HTML_TAG.LABEL && Utils.isEmpty(obj.className)) {
+      const pos = obj.getBoundingClientRect();
       className += ' div-customize-actions-child';
-      this.state.alertActions.style.left = (this.state.alertActions.style.left + 55);
+      this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 55, zIndex: 1 };
     }
     this.state.alertActions.class = className;
     this.state.dragobject = obj;
@@ -354,7 +356,7 @@ class Customize extends C {
             const field = label.getAttribute('for').replace('root_', '');
             // console.log(field);
             properties[field].idx = i;
-            if(Utils.inJson(properties[field].obj, 'file_data')) delete properties[field].obj['file_data'];
+            if(Utils.inJson(properties[field].obj, OPTIONS_KEY.OPTIONS_FILE)) delete properties[field].obj[OPTIONS_KEY.OPTIONS_FILE];
           }
         } else {
           const tabChilds = o.childNodes[0].childNodes;
@@ -381,7 +383,7 @@ class Customize extends C {
               const field = label.getAttribute('for').replace('root_', '');
               console.log(field);
               properties[field].idx = o;
-              if(Utils.inJson(properties[field].obj, 'file_data')) delete properties[field].obj['file_data'];
+              if(Utils.inJson(properties[field].obj, OPTIONS_KEY.OPTIONS_FILE)) delete properties[field].obj[OPTIONS_KEY.OPTIONS_FILE];
             }
           }
         }
@@ -499,8 +501,13 @@ class Customize extends C {
         properties = form.object.schema;
       }
     }
-    if(!Utils.isEmpty(properties)) this.state.overlayCreateEditBox.obj = properties.obj;  
-
+    if(!Utils.isEmpty(properties)) this.state.overlayCreateEditBox.obj = properties.obj;
+    if(this.state.overlayCreateEditBox.obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+      const itemName = this.state.overlayCreateEditBox.obj['item_name'];
+      const value = form.object.data[itemName];
+      this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS_FILE] = value;
+    }
+    console.log(this.state.overlayCreateEditBox.obj);
     const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
     this.state.overlayCreateEditBox.msg = '「' + this.state.overlayCreateEditBox.obj[labelKey] + '」' + Msg.getMsg(null, this.state.isUser.language, 'bt_edit');
     this.state.overlayCreateEditBox.show = true;
@@ -546,31 +553,6 @@ class Customize extends C {
     console.log(this.state.pageName);
   }
 
-  // _fileToBase64(files, editObj) {
-  //   editObj.obj['file_data'] = [];
-  //   Object.keys(files).map(i => {
-  //     var reader = new FileReader();
-  //     reader.onload = function () {
-  //       editObj.obj['file_data'].push(reader.result);
-  //     };
-  //     reader.readAsDataURL(files[i]);
-  //   });
-  // }
-
-  // _onAddItemToDivTab() {
-  //   this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].push({'valuel': '', 'label': ''});
-  //   this.forceUpdate();
-  // }
-
-  // _onRemoveItemToLists(e) {
-  //   var obj = Html.getButton(e);
-  //   if(Utils.isEmpty(obj)) return;
-  //   var idx = obj.id.split('_')[1];
-  //   if(Number.isNaN(Number(idx))) return;
-  //   this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS].splice(idx, 1);
-  //   this.forceUpdate();
-  // }
-
   _onCreateDivOrTab(e) {
     const obj = e.target;
     if(Utils.isEmpty(obj)) return;
@@ -592,54 +574,6 @@ class Customize extends C {
 
   _onAlerEdit() {
     if(!this.state.overlayCreateEditBox.show) return '';
-    // var items = [];
-    // var aligns = [];
-    // var widths = [];
-    // var heights = [];
-    // var languages = [];
-    // var options = [];
-    // var objs = Object.keys(TYPE);
-    // for (let i=0; i<objs.length; i++) {
-    //   items.push( <option key={ i } value={ TYPE[objs[i]] }>{ TYPE[objs[i]] }</option> );
-    // }
-    // objs = Object.keys(ALIGN);
-    // for (let i=0; i<objs.length; i++) {
-    //   aligns.push( <option key={ i } value={ ALIGN[objs[i]] }>{ ALIGN[objs[i]] }</option> );
-    // }
-    // objs = Object.keys(BOX_WIDTH);
-    // for (let i=0; i<objs.length; i++) {
-    //   widths.push( <option key={ i } value={ objs[i] }>{ BOX_WIDTH[objs[i]] }</option> );
-    // }
-    // objs = Object.keys(BOX_HEIGHT);
-    // for (let i=0; i<objs.length; i++) {
-    //   heights.push( <option key={ i } value={ objs[i] }>{ BOX_HEIGHT[objs[i]] }</option> );
-    // }
-    // objs = Html.getLanguages(); 
-    // for(let i=0; i<objs.length; i++) {
-    //   languages.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
-    // }
-    // objs = OPTIONS; 
-    // options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
-    // for(let i=0; i<objs.length; i++) {
-    //   options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
-    // }
-
-    // var obj = null;
-    // var editObj = this.state.overlayCreateEditBox.obj;
-    // if(this.state.mode === ACTION.EDIT) {
-    //   obj = this.state.dragobject;
-    //   items.push( <option key={ items.length } value={ HTML_TAG.TAB }>{ 'tab' }</option> );
-    // }
-
-    // var defaultType = TYPE.TEXT;
-    // const dateType = [ TYPE.DATE, TYPE.DATETIME, TYPE.TIME ];
-    // if(dateType.includes(editObj[CUSTOMIZE.TYPE])) {
-    //     defaultType = (editObj[CUSTOMIZE.TYPE] === TYPE.DATETIME)?'datetime-local':editObj[CUSTOMIZE.TYPE];
-    // }
-
-    // if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_COLOR])) editObj[CUSTOMIZE.LABEL_COLOR] = '#';
-    // if(Utils.isEmpty(editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR])) editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] = '#';
-
     return(
       <Alert
         id={ SYSTEM.IS_DIV_EDITOR_BOX }
@@ -669,588 +603,6 @@ class Customize extends C {
             editBox={ this.state.overlayCreateEditBox }
             pages={ this.state.pages }
             updateEditBox={ this._onUpdateEditBox.bind(this) }/>
-
-          {/* <table className='table-overlay-box'>
-            <tbody>
-              <tr>
-                <td colSpan='4'><h4>{ this.state.overlayCreateEditBox.msg }</h4></td>
-              </tr>
-              <tr>
-                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
-                <td>
-                  {(() => {
-                    if (this.state.mode === ACTION.EDIT) {
-                      return(
-                        <FormControl
-                          disabled
-                          as={ HTML_TAG.SELECT }
-                          name={ CUSTOMIZE.TYPE }
-                          value={ editObj[CUSTOMIZE.TYPE] }
-                          onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
-                      );
-                    } else {
-                      return(
-                        <FormControl
-                          as={ HTML_TAG.SELECT }
-                          name={ CUSTOMIZE.TYPE }
-                          value={ editObj[CUSTOMIZE.TYPE] }
-                          onChange={ this._onCreateEditChange.bind(this) }> { items }</FormControl>
-                      );
-                    }
-                  })()}
-                </td>
-                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_language') }</td>
-                <td>
-                  <FormControl
-                    as={ HTML_TAG.SELECT }
-                    name={ CUSTOMIZE.LANGUAGE }
-                    value={ editObj[CUSTOMIZE.LANGUAGE] }
-                    onChange={ this._onCreateEditChange.bind(this) }>
-                    { languages }
-                  </FormControl>
-                </td>
-              </tr>
-
-              <tr>
-                <td className='td-not-break'>
-                  { Msg.getMsg(null, this.state.isUser.language, 'obj_label') }
-                  <span className={ 'required' }>*</span>
-                </td>
-                <td>
-                  <FormControl
-                    type={ TYPE.TEXT }
-                    name={ CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]}
-                    // defaultValue={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                    value={ editObj[CUSTOMIZE.LABEL + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                    onChange={ this._onCreateEditChange.bind(this) }/>
-                </td>
-                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_width') }</td>
-                <td>
-                  <table>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <FormControl
-                            as={ HTML_TAG.SELECT }
-                            name={ CUSTOMIZE.BOX_WIDTH }
-                            defaultValue={ editObj[CUSTOMIZE.BOX_WIDTH] }
-                            onChange={ this._onCreateEditChange.bind(this) }> { widths }</FormControl>
-                        </td>
-                        <td style={ { width: '40px', textAlign: 'right'} }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_height') }</td>
-                        <td>
-                          <FormControl
-                            as={ HTML_TAG.SELECT }
-                            name={ CUSTOMIZE.BOX_HEIGHT }
-                            defaultValue={ editObj[CUSTOMIZE.BOX_HEIGHT] }
-                            onChange={ this._onCreateEditChange.bind(this) }> { heights }</FormControl>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </td>
-              </tr>
-
-              {(() => {
-                if (obj === null 
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB
-                    || (obj !== null
-                        && obj.tagName !== HTML_TAG.LEGEND
-                        && obj.tagName !== HTML_TAG.NAV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)) {
-                  return(
-                    <tr>
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD) {
-                          return(
-                            <td className='td-not-break'>
-                              { Msg.getMsg(null, this.state.isUser.language, 'obj_default') }
-                              {(() => {
-                                if (editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE || editObj[CUSTOMIZE.TYPE] === TYPE.DISABLE) {
-                                  return(
-                                    <span className={ 'required' }>*</span>
-                                  );
-                                }
-                              })()}
-                            </td>
-                          );
-                        }
-                      })()}
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
-                            && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
-                            && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                            && editObj[CUSTOMIZE.TYPE] !== TYPE.COLOR) {
-                              if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
-                                || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
-                                || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
-                                  var defaultOptions = [];
-                                  defaultOptions.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
-                                  if(Utils.inJson(editObj, OPTIONS_KEY.OPTIONS)) {
-                                    editObj[OPTIONS_KEY.OPTIONS].map((o, idx) => {
-                                      if(!Utils.isEmpty(o['value']) && !Utils.isEmpty(o['label']))
-                                        defaultOptions.push( <option key={ idx } value={ o['value'] }>{ o['label'] }</option> );
-                                    });
-                                  }
-                                  return(
-                                    <td>
-                                      <FormControl
-                                        as={ HTML_TAG.SELECT }
-                                        name={ CUSTOMIZE.DEFAULT }
-                                        defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                        onChange={ this._onCreateEditChange.bind(this) }> { defaultOptions }</FormControl>
-                                    </td>
-                                  );
-                              } else {
-                                return(
-                                  <td>
-                                    <FormControl
-                                      type={ defaultType }
-                                      name={ CUSTOMIZE.DEFAULT }
-                                      defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                      onChange={ this._onCreateEditChange.bind(this) }/>
-                                  </td>
-                                );      
-                              }
-                        } else if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
-                          return(
-                            <td>
-                              {(() => {
-                                if(editObj[CUSTOMIZE.MULTIPLE_FILE]) {
-                                  return(
-                                    <Form.File
-                                      multiple
-                                      type={ TYPE.FILE }
-                                      name={ CUSTOMIZE.DEFAULT }
-                                      defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                      onChange={ this._onCreateEditChange.bind(this) }/>
-                                  );
-                                } else {
-                                  return(
-                                    <Form.File
-                                      type={ TYPE.FILE }
-                                      name={ CUSTOMIZE.DEFAULT }
-                                      defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                      onChange={ this._onCreateEditChange.bind(this) }/>
-                                  );
-                                }
-                              })()}
-                            </td>
-                          );
-                        } else if(editObj[CUSTOMIZE.TYPE] === TYPE.COLOR) {
-                          return(
-                            <td>
-                              <input
-                                type={ TYPE.COLOR }
-                                name={ CUSTOMIZE.DEFAULT }
-                                defaultValue={ editObj[CUSTOMIZE.DEFAULT] }
-                                onChange={ this._onCreateEditChange.bind(this) } />
-                            </td>
-                          );
-                        }
-                      })()}
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_required') }</td>
-                          <td style={ { height: '40px' } }>
-                            <input
-                              type={ HTML_TAG.CHECKBOX }
-                              name={ CUSTOMIZE.REQUIRED }
-                              defaultChecked={ editObj[CUSTOMIZE.REQUIRED] }
-                              onChange={ this._onCreateEditChange.bind(this) }></input>
-                        </td>
-                    </tr>  
-                  );
-                }
-              })()}
-
-              {(() => {
-                if ((obj === null
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)
-                    || (obj !== null
-                        && obj.tagName !== HTML_TAG.LEGEND
-                        && obj.tagName !== HTML_TAG.NAV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)) {
-                  return(
-                    <tr>
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
-                          return(
-                            <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder') }</td>
-                          );
-                        } else if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-                          return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_multiple') }</td>)
-                        }
-                      })()}
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
-                          return(
-                            <td>
-                              <FormControl
-                                type={ TYPE.TEXT }
-                                name={ CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE] }
-                                value={ editObj[CUSTOMIZE.PLACEHOLDER + '_' + editObj[CUSTOMIZE.LANGUAGE]] }
-                                onChange={ this._onCreateEditChange.bind(this) }/>
-                            </td>
-                          );
-                        } else if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-                          return(
-                            <td>
-                              <input
-                                type={ HTML_TAG.CHECKBOX }
-                                name={ CUSTOMIZE.MULTIPLE_FILE }
-                                defaultChecked={ editObj[CUSTOMIZE.MULTIPLE_FILE] }
-                                onChange={ this._onCreateEditChange.bind(this) }></input>
-                            </td>
-                          );
-                        }
-                      })()}
-
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.FILE
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
-                          return(
-                            <td className='td-not-break'>
-                              {(() => {
-                                if (editObj[CUSTOMIZE.TYPE] === TYPE.FILE || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
-                                  return('MaxSize(MB)');
-                                } else {
-                                  return('MaxLength');
-                                }
-                              })()}
-                            </td>
-                          );
-                        }
-                      })()}
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] === TYPE.TEXT
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.FILE
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.NUMBER
-                          || editObj[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
-                          return(
-                            <td>
-                              <FormControl
-                                type={ TYPE.NUMBER }
-                                name={ CUSTOMIZE.MAX_LENGTH }
-                                defaultValue={ editObj[CUSTOMIZE.MAX_LENGTH] }
-                                onChange={ this._onCreateEditChange.bind(this) }/>
-                            </td>
-                          );
-                        }
-                      })()}
-                    </tr>
-                  );
-                }
-              })()}
-
-              <tr>
-                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_label') }</td>
-                <td>
-                  <input
-                    type={ TYPE.COLOR }
-                    name={ CUSTOMIZE.LABEL_COLOR }
-                    defaultValue={ editObj[CUSTOMIZE.LABEL_COLOR] }
-                    onChange={ this._onCreateEditChange.bind(this) }></input>
-                  <span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_background') }</span>
-                  <input
-                    type={ TYPE.COLOR }
-                    name={ CUSTOMIZE.LABEL_LAYOUT_COLOR }
-                    defaultValue={ editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] }
-                    onChange={ this._onCreateEditChange.bind(this) }></input>
-                </td>
-                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_css_style') }</td>
-                <td>
-                  <FormControl
-                    type={ TYPE.TEXT }
-                    name={ CUSTOMIZE.STYLE }
-                    defaultValue={ editObj[CUSTOMIZE.STYLE] }
-                    onChange={ this._onCreateEditChange.bind(this) }/>
-                </td>
-              </tr>
-
-              {(() => {
-                if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
-                  || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
-                  || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
-                  return(
-                    <tr>
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
-                          return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_type') }</td>);
-                        }
-                      })()}
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
-                          return(
-                            <td>
-                              <input
-                                type={ HTML_TAG.CHECKBOX }
-                                name={ OPTIONS_KEY.OPTION_CHECKED }
-                                checked={ editObj[OPTIONS_KEY.OPTION_CHECKED] }
-                                onChange={ this._onCreateEditChange.bind(this) }></input>
-                            </td>    
-                          );
-                        }
-                      })()}
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_list_option') }</td>
-                      <td>
-                        <FormControl
-                            as={ HTML_TAG.SELECT }
-                            name={ OPTIONS_KEY.OPTION_LIST }
-                            defaultValue={ editObj[OPTIONS_KEY.OPTION_LIST] }
-                            onChange={ this._onCreateEditChange.bind(this) }>
-                            { options }
-                        </FormControl>
-                      </td>
-                    </tr>
-                  );
-                }
-              })()} */}
-
-              {/* {(() => {
-                if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE)
-                    || (obj !== null
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                        && (obj.tagName === HTML_TAG.LEGEND || obj.tagName === HTML_TAG.NAV))) {
-                  return(
-                    <tr>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_title') }</td>
-                      <td>
-                        <input
-                          type={ TYPE.COLOR }
-                          name={ CUSTOMIZE.LABEL_COLOR }
-                          defaultValue={ editObj[CUSTOMIZE.LABEL_COLOR] }
-                          onChange={ this._onCreateEditChange.bind(this) }></input>
-                        <span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_background') }</span>
-                        <input
-                          type={ TYPE.COLOR }
-                          name={ CUSTOMIZE.LABEL_LAYOUT_COLOR }
-                          defaultValue={ editObj[CUSTOMIZE.LABEL_LAYOUT_COLOR] }
-                          onChange={ this._onCreateEditChange.bind(this) }></input>
-                      </td>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_align') }</td>
-                      <td>
-                        <FormControl
-                          as={ HTML_TAG.SELECT }
-                          name={ CUSTOMIZE.LABEL_ALIGN }
-                          defaultValue={ editObj[CUSTOMIZE.LABEL_ALIGN] }
-                          onChange={ this._onCreateEditChange.bind(this) }>
-                          { aligns }
-                        </FormControl>
-                      </td>
-                    </tr>
-                  );
-                }
-              })()}
-
-              {(() => {
-                if ((obj === null
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)
-                    || (obj !== null 
-                        && obj.tagName !== HTML_TAG.LEGEND 
-                        && obj.tagName !== HTML_TAG.NAV 
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB)) {
-                  return(
-                    <tr>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_text') }</td>
-                      <td>
-                        <input
-                          type={ TYPE.COLOR }
-                          name={ CUSTOMIZE.TEXT_COLOR }
-                          defaultValue={ editObj[CUSTOMIZE.TEXT_COLOR] }
-                          onChange={ this._onCreateEditChange.bind(this) }></input>
-                        <span style={{ marginLeft: '3em' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_background') }</span>
-                        <input
-                          type={ TYPE.COLOR }
-                          name={ CUSTOMIZE.TEXT_LAYOUT_COLOR }
-                          defaultValue={ editObj[CUSTOMIZE.TEXT_LAYOUT_COLOR] }
-                          onChange={ this._onCreateEditChange.bind(this) }></input>
-                      </td>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_align') }</td>
-                      <td>
-                        <FormControl
-                          as={ HTML_TAG.SELECT }
-                          name={ CUSTOMIZE.TEXT_ALIGN }
-                          defaultValue={ editObj[CUSTOMIZE.TEXT_ALIGN] }
-                          onChange={ this._onCreateEditChange.bind(this) }>
-                          { aligns }
-                        </FormControl>
-                      </td>
-                    </tr>
-                  );
-                }
-              })()} */}
-
-              {/* {(() => {
-                if ((editObj[CUSTOMIZE.TYPE] !== TYPE.PASSWORD
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.FILE
-                    && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE)
-                    || (obj !== null
-                        && editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                        && (obj.tagName === HTML_TAG.LEGEND || obj.tagName === HTML_TAG.NAV))) {
-                  return(
-                    <tr>
-                      <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_css_style') }</td>
-                      <td>
-                        <FormControl
-                          type={ TYPE.TEXT }
-                          name={ CUSTOMIZE.STYLE }
-                          defaultValue={ editObj[CUSTOMIZE.STYLE] }
-                          onChange={ this._onCreateEditChange.bind(this) }/>
-                      </td>
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
-                            || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-                          return(
-                            <td className='td-not-break'>
-                              { Msg.getMsg(null, this.state.isUser.language, 'obj_list_type') }
-                            </td>
-                          );
-                        }
-                      })()}
-                      {(() => {
-                        if (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
-                            || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-                          return(
-                            <td>
-                              <input
-                                type={ HTML_TAG.CHECKBOX }
-                                name={ OPTIONS_KEY.OPTION_CHECKED }
-                                checked={ editObj[OPTIONS_KEY.OPTION_CHECKED] }
-                                onChange={ this._onCreateEditChange.bind(this) }></input>
-                            </td>
-                          );
-                        }
-                      })()}
-                    </tr>
-                  );
-                }
-              })()} */}
-
-
-
-              {/* {(() => {
-                if (editObj[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                  && editObj[CUSTOMIZE.TYPE] !== TYPE.DIV
-                  && editObj[CUSTOMIZE.TYPE] !== TYPE.TAB
-                  && Utils.isEmpty(editObj[OPTIONS_KEY.OPTION_LIST])) {
-                  return(
-                    <tr>
-                      <td colSpan='4'>
-                        <div className={ 'div-overlay-box-add-items' }>
-                          <table className='table-overlay-box'>
-                            <tbody>
-                              {(() => {
-                                // if (this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTION_CHECKED] && (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO)) {
-                                if (editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
-                                  || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
-                                  || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
-                                  if(editObj[OPTIONS_KEY.OPTIONS] === undefined) {
-                                    if(editObj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-                                      editObj[OPTIONS_KEY.OPTIONS] = [{ 'value': '', 'label': '' }, { 'value': '', 'label': '' }];
-                                    } else {
-                                      editObj[OPTIONS_KEY.OPTIONS] = [{ 'value': '', 'label': '' }];
-                                    }
-                                  }
-                                  const objs = Array.from(editObj[OPTIONS_KEY.OPTIONS]);
-                                  return objs.map((o, idx) => {
-                                    return(
-                                      <tr key={ idx }>
-                                        <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_id') }</td>
-                                        <td>
-                                          <FormControl
-                                            type={ TYPE.TEXT }
-                                            id={ 'values_' + idx }
-                                            name={ 'obj_lists' }
-                                            defaultValue={ o['value'] }
-                                            onChange={ this._onCreateEditChange.bind(this) }/>
-                                        </td>
-                                        <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_value') }</td>
-                                        <td>
-                                          <table>
-                                            <tbody>
-                                              <tr>
-                                                <td>
-                                                  <FormControl
-                                                    type={ TYPE.TEXT }
-                                                    id={ 'labels_' + idx }
-                                                    name={ 'obj_lists' }
-                                                    defaultValue={ o['label'] }
-                                                    onChange={ this._onCreateEditChange.bind(this) }/>
-                                                </td>
-                                                <td style={ {'width': 0} }>
-                                                  {(() => {
-                                                    if(idx === 0) {
-                                                      return (
-                                                        <Button
-                                                          type={ TYPE.BUTTON }
-                                                          id={ 'btnitems_' + idx }
-                                                          className={ 'button-overlay-box-add-items' }
-                                                          onClick={ this._onAddItemToDivTab.bind(this) }
-                                                          variant={ VARIANT_TYPES.PRIMARY }>
-                                                          <FaPlus />
-                                                        </Button>
-                                                      );
-                                                    } else {
-                                                      if(editObj[CUSTOMIZE.TYPE] === TYPE.RADIO && idx === 1) {
-                                                        return('');
-                                                      } else {
-                                                        return (
-                                                          <Button
-                                                            type={ TYPE.BUTTON }
-                                                            id={ 'btnitems_' + idx }
-                                                            className={ 'button-overlay-box-add-items' }
-                                                            onClick={ this._onRemoveItemToLists.bind(this) }
-                                                            variant={ VARIANT_TYPES.SECONDARY }>
-                                                            <FaMinus />
-                                                          </Button>
-                                                        );  
-                                                      }
-                                                    }
-                                                  })()}
-                                                </td>
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </td>
-                                      </tr>
-                                    );  
-                                  })
-                                }
-                              })()}
-                            </tbody>
-                          </table>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                }
-              })()}
-            </tbody>
-          </table> */}
         </div>
       </Alert>
     );
@@ -1370,7 +722,7 @@ class Customize extends C {
       }
     }
     if(Utils.isEmpty(error)
-      && obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj['file_data'])) {
+      && obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS_FILE])) {
       error = Msg.getMsg(null, this.state.isUser.language, 'obj_default') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
     }
     if(Utils.isEmpty(error)
@@ -1464,97 +816,6 @@ class Customize extends C {
     }
     this.forceUpdate();
   }
-
-  // _onCreateEditChange(e) {
-  //   const obj = e.target;
-  //   if(Utils.isEmpty(obj)) return;
-  //   const name = obj.name;
-  //   const editObj = this.state.overlayCreateEditBox;
-  //   const type = editObj.obj[CUSTOMIZE.TYPE];
-  //   // if(name === CUSTOMIZE.TYPE) {
-  //   //   const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-  //   //   const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
-  //   //   editObj.obj[label_language] = '';
-  //   //   editObj.obj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
-  //   //   if(Utils.inJson(editObj.obj, placeholder_language)) delete editObj.obj[placeholder_language];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.REQUIRED)) delete editObj.obj[CUSTOMIZE.REQUIRED];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.DEFAULT)) delete editObj.obj[CUSTOMIZE.DEFAULT];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MAX_LENGTH)) delete editObj.obj[CUSTOMIZE.MAX_LENGTH];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.MULTIPLE_FILE)) delete editObj.obj[CUSTOMIZE.MULTIPLE_FILE];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_COLOR];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.LABEL_LAYOUT_COLOR)) delete editObj.obj[CUSTOMIZE.LABEL_LAYOUT_COLOR];
-  //   //   if(Utils.inJson(editObj.obj, CUSTOMIZE.STYLE)) delete editObj.obj[CUSTOMIZE.STYLE];
-  //   //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO)
-  //   //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTION_CHECKED)) delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
-  //   //   if(type !== CUSTOMIZE.CHECKBOX && type !== CUSTOMIZE.RADIO && type !== CUSTOMIZE.LIST)
-  //   //     if(Utils.inJson(editObj.obj, OPTIONS_KEY.OPTIONS)) delete editObj.obj[OPTIONS_KEY.OPTIONS];
-  //   // }
-
-  //   if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
-  //     var files = obj.files;
-  //     console.log(files);
-  //     if(Utils.isEmpty(files) || files.length <= 0) {
-  //       if(Utils.inJson(editObj.obj, 'file_data')) delete editObj.obj['file_data'];
-  //     } else {
-  //       this._fileToBase64(files, editObj);
-  //     }
-  //     delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
-  //     delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
-  //     delete editObj.obj[OPTIONS_KEY.OPTIONS];
-  //   } else {
-  //     var val = obj.value;
-  //     if(name === 'obj_lists'
-  //       && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.SELECT)
-  //       && name !== CUSTOMIZE.LANGUAGE ) {
-  //       var idx = obj.id.split('_')[1];
-  //       if(Number.isNaN(Number(idx))) return;
-  //       var lObj = editObj.obj[OPTIONS_KEY.OPTIONS][idx];
-  //       if(obj.id.startsWith('values_')) {
-  //         lObj['value'] = obj.value;
-  //       } 
-  //       if(obj.id.startsWith('labels_')) {
-  //         lObj['label'] = obj.value;
-  //       }
-  //       editObj.obj[OPTIONS_KEY.OPTIONS][idx] = lObj;
-  //     } else {
-  //       if(obj.type === TYPE.CHECKBOX) {
-  //         val = obj.checked;
-  //       }
-  //       editObj.obj[name] = val;
-  //       const options = [TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT];
-  //       if(!options.includes(type) && !options.includes(name) && name !== CUSTOMIZE.LANGUAGE) {
-  //         delete editObj.obj[OPTIONS_KEY.OPTION_CHECKED];
-  //         delete editObj.obj[OPTIONS_KEY.OPTION_LIST];
-  //         delete editObj.obj[OPTIONS_KEY.OPTIONS];
-  //       } else if (name === CUSTOMIZE.LANGUAGE) {
-  //         const label_language = CUSTOMIZE.LABEL + '_' + val;
-  //         if (editObj.obj[label_language] === undefined) {
-  //           editObj.obj[label_language] = '';
-  //         }
-  //         const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
-  //         if (editObj.obj[placeholder_language] === undefined) {
-  //           editObj.obj[placeholder_language] = '';
-  //         }
-  //       }
-  //     }
-
-  //     if(Utils.inJson(editObj, 'file_data')) delete editObj['file_data'];
-  //   }
-
-  //   if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_WIDTH])) {
-  //     if(editObj.obj[CUSTOMIZE.TYPE] === TYPE.DIV) {
-  //       editObj.obj[CUSTOMIZE.BOX_WIDTH] = 100;
-  //     } else {
-  //       editObj.obj[CUSTOMIZE.BOX_WIDTH] = 25;
-  //     }
-  //   }
-  //   if(Utils.isEmpty(editObj.obj[CUSTOMIZE.BOX_HEIGHT])) {
-  //     editObj.obj[CUSTOMIZE.BOX_HEIGHT] = 89;
-  //   }
-
-  //   this.setState({ overlayCreateEditBox: editObj });
-  //   this.forceUpdate();
-  // }
 
   _onOverlayDeleteBox() {
     if(!this.state.overlayDeleteBox.show) return '';
@@ -1696,6 +957,7 @@ class Customize extends C {
     if(e.schema.block === HTML_TAG.TAB) {
       this.state.form[fIdx].object[idx].data = e.formData;
     }
+    this.forceUpdate();
   }
 
   _getErrorMsg() {
@@ -1718,7 +980,9 @@ class Customize extends C {
         var div = root.parentElement;
         if(field.split('_')[0] === TYPE.FILE) {
           div = root.parentElement.parentElement.parentElement;
+          // this._onSetLabeFile(root);
         }
+
         if(!Utils.isEmpty(div)) {
           if((Utils.inJson(obj, CUSTOMIZE.REQUIRED) && obj[CUSTOMIZE.REQUIRED])
             || (Utils.inJson(obj, CUSTOMIZE.STYLE) && !Utils.isEmpty(obj[CUSTOMIZE.STYLE]))) {
@@ -1744,25 +1008,46 @@ class Customize extends C {
           }
         }
 
-        var input = document.getElementById('root_' + field);
-        if(!Utils.isEmpty(input)) {
-          if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
-            const divs = Array.from(input.childNodes);
-            divs.map((o) => {
-              input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
-              if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
-            });
-          } else {
-            input.setAttribute("disabled", true);
-            if(!Utils.isEmpty(input.id) && (input.id.indexOf(TYPE.DATE) !== -1 || input.id.indexOf(TYPE.DATETIME) !== -1)) {
-              input.removeAttribute('readonly');
-              input.style.removeProperty("background-color");
-            }
-          }
-        }
+        // var input = document.getElementById('root_' + field);
+        // if(!Utils.isEmpty(input)) {
+        //   if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
+        //     const divs = Array.from(input.childNodes);
+        //     divs.map((o) => {
+        //       input = o.getElementsByTagName(HTML_TAG.INPUT)[0];
+        //       if(!Utils.isEmpty(input)) input.setAttribute("disabled", true);
+        //     });
+        //   } else {
+        //     input.setAttribute("disabled", true);
+        //     if(!Utils.isEmpty(input.id) && (input.id.indexOf(TYPE.DATE) !== -1 || input.id.indexOf(TYPE.DATETIME) !== -1)) {
+        //       input.removeAttribute('readonly');
+        //       input.style.removeProperty("background-color");
+        //     }
+        //   }
+        // }
       }
     });
   }
+
+  // _onSetLabeFile(obj) {
+  //   var label = document.getElementById('front_' + obj.id);
+  //   if(Utils.isEmpty(label)) {
+  //     label = document.createElement('front');
+  //     label.id = 'front_' + obj.id;
+  //     obj.parentElement.appendChild(label);
+  //   }
+
+  //   const ui = obj.parentElement.parentElement.getElementsByTagName(HTML_TAG.UL)[0];
+  //   if(!Utils.isEmpty(ui)) {
+  //     const list = Array.from(ui.childNodes);
+  //     if(list.length > 1) {
+  //       label.innerHTML = '(' + list.length + ')Files' ;
+  //     } else {
+  //       label.innerHTML = list[0].childNodes[0].innerHTML;
+  //     }
+  //   } else {
+  //     label.innerHTML = "Choise File!!!";
+  //   }
+  // }
 
   _onFormAddAttribute() {
     this.state.form.map((f) => {

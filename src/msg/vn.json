@@ -24,9 +24,11 @@
   ,"bt_next": "Next"
   ,"bt_previous": "Previous"
   ,"bt_list": "List"
+  ,"bt_file": "File"
 
   ,"base_info": "Base Info"
   ,"page_list": "Page List"
+  ,"item_list": "Item List"
   ,"system_setting": "System Setting"
   ,"page_setting": "Page Setting"
   ,"company_auth": "Company Management"
@@ -80,5 +82,6 @@
   ,"obj_id": "ID"
   ,"obj_value": "Value"
   ,"obj_qr_app_link": "URL"
+  ,"obj_regex": "Regex"
 }
   

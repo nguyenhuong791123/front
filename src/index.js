@@ -1,7 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App'
-// import './index.css';
+import './css/Index.css';
+import './css/SMenu.css';
+// import './css/Header.css';
+
+import './css/Index.scss';
+import './css/Header.scss';
+import './css/Dailer.scss';
+
 import UA from './js/device/Device';
 
 import * as serviceWorker from './serviceWorker';

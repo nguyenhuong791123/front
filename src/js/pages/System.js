@@ -392,7 +392,7 @@ class System extends C {
         this.state.isUser = props.isUser;
     }
 
-    componentDidMount() {
+    componentDidMount() {    
         const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
         if(Utils.isEmpty(div) || Utils.isEmpty(div.childNodes[0]) || div.childNodes[0].childNodes.length <= 0) return;
         const ulis = Array.from(div.childNodes[0].childNodes);
@@ -427,6 +427,7 @@ class System extends C {
                     isUser={ this.state.isUser }
                     onClickAdd={ this._onClickAdd.bind(this) }
                     onClickSubmit={ this._onClickSubmit.bind(this) } />
+
                 <div className="div-title">
                     <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
                 </div>

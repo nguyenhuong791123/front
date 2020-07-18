@@ -28,9 +28,11 @@
   ,"bt_div": "BOX"
   ,"bt_tab": "TAB"
   ,"bt_list": "リスト"
+  ,"bt_file": "ファイル"
 
   ,"base_info": "基本情報"
   ,"page_list": "ページ一覧"
+  ,"item_list": "項目一覧"
   ,"system_setting": "システム設定"
   ,"page_setting": "ページ設定"
   ,"company_auth": "会社管理"
@@ -84,5 +86,6 @@
   ,"obj_id": "ID"
   ,"obj_value": "値"
   ,"obj_qr_app_link": "URL"
+  ,"obj_regex": "Regex"
 }
   

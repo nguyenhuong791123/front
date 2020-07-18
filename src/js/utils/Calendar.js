@@ -137,7 +137,7 @@ class Calendar extends C {
         div.style.display = 'block';
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         this._onSetDefaultCalendar();
     }
 

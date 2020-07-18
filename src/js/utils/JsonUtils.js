@@ -7,9 +7,11 @@ import SelectBox from './Compoment/SelectBox';
 import TableBox from './Compoment/TableBox';
 import CalendarBox from './Compoment/CalendarBox';
 import QRCodeBox from './Compoment/QRCodeBox';
+import FileBox from './Compoment/FileBox';
 
 import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
 import Utils from './Utils';
+import { fileToBase64 } from './FileUtils';
 
 export const JSON_OBJ = {
   getJsonSchema: (obj, itemName, key, idx) => {
@@ -42,12 +44,13 @@ export const JSON_OBJ = {
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-      if(obj[CUSTOMIZE.MULTIPLE_FILE]) {
-        json['type'] = 'array';
-        json['items'] = { 'type': 'string', 'format': 'data-url' };
-      } else {
-        json['format'] = 'data-url';
-      }
+      json[CUSTOMIZE.MULTIPLE_FILE] = obj[CUSTOMIZE.MULTIPLE_FILE];
+      // if(obj[CUSTOMIZE.MULTIPLE_FILE]) {
+      //   json['type'] = 'array';
+      //   json['items'] = { 'type': 'string', 'format': 'data-url' };
+      // } else {
+      //   json['format'] = 'data-url';
+      // }
     }
 
     if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS)
@@ -75,7 +78,6 @@ export const JSON_OBJ = {
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) json['classNames'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + obj[CUSTOMIZE.BOX_HEIGHT];
-    if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) json['classNames'] += ' div-file-box';
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
       if(!obj[OPTIONS_KEY.OPTION_CHECKED] && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
         json['classNames'] += ' div-inline';
@@ -125,10 +127,14 @@ export const JSON_OBJ = {
       json['ui:widget'] = TableBox;
     }
     if(obj[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
-      json['classNames'] += ' div-image-box';
+      json['classNames'] += ' div-cavans-box';
       json['ui:widget'] = QRCodeBox;
     }
   
+    if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+      json['ui:widget'] = FileBox;
+    }
+
     if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {
       json[CUSTOMIZE.MAX_LENGTH] = obj[CUSTOMIZE.MAX_LENGTH];
     }
@@ -154,28 +160,42 @@ export const JSON_OBJ = {
     return json;
   }
   ,getDefaultDatas:(obj) => {
-    if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX && (obj[OPTIONS_KEY.OPTION_CHECKED] || obj[OPTIONS_KEY.OPTIONS].length > 1)) {
-      return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?[obj[CUSTOMIZE.DEFAULT]]:[];
+    if((obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.SELECT)
+      && (obj[OPTIONS_KEY.OPTIONS].length > 1)) {
+      // && (obj[OPTIONS_KEY.OPTION_CHECKED] || obj[OPTIONS_KEY.OPTIONS].length > 1)) {
+        if(obj[OPTIONS_KEY.OPTION_CHECKED]) {
+          return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?[obj[CUSTOMIZE.DEFAULT]]:[];
+        } else {
+          return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?obj[CUSTOMIZE.DEFAULT]:'';
+        }
     } else {
       if(obj[CUSTOMIZE.TYPE] === TYPE.FILE || obj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
-        if(!Utils.isEmpty(obj['file_data']) && obj['file_data'].length >= 1) {
-          if(obj['file_data'].length > 1) {
-            return obj['file_data'];
-          } else {
-            return obj['file_data'][0];
-          }
+        if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+          // return fileFormatBase64(obj);
+          return obj[OPTIONS_KEY.OPTIONS_FILE];
+        } else {
+          return obj[OPTIONS_KEY.OPTIONS_FILE][0];
         }
       } else if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
         return (!Utils.isEmpty(obj[TYPE.CHILDENS]) && !Number.isNaN(Number(obj[TYPE.CHILDENS])))?parseInt(obj[TYPE.CHILDENS]):obj[TYPE.CHILDENS];
       } else if(obj[CUSTOMIZE.TYPE] === TYPE.HIDDEN || obj[CUSTOMIZE.TYPE] === TYPE.DISABLE || obj[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
-        // var def = '';
-        // if(obj[CUSTOMIZE.QRAPPLINK]) def = '?code=';
-        if(!Number.isNaN(Number(obj[TYPE.CHILDENS]))) {
-          // return (def + obj[TYPE.CHILDENS]);
-          return (obj[TYPE.CHILDENS]);
+        var value = (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?('default=' + obj[CUSTOMIZE.DEFAULT]):'';
+        if(!Number.isNaN(Number(obj[TYPE.CHILDENS])) && !Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS_ITEM])) {
+          var fields = '';
+          if(Array.isArray(obj[OPTIONS_KEY.OPTIONS_ITEM])) {
+            obj[OPTIONS_KEY.OPTIONS_ITEM].map((o, idx) => {
+              if(idx === 0) {
+                fields = o.toString();
+              } else {
+                fields += ((Utils.isEmpty(obj[OPTIONS_KEY.OPTION_REGEX]))?':':obj[OPTIONS_KEY.OPTION_REGEX]) + o.toString();
+              }
+            });
+          } else {
+            fields = obj[OPTIONS_KEY.OPTIONS_ITEM];
+          }
+          return (value + '&page=' + obj[TYPE.CHILDENS] + '&field=' + fields);
         } else {
-          // return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?def + obj[CUSTOMIZE.DEFAULT]:'';
-          return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?obj[CUSTOMIZE.DEFAULT]:'';
+          return value;
         }
       } else {
         return (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]) && !Number.isNaN(Number(obj[CUSTOMIZE.DEFAULT])))?parseInt(obj[CUSTOMIZE.DEFAULT]):obj[CUSTOMIZE.DEFAULT];

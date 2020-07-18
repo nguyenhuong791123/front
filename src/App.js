@@ -142,6 +142,7 @@ class App extends C {
                 }
 
                 console.log('_loadAuthCookies');
+                // data.info['menu'] = 1;
                 console.log(data);
                 callBack(data);
             }).catch(function(error) {

@@ -12,6 +12,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const ENVS = {
     mode:  (process.env && process.env.production) ? 'production' : 'development'
+    ,sourceMap: (process.env && process.env.production) ? false : true
     ,sslkey: path.resolve(__dirname, 'src', 'ssl', 'sc.key')
     ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'sc.crt')
     ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'sc.pem')
@@ -79,17 +80,31 @@ module.exports = {
             {
                 test: /\.s[ac]ss$/i,
                 use: [
-                    'style-loader'
-                    ,MiniCssExtractPlugin.loader
-                    ,{
-                        loader: 'sass-loader'
-                        ,options: {
-                            implementation: require('sass')
-                            ,sassOptions: { fiber: require('fibers') }
-                            ,includePaths: [ path.resolve(__dirname, ENVS.nodemodules) ]
-                        }
+                    // linkタグに出力する機能
+                    "style-loader",
+                    // CSSをバンドルするための機能
+                    {
+                      loader: "css-loader",
+                      options: {
+                        // オプションでCSS内のurl()メソッドの取り込みを禁止する
+                        url: false,
+                        // ソースマップの利用有無
+                        sourceMap: ENVS.sourceMap,
+          
+                        // 0 => no loaders (default);
+                        // 1 => postcss-loader;
+                        // 2 => postcss-loader, sass-loader
+                        importLoaders: 2
+                      }
+                    },
+                    {
+                      loader: "sass-loader",
+                      options: {
+                        // ソースマップの利用有無
+                        sourceMap: ENVS.sourceMap
+                      }
                     }
-                ]
+                  ]
             },
             {
                 test: /\.(png|jpe?g|gif|svg|ico)$/i,

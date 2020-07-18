@@ -71,7 +71,7 @@ export default  class CalendarBox extends C {
     //     }
     // }
 
-    componentWillReceiveProps() {
+    UNSAFE_componentWillReceiveProps() {
         console.log(this.props);
         if(isEmpty(this.props['value'])) return;
         if(!DateUtil.isDateType(this.props['value'])) {

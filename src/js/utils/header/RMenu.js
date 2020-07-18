@@ -262,7 +262,7 @@ class RMenu extends C {
           width={ '22%' }
           className="div-menu-right alert-light"
           { ...this.props }
-          customBurgerIcon={ <FaRocketchat id="div-right-chat-icon" className="div-right-chat-icon" /> }
+          customBurgerIcon={ <FaRocketchat id="div_right_chat_icon" className="div-right-chat-icon" /> }
           // customCrossIcon={ false }
           onStateChange={ this._onOpenClick.bind(this) }
           right>

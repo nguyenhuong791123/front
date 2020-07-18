@@ -2,6 +2,8 @@ import React, { Component as C } from 'react';
 
 export default class ImageBox extends C {
     render() {
-        return (<img src={ this.props.value } id={ this.props.id }/>);
+        const value = this.props.value;
+        console.log(value);
+        return (<img src={ value['data'] } id={ this.props.id }/>);
     }
 }

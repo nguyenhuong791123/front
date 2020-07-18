@@ -15,7 +15,7 @@ import { HTML_TAG, ATTR, TYPE, MOUSE } from '../HtmlTypes';
 import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
 
-export default class Table extends C {
+export default class TableBox extends C {
     constructor(props) {
         super(props);
 
@@ -34,7 +34,7 @@ export default class Table extends C {
         this.state = {
             pageId: this.props.value
             ,language: language
-            ,sort: { show: false, sort: true, obj: null, style: {} }
+            ,sort: { show: true, sort: true, obj: null, style: {} }
             ,columns: []
             ,datas: []
             ,isCols: []
@@ -378,7 +378,8 @@ export default class Table extends C {
         const pos = obj.getBoundingClientRect();
         if(Utils.isEmpty(pos)) return;
         this.state.sort.obj = obj;
-        this.state.sort.style = { top: (pos.top + 3), left : (pos.x + pos.width) - 30 };
+        // this.state.sort.style = { top: (pos.top + 3), left : (pos.x + pos.width) - 30 };
+        this.state.sort.style = { top: '2.6em', left : (pos.x + pos.width) - 38 };
         this.state.sort.show = true;
         this.forceUpdate();
     }
@@ -431,7 +432,7 @@ export default class Table extends C {
         );
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         const list = {
             columns: [
                 { field: 'id', label: 'AAAA', sort: false, filter: false }

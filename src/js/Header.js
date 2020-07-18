@@ -15,9 +15,6 @@ import TabMenu from './utils/header/TabMenu';
 // import AlertMsg from './utils/Alert';
 
 import Msg from '../msg/Msg';
-import '../css/Index.css';
-import '../css/SMenu.css';
-import '../css/Header.css';
 // import socket from './Socket';
 
 class Header extends C {
@@ -75,21 +72,21 @@ class Header extends C {
           ]
         }
         ,{ id: 10, view: LINK, target: 'target_10', label: 'label_10-label_10', level: 0, items: [] }
-        // ,{ id: 11, view: LINK, target: 'target_11', label: 'label_11', level: 0, items: [] }
-        // ,{ id: 12, view: LINK, target: 'target_12', label: 'label_12', level: 0, items: [] }
-        // ,{ id: 13, view: LINK, target: 'target_13', label: 'label_13', level: 0, items: [] }
-        // ,{ id: 14, view: LINK, target: 'target_14', label: 'label_14-label_14', level: 0, items: [] }
-        // ,{ id: 15, view: LINK, target: 'target_15', label: 'label_15', level: 0, items: [] }
-        // ,{ id: 16, view: LINK, target: 'target_16', label: 'label_16', level: 0, items: [] }
-        // ,{ id: 17, view: LINK, target: 'target_17', label: 'label_17', level: 0, items: [] }
-        // ,{ id: 18, view: LINK, target: 'target_18', label: 'label_18-label_18', level: 0, items: [] }
-        // ,{ id: 19, view: LINK, target: 'target_19', label: 'label_19', level: 0, items: [] }
-        // ,{ id: 20, view: LINK, target: 'target_20', label: 'label_20', level: 0, items: [] }
-        // ,{ id: 21, view: LINK, target: 'target_21', label: 'label_21', level: 0, items: [] }
-        // ,{ id: 22, view: LINK, target: 'target_22', label: 'label_22', level: 0, items: [] }
-        // ,{ id: 23, view: LINK, target: 'target_23', label: 'label_23', level: 0, items: [] }
-        // ,{ id: 24, view: LINK, target: 'target_24', label: 'label_24', level: 0, items: [] }
-        // ,{ id: 25, view: LINK, target: 'target_25', label: 'label_25', level: 0, items: [] }
+        ,{ id: 11, view: LINK, target: 'target_11', label: 'label_11', level: 0, items: [] }
+        ,{ id: 12, view: LINK, target: 'target_12', label: 'label_12', level: 0, items: [] }
+        ,{ id: 13, view: LINK, target: 'target_13', label: 'label_13', level: 0, items: [] }
+        ,{ id: 14, view: LINK, target: 'target_14', label: 'label_14-label_14', level: 0, items: [] }
+        ,{ id: 15, view: LINK, target: 'target_15', label: 'label_15', level: 0, items: [] }
+        ,{ id: 16, view: LINK, target: 'target_16', label: 'label_16', level: 0, items: [] }
+        ,{ id: 17, view: LINK, target: 'target_17', label: 'label_17', level: 0, items: [] }
+        ,{ id: 18, view: LINK, target: 'target_18', label: 'label_18-label_18', level: 0, items: [] }
+        ,{ id: 19, view: LINK, target: 'target_19', label: 'label_19', level: 0, items: [] }
+        ,{ id: 20, view: LINK, target: 'target_20', label: 'label_20', level: 0, items: [] }
+        ,{ id: 21, view: LINK, target: 'target_21', label: 'label_21', level: 0, items: [] }
+        ,{ id: 22, view: LINK, target: 'target_22', label: 'label_22', level: 0, items: [] }
+        ,{ id: 23, view: LINK, target: 'target_23', label: 'label_23', level: 0, items: [] }
+        ,{ id: 24, view: LINK, target: 'target_24', label: 'label_24', level: 0, items: [] }
+        ,{ id: 25, view: LINK, target: 'target_25', label: 'label_25', level: 0, items: [] }
       ]
       ,title: ''
       ,dailer: { register: false, isCall: false, audio: true, sound: true, show: false, top: 50, left: 0 }
@@ -114,8 +111,10 @@ class Header extends C {
             this.state.isUser.action = action;
             // return;
         } else {
-          var svg = document.getElementById('div-right-chat-icon');
-          if(!Utils.isEmpty(svg.parentElement.childNodes) && svg.parentElement.childNodes.length > 1) {
+          var svg = document.getElementById('div_right_chat_icon');
+          if(!Utils.isEmpty(svg)
+            && !Utils.isEmpty(svg.parentElement.childNodes)
+            && svg.parentElement.childNodes.length > 1) {
             svg.parentElement.childNodes[1].click();
             this.state.right = action;
             this.state.isUser.action = action;
@@ -142,6 +141,16 @@ class Header extends C {
           path = ACTION.SLASH + ACTION.LIST;
         }
         if(action === PAGE.SYSTEM) {
+          const body = document.getElementById('div_body');
+          const cl = body.className;
+          if(!Utils.isEmpty(cl) && cl.indexOf('div-margin-right-22') !== -1) {
+            var svg = document.getElementById('div_right_chat_icon');
+            if(!Utils.isEmpty(svg)
+              && !Utils.isEmpty(svg.parentElement.childNodes)
+              && svg.parentElement.childNodes.length > 1) {
+              svg.parentElement.childNodes[1].click();
+            }  
+          }
           this.state.isUser.actions = PAGE_ACTION.SYSTEM;
           path = ACTION.SLASH + PAGE.SYSTEM;
         }
@@ -213,7 +222,7 @@ class Header extends C {
       }
       div = document.createElement(HTML_TAG.DIV);
       div.setAttribute(ATTR.ID, SYSTEM.IS_DAILER_BOX);
-      div.setAttribute(ATTR.CLASS, 'drag-and-drop');
+      div.setAttribute(ATTR.CLASS, 'div-dailer-box');
       const rtc = document.createElement(HTML_TAG.OBJECT);
       rtc.setAttribute(ATTR.TYPE, 'text/html');
       rtc.setAttribute('data', 'dailer.html');
@@ -334,9 +343,9 @@ class Header extends C {
     return (
       <div className='Headder'>
         {/* <AlertMsg show={ this.state.showError } variant={ this.state.variantError } errors={ [ 'エラーメッセージ00', 'エラーメッセージ01' ] }/> */}
-        {(() => {
+        {/* {(() => {
             if(this.state[SYSTEM.IS_ACTIVE_WINDOWN]) {
-              return (
+              return ( */}
                 <div id='div-header-is-menu'>
                   {/* 縦左メニュー */}
                   {(() => {
@@ -354,9 +363,9 @@ class Header extends C {
                     // onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) }
                     />
                 </div>      
-              );
+              {/* );
             }
-        })()}
+        })()} */}
 
         <Navbar expand='lg'>
           {/* アイコン、会社名（ホームページリンク） */}
