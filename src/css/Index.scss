@@ -32,8 +32,8 @@ $box-widths:(
     div.#{$cls} {
         div.checkboxes
         ,div.field-radio-group
-        ,img
-        ,textarea {
+        ,> img
+        ,> textarea {
             height: ($h - 42) + px;
         }
         > select {
@@ -52,70 +52,102 @@ $box-widths:(
             position: relative;
             top: .3em;
         }
-        > div.div-file-box
-        ,> div.div-file-multiple-box {
-            height: ($h - 42) + px;
-            > div {
-                overflow: auto;
-                overflow-y: auto;
-                height: ($h - 80) + px;
-            }
-            > font {
-                padding: 0;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                display: inline-block;
-                width: 100%;
-                cursor: pointer;
-                font-size: small;
-            }
-            > input[type=file] {
-                position: absolute;
-                top: 2.5em;
-                left: 0;
-                width: 100%;
-                cursor: pointer;
-                opacity: 0;
-            }
-            table {
-                width: 100%;
-                tbody {
-                    tr {
-                        td {
-                            button {
-                                margin: 0;
-                                padding: .1em;
-                                font-size: 80%;
-                
-                                > svg {
-                                    padding: 0;
-                                    margin-left: .3em;
-                                    margin-top: -.3em;
-                                }
-                            }                
+        > div {
+            > div.div-file-box
+            ,> div.div-file-multiple-box {
+                height: ($h - 42) + px;
+                > div {
+                    overflow: auto;
+                    overflow-y: auto;
+                    height: ($h - 80) + px;
+                }
+                > font {
+                    padding: 0;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    display: inline-block;
+                    width: 100%;
+                    cursor: pointer;
+                    font-size: small;
+                }
+                > input[type=file] {
+                    position: absolute;
+                    top: 2.5em;
+                    left: 0;
+                    width: 100%;
+                    cursor: pointer;
+                    opacity: 0;
+                }
+                >div.div-btn-download {
+                    margin-top: -2.3em;
+                    > button {
+                        margin: 0;
+                        padding: .1em;
+                        font-size: 80%;
+                        position: absolute;
+                        margin-top: .5em;
+                        left: 1em;
+        
+                        > svg {
+                            padding: 0;
+                            margin-left: .3em;
+                            margin-top: -.3em;
                         }
-                        td:last-child {
-                            width: 1em;
-                        }
-                        td:nth-last-child(2) {
-                            width: 4em;
+                    }
+                }
+                table {
+                    width: 100%;
+                    tbody {
+                        tr {
+                            td {
+                                button {
+                                    margin: 0;
+                                    padding: .1em;
+                                    font-size: 80%;
+                    
+                                    > svg {
+                                        padding: 0;
+                                        margin-left: .3em;
+                                        margin-top: -.3em;
+                                    }
+                                }                
+                            }
+                            td:first-child
+                            ,td:last-child {
+                                width: 1em;
+                            }
+                            td:nth-child(2) {
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                max-width: 100px;
+                            }
+                            td:nth-last-child(2) {
+                                width: 4em;
+                            }
                         }
                     }
                 }
             }
-        }
-        > div.div-file-box {
-            > font {
-                height: ($h - 42) + px;
+            > div.div-file-box {
+                > font {
+                    height: ($h - 42) + px;
+                }
+                > input[type=file] {
+                    height: 100%;
+                }
             }
-            > input[type=file] {
-                height: 100%;
+            > div.div-file-multiple-box {
+                font {
+                    height: 38px;
+                }
             }
-        }
-        > div.div-file-multiple-box {
-            font {
-                height: 38px;
+            div._loading_overlay_content {
+                font-size: 80%;
+            }
+            div._loading_overlay_spinner {
+                margin-bottom: 0;
             }
         }
     }
@@ -126,7 +158,6 @@ $box-widths:(
         width: $w;
     }
 }
-
 
 div.form-group {
     > label {

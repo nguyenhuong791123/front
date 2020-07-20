@@ -786,7 +786,7 @@ class Customize extends C {
           form['class_name'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
         }
 
-        JSON_OBJ.addHiddenFieldFormReload(fObj);
+        // JSON_OBJ.addHiddenFieldFormReload(fObj);
       } else {
         var itemName = '';
         if(this.state.mode === ACTION.EDIT && Utils.inJson(obj, 'item_name')) {
@@ -804,8 +804,9 @@ class Customize extends C {
         fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, placeholderKey);
         fObj.data[itemName] = JSON_OBJ.getDefaultDatas(obj, itemName);
 
-        JSON_OBJ.addHiddenFieldFormReload(fObj);
+        // JSON_OBJ.addHiddenFieldFormReload(fObj);
       }
+      JSON_OBJ.addHiddenFieldFormReload(fObj);
 
       this.state.form[idx] = form;
       this.state.dragobject = null;

@@ -16,3 +16,14 @@ div.rdw-editor-toolbar > div:hover {
 div.rdw-editor-toolbar > div:nth-last-child(1) {
   color: red;
 }
+
+div.div-box-height-80 div.rdw-block-wrapper, 
+div.div-box-height-80 div.rdw-fontfamily-wrapper, 
+div.div-box-height-80 div.rdw-list-dropdown, 
+div.div-box-height-80 div.rdw-text-align-dropdown, 
+div.div-box-height-80 div.rdw-remove-wrapper, 
+div.div-box-height-80 div.rdw-embedded-wrapper, 
+div.div-box-height-80 div.rdw-image-wrapper, 
+div.div-box-height-80 div.rdw-history-dropdown {
+  display: none;
+}

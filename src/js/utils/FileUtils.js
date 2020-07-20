@@ -1,11 +1,13 @@
 import { TYPE, CUSTOMIZE, OPTIONS_KEY } from './HtmlTypes';
 
 export const fileToBase64 = function(files, obj) {
+    if(files.length <= 0) return;
     obj.obj[OPTIONS_KEY.OPTIONS_FILE] = [];
     Object.keys(files).map(i => {
         var f = {};
         var reader = new FileReader();
         reader.onload = function () {
+            f['idx'] = i;
             f['name'] = files[i].name;
             f['size'] = files[i].size;
             f['type'] = files[i].type;

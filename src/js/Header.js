@@ -341,7 +341,7 @@ class Header extends C {
     const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):'';
 
     return (
-      <div className='Headder'>
+      <div className='div-header'>
         {/* <AlertMsg show={ this.state.showError } variant={ this.state.variantError } errors={ [ 'エラーメッセージ00', 'エラーメッセージ01' ] }/> */}
         {/* {(() => {
             if(this.state[SYSTEM.IS_ACTIVE_WINDOWN]) {
