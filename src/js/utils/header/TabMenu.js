@@ -341,9 +341,17 @@ class TabMenu extends C {
         if(Utils.isEmpty(div)) return;
         const aWidth = (this.state.isUser.uLid === SYSTEM.IS_ADMIN)?140:0;
         window.onresize = function(event) {
-            const divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+            var divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
             if(!Utils.isEmpty(divBody)) {
                 divBody.style.height = (window.innerHeight - 105) + 'px';
+            }
+            const divListBox = this.document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
+            if(!Utils.isEmpty(divListBox)) {
+                divBody = divListBox.childNodes[1].lastChild;
+                this.console.log();
+                if(!Utils.isEmpty(divBody)) {
+                    divBody.style.height = (window.innerHeight - 130) + 'px';
+                }
             }
     
             if(Utils.isEmpty(div)) return;

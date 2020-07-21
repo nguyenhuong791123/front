@@ -77,6 +77,10 @@ select {
     margin-right: .1em; */
 }
 
+.form-control {
+    padding: 0.1rem;
+}
+
 label.form-check-label
 ,label.form-check-label {
     width: 100%;
@@ -157,13 +161,13 @@ div.div-box textarea {
     white-space: nowrap;
 } */
 
-div.div-table {
+/* div.div-table {
     overflow: scroll;
-}
+} */
 
-div.div-customize-table > div.div-table {
+/* div.div-customize-table > div.div-table {
     margin-top: -0.5em;
-}
+} */
 
 div.div-customize-actions {
     position: absolute;

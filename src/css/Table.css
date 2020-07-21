@@ -1,7 +1,7 @@
-div.div-table > div {
+/* div.div-table > div {
     overflow-x: auto;
     overflow-y: auto;
-}
+} */
 
 /* div.div-table div#div_table_header {
     overflow-x: auto;
@@ -39,7 +39,7 @@ table.table thead th {
 
 table.table thead th label {
     margin-left: .3em;
-    margin-bottom: 0;
+    /* margin-bottom: 0; */
 }
 
 table.table thead input {

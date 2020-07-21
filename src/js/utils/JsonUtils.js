@@ -8,6 +8,7 @@ import TableBox from './Compoment/TableBox';
 import CalendarBox from './Compoment/CalendarBox';
 import QRCodeBox from './Compoment/QRCodeBox';
 import FileBox from './Compoment/FileBox';
+import EditorBox from './Compoment/EditorBox';
 
 import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
 import Utils from './Utils';
@@ -20,6 +21,7 @@ export const JSON_OBJ = {
     const array = [
       TYPE.TEXT,
       TYPE.TEXTAREA,
+      TYPE.EDITOR,
       TYPE.PASSWORD,
       TYPE.DATE,
       TYPE.DATETIME,
@@ -45,12 +47,6 @@ export const JSON_OBJ = {
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
       json[CUSTOMIZE.MULTIPLE_FILE] = obj[CUSTOMIZE.MULTIPLE_FILE];
-      // if(obj[CUSTOMIZE.MULTIPLE_FILE]) {
-      //   json['type'] = 'array';
-      //   json['items'] = { 'type': 'string', 'format': 'data-url' };
-      // } else {
-      //   json['format'] = 'data-url';
-      // }
     }
 
     if(Utils.inJson(obj, OPTIONS_KEY.OPTIONS)
@@ -133,6 +129,10 @@ export const JSON_OBJ = {
   
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
       json['ui:widget'] = FileBox;
+    }
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.EDITOR) {
+      json['ui:widget'] = EditorBox;
     }
 
     if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {
@@ -230,19 +230,19 @@ export const JSON_OBJ = {
     if(isDiv) {
       return {
         object_type: 'div'
-        ,object_key: 'page_'+ Utils.getUUID()
-        ,class_name: 'div-box-100'
+        ,object_key: 'form_'+ Utils.getUUID()
+        ,className: 'div-box-100'
         ,idx: idx
         ,object: {
           schema: {
             type: 'object',
             title: HTML_TAG.DIV + '_' + (idx+'').padStart(2, '0'),
-            block: HTML_TAG.DIV,
-            fIdx: idx,
+            box_type: HTML_TAG.DIV,
+            form_idx: idx,
             idx: 0,
             properties: {},
-            definitions: {},
-            requireds: [],
+            // definitions: {},
+            // requireds: [],
             obj: jObj
           },
           ui: {},
@@ -252,44 +252,44 @@ export const JSON_OBJ = {
     } else {
       return {
         object_type: 'tab'
-        ,object_key: 'page_'+ Utils.getUUID()
+        ,object_key: 'form_'+ Utils.getUUID()
         ,active: 0
         ,idx: idx
-        ,class_name: 'div-box-100'
+        ,className: 'div-box-100'
         ,object: [
           {
             schema: {
                 type: 'object',
                 tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'),
-                block: HTML_TAG.TAB,
-                fIdx: idx,
+                box_type: HTML_TAG.TAB,
+                form_idx: idx,
                 idx: 0,
                 properties: {},
                 // definitions: {},
-                requireds: [],
+                // requireds: [],
                 obj: jObj
             },
             ui: {},
             data: {}
           }
           // ,{
-          //   schema: { type: 'object', tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'), block: HTML_TAG.TAB, fIdx: idx, idx: 1, properties: {}, definitions: {}, obj: jObj }, ui: {}, data: {}
+          //   schema: { type: 'object', tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'), box_type: HTML_TAG.TAB, form_idx: idx, idx: 1, properties: {}, definitions: {}, obj: jObj }, ui: {}, data: {}
           // }
         ]
       }
     }
   }
-  ,getTabJson:(fIdx, idx, jObj) => {
+  ,getTabJson:(form_idx, idx, jObj) => {
     return {
       schema: {
           type: 'object',
           tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'),
-          block: HTML_TAG.TAB,
-          fIdx: fIdx,
+          box_type: HTML_TAG.TAB,
+          form_idx: form_idx,
           idx: idx,
           properties: {},
           // definitions: {},
-          requireds: [],
+          // requireds: [],
           obj: jObj
       },
       ui: {},

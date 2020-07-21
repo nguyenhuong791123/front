@@ -397,7 +397,7 @@ export default class CustomizeBox extends C {
                                     // }
 
                                     return(
-                                        <td>
+                                        <td style={ { height: '40px' } }>
                                             {(() => {
                                                 if(editBox[CUSTOMIZE.MULTIPLE_FILE]) {
                                                     return(
@@ -438,7 +438,8 @@ export default class CustomizeBox extends C {
                                 if(editBox[CUSTOMIZE.TYPE] !== TYPE.DISABLE
                                     && editBox[CUSTOMIZE.TYPE] !== TYPE.HIDDEN
                                     && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS
-                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE) {
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.IMAGE) {
                                     return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_required') }</td>);
                                 } else if(editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
                                     return(<td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_qr_app_link') }</td>);
@@ -448,7 +449,8 @@ export default class CustomizeBox extends C {
                                 if(editBox[CUSTOMIZE.TYPE] !== TYPE.DISABLE
                                     && editBox[CUSTOMIZE.TYPE] !== TYPE.HIDDEN
                                     && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS
-                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE) {
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE
+                                    && editBox[CUSTOMIZE.TYPE] !== TYPE.IMAGE) {
                                     return(
                                         <td style={ { height: '40px' } }>
                                             <input

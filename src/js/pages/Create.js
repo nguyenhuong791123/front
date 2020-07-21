@@ -15,6 +15,7 @@ import TableBox from '../utils/Compoment/TableBox';
 import QRCodeBox from '../utils/Compoment/QRCodeBox';
 import FileBox from '../utils/Compoment/FileBox';
 import InputCalendarBox from '../utils/Compoment/CalendarBox';
+import EditorBox from '../utils/Compoment/EditorBox';
 
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
@@ -39,89 +40,69 @@ class Create extends C {
       ,alertActions: { show: false, style: {} }
       ,overObject: null
       ,isValidate: true
-      ,form: []
+      ,page: {}
     }
   };
 
   UNSAFE_componentWillMount(){
     console.log("Data submitted: ", this.props.onUpdateStateIsUser);
-    this.state.form = [
-      {
-        "object_type": "div",
-        "object_key": "page_0.14yr44wkmbo",
-        "class_name": "div-box-100",
-        "idx": 0,
-        "object": {
-          "schema": {
-            "type": "object",
-            "title": "DIV_00",
-            "block": "DIV",
-            "fIdx": 0,
-            "idx": 0,
-            "properties": {
-              "file_0.8gh2wx1x7pj": {
-                "type": "string",
-                "title": "FIle",
-                "idx": 1,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "FIle",
-                  "placeholder_ja": "",
-                  "item_type": "file",
-                  "language": "ja",
-                  "label_color": "#",
-                  "label_layout_color": "#",
-                  "box_width": 25,
-                  "box_height": 80,
-                  "item_name": "file_0.8gh2wx1x7pj"
+    this.state.page = {
+      "page_id": 1,
+      "page_name": "Create",
+      "page_mode": 0,
+      "form": [
+        {
+          "page_id": 1,
+          "object_type": "tab",
+          "object_key": "form_0.gw6yqa642dq",
+          "className": "div-box-100",
+          "idx": 0,
+          "object": [
+            {
+              "schema_id": 1,
+              "schema": {
+                "idx": 0,
+                "type": "object",
+                "tab_name": "DIV_00",
+                "box_type": "TAB",
+                "form_idx": 0,
+                "properties": {
+                  "text_0.xtadqn6yuz": {
+                    "idx": 1,
+                    "type": "string",
+                    "title": "dd",
+                    "language": "ja"
+                  }
                 }
               },
-              "file_0.81xeaenwrio": {
-                "type": "string",
-                "title": "File Multi",
-                "idx": 2,
-                "language": "ja",
-                "obj": {
-                  "label_ja": "File Multi",
-                  "placeholder_ja": "",
-                  "item_type": "file",
-                  "language": "ja",
-                  "label_color": "#",
-                  "label_layout_color": "#",
-                  "box_width": 25,
-                  "box_height": 160,
-                  "multiple_file": true,
-                  "item_name": "file_0.81xeaenwrio"
-                },
-                "multiple_file": true
+              "ui": {
+                "text_0.xtadqn6yuz": {
+                  "classNames": "div-box div-box-25 div-box-height-80"
+                }
+              },
+              "data": {
+                "text_0.xtadqn6yuz": "aaaaa"
               }
-            },
-            "definitions": {},
-            "requireds": [],
-            "obj": {
-              "language": "ja",
-              "box_width": 100,
-              "label_ja": "DIV_00"
             }
-          },
-          "ui": {
-            "file_0.8gh2wx1x7pj": {
-              "classNames": "div-box div-box-25 div-box-height-80"
-            },
-            "file_0.81xeaenwrio": {
-              "classNames": "div-box div-box-25 div-box-height-160"
-            }
-          },
-          "data": {}
+          ]
         }
-      }
-    ]
+      ]
+    }
 
     this._onSortForms();
   }
 
+  _onFormatJson(obj) {
+    if(Utils.isEmpty(obj) || !Array.isArray(obj)) return;
+    var objs = {};
+    obj.map((o) => {
+      Object.keys(o).map((k) => { objs[k] = o[k] });
+    });
+    return objs;
+  }
+
   _onSortForms() {
-    var forms = this.state.form;
+    var forms = this.state.page.form;
     console.log(forms);
     forms.map((f) => {
       var objs = f.object;
@@ -158,8 +139,9 @@ class Create extends C {
   }
 
   _formatUiWidget(ui) {
+    if(Utils.isEmpty(ui)) return;
     const uiKeys = Object.keys(ui);
-    const targets = [ TYPE.IMAGE, TYPE.TIME, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS, TYPE.DATE, TYPE.DATETIME, TYPE.QRCODE, TYPE.FILE ];
+    const targets = [ TYPE.IMAGE, TYPE.TIME, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS, TYPE.DATE, TYPE.DATETIME, TYPE.QRCODE, TYPE.FILE, TYPE.EDITOR ];
     uiKeys.map((o) => {
       const field = o.split('_')[0];
       if(!Utils.isEmpty(field) && (targets.includes(field))) {
@@ -170,8 +152,9 @@ class Create extends C {
         if(field === TYPE.SELECT && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = SelectBox;
         if(field === TYPE.CHILDENS && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = TableBox;
         if(field === TYPE.QRCODE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = QRCodeBox;
-        if(field === TYPE.FILE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = FileBox;        
+        if(field === TYPE.FILE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = FileBox;  
         if((field === TYPE.DATE || field === TYPE.DATETIME) && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = InputCalendarBox;
+        if(field === TYPE.EDITOR && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = EditorBox;  
       }
     });
   }
@@ -188,21 +171,21 @@ class Create extends C {
     this._onFormValidate();
     if(this.state.isValidate) return
 
-    console.log("Data submitted: ", this.state.formData);
+    console.log("Data submitted: ", this.state.page.formData);
     this._onClickBack();
   }
 
   _onUpdateFormData(e) {
     if(!Utils.inJson(e, 'schema') || !Utils.inJson(e, 'formData')) return;
     console.log(e);
-    const fIdx = e.schema.fIdx;
+    const fidx = e.schema.form_idx;
     const idx = e.schema.idx;
-    var form = this.state.form;
-    if(e.schema.block === HTML_TAG.DIV) {
-      form[fIdx].object.data = e.formData;
+    var form = this.state.page.form;
+    if(e.schema.box_type === HTML_TAG.DIV) {
+      form[fidx].object.data = e.formData;
     }
-    if(e.schema.block === HTML_TAG.TAB) {
-      form[fIdx].object[idx].data = e.formData;
+    if(e.schema.box_type === HTML_TAG.TAB) {
+      form[fidx].object[idx].data = e.formData;
     }
     this.setState({ form });
     // this.forceUpdate();
@@ -265,7 +248,7 @@ class Create extends C {
 
   _onAddAttribute(object) {
     var objs = Object.keys(object.ui);
-    if(!Array.isArray(objs) || objs.length <= 0) return;
+    if(Utils.isEmpty(objs) || !Array.isArray(objs) || objs.length <= 0) return;
     objs.map((o) => {
       const field = o;
       const obj = object.ui[o];
@@ -335,7 +318,7 @@ class Create extends C {
   // }
 
   _onFormValidate() {
-    this.state.form.map((f) => {
+    this.state.page.form.map((f) => {
       var objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
         objs.map((obj) => {
@@ -348,7 +331,7 @@ class Create extends C {
   }
 
   _onFormAddAttribute() {
-    this.state.form.map((f) => {
+    this.state.page.form.map((f) => {
       var objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
         objs.map((obj) => {
@@ -385,13 +368,13 @@ class Create extends C {
     if(Utils.isEmpty(obj)) return;
     const div = Html.getDivParent(obj);
     if(Utils.isEmpty(div) || Utils.isEmpty(div.id)) return;
-    const fIdx = div.id.split('_')[2];
+    const form_idx = div.id.split('_')[2];
     const nav = div.childNodes[0];
     var object = null;
     if(nav.tagName === HTML_TAG.NAV) {
-      object = this.state.form[fIdx].object[Html.getIdxTabSelected(nav)];
+      object = this.state.page.form[form_idx].object[Html.getIdxTabSelected(nav)];
     } else {
-      object = this.state.form[fIdx].object;
+      object = this.state.page.form[form_idx].object;
     }
     if(Utils.isEmpty(object)) return;
     var objs = Array.from(obj.parentElement.childNodes);
@@ -446,13 +429,10 @@ class Create extends C {
     const obj = e.target;
     const attr = obj.getAttribute('for');
     if(Utils.isEmpty(attr)) return;
-    // obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
+    obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.overObject = obj;
     const pos = obj.getBoundingClientRect();
-    console.log(pos);
-    // this.state.alertActions.style = { top: obj.offsetTop, left : (obj.offsetLeft + obj.offsetWidth) - 30 };
     this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 30, zIndex: 1 };
-    // this.state.alertActions.style = { top: pos.top, left : (pos.y + pos.width) - 25, zIndex: 1 };
     this.state.alertActions.show = true;
     this.forceUpdate();
   }
@@ -475,20 +455,32 @@ class Create extends C {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     const childs = Array.from(div.childNodes);
     childs.map((o) => {
-      const obj = o.childNodes[0].childNodes[0].childNodes[0];
-      if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.FIELDSET) {
-        const objs = Array.from(obj.childNodes);
-        objs.map((d) => {
-          if(d.tagName === HTML_TAG.DIV) {
-            const l = d.getElementsByTagName(HTML_TAG.LABEL)[0];
-            if(!Utils.isEmpty(l.getAttribute('for'))) {
-              var type = l.getAttribute('for').replace('root_', '');
-              type = type.split('_')[0];
-              if(!Utils.isEmpty(l) && type !== TYPE.IMAGE && type !== TYPE.DISABLE && type !== TYPE.QRCODE)
-                l.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);    
-            }
-          }
+      var obj = o.childNodes[0];
+      if(obj.tagName === HTML_TAG.NAV) {
+        const tabs = Array.from(o.childNodes[1].childNodes);
+        tabs.map((t) => {
+          obj = t.childNodes[0].childNodes[0].childNodes[0];
+          this._onSetMouseOver(obj);
         });
+      } else {
+        obj = o.childNodes[0].childNodes[0].childNodes[0];
+        this._onSetMouseOver(obj);
+      }
+    });
+  }
+
+  _onSetMouseOver(obj) {
+    if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.FIELDSET) return;
+    const objs = Array.from(obj.childNodes);
+    objs.map((d) => {
+      if(d.tagName === HTML_TAG.DIV) {
+        const l = d.getElementsByTagName(HTML_TAG.LABEL)[0];
+        if(!Utils.isEmpty(l.getAttribute('for'))) {
+          var type = l.getAttribute('for').replace('root_', '');
+          type = type.split('_')[0];
+          if(!Utils.isEmpty(l) && type !== TYPE.IMAGE && type !== TYPE.DISABLE && type !== TYPE.QRCODE)
+            l.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);    
+        }
       }
     });
   }
@@ -499,7 +491,15 @@ class Create extends C {
   }
 
   render() {
-    this.state.isUser.actions = PAGE_ACTION.CREATE;
+    var labelKey = 'bt_create';
+    const pageMode = this.state.page['page_mode'];
+    if(Utils.isEmpty(pageMode) || pageMode === 0) {
+      this.state.isUser.actions = PAGE_ACTION.CREATE;
+    } else {
+      labelKey = 'bt_edit';
+      this.state.isUser.actions = PAGE_ACTION.CREATE;
+      this.state.isUser.actions.create = false;
+    }
 
     return (
       <div>
@@ -509,12 +509,13 @@ class Create extends C {
             onClickBack={ this._onClickBack.bind(this) }
             onClickSubmit={ this._onClickSubmit.bind(this) } />
         <div className="div-title">
-          <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
+          {/* <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5> */}
+          <h5>{ this.state.page.page_name  + '/' + Msg.getMsg(null, this.state.isUser.language, labelKey) }</h5>
         </div>
 
         <CForm
           isUser={ this.state.isUser }
-          form={ this.state.form }
+          form={ this.state.page.form }
           updateFormData={ this._onUpdateFormData.bind(this) } />
       </div>
     )

@@ -73,6 +73,12 @@ var getUUID = function(max) {
     return Math.random().toString(36).slice(-8);
 }
 
+var isFunc = function(obj, name) {
+    if(Utils.inJson(obj, name)
+        && (typeof obj[name] === 'function')) return true;
+    return false;
+}
+
 module.exports.isNull = isNull;
 module.exports.isEmpty = isEmpty;
 module.exports.isReplace = isReplace;
@@ -81,6 +87,7 @@ module.exports.isTelNumber = isTelNumber;
 module.exports.getLocale = getLocale;
 module.exports.inArray = inArray;
 module.exports.inJson = inJson;
+module.exports.isFunc = isFunc;
 module.exports.getJsonValue = getJsonValue;
 module.exports.getQueryLocale = getQueryLocale;
 module.exports.getLocationURL = getLocationURL;

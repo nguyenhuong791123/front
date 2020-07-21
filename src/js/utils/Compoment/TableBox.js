@@ -7,10 +7,11 @@ import { FaRegEye, FaSort } from 'react-icons/fa';
 import Calendar from '../Calendar';
 import View from '../../pages/View';
 import CMenu from '../CMenu';
+import Pagination from '../body/Pagin';
 
 import Html from '../HtmlUtils';
 import Utils from '../Utils';
-import { ACTION, VARIANT_TYPES, OBJECT } from '../Types';
+import { ACTION, VARIANT_TYPES, OBJECT, PAGIN_PER, PAGIN_PER_LIST } from '../Types';
 import { HTML_TAG, ATTR, TYPE, MOUSE } from '../HtmlTypes';
 import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
@@ -29,12 +30,19 @@ export default class TableBox extends C {
         this._onScroll = this._onScroll.bind(this);
         this._onFocus = this._onFocus.bind(this);
 
-        const language = this.props.schema.language;
+        const language = (!Utils.isEmpty(this.props.schema) && Utils.inJson(this.props.schema, 'language'))
+                            ?this.props.schema.language
+                            :this.props.isUser.language;
         // delete this.props.value;
         this.state = {
             pageId: this.props.value
+            ,isUser: this.props.isUser
             ,language: language
-            ,sort: { show: true, sort: true, obj: null, style: {} }
+            ,sort: { show: false, sort: true, obj: null, style: {} }
+            ,viewPaging: this.props.viewPaging
+            ,total: 0
+            ,atPage: 1
+            ,per: PAGIN_PER
             ,columns: []
             ,datas: []
             ,isCols: []
@@ -46,7 +54,7 @@ export default class TableBox extends C {
                   ,{ type: ACTION.DELETE, label: Msg.getMsg(null, language, 'bt_delete') }
                   ,{ type: ACTION.DOWNLOAD, label: Msg.getMsg(null, language, 'bt_download') }
                 ]
-              }
+            }
         };
     };
 
@@ -214,7 +222,7 @@ export default class TableBox extends C {
         });
 
         return(
-            <div id={ OBJECT.DIV_HEADER_ID + this.props.id } onScroll={ this._onScroll.bind(this) }>
+            <div id={ OBJECT.DIV_HEADER_ID + this.props.id } className={ 'div-table-header' } onScroll={ this._onScroll.bind(this) }>
                <table className='table table-sm table-bordered'>
                 <thead>
                     <tr>
@@ -377,9 +385,12 @@ export default class TableBox extends C {
         obj.addEventListener(MOUSE.MOUSEOUT, this._onThMouseOut.bind(this), false);
         const pos = obj.getBoundingClientRect();
         if(Utils.isEmpty(pos)) return;
+        const tbl = obj.parentElement.parentElement.parentElement.parentElement;
+        const tblPos = tbl.getBoundingClientRect();
+        const left = (pos.x + pos.width) - 38;
+        if((tblPos.x + tblPos.width) <= left) return;
         this.state.sort.obj = obj;
-        // this.state.sort.style = { top: (pos.top + 3), left : (pos.x + pos.width) - 30 };
-        this.state.sort.style = { top: '2.6em', left : (pos.x + pos.width) - 38 };
+        this.state.sort.style = { top: '2.6em', left : left };
         this.state.sort.show = true;
         this.forceUpdate();
     }
@@ -429,6 +440,36 @@ export default class TableBox extends C {
                 <FaSort />
             </Button>
           </Alert>
+        );
+    }
+
+    _onUpdateAtPage(page) {
+        if(Utils.isEmpty(page)) return;
+        this.state.atPage = page;
+        this.forceUpdate();
+    }
+
+    _onPerChange(e) {
+        console.log(e);
+        this.state.per = e.target.value;
+        this.forceUpdate();
+    }
+
+    _getPageCountPer() {
+        var items = [];
+        for (let i=1; i<=PAGIN_PER_LIST; i++) {
+            items.push( <option key={ i } value={ i * PAGIN_PER }>{ (i * PAGIN_PER) }</option> );
+        }
+        return(
+            <div className="div-count-per">
+                <FormControl
+                    as={ HTML_TAG.SELECT }
+                    value={ this.state.per }
+                    onChange={ this._onPerChange.bind(this) }> { items }</FormControl>
+                <span>{ this.state.atPage }</span>
+                <span>/</span>
+                <span>{ Math.ceil(this.state.total / this.state.per) }</span>
+            </div>
         );
     }
 
@@ -488,11 +529,36 @@ export default class TableBox extends C {
 
         this.state.columns = list.columns;
         this.state.datas = list.datas;
+        this.state.total = 500;
+
+        // if(Utils.isFunc(this.props, 'onUpdateListHeaders')) {
+        if(Utils.inJson(this.props, 'onUpdateListHeaders') && (typeof this.props.onUpdateListHeaders === 'function')) {
+            this.props.onUpdateListHeaders(this.state.columns);
+        }
     }
 
     render() {
         return (
             <div className='div-table' id={ this.props.id }>
+                {(() => {
+                    if(this.state.viewPaging) {
+                        return (
+                            <div className="div-paging-box">
+                                {/* リスト件数PER件数より小さい場合表示されない */}
+                                {(() => {
+                                    if(this.state.total > PAGIN_PER) {
+                                        return ( this._getPageCountPer() );
+                                    }
+                                })()}
+                                <Pagination
+                                    total={ this.state.total }
+                                    atPage={ this.state.atPage }
+                                    per={ this.state.per }
+                                    onUpdateAtPage={ this._onUpdateAtPage.bind(this) } />
+                            </div>
+                        );
+                    }
+                })()}
                 { this._onSortButtons() }
                 { <CMenu ref={ this.divContextMenuRef } objs={ this.state.actions }/> }
                 { this._getHeader() }

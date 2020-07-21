@@ -207,23 +207,19 @@ export default class FileBox extends C {
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        console.log('UNSAFE_componentWillReceiveProps');
-        console.log(nextProps);
         this._onCheckFiles(nextProps.value);
     }
 
     componentDidMount() {
-        console.log('componentDidMount');
         this._onCheckFiles(this.props.value);
     }
 
     UNSAFE_componentWillMount() {
-        console.log('UNSAFE_componentWillMount');
         this._onStartLoading(this.props.value);
     }
 
     render() {
-        console.log(this.props);
+        // console.log(this.props);
         this.state.files.obj[OPTIONS_KEY.OPTIONS_FILE] = (Utils.isEmpty(this.props.value))?'':this.props.value;
         this.state.multiple = (Utils.inJson(this.props.schema, CUSTOMIZE.MULTIPLE_FILE))?this.props.schema[CUSTOMIZE.MULTIPLE_FILE]:false;
         const className = (this.state.multiple)?'div-file-multiple-box':'div-file-box';

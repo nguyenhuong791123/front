@@ -67,6 +67,17 @@ div.div-menu-right ul.rdw-dropdown-optionwrapper {
   max-height: 150px;
 }
 
+div.rdw-fontsize-dropdown
+,div.rdw-fontsize-wrapper
+,div.rdw-colorpicker-wrapper {
+  margin-bottom: 0;
+}
+
+div.rdw-inline-dropdown
+,div.rdw-link-wrapper {
+  margin-top: .3em;
+}
+
 div.div-menu-right div.div-chat-box div.rdw-block-wrapper
 ,div.div-menu-right div.div-chat-box div.rdw-fontfamily-wrapper
 ,div.div-menu-right div.div-chat-box div.rdw-list-dropdown
@@ -76,6 +87,8 @@ div.div-menu-right div.div-chat-box div.rdw-block-wrapper
 ,div.div-menu-right div.div-chat-box div.rdw-image-wrapper
 ,div.div-menu-right div.div-chat-box div.rdw-history-dropdown {
   display: none;
+  margin: 0;
+  padding: 0;
 }
 
 div.div-margin-right-22 {

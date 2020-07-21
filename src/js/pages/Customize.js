@@ -11,7 +11,7 @@ import CForm from '../utils/CForm';
 import CustomizeBox from '../utils/Compoment/CustomizeBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, ALIGN, HTML_TAG, CUSTOMIZE, ATTR, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, HTML_TAG, CUSTOMIZE, ATTR, OPTIONS_KEY } from '../utils/HtmlTypes';
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
@@ -42,8 +42,10 @@ class Customize extends C {
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
-      ,pageName: ''
-      ,form: []
+      ,page: { page_id: '', page_name: '', form: [] }
+      ,pageMode: ACTION.CREATE
+      // ,page_name: ''
+      // ,form: []
       ,error_msgs: []
       ,alertActions: { show: false, class: '', style: {} }
       ,overlayDeleteBox: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
@@ -71,7 +73,7 @@ class Customize extends C {
   }
 
   _onClickSubmit() {
-    var obj = this.state.form[0].object;
+    var obj = this.state.page.form[0].object;
     if(!Utils.isEmpty(obj)) {
       if(Array.isArray(obj)) {
         obj = obj[0].schema.properties;
@@ -80,8 +82,8 @@ class Customize extends C {
       }  
     }
 
-    if(Utils.isEmpty(this.state.pageName) || Utils.isEmpty(obj) || Object.keys(obj).length <= 0) {
-      if(Utils.isEmpty(this.state.pageName)) {
+    if(Utils.isEmpty(this.state.page.page_name) || Utils.isEmpty(obj) || Object.keys(obj).length <= 0) {
+      if(Utils.isEmpty(this.state.page.page_name)) {
         this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required'));
       }
       if(Utils.isEmpty(obj) || Object.keys(obj).length <= 0) {
@@ -90,7 +92,7 @@ class Customize extends C {
       this.forceUpdate();
     } else {
       this._resetIdxJson();
-      console.log(JSON.stringify(this.state.form));
+      console.log(JSON.stringify(this.state.page));
       // this._onClickBack();
     }
   }
@@ -287,7 +289,8 @@ class Customize extends C {
     if((obj.tagName !== HTML_TAG.LEGEND
       && obj.tagName !== HTML_TAG.LABEL
       && obj.tagName !== HTML_TAG.NAV)
-      || (!Utils.isEmpty(obj.className)) && obj.className.startsWith('form-')) return;
+      || (!Utils.isEmpty(obj.className) && (obj.className.startsWith('form-') || obj.className.startsWith('rdw-')))
+      || obj.tagName === HTML_TAG.LABEL && Utils.isEmpty(obj.getAttribute('for'))) return;
     obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.alertActions.show = true;
     const pos = obj.getBoundingClientRect();
@@ -303,11 +306,11 @@ class Customize extends C {
     if(obj.tagName === HTML_TAG.LABEL && Utils.isEmpty(obj.className)) {
       const pos = obj.getBoundingClientRect();
       className += ' div-customize-actions-child';
-      this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 55, zIndex: 1 };
+      this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 55, zIndex: 2 };
     }
     this.state.alertActions.class = className;
     this.state.dragobject = obj;
-    // console.log(this.state.form);
+    // console.log(this.state.page.form);
     this.forceUpdate();
   }
 
@@ -332,7 +335,7 @@ class Customize extends C {
     const obj = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(obj)) return;
     var objs = Array.from(obj.childNodes);
-    var forms = this.state.form;
+    var forms = this.state.page.form;
     objs.map((o, idx) => {
       const divIdx = o.getAttribute('idx');
       if(!Utils.isEmpty(divIdx)) {
@@ -341,7 +344,7 @@ class Customize extends C {
         var childs = o.childNodes[0];
         if(childs.tagName === HTML_TAG.FORM) {
           childs = o.childNodes[0].childNodes[0].childNodes[0].childNodes;
-          forms[divIdx].object.schema.fIdx = idx;
+          forms[divIdx].object.schema.form_idx = idx;
           var properties = forms[divIdx].object.schema.properties;
           if(Utils.inJson(properties, 'hidden_form_reload')) {
             delete properties['hidden_form_reload'];
@@ -352,7 +355,7 @@ class Customize extends C {
           for(let i=0; i<childs.length; i++) {
             if(childs[i].tagName !== HTML_TAG.DIV) continue;
             const label = childs[i].childNodes[0];
-            if(Utils.isEmpty(label.getAttribute('for'))) continue;
+            if(Utils.isEmpty(label) || Utils.isEmpty(label.getAttribute('for'))) continue;
             const field = label.getAttribute('for').replace('root_', '');
             // console.log(field);
             properties[field].idx = i;
@@ -365,7 +368,7 @@ class Customize extends C {
           for(let i=0; i<divChilds.length; i++) {
             const tabIdx = tabChilds[i].getAttribute('data-rb-event-key');
             var object = forms[divIdx].object[tabIdx];
-            object.schema.fIdx = idx;
+            object.schema.form_idx = idx;
             object.schema.idx = i;
             var properties = object.schema.properties;
             if(Utils.inJson(properties, 'hidden_form_reload')) {
@@ -380,6 +383,7 @@ class Customize extends C {
               if(childs[o].tagName !== HTML_TAG.DIV) continue;
               const label = childs[o].childNodes[0];
               console.log(label);
+              if(Utils.isEmpty(label) || Utils.isEmpty(label.getAttribute('for'))) continue;
               const field = label.getAttribute('for').replace('root_', '');
               console.log(field);
               properties[field].idx = o;
@@ -389,19 +393,19 @@ class Customize extends C {
         }
       }
     });
-    // console.log(this.state.form);
+    // console.log(this.state.page.form);
     // console.log(forms);
   }
 
   _onAddTabSchema() {
     const obj = this.state.dragobject;
     if(obj.tagName !== HTML_TAG.NAV) return;
-    const fIdx = Html.getIdxParent(obj);
-    var form = this.state.form[fIdx];
+    const form_idx = Html.getIdxParent(obj);
+    var form = this.state.page.form[form_idx];
     if(Utils.isEmpty(form)) return;
     const idx = obj.childNodes.length;
     const jObj = JSON_OBJ.getEditJSONObject(false, idx, this.state.isUser.language);
-    form.object.push(JSON_OBJ.getTabJson(fIdx, idx, jObj));
+    form.object.push(JSON_OBJ.getTabJson(form_idx, idx, jObj));
     form.active = idx;
     this.state.alertActions.add_tab_show = false;
     this.forceUpdate();
@@ -482,7 +486,7 @@ class Customize extends C {
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
     this.state.mode = ACTION.EDIT;
     var idx = Html.getIdxParent(obj);
-    var form = this.state.form[idx];
+    var form = this.state.page.form[idx];
     var key = obj.getAttribute('for');
     var properties = null;
     if(!Utils.isEmpty(key)) {
@@ -544,25 +548,32 @@ class Customize extends C {
     const obj = e.target;
     if(Utils.isEmpty(obj)) return;
     if(obj.tagName === HTML_TAG.INPUT) {
-      this.state.pageName = obj.value;
+      this.state.page.page_name = obj.value;
     }
-    if(obj.tagName === HTML_TAG.SELECT) {
+    if(obj.tagName === 'SELECT') {
       console.log(obj);
-      this.state.pageName = obj.value;
+      // obj.value Fecth To API
+      if(!Utils.isEmpty(obj.value) && !Number.isNaN(Number(obj.value))) {
+        this._onLoadingStateSmaple();
+      } else {
+        this.state.pageMode === ACTION.CREATE;
+        this._onResetStateSmaple();
+      }
     }
-    console.log(this.state.pageName);
+    console.log(this.state.page);
+    this.forceUpdate();
   }
 
   _onCreateDivOrTab(e) {
     const obj = e.target;
     if(Utils.isEmpty(obj)) return;
     if(obj.id === 'add_div') {
-      const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.form).length, this.state.isUser.language);
-      this.state.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.form).length, jObj));
+      const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
+      this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj));
     }
     if(obj.id === 'add_tab') {
-      const jObj = JSON_OBJ.getEditJSONObject(false, Object.keys(this.state.form).length, this.state.isUser.language);
-      this.state.form.push(JSON_OBJ.getDafaultDivOrTab(false, Object.keys(this.state.form).length, jObj));
+      const jObj = JSON_OBJ.getEditJSONObject(false, Object.keys(this.state.page.form).length, this.state.isUser.language);
+      this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(false, Object.keys(this.state.page.form).length, jObj));
     }
     this.forceUpdate();
   }
@@ -576,7 +587,7 @@ class Customize extends C {
     if(!this.state.overlayCreateEditBox.show) return '';
     return(
       <Alert
-        id={ SYSTEM.IS_DIV_EDITOR_BOX }
+        id={ SYSTEM.IS_DIV_CUSTOMIZE_EDIT_BOX }
         show={ this.state.overlayCreateEditBox.show }
         variant={ VARIANT_TYPES.LIGHT }
         className={ this.state.overlayCreateEditBox.class }>
@@ -623,7 +634,7 @@ class Customize extends C {
     if(obj.tagName === HTML_TAG.LEGEND) {
       if(!Html.hasAttribute(obj.parentElement, ATTR.ID)) return;
       const idx = Html.getIdxParent(obj);
-      if(!Number.isNaN(Number(idx))) this.state.form.splice(idx, 1);
+      if(!Number.isNaN(Number(idx))) this.state.page.form.splice(idx, 1);
     }
     if(obj.tagName === HTML_TAG.NAV) {
       const idx = Html.getIdxParent(obj);
@@ -637,9 +648,9 @@ class Customize extends C {
           break;
       }
       if(arr.length <= 1) {
-        this.state.form.splice(idx, 1);
+        this.state.page.form.splice(idx, 1);
       } else {
-        if(!Number.isNaN(Number(tabIdx))) this.state.form[idx].object.splice(tabIdx, 1);
+        if(!Number.isNaN(Number(tabIdx))) this.state.page.form[idx].object.splice(tabIdx, 1);
       }
     }
     if(obj.tagName === HTML_TAG.LABEL) {
@@ -653,20 +664,20 @@ class Customize extends C {
       // const idxs = key.split('_');
       const idx = Html.getIdxParent(obj);
       if(isDiv) {
-        if(Utils.inJson(this.state.form[idx].object.schema.properties, key))
-          delete this.state.form[idx].object.schema.properties[key];
-        if(Utils.inJson(this.state.form[idx].object.ui, key))
-          delete this.state.form[idx].object.ui[key];
-        if(Utils.inJson(this.state.form[idx].object.data, key))
-          delete this.state.form[idx].object.data[key];
+        if(Utils.inJson(this.state.page.form[idx].object.schema.properties, key))
+          delete this.state.page.form[idx].object.schema.properties[key];
+        if(Utils.inJson(this.state.page.form[idx].object.ui, key))
+          delete this.state.page.form[idx].object.ui[key];
+        if(Utils.inJson(this.state.page.form[idx].object.data, key))
+          delete this.state.page.form[idx].object.data[key];
       } else {
         const selTabIdx = Html.getIdxTabSelected(divParent.childNodes[0]);
-        if(Utils.inJson(this.state.form[idx].object[selTabIdx].schema.properties, key))
-          delete this.state.form[idx].object[selTabIdx].schema.properties[key];
-        if(Utils.inJson(this.state.form[idx].object[selTabIdx].ui, key))
-          delete this.state.form[idx].object[selTabIdx].ui[key];
-        if(Utils.inJson(this.state.form[idx].object[selTabIdx].data, key))
-          delete this.state.form[idx].object[selTabIdx].data[key];
+        if(Utils.inJson(this.state.page.form[idx].object[selTabIdx].schema.properties, key))
+          delete this.state.page.form[idx].object[selTabIdx].schema.properties[key];
+        if(Utils.inJson(this.state.page.form[idx].object[selTabIdx].ui, key))
+          delete this.state.page.form[idx].object[selTabIdx].ui[key];
+        if(Utils.inJson(this.state.page.form[idx].object[selTabIdx].data, key))
+          delete this.state.page.form[idx].object[selTabIdx].data[key];
       }
     }
 
@@ -765,7 +776,7 @@ class Customize extends C {
           idx = Html.getIdxParent(this.state.dragobject);
       }
 
-      var form = this.state.form[idx];
+      var form = this.state.page.form[idx];
       if(Utils.isEmpty(form)) return;
       var fObj = form.object;
       if(this.state.dragobject.tagName === HTML_TAG.NAV || Array.isArray(form.object)) {
@@ -783,7 +794,7 @@ class Customize extends C {
           form.object.schema['title'] = obj[labelKey];
         }
         if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) {
-          form['class_name'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
+          form['className'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
         }
 
         // JSON_OBJ.addHiddenFieldFormReload(fObj);
@@ -808,12 +819,12 @@ class Customize extends C {
       }
       JSON_OBJ.addHiddenFieldFormReload(fObj);
 
-      this.state.form[idx] = form;
+      this.state.page.form[idx] = form;
       this.state.dragobject = null;
       this.state.overlayCreateEditBox.obj = {};
       this.state.overlayDeleteBox.show = false;
       this.state.overlayCreateEditBox.show = false;
-      console.log(this.state.form);
+      console.log(this.state.page.form);
     }
     this.forceUpdate();
   }
@@ -845,14 +856,20 @@ class Customize extends C {
   }
 
   _onClickChangeMode() {
-    this.state.mode = (this.state.mode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
+    // if(this.state.pageMode === ACTION.CREATE) {
+    //   this.state.pageMode = ACTION.EDIT;
+    // } else {
+    //   this.state.pageMode = ACTION.CREATE;
+    // }
+    this.state.pageMode = (this.state.pageMode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
+    if(this.state.pageMode === ACTION.CREATE) this._onResetStateSmaple();
     this.forceUpdate();
   }
 
   _getTitle() {
     var items = [];
     const pages = this.state.pages;
-    items.push( <option key={ 'frist_option' } value={ '0' }>{ '---' }</option> );
+    items.push( <option key={ 'frist_option' } value={ '' }>{ '---' }</option> );
     for (let i=0; i<pages.length; i++) {
       items.push( <option key={ i } value={ pages[i].id }>{ pages[i].label }</option> );
     }
@@ -878,12 +895,48 @@ class Customize extends C {
         </Button>
 
         {(() => {
+          if (this.state.pageMode === ACTION.CREATE) {
+            return (
+              <div className='div-customize-title-box'>
+                <FormControl
+                  type={ HTML_TAG.TEXT }
+                  defaultValue={ this.state.page.page_name }
+                  onChange={ this._onChange.bind(this) }
+                  placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required') }
+                  className="mr-sm-2" />
+                <Button
+                  type={ TYPE.BUTTON }
+                  onClick={ this._onClickChangeMode.bind(this) }
+                  variant={ VARIANT_TYPES.INFO }>
+                  <FaBars />
+                </Button>
+              </div>
+            );
+          } else {
+            return (
+              <div className='div-customize-title-box'>
+                <FormControl
+                  as={ HTML_TAG.SELECT }
+                  defaultValue={ this.state.page.page_id }
+                  onChange={ this._onChange.bind(this) }> { items }</FormControl>
+                <Button
+                  type={ HTML_TAG.BUTTON }
+                  onClick={ this._onClickChangeMode.bind(this) }
+                  variant={ VARIANT_TYPES.INFO }>
+                  <FaPlus />
+                </Button>
+              </div>
+            );
+          }
+        })()}
+
+        {/* {(() => {
           if (this.state.mode === ACTION.CREATE) {
             return (
               <div className='div-customize-title-box'>
                 <FormControl
                   type={ HTML_TAG.TEXT }
-                  defaultValue={ this.state.pageName }
+                  defaultValue={ this.state.page.page_id }
                   onChange={ this._onChange.bind(this) }
                   placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required') }
                   className="mr-sm-2" />
@@ -912,7 +965,7 @@ class Customize extends C {
               </div>
             );
           }
-        })()}
+        })()} */}
       </div>
     );
   }
@@ -950,15 +1003,25 @@ class Customize extends C {
   _onUpdateFormData(e) {
     if(!Utils.inJson(e, 'schema') || !Utils.inJson(e, 'formData')) return;
     console.log(e);
-    const fIdx = e.schema.fIdx;
+    const fidx = e.schema.form_idx;
     const idx = e.schema.idx;
-    if(e.schema.block === HTML_TAG.DIV) {
-      this.state.form[fIdx].object.data = e.formData;
+    var form = this.state.page.form;
+    if(e.schema.box_type === HTML_TAG.DIV) {
+      form[fidx].object.data = e.formData;
     }
-    if(e.schema.block === HTML_TAG.TAB) {
-      this.state.form[fIdx].object[idx].data = e.formData;
+    if(e.schema.box_type === HTML_TAG.TAB) {
+      form[fidx].object[idx].data = e.formData;
     }
-    this.forceUpdate();
+    this.setState({ form });
+
+    // if(e.schema.box_type === HTML_TAG.DIV) {
+    //   this.state.page.form[form_idx].object.data = e.formData;
+    // }
+    // if(e.schema.box_type === HTML_TAG.TAB) {
+    //   this.state.page.form[form_idx].object[idx].data = e.formData;
+    // }
+    // console.log(this.state.page.form[form_idx]);
+    // this.forceUpdate();
   }
 
   _getErrorMsg() {
@@ -1051,7 +1114,7 @@ class Customize extends C {
   // }
 
   _onFormAddAttribute() {
-    this.state.form.map((f) => {
+    this.state.page.form.map((f) => {
       var objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
         objs.map((obj) => {
@@ -1063,10 +1126,53 @@ class Customize extends C {
     });
   }
 
-  // UNSAFE_componentWillUpdate() {
-  //   const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
-  //   this._onAddDragDrop(div);
-  // }
+  _onResetStateSmaple() {
+    this.state.page = { page_id: '', page_name: '', form: [] };
+  }
+
+  _onLoadingStateSmaple() {
+    this.state.page = {
+      "page_id": 1,
+      "page_name": "AAA",
+      "form": [
+        {
+          "page_id": 1,
+          "object_type": "tab",
+          "object_key": "form_0.gw6yqa642dq",
+          "className": "div-box-100",
+          "idx": 0,
+          "object": [
+            {
+              "schema_id": 1,
+              "schema": {
+                "idx": 0,
+                "type": "object",
+                "tab_name": "DIV_00",
+                "box_type": "TAB",
+                "form_idx": 0,
+                "properties": {
+                  "text_0.xtadqn6yuz": {
+                    "idx": 1,
+                    "type": "string",
+                    "title": "dd",
+                    "language": "ja"
+                  }
+                }
+              },
+              "ui": {
+                "text_0.xtadqn6yuz": {
+                  "classNames": "div-box div-box-25 div-box-height-80"
+                }
+              },
+              "data": {
+                "text_0.xtadqn6yuz": "aaaaa"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
 
   componentDidUpdate() {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
@@ -1085,8 +1191,8 @@ class Customize extends C {
   }
 
   UNSAFE_componentWillMount(){
-    const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.form).length, this.state.isUser.language);
-    this.state.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.form).length, jObj));
+    const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
+    this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj));
   }
 
   render() {
@@ -1107,7 +1213,7 @@ class Customize extends C {
         { this._onAlertAddTabButtons() }
         <CForm
           isUser={ this.state.isUser }
-          form={ this.state.form }
+          form={ this.state.page.form }
           updateFormData={ this._onUpdateFormData.bind(this) } />
       </div>
     )

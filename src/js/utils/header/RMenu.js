@@ -112,6 +112,7 @@ class RMenu extends C {
           <span>{ this.state.sFile.name }</span>
         </div>
       );
+      file.value = '';
       ReactDOM.render(fDiv, div);
       console.log(this.state.sFile);
     }
@@ -171,7 +172,7 @@ class RMenu extends C {
                           </div>
                           <div>
                             <div id={ SYSTEM.IS_DIV_CHAT_FILE_BOX }></div>
-                            <CEditor onUpdateEditor= { this._onUpdateEditor.bind(this) } />
+                            <CEditor fileId={ SYSTEM.IS_ADD_CHAT_FILE } onUpdateEditor= { this._onUpdateEditor.bind(this) } />
                           </div>
                         </div>);
     ReactDOM.render(divChatBox, div);
@@ -180,6 +181,7 @@ class RMenu extends C {
   _getObjChat(obj, idx) {
     if(isEmpty(obj) || isEmpty(idx)) return "";
     const html = draftToHtml(convertToRaw(obj.editorState));
+    console.log(html);
     const htmlIsEmpty = html.replace('<p></p>', '');
     if(isEmpty(html) || isEmpty(htmlIsEmpty) || htmlIsEmpty.length <= 1) return "";
     const div = document.createElement(HTML_TAG.DIV);

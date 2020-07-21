@@ -45,12 +45,70 @@ $box-widths:(
         }
         div.div-table-body {
             height: ($h - 77) + px;
+            overflow: scroll;
+        }
+        div.div-table-header {
+            overflow: scroll;
         }
         canvas {
             height: ($h - 48) + px !important;
             width: ($h - 48) + px !important;
             position: relative;
             top: .3em;
+        }
+        div.div-editor-box {
+            height: ($h - 42) + px;
+            div.DraftEditor-editorContainer {
+                height: ($h - 85) + px !important;
+                // border: 1px solid #ced4da;
+            }
+            div.rdw-link-modal {
+                label {
+                    padding: 0;
+                    margin: 0;
+                }
+                input {
+                    display: block;
+                    width: 100%;
+                    height: calc(1.5em + 0.75rem + 2px);
+                    padding: 0.375rem 1rem;
+                    font-size: 1rem;
+                    font-weight: 400;
+                    line-height: 1.5;
+                    color: #495057;
+                    background-color: #fff;
+                    background-clip: padding-box;
+                    border: 1px solid #ced4da;
+                    border-radius: 0.25rem;
+                }
+                label.rdw-link-modal-target-option {
+                    display: none;
+                }
+            }
+            div.rdw-fontsize-dropdown
+            ,div.rdw-fontsize-wrapper
+            ,div.rdw-colorpicker-wrapper {
+                margin-bottom: 0;
+            }
+            div.rdw-block-wrapper
+            ,div.rdw-fontfamily-wrapper
+            ,div.rdw-list-dropdown
+            ,div.rdw-text-align-dropdown
+            ,div.rdw-remove-wrapper
+            ,div.rdw-embedded-wrapper
+            ,div.rdw-image-wrapper
+            ,div.rdw-history-dropdown
+            ,div.rdw-link-wrapper {
+              display: none;
+              padding: 0;
+              margin: 0;
+            }
+            div.rdw-editor-main {
+                margin-top: -.2em;
+            }
+            div.public-DraftStyleDefault-block {
+                margin: 0;
+            }
         }
         > div {
             > div.div-file-box
@@ -130,6 +188,26 @@ $box-widths:(
                     }
                 }
             }
+            > div.div-paging-box {
+                display: inline-flex;
+                position: absolute;
+                right: .5em;
+                top: .2em;
+                > div.div-count-per {
+                    display: inline-flex;
+                    > select {
+                        font-size: 80%;
+                    }
+                    > span {
+                        padding-left: .2em;
+                        padding-right: .2em;
+                        margin-top: .3em;
+                    }
+                }
+                > ul {
+                    font-size: 80%;
+                }
+            }
             > div.div-file-box {
                 > font {
                     height: ($h - 42) + px;
@@ -178,5 +256,47 @@ div.div-customize-box {
     > div {
         border: 1px solid #dee2e6;
         border-radius: .5em;
+    }
+}
+
+div.div-list-box {
+    position: relative;
+    > div.div-title-box {
+        display: inline-flex;
+        height: 2.5em;
+        > h5 {
+            margin-top: .3em;
+        }
+        > h5::before {
+            content: '●';
+        }
+        > button {
+            position: absolute;
+            right: .5em;
+        }
+    }
+    div.div-paging-box {
+        display: inline-flex;
+        position: absolute;
+        right: 7em;
+        top: 0;
+        > div.div-count-per {
+            display: inline-flex;
+            > select {
+                font-size: 80%;
+            }
+            > span {
+                padding-left: .2em;
+                padding-right: .2em;
+                margin-top: .3em;
+            }
+        }
+        > ul {
+            font-size: 80%;
+        }
+    }
+    div.div-table-body
+    ,div.div-table-header {
+        overflow: scroll;
     }
 }

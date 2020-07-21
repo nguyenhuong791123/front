@@ -40,7 +40,7 @@ class CForm extends C {
             return(
                 <Tab key={ index } eventKey={ index } title={  f.schema.tab_name }>
                     <FormBS4
-                        // idPrefix={ index + "-tab" }
+                        // idPrefix={ f.object_key }
                         key={ fKey }
                         schema={ f.schema }
                         uiSchema={ f.ui }
@@ -64,15 +64,15 @@ class CForm extends C {
     _build() {
         if(Utils.isEmpty(this.state.form) || this.state.form.length <= 0) return "";
         var f = this.state.form;
-        if(Utils.isEmpty(f) || f.length <= 0) return "";
+        if(Utils.isEmpty(f) || !Array.isArray(f) || f.length <= 0) return "";
         return f.map((o, index) => {
             const t = o.object_type;
-            const className = Utils.inJson(o, 'class_name')?o.class_name:"";
+            const className = Utils.inJson(o, 'className')?o.className:"";
             if(t === 'div') {
                 return(
                     <div key={ index } id={ 'div_customize_' + index } idx={ index } className={ className }>
                         <FormBS4
-                            // idPrefix={ index + "-div" }
+                            // idPrefix={ o.object_key }
                             key={ index }
                             schema={ o.object.schema }
                             uiSchema={ o.object.ui }
@@ -91,15 +91,14 @@ class CForm extends C {
         });
     }
 
-    // UNSAFE_componentWillReceiveProps(nextProps) {
-    //     if (this.props.form !== nextProps.form) {
-    //         this.setState({
-    //             form: nextProps.form > this.props.form,
-    //         });
-    //     }
-    // }
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        if (this.props.form !== nextProps.form) {
+            this.setState({ form: nextProps.form });
+        }
+    }
 
     render() {
+        // console.log(this.props.form);
         return (
             <div id={ SYSTEM.IS_DIV_CUSTOMIZE_BOX } className='div-customize-box'>
                 { this._build() }

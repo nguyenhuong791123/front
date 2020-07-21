@@ -41,6 +41,7 @@ export const HTML_TAG = {
 export const TYPE = {
     TEXT: 'text'
     ,TEXTAREA: 'textarea'
+    ,EDITOR: 'editor'
     ,DATE: 'date'
     ,DATETIME: 'datetime'
     ,TIME: 'time'

@@ -20,7 +20,9 @@ export const SYSTEM = {
     ,IS_DIV_EDITOR_BOX: 'div_editor_box'
     ,IS_DIV_RIGHT_BOX: 'div_right_box'
     ,IS_DIV_CUSTOMIZE_BOX: 'div_customize_box'
+    ,IS_DIV_CUSTOMIZE_EDIT_BOX: 'div_customize_edit_box'
     ,IS_DIV_TREE_VIEW_BOX: 'div_tree_view_box'
+    ,IS_DIV_LIST_BOX: 'div_list_box'
 }
 
 export const DISPLAY_TYPE = {
@@ -86,6 +88,7 @@ export const PAGE = {
 export const PAGE_ACTION = {
     SYSTEM: { back: false }
     ,CREATE: { create: false }
+    ,VIEW: { view: false }
 }
 
 export const PAGIN = {
