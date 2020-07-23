@@ -10,7 +10,7 @@ class Footer extends C {
   }
 
   UNSAFE_componentWillReceiveProps(props) {
-    console.log('FOOTER componentWillReceiveProps');
+    // console.log('FOOTER componentWillReceiveProps');
     this.state.viewFooter = props.viewFooter;
     // this.forceUpdate();
   }
@@ -21,7 +21,7 @@ class Footer extends C {
     return (
       <div>
         <span>
-          { this.props.company.copyright }
+          { this.props.company.copy_right }
         </span>
       </div>
     );

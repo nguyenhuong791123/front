@@ -1,13 +1,29 @@
+function postLogin(url, options) {
+    const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+    }
+    // const headers = {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    // }
+    return postFecth(url, options, headers)
+}
+
 function postData(url, options, token) {
     const headers = {
         'Accept': 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8',
     }
 
-    if (token !== undefined && token !== null) {
-        headers['Authorization'] = 'Bearer ' + token
+    authorization = (token !== undefined && token !== null)?'Bearer ' + token:''
+    if (authorization !== undefined && authorization !== null) {
+        headers['Authorization'] = authorization
     }
 
+    return postFecth(url, options, authorization)
+}
+
+var postFecth = function(url, options, headers) {
     // 既定のオプションには * が付いています
     return fetch(url, {
         method: "POST"
@@ -39,5 +55,6 @@ var status = function status(response) {
     }
 }
 
+module.exports.postLogin = postLogin;
 module.exports.postData = postData;
 module.exports.status = status;

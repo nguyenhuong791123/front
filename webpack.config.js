@@ -4,6 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const basicAuth = require('basic-auth-connect');
+const fetch = require('node-fetch');
+const base64 = require('base64-min');
+// const { setCookie } = require('./src/js/utils/cookies');
 /** MESSENGERS */
 // var SysMsg = require('./src/msg/system.json');
 // if(process.env && process.env.production) {
@@ -13,9 +17,9 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const ENVS = {
     mode:  (process.env && process.env.production) ? 'production' : 'development'
     ,sourceMap: (process.env && process.env.production) ? false : true
-    ,sslkey: path.resolve(__dirname, 'src', 'ssl', 'sc.key')
-    ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'sc.crt')
-    ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'sc.pem')
+    ,sslkey: path.resolve(__dirname, 'src', 'ssl', 'dev.key')
+    ,sslcrt: path.resolve(__dirname, 'src', 'ssl', 'dev.crt')
+    ,sslpem: path.resolve(__dirname, 'src', 'ssl', 'dev.pem')
     ,host: '0.0.0.0'
     ,port: 8083
     // ,port: 443
@@ -135,20 +139,62 @@ module.exports = {
         //     cert: ENVS.sslcrt,
         //     ca: ENVS.sslpem,
         // }
-        ,headers: {
-            'Access-Control-Allow-Origin': ENVS.origin
+        // ,headers: {
+        //     'Access-Control-Allow-Origin': ENVS.origin
             // 'Access-Control-Allow-Headers': '*'
             // ,'Access-Control-Allow-Credentials': 'true'
             // ,"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS"
             // ,"Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"        
-        }
+        // }
         // ,proxy: {
         //     '**': {
-        //       target: 'http://192.168.56.53:8083'
+        //       target: 'http://vmdev:8085'
         //       ,secure: false
         //       ,changeOrigin: true
         //     }
         // }
+        ,before(app) {
+            app.use(basicAuth(function(user, password, callback) {
+                if(!user || !password) {
+                    callback(null, false)
+                }
+                const headers = {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ` + base64.encode(user + ':' + password)
+                }
+
+                const result = fetch(
+                    'http://127.0.0.1:8085/basic',
+                    {
+                        method: "POST"
+                        ,mode: "cors"
+                        ,cache: "no-cache"
+                        ,credentials: "include"
+                        ,headers: headers
+                    }).then((res) => {
+                        return res.json();
+                    }).then((json) => {
+                        return json
+                    });
+                
+                result.then(data => {
+                    console.log(data);
+                    callback(null, (data.company_id !== null && data.company_id > 0))
+                }).catch(err => {
+                    console.log(err);
+                    callback(null, false)
+                });
+            }));
+            app.use('/*', function (req, res, next) {
+                var authorization = req.headers["authorization"] || "";
+                if (authorization) {
+                    res.setHeader('Set-Cookie', [`uuid=` + authorization.replace('Basic ', '')])
+                    next();
+                } else {
+                    next();
+                }
+            });
+        }
     }
     ,devtool: (ENVS.mode === 'development') ? 'cheap-module-source-map' : 'none'
     //'source-map'

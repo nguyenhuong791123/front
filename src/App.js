@@ -10,6 +10,8 @@ import thunkMiddleware from 'redux-thunk';
 import { PAGE, PAGE_ACTION, ACTION, SYSTEM } from './js/utils/Types';
 import { HTML_TAG } from './js/utils/HtmlTypes';
 import { THEME } from './js/utils/Theme';
+import { getCookie } from './js/utils/Cookies';
+import Fetch from './js/utils/Fetch';
 import Utils from './js/utils/Utils';
 import Msg from './msg/Msg';
 
@@ -49,16 +51,13 @@ class App extends C {
 
         this.state = {
             loading: true
-            ,company: {
-                copyright: 'Copyright ©2018 VNEXT All Rights Reserved.'
-                ,url: 'https://vnext.co.jp/company-info.html'
-                ,icon: 'favicon.ico'
-            }
+            ,company: { }
             ,isUser: AuthSession.isUserInit(null).info
             ,options: AuthSession.isUserInit(null).options
             ,error: null
             ,errorInfo: null
             ,hasError: false
+            ,menus: []
         }
     }
 
@@ -72,23 +71,26 @@ class App extends C {
         // this.forceUpdate();
     }
 
-    _doLogin(isUser, options) {
+    _doLogin(isUser, options, menus) {
+        //console.log('_doLogin');
+        //console.log(menus);
+        this.state.menus = menus;
         // isUser[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
         const auth = { info: isUser, options: options };
         // this._updateStateIsUser(auth);
-        console.log(auth);
+        // console.log(auth);
         // this.forceUpdate();
         AuthSession.doLogin(auth).then(response => {
             const { token } = response;
             sessionService.saveSession({ token }).then(() => {
                 sessionService.saveUser(auth).then(() => {
                     sessionStorage.setItem('session', window.name);
-                    console.log(this);
+                    //console.log(this);
                     window.name = SYSTEM.IS_ACTIVE_WINDOWN;
                     this._updateStateIsUser(auth);
                     // callback(auth);
-                    console.log('_doLogin complete !!!');
-                    console.log(sessionService.loadUser('COOKIES'));
+                    //console.log('_doLogin complete !!!');
+                    //console.log(sessionService.loadUser('COOKIES'));
                 });
             });
         });
@@ -100,7 +102,7 @@ class App extends C {
         auth.info.theme = this.state.isUser.theme;
         this.state.isUser = auth.info;
         this.state.options = auth.options;
-        console.log(this.state);
+        //console.log(this.state);
         const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
         if(!Utils.isEmpty(div)) div.remove();
         this.state.hasError = false;
@@ -109,7 +111,7 @@ class App extends C {
             sessionService.deleteSession();
             sessionService.deleteUser();
             sessionStorage.removeItem('session');
-            console.log('_doLogout complete !!!');
+            //console.log('_doLogout complete !!!');
         }).catch(err => { throw (err); });
     };
 
@@ -117,8 +119,8 @@ class App extends C {
         const objAuth = sessionService.loadUser('COOKIES');
         this.state.hasError = false;
         if(objAuth !== undefined) {
-            console.log('_loadAuthCookies');
-            console.log(objAuth);
+            //console.log('_loadAuthCookies');
+            //console.log(objAuth);
             objAuth.then(function(data) {
                 const isUrl = history.location.pathname;
                 if(isUrl.indexOf(ACTION.ERROR) !== -1) this._doLogout();
@@ -141,13 +143,13 @@ class App extends C {
                     data.info['actions'] = undefined;
                 }
 
-                console.log('_loadAuthCookies');
+                //console.log('_loadAuthCookies');
                 // data.info['menu'] = 1;
-                console.log(data);
+                //console.log(data);
                 callBack(data);
             }).catch(function(error) {
-                console.log(error);
-                console.log(AuthSession.isUserInit(isUser));
+                //console.log(error);
+                //console.log(AuthSession.isUserInit(isUser));
                 callBack(AuthSession.isUserInit(isUser));
             });
         } else {
@@ -157,15 +159,15 @@ class App extends C {
 
     _onUpdateIsUserCallBack(auth) {
         this._updateStateIsUser(auth);
-        // this.forceUpdate();
+        this.forceUpdate();
     }
 
     _onUpdatePromise(inIsUser, inOptions, callBack) {
         const auth = { info: inIsUser, options: inOptions };
-        // console.log(auth);
+        // //console.log(auth);
         const isUser = sessionService.loadUser('COOKIES');
-        console.log('COOKIES');
-        console.log(isUser);
+        //console.log('COOKIES');
+        //console.log(isUser);
         isUser.then(function(data) {
             if(!Utils.isEmpty(inIsUser)) {
                 var ukeys = Object.keys(inIsUser);
@@ -187,49 +189,32 @@ class App extends C {
             }
             callBack(auth);
         }).catch(function(error) {
-            console.log('ERROR _onUpdatePromise');
-            console.log(error);
+            //console.log('ERROR _onUpdatePromise');
+            //console.log(error);
         });
     }
 
     _updateStateIsUser(isUser) {
         // console.log('_updateStateIsUser');
-        console.log(isUser);
+        // console.log(isUser);
         this.state.isUser = isUser.info;
         this.state.options = isUser.options;
-        // this._addCssLink();
         if(isUser.info.action === PAGE.SYSTEM) {
             history.push(ACTION.SLASH + isUser.info.action);
         } else {
             this.state.isUser.actions = undefined;
             history.push(isUser.info.path);
         }
-        console.log(history);
+
+        const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
+        if(!Utils.isEmpty(this.state.isUser.theme)
+            && !Utils.isEmpty(obj.href)
+            && obj.href.indexOf('/' + this.state.isUser.theme + '/') === -1) {
+            this._addCssLink();
+        }
+
+        //console.log(history);
         this.forceUpdate();
-    }
-
-    // _addCssLink() {
-    //     const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
-    //     const css_path = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
-    //     if(!Utils.isEmpty(obj)) {
-    //         obj.href = css_path;
-    //     } else {
-    //         const css = document.createElement(HTML_TAG.LINK);
-    //         css.id = SYSTEM.IS_CSS_LINK_ID;
-    //         css.setAttribute('rel', 'stylesheet');
-    //         css.setAttribute('href', css_path);
-    //         const head = document.getElementsByTagName(HTML_TAG.HEAD)[0];
-    //         head.appendChild(css);    
-    //     }
-    // }
-
-    UNSAFE_componentWillMount() {
-        this._loadAuthCookies(this.state.isUser, this._updateStateIsUser);
-        // this._addCssLink();
-    }
-
-    componentDidMount() {
-        this._stopLoading();
     }
 
     _stopLoading() {
@@ -238,7 +223,51 @@ class App extends C {
 
     _updateListHeaders(headers) {
         this.state['headers'] = headers;
-        console.log(this.state['headers']);
+        //console.log(this.state['headers']);
+    }
+
+    _addCssLink() {
+        const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
+        const css_path = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
+        if(!Utils.isEmpty(obj)) {
+            obj.href = css_path;
+        } else {
+            const css = document.createElement(HTML_TAG.LINK);
+            css.id = SYSTEM.IS_CSS_LINK_ID;
+            css.setAttribute('rel', 'stylesheet');
+            css.setAttribute('href', css_path);
+            const head = document.getElementsByTagName(HTML_TAG.HEAD)[0];
+            head.appendChild(css);    
+        }
+    }
+
+    UNSAFE_componentWillMount() {
+        //console.log(getCookie('uuid'));
+        const options = { uuid: getCookie('uuid')};
+        const f = Fetch.postLogin('http://vmdev:8085/mode', options);
+        f.then(data => {
+          //console.log(data);
+          if(!Utils.isEmpty(data) && Utils.inJson(data, 'company_id')) {
+            this.state.isUser['cId'] = data.company_id;
+            this.state.isUser['theme'] = data.company_theme;
+            this.state.company = {
+              logo: data.company_logo
+              ,name: data.company_name
+              ,copy_right: data.company_copy_right
+              ,home_page: data.company_home_page
+              ,global_locale: data.company_global_locale
+            }
+            //console.log(this.state.isUser);
+            this._loadAuthCookies(this.state.isUser, this._updateStateIsUser);
+            this._addCssLink();
+            this.forceUpdate();
+          }
+        });
+
+    }
+
+    componentDidMount() {
+        this._stopLoading();
     }
 
     static getDerivedStateFromError(error) {
@@ -252,8 +281,8 @@ class App extends C {
     }    
 
     render() {
-        console.log('APP Render !!!');
-        console.log(chrome.app);
+        //console.log('APP Render !!!');
+        //console.log(chrome.app);
         return (
             <div>
                 <LoadingOverlay active={ this.state.loading } spinner text='Loading your content...' />
@@ -282,16 +311,19 @@ class App extends C {
                                         company={ this.state.company }
                                         isUser={ this.state.isUser }
                                         options={ this.state.options }
+                                        menus={ this.state.menus }
                                         headers={ this.state['headers'] }
                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
-                                        onLogout={ this._doLogout.bind(this) } />
+                                        onLogout={ this._doLogout.bind(this) }
+                                        {...this.props} />
                                 </div>
                                 <div id='div_body'>
                                     <Switch>
                                         <Route
                                             exact path={ ACTION.SLASH }
                                             render={ ({ props }) => <Login
+                                                                        company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
@@ -300,6 +332,7 @@ class App extends C {
                                         <Route
                                             path={ ACTION.SLASH + ACTION.LIST }
                                             render={ ({ props }) => <List
+                                                                        company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
@@ -308,6 +341,7 @@ class App extends C {
                                         <Route
                                             path={ ACTION.SLASH + ACTION.CREATE }
                                             render={ ({ props }) => <Create
+                                                                        company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
@@ -315,6 +349,7 @@ class App extends C {
                                         <Route
                                             path={ ACTION.SLASH + ACTION.EDIT }
                                             render={ ({ props }) => <Create
+                                                                        company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
@@ -325,6 +360,7 @@ class App extends C {
                                         <Route
                                             path={ ACTION.SLASH + PAGE.CUSTOMIZE }
                                             render={ ({ props }) => <Customize
+                                                                        company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
@@ -333,6 +369,7 @@ class App extends C {
                                         <Route
                                             path={ ACTION.SLASH + PAGE.SYSTEM }
                                             render={ ({ props }) => <System
+                                                                        company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         onUpdateUser={ this._onUpdatePromise.bind(this) }

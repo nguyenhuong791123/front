@@ -3,7 +3,7 @@ import onClickOutside from 'react-onclickoutside';
 import { Nav, Alert } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaCloudDownloadAlt } from 'react-icons/fa';
 
-import { ACTION } from './Types';
+import { ACTION, SYSTEM } from './Types';
 import Html from './HtmlUtils';
 import Utils from './Utils';
 import '../../css/CMenu.css';
@@ -68,7 +68,7 @@ class ContextMenu extends C {
     render() {
         var styles = { top: this.state.objs.top, left: this.state.objs.left };
         return (
-            <div className="div-context-menu" style={ styles }>
+            <div id={ SYSTEM.IS_DIV_CONTEXT_MENU_BOX } className="div-context-menu" style={ styles }>
                 <Alert show={this.state.objs.show}>
                     { this.getLinkByType() }
                 </Alert>

@@ -11,7 +11,7 @@ import Pagination from '../body/Pagin';
 
 import Html from '../HtmlUtils';
 import Utils from '../Utils';
-import { ACTION, VARIANT_TYPES, OBJECT, PAGIN_PER, PAGIN_PER_LIST } from '../Types';
+import { ACTION, VARIANT_TYPES, OBJECT, PAGIN_PER, PAGIN_PER_LIST, SYSTEM } from '../Types';
 import { HTML_TAG, ATTR, TYPE, MOUSE } from '../HtmlTypes';
 import Msg from '../../../msg/Msg';
 import "../../../css/Table.css";
@@ -127,8 +127,14 @@ export default class TableBox extends C {
         if(Utils.isEmpty(ids) || ids.length <= 0) return;
         this.state.actions.show = true;
         this.state.actions.ids = ids;
-        this.state.actions.top = e.pageY;
-        this.state.actions.left = e.pageX;
+        var top = (e.pageY - 50);
+        var left = e.pageX;
+        var div = document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
+        if(Utils.isEmpty(div)) top -= 70;
+        if((top + 150) >= window.innerHeight) top = (top - 150);
+        if((left + 150) >= window.innerWidth) left = (left - 150);
+        this.state.actions.top = top;
+        this.state.actions.left = left;
         this.forceUpdate();
     }
 

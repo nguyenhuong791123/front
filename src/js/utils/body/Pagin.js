@@ -5,7 +5,7 @@ import { PAGIN, PAGIN_PER_LIST } from '../Types';
 import { HTML_TAG } from '../HtmlTypes';
 import Utils from '../Utils';
 
-import "../../../css/Pagin.css";
+// import "../../../css/Pagin.css";
 
 class Pagin extends C {
     constructor(props) {
@@ -41,11 +41,11 @@ class Pagin extends C {
         const pC = Math.ceil(this.state.total / this.state.per);
         var items = [];
         var active = this.state.active;
-        console.log(active);
+        // console.log(active);
         var start = 1;
         if(pC > PAGIN_PER_LIST) start = (active >= (pC - PAGIN_PER_LIST))?((pC > PAGIN_PER_LIST)?(pC - (PAGIN_PER_LIST - 1)):pC):active;
-        console.log(start);
-        console.log(pC);
+        // console.log(start);
+        // console.log(pC);
         for (let i=start; i<=pC; i++) {
             if(i >= (start + PAGIN_PER_LIST)) break;
             items.push(

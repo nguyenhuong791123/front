@@ -23,6 +23,7 @@ export const SYSTEM = {
     ,IS_DIV_CUSTOMIZE_EDIT_BOX: 'div_customize_edit_box'
     ,IS_DIV_TREE_VIEW_BOX: 'div_tree_view_box'
     ,IS_DIV_LIST_BOX: 'div_list_box'
+    ,IS_DIV_CONTEXT_MENU_BOX: 'div_context_menu_box'
 }
 
 export const DISPLAY_TYPE = {

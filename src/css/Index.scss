@@ -249,6 +249,30 @@ div.form-group {
     }
 }
 
+div.div-context-menu {
+    position: absolute;
+    > div {
+        padding: .5rem 0;
+        margin: .125rem 0 0;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0,0,0,.15);
+        border-radius: .25rem;
+        > a {
+            display: flex;
+            word-break: keep-all;
+            cursor: pointer;
+            > svg {
+                margin-right: 0.3em;
+                margin-top: 0.2em;
+            }
+        }
+        > a:hover {
+            background: #f8f9fa;
+        }
+    }
+}
+
 div.div-customize-box {
     overflow: auto;
     overflow-y: auto;

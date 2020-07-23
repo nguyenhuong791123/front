@@ -40,54 +40,7 @@ class Header extends C {
       ,showError: true
       ,variantError: VARIANT_TYPES.WARNING
       ,right: ''
-      ,menus: [
-        { id: 1, view: LINK, target: 'target_00', label: 'label_00', level: 0, items: [] }
-        ,{ id: 2, view: NOT_LINK, target: 'target_01', label: 'label_01', level: 0, items: 
-          [
-            { id: 3, view: LINK, target: 'target_001', level: 1, label: 'label_001' }
-            ,{ id: 4, view: NOT_LINK, target: 'target_000', level: 1, label: 'label_000', items: 
-              [
-                { id: 5, view: 0, target: 'target_0000', level: 2, label: 'label_0000' }
-              ]
-            }
-          ]
-        }
-        ,{ id: 6, view: NOT_LINK, target: 'target_06', label: 'label_06', level: 0, items: 
-          [
-            { id: 7, view: LINK, target: 'target_003', level: 1, label: 'label_003' }
-            ,{ id: 8, view: NOT_LINK, target: 'target_0003', level: 1, label: 'label_0003', items: 
-              [
-                { id: 9, view: NOT_LINK, target: 'target_00003', level: 2, label: 'label_00003', items: 
-                  [
-                    { id: 91, view: NOT_LINK, target: 'target_000003', level: 3, label: 'label_000003', items: 
-                      [
-                        { id: 911, view: LINK, target: 'target_0000003', level: 4, label: 'label_0000003' }
-                      ]
-                    }
-                  ]
-                }
-                ,{ id: 10, view: LINK, target: 'target_0000031', label: 'target_0000031', level: 2 }
-              ]
-            }
-          ]
-        }
-        ,{ id: 10, view: LINK, target: 'target_10', label: 'label_10-label_10', level: 0, items: [] }
-        ,{ id: 11, view: LINK, target: 'target_11', label: 'label_11', level: 0, items: [] }
-        ,{ id: 12, view: LINK, target: 'target_12', label: 'label_12', level: 0, items: [] }
-        ,{ id: 13, view: LINK, target: 'target_13', label: 'label_13', level: 0, items: [] }
-        ,{ id: 14, view: LINK, target: 'target_14', label: 'label_14-label_14', level: 0, items: [] }
-        ,{ id: 15, view: LINK, target: 'target_15', label: 'label_15', level: 0, items: [] }
-        ,{ id: 16, view: LINK, target: 'target_16', label: 'label_16', level: 0, items: [] }
-        ,{ id: 17, view: LINK, target: 'target_17', label: 'label_17', level: 0, items: [] }
-        ,{ id: 18, view: LINK, target: 'target_18', label: 'label_18-label_18', level: 0, items: [] }
-        ,{ id: 19, view: LINK, target: 'target_19', label: 'label_19', level: 0, items: [] }
-        ,{ id: 20, view: LINK, target: 'target_20', label: 'label_20', level: 0, items: [] }
-        ,{ id: 21, view: LINK, target: 'target_21', label: 'label_21', level: 0, items: [] }
-        ,{ id: 22, view: LINK, target: 'target_22', label: 'label_22', level: 0, items: [] }
-        ,{ id: 23, view: LINK, target: 'target_23', label: 'label_23', level: 0, items: [] }
-        ,{ id: 24, view: LINK, target: 'target_24', label: 'label_24', level: 0, items: [] }
-        ,{ id: 25, view: LINK, target: 'target_25', label: 'label_25', level: 0, items: [] }
-      ]
+      ,menus: this.props.menus
       ,title: ''
       ,dailer: { register: false, isCall: false, audio: true, sound: true, show: false, top: 50, left: 0 }
       ,chats: { room: {}, data: [] }
@@ -156,12 +109,12 @@ class Header extends C {
         }
         if(path === ACTION.SLASH + ACTION.CREATE) this.state.isUser.actions = PAGE_ACTION.CREATE;
         this.state.isUser.path = path;
-        console.log(path);
+        //console.log(path);
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }
-      console.log('HEADER _onClick complete !!!');
+      //console.log('HEADER _onClick complete !!!');
     } else {
-      console.log('HEADER _onClick Not setting action !!!');
+      //console.log('HEADER _onClick Not setting action !!!');
     }
   }
 
@@ -170,7 +123,7 @@ class Header extends C {
   }
 
   _onSelect(e){
-    console.log(e);
+    //console.log(e);
   }
 
   _onOpenBoxPhone(e) {
@@ -270,7 +223,7 @@ class Header extends C {
 
   _getTheme() {
     const o = THEME.getThemes();
-    console.log(o);
+    //console.log(o);
     var keys = Object.keys(o);
     var options = [];
     for(var i=0; i<keys.length; i++) {
@@ -315,25 +268,79 @@ class Header extends C {
   // _onUpdateListHeaders(objs) {
   //   if(Utils.isEmpty(objs)) return;
   //   this.state.listChats.push(objs);
-  //   console.log(this.state.listChats);
+  //   //console.log(this.state.listChats);
   //   this.forceUpdate();
   // }
 
   UNSAFE_componentWillMount() {
     if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
+    //console.log(this.state.menus);
     this._addBoostrapTheme();
+    // this.state.menus =[
+    //   { id: 1, view: LINK, target: 'target_00', label: 'label_00', level: 0, items: [] }
+    //   ,{ id: 2, view: NOT_LINK, target: 'target_01', label: 'label_01', level: 0, items: 
+    //     [
+    //       { id: 3, view: LINK, target: 'target_001', level: 1, label: 'label_001' }
+    //       ,{ id: 4, view: NOT_LINK, target: 'target_000', level: 1, label: 'label_000', items: 
+    //         [
+    //           { id: 5, view: 0, target: 'target_0000', level: 2, label: 'label_0000' }
+    //         ]
+    //       }
+    //     ]
+    //   }
+    //   ,{ id: 6, view: NOT_LINK, target: 'target_06', label: 'label_06', level: 0, items: 
+    //     [
+    //       { id: 7, view: LINK, target: 'target_003', level: 1, label: 'label_003' }
+    //       ,{ id: 8, view: NOT_LINK, target: 'target_0003', level: 1, label: 'label_0003', items: 
+    //         [
+    //           { id: 9, view: NOT_LINK, target: 'target_00003', level: 2, label: 'label_00003', items: 
+    //             [
+    //               { id: 91, view: NOT_LINK, target: 'target_000003', level: 3, label: 'label_000003', items: 
+    //                 [
+    //                   { id: 911, view: LINK, target: 'target_0000003', level: 4, label: 'label_0000003' }
+    //                 ]
+    //               }
+    //             ]
+    //           }
+    //           ,{ id: 10, view: LINK, target: 'target_0000031', label: 'target_0000031', level: 2 }
+    //         ]
+    //       }
+    //     ]
+    //   }
+    //   ,{ id: 10, view: LINK, target: 'target_10', label: 'label_10-label_10', level: 0, items: [] }
+    //   ,{ id: 11, view: LINK, target: 'target_11', label: 'label_11', level: 0, items: [] }
+    //   ,{ id: 12, view: LINK, target: 'target_12', label: 'label_12', level: 0, items: [] }
+    //   ,{ id: 13, view: LINK, target: 'target_13', label: 'label_13', level: 0, items: [] }
+    //   ,{ id: 14, view: LINK, target: 'target_14', label: 'label_14-label_14', level: 0, items: [] }
+    //   ,{ id: 15, view: LINK, target: 'target_15', label: 'label_15', level: 0, items: [] }
+    //   ,{ id: 16, view: LINK, target: 'target_16', label: 'label_16', level: 0, items: [] }
+    //   ,{ id: 17, view: LINK, target: 'target_17', label: 'label_17', level: 0, items: [] }
+    //   ,{ id: 18, view: LINK, target: 'target_18', label: 'label_18-label_18', level: 0, items: [] }
+    //   ,{ id: 19, view: LINK, target: 'target_19', label: 'label_19', level: 0, items: [] }
+    //   ,{ id: 20, view: LINK, target: 'target_20', label: 'label_20', level: 0, items: [] }
+    //   ,{ id: 21, view: LINK, target: 'target_21', label: 'label_21', level: 0, items: [] }
+    //   ,{ id: 22, view: LINK, target: 'target_22', label: 'label_22', level: 0, items: [] }
+    //   ,{ id: 23, view: LINK, target: 'target_23', label: 'label_23', level: 0, items: [] }
+    //   ,{ id: 24, view: LINK, target: 'target_24', label: 'label_24', level: 0, items: [] }
+    //   ,{ id: 25, view: LINK, target: 'target_25', label: 'label_25', level: 0, items: [] }
+    // ]
   }
 
-  UNSAFE_componentWillReceiveProps(props) {
-    console.log('HEADER componentWillReceiveProps');
-    this.state.isUser = props.isUser;
-    this.state.options = props.options;
-    this.state.headers = props.headers;
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    //console.log('HEADER componentWillReceiveProps');
+    this.state.isUser = nextProps.isUser;
+    //console.log('render')
+    //console.log(this.state.isUser)
+    this.state.options = nextProps.options;
+    this.state.company = nextProps.company;
+    this.state.headers = nextProps.headers;
     this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
     // this._setLocalStrageTheme();
   }
 
   render() {
+    //console.log('render')
+    //console.log(this.state.isUser)
     if(!this.state.isUser.viewHeader) return '';
     var menuType = (this.state.isUser.menu===1)?'tab_menu_1':'tab_menu_0';
     var menuClass = (this.state.isUser.menu===0)?' mr-auto-parent':''
@@ -350,12 +357,12 @@ class Header extends C {
                   {/* 縦左メニュー */}
                   {(() => {
                     if(this.state.isUser.menu === 1) {
-                      return ( <LMenu isUser={ this.props.isUser } objs={ this.state.menus } onClick={ this._onClick.bind(this) }/> );
+                      return ( <LMenu isUser={ this.state.isUser } objs={ this.state.menus } onClick={ this._onClick.bind(this) }/> );
                     }
                   })()}
                   {/* 「チャット、頁設定」を使用するときボックス */}
                   <RMenu
-                    isUser={ this.props.isUser }
+                    isUser={ this.state.isUser }
                     isViewChat={ this.state.isViewChat }
                     title={ this.state.title }
                     objs={ this.state.listHeaders }
@@ -369,8 +376,12 @@ class Header extends C {
 
         <Navbar expand='lg'>
           {/* アイコン、会社名（ホームページリンク） */}
-          <a href='#home-page' page={ this.state.company.url } onClick={ this._newWindow.bind(this) } className={ 'header-image-icon' }>
-            <Image src={ this.state.company.icon } rounded />
+          <a href='#home-page' page={ this.state.company.home_page } onClick={ this._newWindow.bind(this) } className={ 'header-image-icon' }>
+            {(() => {
+              if(!Utils.isEmpty(this.state.company.logo)) {
+                return(<Image src={ this.state.company.logo } rounded />);
+              }
+            })()}
             <span>SmartCRM Ver0.1.0</span>
           </a>
 
