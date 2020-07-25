@@ -72,8 +72,8 @@ class App extends C {
     }
 
     _doLogin(isUser, options, menus) {
-        //console.log('_doLogin');
-        //console.log(menus);
+        console.log('_doLogin');
+        console.log(menus);
         this.state.menus = menus;
         // isUser[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
         const auth = { info: isUser, options: options };
@@ -195,8 +195,8 @@ class App extends C {
     }
 
     _updateStateIsUser(isUser) {
-        // console.log('_updateStateIsUser');
-        // console.log(isUser);
+        console.log('_updateStateIsUser');
+        console.log(this.state);
         this.state.isUser = isUser.info;
         this.state.options = isUser.options;
         if(isUser.info.action === PAGE.SYSTEM) {
@@ -244,12 +244,14 @@ class App extends C {
     UNSAFE_componentWillMount() {
         //console.log(getCookie('uuid'));
         const options = { uuid: getCookie('uuid')};
-        const f = Fetch.postLogin('http://vmdev:8085/mode', options);
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'mode', options);
         f.then(data => {
           //console.log(data);
           if(!Utils.isEmpty(data) && Utils.inJson(data, 'company_id')) {
             this.state.isUser['cId'] = data.company_id;
             this.state.isUser['theme'] = data.company_theme;
+            this.state.options['dailer'] = (data.company_cti_flag === 1)?true:false;
             this.state.company = {
               logo: data.company_logo
               ,name: data.company_name
@@ -257,10 +259,10 @@ class App extends C {
               ,home_page: data.company_home_page
               ,global_locale: data.company_global_locale
             }
-            //console.log(this.state.isUser);
+            console.log(this.state);
             this._loadAuthCookies(this.state.isUser, this._updateStateIsUser);
-            this._addCssLink();
-            this.forceUpdate();
+            // this._addCssLink();
+            // this.forceUpdate();
           }
         });
 

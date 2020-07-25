@@ -227,9 +227,58 @@ export default class CustomizeBox extends C {
         if(Utils.isEmpty(editBox[CUSTOMIZE.LABEL_COLOR])) editBox[CUSTOMIZE.LABEL_COLOR] = '#';
         if(Utils.isEmpty(editBox[CUSTOMIZE.LABEL_LAYOUT_COLOR])) editBox[CUSTOMIZE.LABEL_LAYOUT_COLOR] = '#';
 
+        let auth = editBox[CUSTOMIZE.AUTH];
+        if(Utils.isEmpty(auth)) {
+            auth[CUSTOMIZE.SEARCH] = false;
+            auth[CUSTOMIZE.VIEW] = false;
+            auth[CUSTOMIZE.CREATE] = false;
+            auth[CUSTOMIZE.EDIT] = false;
+        }
         return (
             <table className='table-overlay-box'>
                 <tbody>
+                <tr>
+                    <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'btn_auth') }</td>
+                    <td colSpan='3'>
+                        <div>
+                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_search') }</span>
+                            <input
+                                type={ TYPE.CHECKBOX }
+                                checked={ auth[CUSTOMIZE.SEARCH] }
+                                name={ CUSTOMIZE.SEARCH }
+                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                onChange={ this._onChange.bind(this) }></input>
+                        </div>
+                        <div>
+                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_view') }</span>
+                            <input
+                                type={ TYPE.CHECKBOX }
+                                checked={ auth[CUSTOMIZE.SEARCH] }
+                                name={ CUSTOMIZE.VIEW }
+                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                onChange={ this._onChange.bind(this) }></input>
+                        </div>
+                        <div>
+                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_create') }</span>
+                            <input
+                                type={ TYPE.CHECKBOX }
+                                checked={ auth[CUSTOMIZE.SEARCH] }
+                                name={ CUSTOMIZE.CREATE }
+                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                onChange={ this._onChange.bind(this) }></input>
+                        </div>
+                        <div>
+                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }</span>
+                            <input
+                                type={ TYPE.CHECKBOX }
+                                checked={ auth[CUSTOMIZE.SEARCH] }
+                                name={ CUSTOMIZE.EDIT }
+                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                onChange={ this._onChange.bind(this) }></input>
+                        </div>
+                    </td>
+                </tr>
+
                 <tr>
                     <td colSpan='4'><h4>{ this.state.editBox.msg }</h4></td>
                 </tr>

@@ -272,6 +272,23 @@ class Header extends C {
   //   this.forceUpdate();
   // }
 
+  _onResizeWindown() {
+    window.onresize = function(event) {
+      var divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+      if(!Utils.isEmpty(divBody))
+        divBody.style.height = (window.innerHeight - 105) + 'px';
+
+      const divListBox = this.document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
+      if(!Utils.isEmpty(divListBox)) {
+          divBody = divListBox.childNodes[1].lastChild;
+          this.console.log();
+          if(!Utils.isEmpty(divBody))
+            divBody.style.height = (window.innerHeight - 130) + 'px';
+      }
+    };
+    window.onresize();
+  }
+
   UNSAFE_componentWillMount() {
     if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
     //console.log(this.state.menus);
@@ -334,8 +351,13 @@ class Header extends C {
     this.state.options = nextProps.options;
     this.state.company = nextProps.company;
     this.state.headers = nextProps.headers;
+    this.state.menus = nextProps.menus;
     this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
     // this._setLocalStrageTheme();
+  }
+
+  componentDidMount() {
+    this._onResizeWindown();
   }
 
   render() {
@@ -346,6 +368,7 @@ class Header extends C {
     var menuClass = (this.state.isUser.menu===0)?' mr-auto-parent':''
     const isCallClass = (this.state.dailer.isCall && this.state.dailer.register)?'blinking':'';
     const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):'';
+    const iconStyle = (this.state.isUser.menu === 1)?{ marginLeft: '2.5em' }:'';
 
     return (
       <div className='div-header'>
@@ -357,7 +380,10 @@ class Header extends C {
                   {/* 縦左メニュー */}
                   {(() => {
                     if(this.state.isUser.menu === 1) {
-                      return ( <LMenu isUser={ this.state.isUser } objs={ this.state.menus } onClick={ this._onClick.bind(this) }/> );
+                      return ( <LMenu
+                                isUser={ this.state.isUser }
+                                objs={ this.state.menus }
+                                onClick={ this._onClick.bind(this) }/> );
                     }
                   })()}
                   {/* 「チャット、頁設定」を使用するときボックス */}
@@ -376,7 +402,12 @@ class Header extends C {
 
         <Navbar expand='lg'>
           {/* アイコン、会社名（ホームページリンク） */}
-          <a href='#home-page' page={ this.state.company.home_page } onClick={ this._newWindow.bind(this) } className={ 'header-image-icon' }>
+          <a
+            href='#home-page'
+            style={ iconStyle }
+            page={ this.state.company.home_page }
+            onClick={ this._newWindow.bind(this) }
+            className={ 'header-image-icon' }>
             {(() => {
               if(!Utils.isEmpty(this.state.company.logo)) {
                 return(<Image src={ this.state.company.logo } rounded />);

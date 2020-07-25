@@ -5,10 +5,10 @@ import { slide as Menu } from "react-burger-menu";
 
 import { LINK, NOT_LINK } from '../Types';
 import { HTML_TAG } from '../HtmlTypes';
-import Utils from '../Utils';
+import { isEmpty } from '../Utils';
 
 var styles = {
-  bmBurgerButton: { position: 'fixed', width: '36px', height: '30px', left: '205px', top: '10px' },
+  bmBurgerButton: { position: 'fixed', width: '36px', left: '7px', top: '.5em', height: '30px' },
   bmBurgerBars: { background: '#373a47' },
   bmBurgerBarsHover: { background: '#a90000' },
   bmCrossButton: { height: '24px', width: '24px' },
@@ -28,10 +28,8 @@ class LMenu extends C {
     super(props);
 
     this._onClick = this._onClick.bind(this);
-
     this.state = {
-      isUser: this.props.isUser
-      ,objs: this.props.objs
+      objs: props.objs
     }
   }
 
@@ -40,9 +38,9 @@ class LMenu extends C {
     const view = parseInt(obj.getAttribute("view"));
     if(view === NOT_LINK) {
       const pObj = e.target.parentElement.parentElement;
-      if(Utils.isEmpty(pObj)) return;
+      if(isEmpty(pObj)) return;
       const childs = e.target.parentElement.parentElement.childNodes;
-      if(Utils.isEmpty(childs) || childs.length < 2) return;
+      if(isEmpty(childs) || childs.length < 2) return;
       var className = childs[1].className;
       if(className.indexOf('-hide') === -1) {
         className = className.replace('-show', '-hide');
@@ -51,38 +49,62 @@ class LMenu extends C {
       }
       childs[1].className = className;
     } else {
+      var nav = obj.parentElement;
+      if(nav.tagName !== HTML_TAG.NAV) {
+        nav = obj.parentElement.parentElement.parentElement;
+      }
+      if(nav.tagName === HTML_TAG.NAV) {
+        this._onRemoveSelected(Array.from(nav.childNodes));
+      }
+      obj.className = obj.className + ' selected';
+
       const svg = document.getElementById('btn_menu_left');
       const btn = svg.parentElement.childNodes[1];
+      console.log(obj);
       console.log(btn.tagName);
-      if(Utils.isEmpty(btn) || btn.tagName !== HTML_TAG.BUTTON) return;
+      if(isEmpty(btn) || btn.tagName !== HTML_TAG.BUTTON) return;
       this.props.onClick(e);
       btn.click();
     }
   }
 
+  _onRemoveSelected(objs) {
+    if(!Array.isArray(objs)) return;
+    objs.map((o) => {
+      if(o.tagName === HTML_TAG.A) {
+        o.className = o.className.replace(' selected', '');
+      }
+      if(o.tagName === HTML_TAG.DIV) {
+        const a = o.childNodes[1];
+        if(isEmpty(a)) return;
+        this._onRemoveSelected(Array.from(a.childNodes));
+      }
+    });
+  }
+
   _getMenu(menus) {
-    if(Utils.isEmpty(menus) || menus.length === 0) return "";
+    if(isEmpty(menus) || menus.length === 0) return "";
     return menus.map((o, index) => {
-      if(o.view === LINK) {
+      if(isEmpty(o.page_view) || o.page_view === LINK) {
         return (
           <Nav.Link
-            key={ o.target }
+            key={ o.page_id }
             idx={ index }
             mode={ 'menu-left' }
-            action={ o.target }
+            action={ o.page_id }
             onClick={ this._onClick.bind(this) }
-            level={ o.level }
-            view={ o.view }>{ o.label }</Nav.Link>);
+            level={ o.page_level }
+            view={ o.page_view }>{ o.page_name }</Nav.Link>);
       } else {
         return (
-          <div key={ o.target }>
-            <div className="dropright" key={ o.target }>
+          <div key={ o.page_id }>
+            <div className="dropright" key={ o.page_id }>
               <Nav.Link
                 idx={ index }
                 onClick={ this._onClick.bind(this) }
                 className="dropdown-toggle"
-                level={ o.level }
-                view={ o.view }>{ o.label }</Nav.Link>
+                level={ o.page_level }
+                view={ o.page_view }>{ o.page_name }</Nav.Link>
             </div>
             <div className="div-left-menu-child div-left-menu-child-hide">
               { this._getMenu(o.items) }
@@ -92,6 +114,10 @@ class LMenu extends C {
       }
     });
   }
+
+  // UNSAFE_componentWillReceiveProps(nextProps) {
+  //   console.log(nextProps.menus);
+  // }
 
   render() {
     return (

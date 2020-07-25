@@ -41,7 +41,7 @@ const ENVS = {
     ,dailercss: 'WebRTC.css'
     ,nodemodules: 'node_modules'
     ,origin: '*'//SysMsg['sys']['app_dailer_host']
-    // ,origin: 'http://192.168.56.53:8082/'
+    ,api: 'http://127.0.0.1:8085/'
 };
 // let cookie;
 module.exports = {
@@ -164,7 +164,7 @@ module.exports = {
                 }
 
                 const result = fetch(
-                    'http://127.0.0.1:8085/basic',
+                    ENVS.api + 'basic',
                     {
                         method: "POST"
                         ,mode: "cors"

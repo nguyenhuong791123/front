@@ -2,7 +2,7 @@
 import React, { Component as C } from 'react';
 import ReactDOM from 'react-dom';
 import { Alert, Button, FormControl } from 'react-bootstrap';
-import { FaRegEye, FaSort } from 'react-icons/fa';
+import { FaRegEye, FaSort, FaTimes } from 'react-icons/fa';
 
 import Calendar from '../Calendar';
 import View from '../../pages/View';
@@ -77,11 +77,11 @@ export default class TableBox extends C {
     }
 
     _onTrClick(e) {
-        var obj = this._getObjTr(e);
+        let obj = this._getObjTr(e);
         if(Utils.isEmpty(obj)) return;
         const checked = document.getElementById(OBJECT.INPUT_CHECK_ALL_ID + this.state.id);
         if(!Utils.isEmpty(checked)) checked.checked = false;
-        var body =  this._getTBody();
+        let body =  this._getTBody();
         this._removeTrView(body);
         if(this.state.view) {
             this.state.view = false;
@@ -94,7 +94,7 @@ export default class TableBox extends C {
             const rowId = ACTION.VIEW +'_'+ idx;
             const isExists = document.getElementById(rowId);
             if(!Utils.isEmpty(isExists)) isExists.remove();
-            var row = body.insertRow((parseInt(idx)+1));
+            let row = body.insertRow((parseInt(idx)+1));
             row.id = rowId;
             const cell = document.createElement(HTML_TAG.TD);
             cell.colSpan = (this.state.columns.length+1);
@@ -113,7 +113,7 @@ export default class TableBox extends C {
 
     _onDblClick(e) {
         // console.log(e);
-        var obj = this._getObjTr(e);
+        let obj = this._getObjTr(e);
         if(Utils.isEmpty(obj)) return;
         const body = this._getTBody();
         this._removeTrClass(body);
@@ -127,9 +127,9 @@ export default class TableBox extends C {
         if(Utils.isEmpty(ids) || ids.length <= 0) return;
         this.state.actions.show = true;
         this.state.actions.ids = ids;
-        var top = (e.pageY - 50);
-        var left = e.pageX;
-        var div = document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
+        let top = (e.pageY - 50);
+        let left = e.pageX;
+        let div = document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
         if(Utils.isEmpty(div)) top -= 70;
         if((top + 150) >= window.innerHeight) top = (top - 150);
         if((left + 150) >= window.innerWidth) left = (left - 150);
@@ -141,13 +141,13 @@ export default class TableBox extends C {
     _onCheckBoxClick(e) {
         if(Utils.isEmpty(e.target) || e.target.type !== TYPE.CHECKBOX) return;
         const isChecked = e.target.checked;
-        var thead = e.target.parentElement.parentElement;
+        let thead = e.target.parentElement.parentElement;
         if(thead.tagName !== HTML_TAG.TR) return;
         this.state.view = false;
         const body = this._getTBody();
         this._removeTrView(body);
-        var node = body.childNodes;
-        for(var i=0; i<node.length; i++) {
+        let node = body.childNodes;
+        for(let i=0; i<node.length; i++) {
             if(isChecked) {
                 node[i].setAttribute(ATTR.CLASS, ACTION.SELECTED);
             } else {
@@ -157,11 +157,11 @@ export default class TableBox extends C {
     }
 
     _onScroll(e) {
-        var obj = e.target;
+        let obj = e.target;
         if(Utils.isEmpty(obj) || Utils.isEmpty(obj.id)) return;
         const id = (obj.id.indexOf(OBJECT.DIV_BODY_ID) !== -1)?obj.id.replace('body', 'header'):obj.id.replace('header', 'body');
         const div = document.getElementById(id);
-        var scroll = obj.scrollLeft;
+        let scroll = obj.scrollLeft;
         if(Utils.isEmpty(scroll)) return;
         div.style.marginLeft = -scroll + 'px';
     }
@@ -169,7 +169,7 @@ export default class TableBox extends C {
     // _onHeaderScroll(e) {
     //     console.log(e.target);
     //     const divHeader = document.getElementById(OBJECT.DIV_BODY_ID + this.props.id);
-    //     var scroll = e.target.scrollLeft;
+    //     let scroll = e.target.scrollLeft;
     //     if(Utils.isEmpty(scroll)) return;
     //     divHeader.style.marginLeft = -scroll + 'px';
     // }
@@ -177,7 +177,7 @@ export default class TableBox extends C {
     // _onBodyScroll(e) {
     //     console.log(e.target);
     //     const divHeader = document.getElementById(OBJECT.DIV_HEADER_ID + this.props.id);
-    //     var scroll = e.target.scrollLeft;
+    //     let scroll = e.target.scrollLeft;
     //     if(Utils.isEmpty(scroll)) return;
     //     divHeader.style.marginLeft = -scroll + 'px';
     // }
@@ -186,14 +186,14 @@ export default class TableBox extends C {
         // [ { field: 'name', text: '', sort: true, filter: true, style: { width: '100px', minWidth: '100px', maxWidth: '100px' } } ]
         if(Utils.isEmpty(this.state.columns)) return "";
         this.state.isCols = [];
-        var ths = this.state.columns.map((o, index) => {
+        let ths = this.state.columns.map((o, index) => {
             this.state.isCols.push(o.field);
             // const key = 'label_' + o.field;
-            var style = ('style' in o)?o.style:'';
-            var type = ('type' in o)?o.type:'';
+            let style = ('style' in o)?o.style:'';
+            let type = ('type' in o)?o.type:'';
             if(Utils.isEmpty(style)) style = { width: 100 };
             // const label = Msg.getMsg(this.state.isUser.action, this.state.isUser.language, key);
-            var isLabel = <label>{ o.label }</label>;
+            let isLabel = <label>{ o.label }</label>;
             if(('filter' in o) && o.filter) {
                 if(type === TYPE.DATE || type === TYPE.DATETIME) {
                     isLabel = (<FormControl
@@ -247,13 +247,13 @@ export default class TableBox extends C {
         // [ { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 } ]
         if(Utils.isEmpty(this.state.datas)) return "";
         // console.log(this.state.isCols);
-        var trs = this.state.datas.map((o, index) => {
-            var keys = Object.keys(o);
-            var tds = [];
-            for(var i=0; i<keys.length; i++) {
+        let trs = this.state.datas.map((o, index) => {
+            let keys = Object.keys(o);
+            let tds = [];
+            for(let i=0; i<keys.length; i++) {
                 if(!Utils.inArray(this.state.isCols, keys[i])) continue;
                 if(index === 0) {
-                    var style = ('style' in this.state.columns[i])?this.state.columns[i].style:'';
+                    let style = ('style' in this.state.columns[i])?this.state.columns[i].style:'';
                     if(Utils.isEmpty(style)) style = { width: 100 };
                     if(!Utils.isEmpty(style)) {
                         tds.push(<td key={ i } idx={ i } style={ style }>{ o[keys[i]] }</td>);
@@ -286,7 +286,7 @@ export default class TableBox extends C {
     }
 
     _getObjTr(e) {
-        var obj = e.target;
+        let obj = e.target;
         if(obj.tagName === HTML_TAG.PATH || obj.tagName === HTML_TAG.SVG) {
             if(obj.tagName === HTML_TAG.PATH) obj = e.target.parentElement.parentElement.parentElement;
             if(obj.tagName === HTML_TAG.SVG) obj = e.target.parentElement.parentElement;
@@ -302,18 +302,18 @@ export default class TableBox extends C {
     }
 
     _getTBody() {
-        var tBody = document.getElementById(OBJECT.DIV_BODY_ID + this.props.id).childNodes[0];
+        let tBody = document.getElementById(OBJECT.DIV_BODY_ID + this.props.id).childNodes[0];
         if(Utils.isEmpty(tBody) || Utils.isEmpty(tBody.childNodes[0])) return;
         if(tBody.childNodes[0].tagName === HTML_TAG.TBODY) tBody = tBody.childNodes[0];
         return tBody;
     }
 
     _getTrSelected() {
-        var ids = [];
+        let ids = [];
         const tBody = this._getTBody();
-        for(var i=0; i<tBody.childNodes.length; i++) {
-            var trId =  tBody.childNodes[i].getAttribute('id');
-            var className = tBody.childNodes[i].className;
+        for(let i=0; i<tBody.childNodes.length; i++) {
+            let trId =  tBody.childNodes[i].getAttribute('id');
+            let className = tBody.childNodes[i].className;
             if(className !== ACTION.SELECTED
                 || Utils.isEmpty(trId)
                 || !Utils.isNumber(trId)) continue;
@@ -324,7 +324,7 @@ export default class TableBox extends C {
 
     _removeTrView(body) {
         const nodes = body.childNodes;
-        for(var i=0; i<nodes.length; i++) {
+        for(let i=0; i<nodes.length; i++) {
             if(nodes[i].id.indexOf(ACTION.VIEW +'_') === -1) continue;
             nodes[i].remove();
         }
@@ -332,7 +332,7 @@ export default class TableBox extends C {
 
     _removeTrClass(body) {
         const nodes = body.childNodes;
-        for(var i=0; i<nodes.length; i++) {
+        for(let i=0; i<nodes.length; i++) {
             nodes[i].removeAttribute(ATTR.CLASS);
         }
     }
@@ -382,7 +382,7 @@ export default class TableBox extends C {
     }
 
     _onThMouseOver(e) {
-        var obj = e.target;
+        let obj = e.target;
         if(Utils.isEmpty(obj)) return;
         if(obj.tagName !== HTML_TAG.TH) {
             obj = obj.parentElement;
@@ -393,10 +393,12 @@ export default class TableBox extends C {
         if(Utils.isEmpty(pos)) return;
         const tbl = obj.parentElement.parentElement.parentElement.parentElement;
         const tblPos = tbl.getBoundingClientRect();
-        const left = (pos.x + pos.width) - 38;
+        let left = (pos.x + pos.width) - 33;
+        const input = obj.getElementsByTagName(HTML_TAG.INPUT)[0];
+        if(!Utils.isEmpty(input)) left = left - 30; 
         if((tblPos.x + tblPos.width) <= left) return;
         this.state.sort.obj = obj;
-        this.state.sort.style = { top: '2.6em', left : left };
+        this.state.sort.style = { top: '3.2em', left : left };
         this.state.sort.show = true;
         this.forceUpdate();
     }
@@ -415,6 +417,15 @@ export default class TableBox extends C {
         this.forceUpdate();
     }
 
+    _onResetButtonClick() {
+        const key = this.state.sort.obj.id;
+        const tr = document.getElementById(key);
+        if(Utils.isEmpty(tr)) return;
+        const obj = tr.getElementsByTagName(HTML_TAG.INPUT)[0];
+        if(Utils.isEmpty(obj)) return;
+        obj.value = '';
+    }
+
     _onSortButtonClick() {
         if(Utils.isEmpty(this.state.sort) || Utils.isEmpty(this.state.sort.obj)) return;
         // console.log(this.state.sort);
@@ -430,22 +441,46 @@ export default class TableBox extends C {
     }
 
     _onSortButtons() {
+        let obj = null;
+        if(!Utils.isEmpty(this.state.sort.obj) && Utils.inJson(this.state.sort.obj, 'id')) {
+            const key = this.state.sort.obj.id;
+            const tr = document.getElementById(key);
+            if(!Utils.isEmpty(tr)) {
+                obj = tr.getElementsByTagName(HTML_TAG.INPUT)[0];
+            }
+        }
+
         return(
             <Alert
                 show={ this.state.sort.show }
                 variant={ VARIANT_TYPES.LIGHT }
                 style={ this.state.sort.style }
                 className={ 'div-customize-actions div-customize-actions-child' }>
-    
-            <Button
-                type={ HTML_TAG.BUTTON }
-                className={ 'btn-hidden' }
-                onMouseOver={ this._onThMouseOut.bind(this) }
-                onClick={ this._onSortButtonClick.bind(this) }
-                variant={ VARIANT_TYPES.SECONDARY }>
-                <FaSort />
-            </Button>
-          </Alert>
+
+                <Button
+                    type={ HTML_TAG.BUTTON }
+                    className={ 'btn-hidden' }
+                    onMouseOver={ this._onThMouseOut.bind(this) }
+                    onClick={ this._onSortButtonClick.bind(this) }
+                    variant={ VARIANT_TYPES.SECONDARY }>
+                    <FaSort />
+                </Button>
+
+                {(() => {
+                    if(!Utils.isEmpty(obj) && obj.getAttribute('type') !== TYPE.CHECKBOX) {
+                        return (
+                            <Button
+                                type={ HTML_TAG.BUTTON }
+                                className={ 'btn-hidden' }
+                                onMouseOver={ this._onThMouseOut.bind(this) }
+                                onClick={ this._onResetButtonClick.bind(this) }
+                                variant={ VARIANT_TYPES.WARNING }>
+                                <FaTimes />
+                            </Button>
+                        );
+                    }
+                })()}
+            </Alert>
         );
     }
 
@@ -462,7 +497,7 @@ export default class TableBox extends C {
     }
 
     _getPageCountPer() {
-        var items = [];
+        let items = [];
         for (let i=1; i<=PAGIN_PER_LIST; i++) {
             items.push( <option key={ i } value={ i * PAGIN_PER }>{ (i * PAGIN_PER) }</option> );
         }

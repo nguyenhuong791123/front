@@ -45,25 +45,28 @@ class Login extends C {
         return;
       } else {
         const options = { username: this.state.uLid, password: this.state.pw};
-        const f = Fetch.postLogin('http://vmdev:8085/login', options);
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'login', options);
         f.then(data => {
           if(!isEmpty(data)) {
               //console.log(data.user);
               //console.log(data.page);
               if(inJson(data, 'user')) {
-              this.state.isUser['uLid'] = this.state.uLid;
-              this.state.isUser['path'] = ACTION.SLASH + ACTION.LIST;
-              this.state.isUser['viewHeader'] = true;
-              this.state.isUser['theme'] = data.user.user_theme;
-              this.state.isUser['menu'] = data.user.user_view_menu;
-              this.state.options['dailer'] = (data.user.user_cti_flag === 1)?true:false;
-              this.state.options['customize'] = (data.user.user_manager === 1)?true:false;
-              //console.log(this.state.isUser);
-              //console.log(this.state.options);
-              //console.log(data.page);
-              this.props.onLogin(this.state.isUser, this.state.options, data.page);
-              this.props.history.push(ACTION.SLASH + ACTION.LIST);
-            }
+                this.state.isUser['uLid'] = this.state.uLid;
+                this.state.isUser['path'] = ACTION.SLASH + ACTION.LIST;
+                this.state.isUser['viewHeader'] = true;
+                if(!isEmpty(data.user.user_theme)) {
+                  this.state.isUser['theme'] = data.user.user_theme;
+                }
+                this.state.isUser['menu'] = data.user.user_view_menu;
+                this.state.options['dailer'] = (data.user.user_cti_flag === 1)?true:false;
+                this.state.options['customize'] = (data.user.user_manager === 1)?true:false;
+                //console.log(this.state.isUser);
+                //console.log(this.state.options);
+                //console.log(data.page);
+                this.props.onLogin(this.state.isUser, this.state.options, data.page);
+                this.props.history.push(ACTION.SLASH + ACTION.LIST);
+              }
             if(inJson(data, 'error')) {
               const key = Object.keys(data)[0];
               const div = document.getElementById(key);
@@ -113,6 +116,13 @@ class Login extends C {
     const auth = { info: this.state.isUser, options: this.state.options };
     this.props.onUpdateStateIsUser(auth);
     // this.forceUpdate();
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    if (this.props.company !== nextProps.company)
+      this.setState({ company: nextProps.company });
+    if (this.props.isUser !== nextProps.isUser)
+      this.setState({ isUser: nextProps.isUser });
   }
 
   componentDidMount() {
@@ -188,7 +198,7 @@ class Login extends C {
                     <Form.Control as="select" onChange={ this._onChangeSelect.bind(this) } value={ this.state.isUser.language }>
                       <option value="ja">{ Msg.getMsg(null, this.state.isUser.language, 'ja') }</option>
                       <option value="en">{ Msg.getMsg(null, this.state.isUser.language, 'en') }</option>
-                      <option value="vn">{ Msg.getMsg(null, this.state.isUser.language, 'vn') }</option>
+                      <option value="vi">{ Msg.getMsg(null, this.state.isUser.language, 'vi') }</option>
                     </Form.Control>
                   </Form.Group>    
                 );

@@ -183,6 +183,11 @@ export const CUSTOMIZE = {
     ,LANGUAGE:'language'
     ,COLOR: 'color'
     ,QRAPPLINK: 'qr_app_link'
+    ,AUTH: 'auth'
+    ,SEARCH: 'search'
+    ,VIEW: 'view'
+    ,CREATE: 'creact'
+    ,EDIT: 'edit'
 }
 
 export const OPTIONS_KEY = {

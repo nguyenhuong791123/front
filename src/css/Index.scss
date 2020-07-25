@@ -287,7 +287,7 @@ div.div-list-box {
     position: relative;
     > div.div-title-box {
         display: inline-flex;
-        height: 2.5em;
+        height: 3em;
         > h5 {
             margin-top: .3em;
         }
@@ -297,13 +297,14 @@ div.div-list-box {
         > button {
             position: absolute;
             right: .5em;
+            top: .2em;
         }
     }
     div.div-paging-box {
         display: inline-flex;
         position: absolute;
         right: 7em;
-        top: 0;
+        top: .5em;
         > div.div-count-per {
             display: inline-flex;
             > select {

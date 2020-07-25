@@ -88,7 +88,7 @@ const object = {
       return null;
     }
     ,getLanguages:() => {
-      return ['ja', 'en', 'vn'];
+      return ['ja', 'en', 'vi'];
     }
 };
 

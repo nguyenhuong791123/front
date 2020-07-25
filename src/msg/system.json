@@ -4,6 +4,7 @@
         "icon_url": "./images/favicon.ico"
         ,"app_css_host": "http://vmdev:8081/static/"
         ,"app_dailer_host": "http://vmdev:8082/"
+        ,"app_api_host": "http://vmdev:8085/"
       }
     ,"basic":
       {
