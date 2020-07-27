@@ -1,4 +1,4 @@
-button.btn-submit-form-hidden {
+/* button.btn-submit-form-hidden {
     display: none;
 }
 
@@ -10,7 +10,7 @@ button.btn-create-div {
 button.btn-create-tab {
     position: absolute;
     right: 9.5em;
-}
+} */
 
 /* div.div-customize-box < nav:hover {
     background: #80808026;
@@ -50,7 +50,7 @@ div.div-customize-box > div.div-box-100 {
     display: inline-block;
 } */
 
-div.div-overlay-box {
+/* div.div-overlay-box {
     position: absolute;
     top: 0;
     width: 100%;
@@ -60,8 +60,6 @@ div.div-overlay-box {
 }
 
 div.div-overlay-box > div:first-child {
-    /* border: 5px solid #dee2e6;
-    border-radius: 1em; */
     width: 50%;
     max-width: 50%;
     top: 10%;
@@ -81,12 +79,11 @@ div.div-overlay-box > div:first-child button {
 
 div.div-overlay-box > div:first-child > div {
     position: absolute;
-    /* margin-left: -5em; */
     right: -4.5em;
     display: grid;
-}
+} */
 
-table.table-overlay-box {
+/* table.table-overlay-box {
     width: 100%;
 }
 
@@ -117,15 +114,14 @@ table.table-overlay-box tbody tr td.td-not-break {
 
 table.table-overlay-box tbody tr td.td-view-box {
     padding-top: .3em;
-    /* border-top: 2px dashed; */
 }
 
 table.table-overlay-box tbody tr td:nth-child(2n+0) {
     text-align: left;
     width: 35%;
-}
+} */
 
-div.div-customize-title-box {
+/* div.div-customize-title-box {
     display: flex;
     margin-bottom: .2em;
     margin-top: .5em;
@@ -136,7 +132,7 @@ div.div-customize-title-box > input
     width: 30%;
     margin-left: 0.5rem;
     margin-right: 0.5rem !important;
-}
+} */
 
 div.div-overlay-box-add-items {
     overflow: auto;

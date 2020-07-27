@@ -11,9 +11,12 @@ import FormBS4 from "react-jsonschema-form-bs4";
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
 import Dates from '../DateUtils';
-import { isEmpty } from '../Utils';
+import { isEmpty, inJson } from '../Utils';
 import { SYSTEM, OTHERS, VARIANT_TYPES, ACTION } from "../Types";
 import { HTML_TAG, TYPE, ATTR } from '../HtmlTypes';
+
+import '../../../css/RMenu.scss';
+import Msg from '../../../msg/Msg';
 
 var styles = {
   bmBurgerButton: { position: 'fixed', width: '20px', height: '30px', right: '80px', top: '16px', color: 'white' },
@@ -118,6 +121,52 @@ class RMenu extends C {
     }
   }
 
+  _onInputChange(e) {
+    const obj = e.target;
+    if(isEmpty(obj) || isEmpty(obj.getAttribute('type'))) return;
+    let objs = this.state.objs;
+    const type = obj.getAttribute('type');
+    if(type === HTML_TAG.CHECKBOX) {
+      const unit = (!isEmpty(obj.id) && obj.id.startsWith('unit_'))?true:false;
+      let field = obj.value;
+      if(unit) field = obj.id.replace('unit_', '');
+      objs.map((o) => {
+        if(o.field === field) {
+          if(unit) {
+            if(!inJson(o, 'style') || !inJson(o['style'], 'width')) {
+              o['style'] = { 'width': '' };
+            }
+            let width = o['style']['width'].replace('px', '').replace('%', '');
+            if(obj.checked) {
+              if(isEmpty(width)) width = 100;
+              o['style']['width'] = width + 'px';
+            } else {
+              if(isEmpty(width) || parseInt(width) > 100) width = 5;
+              o['style']['width'] = width + '%';
+            }  
+          } else {
+            o.view = obj.checked;
+          }
+        }
+      });
+    }
+    if(type === HTML_TAG.RANGE) {
+      const field = obj.getAttribute('idx');
+      const ou = document.getElementById('unit_' + field);
+      objs.map((o) => {
+        if(o.field === field) {
+          if(!inJson(o, 'style') || !inJson(o['style'], 'width')) {
+            o['style'] = { 'width': obj.value + ou.value };
+          } else {
+            o['style'] = { 'width': obj.value + ou.value };
+          }
+        }
+      });
+    }
+    console.log(objs);
+    this.props.onUpdateListHeaders(objs);
+  }
+
   _onUpdateEditor(editorState) {
     const div = document.getElementById(SYSTEM.IS_DIV_CHAT_LIST_BOX);
     if(isEmpty(editorState) || isEmpty(div)) return;
@@ -150,14 +199,76 @@ class RMenu extends C {
   }
 
   _onPageSetting(div) {
-    if(isEmpty(div)) return;
-    const divPageSetting = (<FormBS4
-                              schema={ this.state.objs.schema }
-                              uiSchema={ this.state.objs.uiSchema }
-                              onChange={ this._onChange.bind(this) }>
-                              <button type="submit" className="btn-submit-form-hidden" />
-                            </FormBS4>);
-    ReactDOM.render(divPageSetting, div);
+    if(isEmpty(div) || !Array.isArray(this.state.objs) || this.state.objs.length <= 0) return;
+    console.log(this.state.objs);
+    const tbl = (
+      <table>
+        <tbody>
+          {(() => {
+            return this.state.objs.map((o, idx) => {
+              let value = 100;
+              let unit = 'px';
+              let min = 30;
+              let max = window.innerWidth;
+              if(inJson(o, 'style') && inJson(o['style'], 'width')) {
+                if(o['style']['width'].toString().indexOf('%') !== -1) {
+                  value = o['style']['width'].toString().replace('%', '');
+                  unit = '%';
+                  min = 5;
+                  max = 100;
+                } else {
+                  value = o['style']['width'].toString().replace('px', '');
+                }
+              }
+
+              return(
+                <tr key={ idx }>
+                  <td>
+                    <div>{ Msg.getMsg(null, this.state.isUser.language, 'display') }</div>
+                    <input
+                      type={ HTML_TAG.CHECKBOX }
+                      value={ o.field }
+                      checked={ o.view }
+                      onChange={ this._onInputChange.bind(this) } />
+                  </td>
+                  <td>
+                    <div>
+                      <span>{ o.label }</span>
+                      <span>{ value }</span>
+                    </div>
+                    <input
+                      type={ HTML_TAG.RANGE }
+                      idx={ o.field }
+                      disabled={ !o.view }
+                      value={ value }
+                      min={ min }
+                      max={ max }
+                      onChange={ this._onInputChange.bind(this) } />                    
+                  </td>
+                  <td>
+                    <div>{ unit }</div>
+                    <input
+                      type={ HTML_TAG.CHECKBOX }
+                      id={ 'unit_' + o.field }
+                      value={ unit }
+                      checked={ (unit === 'px') }
+                      onChange={ this._onInputChange.bind(this) } />
+                  </td>
+                </tr>
+              );
+            });
+          })()}
+        </tbody>
+      </table>
+    );
+    ReactDOM.render(tbl, div);
+    // const divPageSetting = (<FormBS4
+    //                           schema={ this.state.objs.schema }
+    //                           uiSchema={ this.state.objs.uiSchema }
+    //                           onChange={ this._onChange.bind(this) }>
+    //                           <button type="submit" className="btn-submit-form-hidden" />
+    //                         </FormBS4>);
+    // ReactDOM.render(divPageSetting, div);
   }
 
   _onChat(div) {
@@ -244,13 +355,14 @@ class RMenu extends C {
     this.state.isUser = props.isUser;
     this.state.title = props.title;
     this.state.objs = props.objs;
+    console.log(this.state);
     // this.state.objs = (props.isViewChat)?props.chats:props.objs;
 
     const div = document.getElementById(SYSTEM.IS_DIV_RIGHT_BOX);
     if(props.isViewChat) {
       this._onChat(div);
     } else {
-      if(isEmpty(props.objs) || props.objs.toString() === '{}' || isEmpty(props.objs.schema)) return;
+      if(!Array.isArray(props.objs) || props.objs.length <= 0) return;
       this.state.objs = props.objs;
       this._onPageSetting(div);
     }

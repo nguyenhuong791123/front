@@ -26,7 +26,7 @@ class List extends C {
     _onClickCreate() {
         this.state.isUser.path = ACTION.SLASH + ACTION.CREATE;
         const auth = { info: this.state.isUser, options: this.state.options };
-        this.props.onUpdateStateIsUser(auth);
+        this.props.onUpdateIsUserCallBack(auth);
         // this.props.history.push(ACTION.SLASH + ACTION.CREATE);
         // this.forceUpdate();
     }

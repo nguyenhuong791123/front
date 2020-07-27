@@ -14,6 +14,8 @@ import RMenu from './utils/header/RMenu';
 import TabMenu from './utils/header/TabMenu';
 // import AlertMsg from './utils/Alert';
 
+import '../css/Header.scss';
+import '../css/Dailer.scss';
 import Msg from '../msg/Msg';
 // import socket from './Socket';
 
@@ -27,7 +29,7 @@ class Header extends C {
     this._onOpenBoxPhone = this._onOpenBoxPhone.bind(this);
     this._newWindow = this._newWindow.bind(this);
     this._onChangeTheme = this._onChangeTheme.bind(this);
-    // this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
+    this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
 
     this.state = {
       company: this.props.company
@@ -81,7 +83,7 @@ class Header extends C {
         if(obj.id === 'a-page-setting') {
           this.state.title = 'Page Setting';
           this.state.isViewChat = false;
-          this._onSetListHeaders();
+          // this._onSetListHeaders();
         } else {
           this.state.listHeaders = {};
         }
@@ -128,7 +130,7 @@ class Header extends C {
 
   _onOpenBoxPhone(e) {
     const obj = Html.getLinkObj(e);
-    if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
+    if(!this.state.options.dailer && !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
     this._addBoostrapTheme();
     const webRtc = document.getElementById(SYSTEM.IS_DAILER_BOX);
     this.state.dailer.show = (!this.state.dailer.show);
@@ -194,9 +196,11 @@ class Header extends C {
       div.appendChild(btn);
 
       // Not Use When Run SubDomain
-      var cObj = close.getBoundingClientRect();
-      div.style.left = ((cObj.x + cObj.width) - 200) + 'px';
-      div.style.top = (cObj.y + cObj.height) + 'px';
+      if(!Utils.isEmpty(close)) {
+        var cObj = close.getBoundingClientRect();
+        div.style.left = ((cObj.x + cObj.width) - 200) + 'px';
+        div.style.top = (cObj.y + cObj.height) + 'px';
+      }
 
       document.body.prepend(div);
     }
@@ -221,6 +225,11 @@ class Header extends C {
     this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
   }
 
+  _onUpdateAction(action) {
+    this.state.isUser.action = action;
+    this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+  }
+
   _getTheme() {
     const o = THEME.getThemes();
     //console.log(o);
@@ -240,59 +249,46 @@ class Header extends C {
     );
   }
 
-  _onSetListHeaders() {
-    if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
-    var schema = {};
-    var uiSchema = {};
-    this.state.headers.map((obj) => {
-      var label = 'label_' + obj.field;
-      var item = { 'title': label, 'type': 'integer', 'minimum': 3, 'maximum': 100, per: '%' };
-      var uiHelp = '%';
-      if(!Utils.isEmpty(obj.style) && !Utils.isEmpty(obj.style.width) && obj.style.toString().indexOf('%') === -1) {
-        const w = obj.style.width.toString().replace('%', '').replace('px', '');
-        item = { 'title': label, 'type': 'integer', 'minimum': 10, 'maximum': 500, per: 'px', 'default': w };
-        uiHelp = 'px';
-      } else {
-        item['default'] = '20';
-      }
-      schema[obj.field] = item;
-      uiSchema[obj.field] = { 'ui:widget': 'range', 'ui:help': label + ' [' + uiHelp + ']', classNames: 'div-box div-box-100 div-box-not-view-label div-box-help-block-02' };
-    });
+  // _onSetListHeaders() {
+  //   if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
+  //   var schema = {};
+  //   var uiSchema = {};
+  //   this.state.headers.map((obj) => {
+  //     var label = 'label_' + obj.field;
+  //     var item = { 'title': label, 'type': 'integer', 'minimum': 3, 'maximum': 100, per: '%' };
+  //     var uiHelp = '%';
+  //     if(!Utils.isEmpty(obj.style) && !Utils.isEmpty(obj.style.width) && obj.style.toString().indexOf('%') === -1) {
+  //       const w = obj.style.width.toString().replace('%', '').replace('px', '');
+  //       item = { 'title': label, 'type': 'integer', 'minimum': 10, 'maximum': 500, per: 'px', 'default': w };
+  //       uiHelp = 'px';
+  //     } else {
+  //       item['default'] = '20';
+  //     }
+  //     schema[obj.field] = item;
+  //     uiSchema[obj.field] = { 'ui:widget': 'range', 'ui:help': label + ' [' + uiHelp + ']', classNames: 'div-box div-box-100 div-box-not-view-label div-box-help-block-02' };
+  //   });
 
-    if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
-    this.state.listHeaders['schema'] = { type: 'object', title: '', properties: schema };
-    this.state.listHeaders['uiSchema'] = uiSchema;
-    this.state.isViewChat = false;
-  }
-
-  // _onUpdateListHeaders(objs) {
-  //   if(Utils.isEmpty(objs)) return;
-  //   this.state.listChats.push(objs);
-  //   //console.log(this.state.listChats);
-  //   this.forceUpdate();
+  //   if(Utils.isEmpty(schema) || schema.toString() === '{}') return;
+  //   this.state.listHeaders['schema'] = { type: 'object', title: '', properties: schema };
+  //   this.state.listHeaders['uiSchema'] = uiSchema;
+  //   this.state.isViewChat = false;
   // }
 
-  _onResizeWindown() {
-    window.onresize = function(event) {
-      var divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
-      if(!Utils.isEmpty(divBody))
-        divBody.style.height = (window.innerHeight - 105) + 'px';
-
-      const divListBox = this.document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
-      if(!Utils.isEmpty(divListBox)) {
-          divBody = divListBox.childNodes[1].lastChild;
-          this.console.log();
-          if(!Utils.isEmpty(divBody))
-            divBody.style.height = (window.innerHeight - 130) + 'px';
-      }
-    };
-    window.onresize();
+  _onUpdateListHeaders(headers) {
+    if(Utils.isEmpty(headers)) return;
+    this.state.headers = headers;
+    this.forceUpdate();
   }
 
   UNSAFE_componentWillMount() {
+    console.log(window.name);
+    this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (window.name === this.state.isUser['wn']
+      && !Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))
+      && !Utils.isEmpty(sessionStorage.getItem(SYSTEM.IS_ACTIVE_WINDOWN))
+      && sessionStorage.getItem(SYSTEM.IS_ACTIVE_WINDOWN) === this.state.isUser['wn']);
     if(!this.state.options.dailer || !this.state[SYSTEM.IS_ACTIVE_WINDOWN]) return;
     //console.log(this.state.menus);
-    this._addBoostrapTheme();
+    // this._addBoostrapTheme();
     // this.state.menus =[
     //   { id: 1, view: LINK, target: 'target_00', label: 'label_00', level: 0, items: [] }
     //   ,{ id: 2, view: NOT_LINK, target: 'target_01', label: 'label_01', level: 0, items: 
@@ -343,6 +339,24 @@ class Header extends C {
     // ]
   }
 
+  _onResizeWindown() {
+    window.onresize = function(event) {
+      var divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+      if(!Utils.isEmpty(divBody))
+        divBody.style.height = (window.innerHeight - 105) + 'px';
+
+      const divListBox = this.document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
+      console.log(divListBox);
+      if(!Utils.isEmpty(divListBox)) {
+          divBody = divListBox.childNodes[1].lastChild;
+          this.console.log();
+          if(!Utils.isEmpty(divBody))
+            divBody.style.height = (window.innerHeight - 130) + 'px';
+      }
+    };
+    window.onresize();
+  }
+
   UNSAFE_componentWillReceiveProps(nextProps) {
     //console.log('HEADER componentWillReceiveProps');
     this.state.isUser = nextProps.isUser;
@@ -352,13 +366,20 @@ class Header extends C {
     this.state.company = nextProps.company;
     this.state.headers = nextProps.headers;
     this.state.menus = nextProps.menus;
-    this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
-    // this._setLocalStrageTheme();
+    console.log(window.name);
+    this.state[SYSTEM.IS_ACTIVE_WINDOWN] = (window.name === this.state.isUser['wn']
+      && !Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))
+      && !Utils.isEmpty(sessionStorage.getItem(SYSTEM.IS_ACTIVE_WINDOWN))
+      && sessionStorage.getItem(SYSTEM.IS_ACTIVE_WINDOWN) === this.state.isUser['wn']);
+// this._setLocalStrageTheme();
+    this._onResizeWindown();
+    // this._addBoostrapTheme();
   }
 
-  componentDidMount() {
-    this._onResizeWindown();
-  }
+  // componentDidMount() {
+    // this._onResizeWindown();
+    // this._addBoostrapTheme();
+  // }
 
   render() {
     //console.log('render')
@@ -368,7 +389,7 @@ class Header extends C {
     var menuClass = (this.state.isUser.menu===0)?' mr-auto-parent':''
     const isCallClass = (this.state.dailer.isCall && this.state.dailer.register)?'blinking':'';
     const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):'';
-    const iconStyle = (this.state.isUser.menu === 1)?{ marginLeft: '2.5em' }:'';
+    const iconStyle = (this.state.isUser.menu === 1)?{ marginLeft: '2.5em' }:null;
 
     return (
       <div className='div-header'>
@@ -391,9 +412,10 @@ class Header extends C {
                     isUser={ this.state.isUser }
                     isViewChat={ this.state.isViewChat }
                     title={ this.state.title }
-                    objs={ this.state.listHeaders }
+                    objs={ this.state.headers }
+                    // objs={ this.state.listHeaders }
                     // chats= { this.state.listChats }
-                    // onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) }
+                    onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) }
                     />
                 </div>      
               {/* );

@@ -45,7 +45,7 @@ export default class CheckBox extends C {
             });    
         } else {
             var obj = objs[0];
-            var value = (!Utils.isEmpty(this.props.value) && !Number.isNaN(Number(this.props.value)))?parseInt(this.props.value):this.props.value;
+            var value = (Utils.isNumber(this.props.value))?parseInt(this.props.value):this.props.value;
             const checked = (value === obj['value'])?true:false;
             return (
                 <div className={ 'form-check' }>

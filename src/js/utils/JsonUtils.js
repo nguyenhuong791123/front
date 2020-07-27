@@ -12,10 +12,9 @@ import EditorBox from './Compoment/EditorBox';
 
 import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
 import Utils from './Utils';
-import { fileToBase64 } from './FileUtils';
 
 export const JSON_OBJ = {
-  getJsonSchema: (obj, itemName, key, idx) => {
+  getJsonSchema: (obj, itemName, idx) => {
     obj['item_name'] = itemName;
     var type = 'string';
     const array = [
@@ -40,7 +39,7 @@ export const JSON_OBJ = {
       type = obj[CUSTOMIZE.TYPE];
     }
   
-    var json = { type: type, title: obj[key], idx: idx, language: obj['language'], obj: obj };
+    var json = { type: type, title: obj[CUSTOMIZE.LABEL][obj[CUSTOMIZE.LANGUAGE]], idx: idx, language: obj[CUSTOMIZE.LANGUAGE], obj: obj };
     if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
       json['datetime'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?false:true;
     }
@@ -63,13 +62,14 @@ export const JSON_OBJ = {
 
     return json;
   }
-  ,getJsonUi: (obj, key, idx) => {
+  ,getJsonUi: (obj, idx) => {
     var json = {};
-    if(!Utils.isEmpty(obj[key])) {
+    const placeholder = obj[CUSTOMIZE.PLACEHOLDER][obj[CUSTOMIZE.LANGUAGE]];
+    if(!Utils.isEmpty(obj[CUSTOMIZE.PLACEHOLDER])) {
       if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-        json['ui:help'] = obj[key];
+        json['ui:help'] = placeholder;
       } else {
-        json['ui:placeholder'] = obj[key];        
+        json['ui:placeholder'] = placeholder;        
       }
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) json['classNames'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
@@ -206,12 +206,14 @@ export const JSON_OBJ = {
     var jObj = {};
     jObj[CUSTOMIZE.LANGUAGE] = language;
     jObj[CUSTOMIZE.BOX_WIDTH] = 100;
+    if(Utils.isEmpty(jObj[CUSTOMIZE.LABEL]))
+      jObj[CUSTOMIZE.LABEL] = {}
     if(div) {
       jObj[CUSTOMIZE.TYPE] = TYPE.DIV;
-      jObj[CUSTOMIZE.LABEL + '_' + language] = HTML_TAG.DIV + '_' + (idx+'').padStart(2, '0');
+      jObj[CUSTOMIZE.LABEL][language] = HTML_TAG.DIV + '_' + (idx+'').padStart(2, '0');
     } else {
       jObj[CUSTOMIZE.TYPE] = TYPE.TAB;
-      jObj[CUSTOMIZE.LABEL + '_' + language] = HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0');
+      jObj[CUSTOMIZE.LABEL][language] = HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0');
     }
     return jObj;
   }

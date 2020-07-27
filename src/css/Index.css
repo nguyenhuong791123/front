@@ -62,6 +62,20 @@ button svg {
     /* vertical-align: text-top; */
 }
 
+button.btn-submit-form-hidden {
+    display: none;
+}
+
+/* button.btn-create-div {
+    position: absolute;
+    right: 13.6em;
+}
+
+button.btn-create-tab {
+    position: absolute;
+    right: 9.5em;
+} */
+
 a.nav-link {
     display: block;
     padding: 0.5rem 1rem;
@@ -71,15 +85,13 @@ form.rjsf > div.errors:first-child {
     display: none;
 }
 
-select {
+/* select {
     padding: 0.2em !important;
-    /* margin-left: .1em;
-    margin-right: .1em; */
-}
+} */
 
-.form-control {
+/* .form-control {
     padding: 0.1rem;
-}
+} */
 
 label.form-check-label
 ,label.form-check-label {
@@ -321,11 +333,11 @@ div.dropdown-menu a.dropdown-item svg {
     margin-right: 0.3em;
 }
 
-div.div-actions-box {
+/* div.div-actions-box {
     display: flex;
     position: absolute;
     right: 0;
-}
+} */
 
 /* div.div-actions-box {
     display: grid;

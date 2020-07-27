@@ -30,6 +30,7 @@
   ,"bt_list": "リスト"
   ,"bt_file": "ファイル"
   ,"bt_auth": "権限"
+  ,"bt_copy": "複製"
 
   ,"base_info": "基本情報"
   ,"page_list": "ページ一覧"
@@ -57,6 +58,8 @@
   ,"address": "住所"
   ,"sex": "性別"
   ,"exists": "有無"
+  ,"display": "表示"
+  ,"unit": "単位"
 
   ,"title_page": "ページ名"
   ,"title_fileld": "項目"

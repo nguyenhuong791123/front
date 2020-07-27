@@ -422,13 +422,13 @@ class System extends C {
         this._getObjs();
 
         return (
-            <div>
+            <div className={ 'div-list-box' }>
                 <Actions
                     isUser={ this.state.isUser }
                     onClickAdd={ this._onClickAdd.bind(this) }
                     onClickSubmit={ this._onClickSubmit.bind(this) } />
 
-                <div className="div-title">
+                <div className="div-title-box">
                     <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
                 </div>
 

@@ -30,6 +30,7 @@
   ,"bt_list": "List"
   ,"bt_file": "File"
   ,"bt_auth": "Auth"
+  ,"bt_copy": "Copy"
 
   ,"base_info": "Base Info"
   ,"page_list": "Page List"
@@ -57,6 +58,8 @@
   ,"address": "Address"
   ,"sex": "Sex"
   ,"exists": "Exisits"
+  ,"display": "Display"
+  ,"unit": "Unit"
 
   ,"title_page": "Page Name"
   ,"title_fileld": "Field"

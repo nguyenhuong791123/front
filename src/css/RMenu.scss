@@ -1,0 +1,175 @@
+div.div-menu-right {
+    top: 3em;
+    border: 1px solid #dee2e6;
+    z-index: 10 !important;
+    div.div-box-title {
+        text-align: center;
+        padding-top: .3em;
+        font-weight: bold;
+        input[type="file"] {
+            display: none;
+        }
+    }
+    > div {
+        div.bm-burger-button {
+            color: #007bff !important;
+            right: 0.5em !important;
+            top: 3.5em !important;
+            display: none;
+        }
+
+        > nav {
+            > div {
+                width: 100%;
+                margin-bottom: .5em;
+            }
+            div:last-child {
+                height: 100%;
+                overflow-y: hidden;
+            }
+        }
+    }
+    // div.public-DraftEditor-content {
+    //     height: 120px;
+    //     max-height: 120px;
+    //     overflow-y: auto;
+    // }
+    // div.public-DraftStyleDefault-block {
+    //     margin: .2em;
+    // }
+    // div.rdw-colorpicker-modal {
+    //     top: -175px;
+    //     left: -145px;
+    //     padding: .2em;
+    // }
+    // div.rdw-link-modal
+    // ,div.rdw-emoji-modal
+    // ,div.rdw-embedded-modal
+    // ,div.rdw-image-modal {
+    //     top: -185px;
+    //     left: -200px;
+    //     padding: .2em;
+    // }
+    // div.rdw-link-modal {
+    //     height: 230px;
+    // }
+    // ul.rdw-dropdown-optionwrapper {
+    //     max-height: 150px;
+    // }
+
+    // div.rdw-fontsize-dropdown
+    // ,div.rdw-fontsize-wrapper
+    // ,div.rdw-colorpicker-wrapper {
+    //     margin-bottom: 0;
+    // }
+    // div.rdw-inline-dropdown
+    // ,div.rdw-link-wrapper {
+    //       margin-top: .3em;
+    // }
+    // div.div-chat-box div.rdw-block-wrapper
+    // ,div.div-chat-box div.rdw-fontfamily-wrapper
+    // ,div.div-chat-box div.rdw-list-dropdown
+    // ,div.div-chat-box div.rdw-text-align-dropdown
+    // ,div.div-chat-box div.rdw-remove-wrapper
+    // ,div.div-chat-box div.rdw-embedded-wrapper
+    // ,div.div-chat-box div.rdw-image-wrapper
+    // ,div.div-chat-box div.rdw-history-dropdown {
+    //     display: none;
+    //     margin: 0;
+    //     padding: 0;
+    // }
+
+    // div.div-margin-right-22 {
+    //     margin-right: 22%;
+    // }
+
+    // div.div-chat-box {
+    //     margin: .2em;
+    //     overflow-y: auto;
+    //     > div:first-child {
+    //         padding-right: .5em;
+    //         > div.div-box-right {
+    //             text-align: right;
+    //             display: flow-root;
+    //             > table {
+    //                 max-width: 85%;
+    //                 float: right;
+    //             }
+    //         }
+    //         > div {
+    //             margin-bottom: .2em;
+    //         }
+    //         span {
+    //             font-size: 80%;
+    //         }
+    //         svg:hover {
+    //             cursor: pointer;
+    //         }
+    //         div.div-box-msg {
+    //             width: 100%;
+    //             border: 1px solid #dee2e6;
+    //             padding-right: .2em;
+    //             padding-left: .2em;
+    //             border-radius: .3em;
+    //             > p {
+    //                 margin-bottom: 0;
+    //             }
+    //         }
+    //         div.div-box-left {
+    //             text-align: left;
+    //         }
+    //     }
+    //     div:last-child {
+    //         position: absolute;
+    //         bottom: 2em;
+    //         width: 98%;
+    //         height: 200px;
+    //         max-height: 200px;
+    //         > div:first-child {
+    //             position: absolute;
+    //             margin-top: -1.5em;
+    //         }
+    //         > span:hover {
+    //             cursor: pointer;
+    //             background-color: #cce5ff;
+    //         }
+    //         span:nth-last-child(2) {
+    //             float: right;
+    //         }
+    //     }
+    // }
+    div.div-right-box {
+        > table {
+            width: 100%;
+            > tbody {
+                tr {
+                    td:first-child {
+                        width: 1em;
+                        text-align: center;
+                        padding: .3em;
+                        >div {
+                            word-break: keep-all;
+                        }
+                    }
+                    td {
+                        span:last-child {
+                            float: right;
+                            margin-right: .3em;
+                        }
+                    }
+                    td:last-child {
+                        width: 1em;
+                        text-align: center;
+                        padding: .3em;
+                        >div {
+                            word-break: keep-all;
+                        }
+                    }
+                }
+            }
+            input[type="range"] {
+                width: 100%;
+            }
+        }
+    }
+}

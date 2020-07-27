@@ -191,10 +191,14 @@ export default class TableBox extends C {
             // const key = 'label_' + o.field;
             let style = ('style' in o)?o.style:'';
             let type = ('type' in o)?o.type:'';
-            if(Utils.isEmpty(style)) style = { width: 100 };
+            if(Utils.isEmpty(style)) {
+                style = { width: 100 };
+            } else {
+                delete style['height'];
+            }
             // const label = Msg.getMsg(this.state.isUser.action, this.state.isUser.language, key);
             let isLabel = <label>{ o.label }</label>;
-            if(('filter' in o) && o.filter) {
+            // if(('filter' in o) && o.filter) {
                 if(type === TYPE.DATE || type === TYPE.DATETIME) {
                     isLabel = (<FormControl
                                     readOnly
@@ -211,20 +215,20 @@ export default class TableBox extends C {
                                     onFocus={ this._onFocus.bind(this) }
                                     onKeyDown={ this._onThKeyDown.bind(this) } />);
                 }
-            }
-            if(o.sort) {
+            // }
+            // if(o.sort) {
                 if(!Utils.isEmpty(style)) {
                     return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
                 } else {
                     return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
                 }
-            } else {
-                if(!Utils.isEmpty(style)) {
-                    return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
-                } else {
-                    return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
-                }
-            }
+            // } else {
+            //     if(!Utils.isEmpty(style)) {
+            //         return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
+            //     } else {
+            //         return(<th key={ index } id={ o.field } type={ type } style={ style } onMouseOver={ this._onThMouseOver.bind(this) }>{ isLabel }</th>);
+            //     }
+            // }
         });
 
         return(
@@ -515,13 +519,13 @@ export default class TableBox extends C {
     }
 
     UNSAFE_componentWillMount() {
-        const list = {
+        let list = {
             columns: [
-                { field: 'id', label: 'AAAA', sort: false, filter: false }
-                ,{ field: 'name', label: 'BBBB', sort: true, filter: true, style: { width: 500 } }
-                ,{ field: 'price3', label: 'CCCC', type: TYPE.DATE, sort: true, filter: true, style: { width: 500 } }
-                ,{ field: 'price4', label: 'DDDD', type: TYPE.DATETIME, sort: true, filter: true }
-                ,{ field: 'price5', label: 'EEEE', sort: true, type: TYPE.DATETIME, filter: true }
+                { field: 'id', label: 'AAAA', view: true }
+                ,{ field: 'name', label: 'BBBB', view: true, style: { width: '500px', height: '100px' } }
+                ,{ field: 'price3', label: 'CCCC', view: true, style: { width: '500px', height: '100px' } }
+                ,{ field: 'price4', label: 'DDDD', view: true, type: TYPE.DATETIME }
+                ,{ field: 'price5', label: 'EEEE', view: true, type: TYPE.DATETIME }
             ]
             ,datas:[
                 { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 }

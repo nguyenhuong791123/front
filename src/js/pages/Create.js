@@ -161,8 +161,9 @@ class Create extends C {
 
   _onClickBack() {
     this.state.isUser.path = ACTION.SLASH + ACTION.LIST;
-    const auth = { info: this.state.isUser, options: this.state.options };
-    this.props.onUpdateStateIsUser(auth);
+    // const auth = { info: this.state.isUser, options: this.state.options };
+    // this.props.onUpdateStateIsUser(auth);
+    this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
     // this.props.history.push(ACTION.SLASH + ACTION.LIST);
     // this.forceUpdate();
   }
@@ -432,7 +433,7 @@ class Create extends C {
     obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.overObject = obj;
     const pos = obj.getBoundingClientRect();
-    this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 30, zIndex: 1 };
+    this.state.alertActions.style = { top: (pos.y - 45), left : (pos.x + pos.width) - 35, zIndex: 1 };
     this.state.alertActions.show = true;
     this.forceUpdate();
   }
@@ -502,13 +503,13 @@ class Create extends C {
     }
 
     return (
-      <div>
+      <div className={ 'div-list-box' }>
         { this._onResetButtons() }
         <Actions
             isUser={ this.state.isUser }
             onClickBack={ this._onClickBack.bind(this) }
             onClickSubmit={ this._onClickSubmit.bind(this) } />
-        <div className="div-title">
+        <div className="div-title-box">
           {/* <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5> */}
           <h5>{ this.state.page.page_name  + '/' + Msg.getMsg(null, this.state.isUser.language, labelKey) }</h5>
         </div>

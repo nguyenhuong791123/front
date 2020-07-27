@@ -115,10 +115,6 @@ class LMenu extends C {
     });
   }
 
-  // UNSAFE_componentWillReceiveProps(nextProps) {
-  //   console.log(nextProps.menus);
-  // }
-
   render() {
     return (
       <div>

@@ -2,8 +2,8 @@
 import React, { Component as C } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { Alert, Button, Form, FormControl } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaReply, FaPlus, FaCheck, FaBars, FaMinus } from 'react-icons/fa';
+import { Alert, Button, FormControl } from 'react-bootstrap';
+import { FaEdit, FaTrash, FaReply, FaPlus, FaCopy, FaCheck, FaBars } from 'react-icons/fa';
 import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
@@ -11,12 +11,12 @@ import CForm from '../utils/CForm';
 import CustomizeBox from '../utils/Compoment/CustomizeBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, HTML_TAG, CUSTOMIZE, ATTR, OPTIONS_KEY } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, HTML_TAG, CUSTOMIZE, ATTR, OPTIONS_KEY, OPTION_AUTH } from '../utils/HtmlTypes';
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 
-import '../../css/Customize.css';
+import '../../css/Customize.scss';
 import Msg from '../../msg/Msg';
 
 class Customize extends C {
@@ -42,7 +42,12 @@ class Customize extends C {
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
-      ,page: { page_id: '', page_name: '', form: [] }
+      ,page: {
+        page_id: '',
+        page_name: '',
+        page_auth: {  },
+        form: []
+      }
       ,pageMode: ACTION.CREATE
       // ,page_name: ''
       // ,form: []
@@ -512,8 +517,8 @@ class Customize extends C {
       this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS_FILE] = value;
     }
     console.log(this.state.overlayCreateEditBox.obj);
-    const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-    this.state.overlayCreateEditBox.msg = '「' + this.state.overlayCreateEditBox.obj[labelKey] + '」' + Msg.getMsg(null, this.state.isUser.language, 'bt_edit');
+    const label = this.state.overlayCreateEditBox.obj[CUSTOMIZE.LABEL][this.state.isUser.language];
+    this.state.overlayCreateEditBox.msg = '「' + label + '」' + Msg.getMsg(null, this.state.isUser.language, 'bt_edit');
     this.state.overlayCreateEditBox.show = true;
     this.state.overlayDeleteBox.show = false;
     this.forceUpdate();
@@ -524,14 +529,14 @@ class Customize extends C {
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
     this.state.mode = ACTION.CREATE;
     const editObj = this.state.overlayCreateEditBox.obj;
-    const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-    editObj[label_language] = '';
+    // const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
+    // editObj[label_language] = '';
 
-    const placehoders = [ HTML_TAG.LEGEND, HTML_TAG.NAV ];
-    if(placehoders.includes(obj.tagName)) {
-      const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
-      editObj[placeholder_language] = '';  
-    }
+    // const placehoders = [ HTML_TAG.LEGEND, HTML_TAG.NAV ];
+    // if(placehoders.includes(obj.tagName)) {
+    //   const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
+    //   editObj[placeholder_language] = '';  
+    // }
 
     editObj[CUSTOMIZE.TYPE] = TYPE.TEXT;
     // editObj[CUSTOMIZE.LABEL_ALIGN] = ALIGN.LEFT;
@@ -545,19 +550,34 @@ class Customize extends C {
   }
 
   _onChange(e) {
-    const obj = e.target;
+    let obj = e.target;
     if(Utils.isEmpty(obj)) return;
-    if(obj.tagName === HTML_TAG.INPUT) {
+    const auths = [
+      OPTION_AUTH.SEARCH,
+      OPTION_AUTH.VIEW,
+      OPTION_AUTH.CREATE,
+      OPTION_AUTH.EDIT,
+      OPTION_AUTH.UPLOAD,
+      OPTION_AUTH.DOWNLOAD ]
+    if(auths.includes(obj.name) || obj.tagName === HTML_TAG.DIV || obj.tagName === HTML_TAG.SPAN) {
+      e.preventDefault();
+      let div = obj;
+      if(div.tagName === HTML_TAG.SPAN) div = obj.parentElement;
+      if(div.tagName === HTML_TAG.DIV) {
+        obj = div.getElementsByTagName(HTML_TAG.INPUT)[0];
+      }
+      if(Utils.isEmpty(obj) || obj.getAttribute('type') !== TYPE.CHECKBOX) return;
+      this.state.page.page_auth[obj.name] = (auths.includes(div.name))?obj.checked:!obj.checked;;
+    } else if(obj.tagName === HTML_TAG.INPUT) {
       this.state.page.page_name = obj.value;
     }
     if(obj.tagName === 'SELECT') {
       console.log(obj);
       // obj.value Fecth To API
-      if(!Utils.isEmpty(obj.value) && !Number.isNaN(Number(obj.value))) {
+      if(Utils.isNumber(obj.value)) {
         this._onLoadingStateSmaple();
       } else {
-        this.state.pageMode === ACTION.CREATE;
-        this._onResetStateSmaple();
+        this._onGetPageDefault();
       }
     }
     console.log(this.state.page);
@@ -634,11 +654,11 @@ class Customize extends C {
     if(obj.tagName === HTML_TAG.LEGEND) {
       if(!Html.hasAttribute(obj.parentElement, ATTR.ID)) return;
       const idx = Html.getIdxParent(obj);
-      if(!Number.isNaN(Number(idx))) this.state.page.form.splice(idx, 1);
+      if(Utils.isNumber(idx)) this.state.page.form.splice(idx, 1);
     }
     if(obj.tagName === HTML_TAG.NAV) {
       const idx = Html.getIdxParent(obj);
-      if(Number.isNaN(Number(idx))) return;
+      if(!Utils.isNumber(idx)) return;
       var tabIdx = null;
       const arr = Array.from(obj.childNodes);
       for(let i=0; i<arr.length; i++) {
@@ -650,7 +670,7 @@ class Customize extends C {
       if(arr.length <= 1) {
         this.state.page.form.splice(idx, 1);
       } else {
-        if(!Number.isNaN(Number(tabIdx))) this.state.page.form[idx].object.splice(tabIdx, 1);
+        if(Utils.isNumber(tabIdx)) this.state.page.form[idx].object.splice(tabIdx, 1);
       }
     }
     if(obj.tagName === HTML_TAG.LABEL) {
@@ -707,28 +727,28 @@ class Customize extends C {
 
   _onValidateSaveOrEditItems(obj) {
     var error = null;
-    var labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-    var labelPlaceholder = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
+    var label = obj[CUSTOMIZE.LABEL][this.state.isUser.language];
     const languages = Html.getLanguages();
-    if(Utils.isEmpty(obj[labelKey])) {
+    if(Utils.isEmpty(label)) {
       const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label');
       error = msg + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'required');
     }
-    if(Utils.isEmpty(error) && !Utils.isEmpty(obj[labelKey])) {
+    if(Utils.isEmpty(error) && !Utils.isEmpty(label)) {
       const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label');
       for(let i=0; i<languages.length; i++) {
-        labelKey = CUSTOMIZE.LABEL + '_' + languages[i];
-        if(Utils.isEmpty(obj[labelKey]) || obj[labelKey].length <= 30) continue;
-        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (obj[labelKey].length - 30));
+        label = obj[CUSTOMIZE.LABEL][languages[i]];
+        if(Utils.isEmpty(label) || label.length <= 30) continue;
+        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (label.length - 30));
         break;
       }
     }
-    if(Utils.isEmpty(error) && !Utils.isEmpty(obj[labelPlaceholder])) {
+    var labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][this.state.isUser.language];
+    if(Utils.isEmpty(error) && !Utils.isEmpty(labelPlaceholder)) {
       const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder');
       for(let i=0; i<languages.length; i++) {
-        labelPlaceholder = CUSTOMIZE.LABEL + '_' + languages[i];
-        if(Utils.isEmpty(obj[labelKey]) || obj[labelKey].length <= 30) continue;
-        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (obj[labelPlaceholder].length - 30));
+        labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][languages[i]];
+        if(Utils.isEmpty(labelPlaceholder) || labelPlaceholder.length <= 30) continue;
+        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (labelPlaceholder.length - 30));
         break;
       }
     }
@@ -771,7 +791,7 @@ class Customize extends C {
       }
 
       var idx = div.id.split('_')[2];
-      if(Number.isNaN(Number(idx))
+      if(!Utils.isNumber(idx)
         && (this.state.dragobject.tagName === HTML_TAG.LEGEND || this.state.dragobject.tagName === HTML_TAG.NAV)) {
           idx = Html.getIdxParent(this.state.dragobject);
       }
@@ -785,13 +805,13 @@ class Customize extends C {
         fObj = form.object;
       }
 
-      const labelKey = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
+      const label = obj[CUSTOMIZE.LABEL][this.state.isUser.language];
       if(this.state.mode === ACTION.EDIT
         && (this.state.dragobject.tagName === HTML_TAG.LEGEND || this.state.dragobject.tagName === HTML_TAG.NAV)) {
         if(this.state.dragobject.tagName === HTML_TAG.NAV) {
-          form.object[Html.getIdxTabSelected(this.state.dragobject)].schema['tab_name'] = obj[labelKey];
+          form.object[Html.getIdxTabSelected(this.state.dragobject)].schema['tab_name'] = label;
         } else {
-          form.object.schema['title'] = obj[labelKey];
+          form.object.schema['title'] = label;
         }
         if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) {
           form['className'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
@@ -808,11 +828,10 @@ class Customize extends C {
   
         const idx = Object.keys(fObj.schema.properties).length;
         obj['language'] = this.state.isUser.language;
-        fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, labelKey, idx);
+        fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, idx);
         // fObj.schema['requireds'] = JSON_OBJ.getRequiredItem(obj, itemName, fObj.schema['requireds']);
   
-        const placeholderKey = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
-        fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, placeholderKey);
+        fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj);
         fObj.data[itemName] = JSON_OBJ.getDefaultDatas(obj, itemName);
 
         // JSON_OBJ.addHiddenFieldFormReload(fObj);
@@ -862,7 +881,7 @@ class Customize extends C {
     //   this.state.pageMode = ACTION.CREATE;
     // }
     this.state.pageMode = (this.state.pageMode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
-    if(this.state.pageMode === ACTION.CREATE) this._onResetStateSmaple();
+    if(this.state.pageMode === ACTION.CREATE) this._onGetPageDefault();
     this.forceUpdate();
   }
 
@@ -874,28 +893,10 @@ class Customize extends C {
       items.push( <option key={ i } value={ pages[i].id }>{ pages[i].label }</option> );
     }
     return(
-      <div>
-        <Button
-          type={ TYPE.BUTTON }
-          className="btn-create-div"
-          id={ 'add_div' }
-          onClick={ this._onCreateDivOrTab.bind(this) }
-          variant={ VARIANT_TYPES.PRIMARY }>
-          {/* <FaPlus /> */}
-          { Msg.getMsg(null, this.props.isUser.language, 'bt_div') }
-        </Button>
-        <Button
-          type={ TYPE.BUTTON }
-          className="btn-create-tab"
-          id={ 'add_tab' }
-          onClick={ this._onCreateDivOrTab.bind(this) }
-          variant={ VARIANT_TYPES.PRIMARY }>
-          {/* <FaPlus /> */}
-          { Msg.getMsg(null, this.props.isUser.language, 'bt_tab') }
-        </Button>
-
+      <div className={ 'div-body-customize-header-box' }>
         {(() => {
-          if (this.state.pageMode === ACTION.CREATE) {
+          console.log(this.state);
+          if (this.state.pageMode === ACTION.CREATE && Utils.isEmpty(this.state.page.page_id)) {
             return (
               <div className='div-customize-title-box'>
                 <FormControl
@@ -919,12 +920,106 @@ class Customize extends C {
                   as={ HTML_TAG.SELECT }
                   defaultValue={ this.state.page.page_id }
                   onChange={ this._onChange.bind(this) }> { items }</FormControl>
-                <Button
-                  type={ HTML_TAG.BUTTON }
-                  onClick={ this._onClickChangeMode.bind(this) }
-                  variant={ VARIANT_TYPES.INFO }>
-                  <FaPlus />
-                </Button>
+                {(() => {
+                  if(Utils.isNumber(this.state.page.page_id)) {
+                    return(
+                      <Button
+                        type={ HTML_TAG.BUTTON }
+                        onClick={ this._onClickChangeMode.bind(this) }
+                        variant={ VARIANT_TYPES.INFO }>
+                        <FaCopy />
+                        {/* { Msg.getMsg(null, this.props.isUser.language, 'bt_copy') } */}
+                      </Button>
+                    );
+                  }
+                })()}
+              </div>
+            );
+          }
+        })()}
+
+        {(() => {
+          if (Utils.inJson(this.state.page, 'page_auth') && Utils.inJson(this.state.page['page_auth'], OPTION_AUTH.SEARCH)) {
+            return(
+              <div className={ 'div-customize-auth-box' }>
+                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_search') }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[OPTION_AUTH.SEARCH] }
+                    name={ OPTION_AUTH.SEARCH }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_view') }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[OPTION_AUTH.VIEW] }
+                    name={ OPTION_AUTH.VIEW }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[OPTION_AUTH.CREATE] }
+                    name={ OPTION_AUTH.CREATE }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[OPTION_AUTH.EDIT] }
+                    name={ OPTION_AUTH.EDIT }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_upload') }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[OPTION_AUTH.UPLOAD] }
+                    name={ OPTION_AUTH.UPLOAD }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_download') }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[OPTION_AUTH.DOWNLOAD] }
+                    name={ OPTION_AUTH.DOWNLOAD }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+                <div>
+                  <Button
+                    type={ TYPE.BUTTON }
+                    id={ 'add_div' }
+                    onClick={ this._onCreateDivOrTab.bind(this) }
+                    variant={ VARIANT_TYPES.PRIMARY }>
+                    {/* <FaPlus /> */}
+                    { Msg.getMsg(null, this.props.isUser.language, 'bt_div') }
+                  </Button>
+                  <Button
+                    type={ TYPE.BUTTON }
+                    id={ 'add_tab' }
+                    onClick={ this._onCreateDivOrTab.bind(this) }
+                    variant={ VARIANT_TYPES.PRIMARY }>
+                    {/* <FaPlus /> */}
+                    { Msg.getMsg(null, this.props.isUser.language, 'bt_tab') }
+                  </Button>
+                </div>
               </div>
             );
           }
@@ -1126,10 +1221,6 @@ class Customize extends C {
     });
   }
 
-  _onResetStateSmaple() {
-    this.state.page = { page_id: '', page_name: '', form: [] };
-  }
-
   _onLoadingStateSmaple() {
     this.state.page = {
       "page_id": 1,
@@ -1174,6 +1265,24 @@ class Customize extends C {
     }
   }
 
+  _onGetPageDefault() {
+    // const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
+    // this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj));
+    this.state.pageMode = ACTION.CREATE;
+    this.state.page.page_id = '';
+    this.state.page.page_name = '';
+    this.state.page.form = [JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, {})];
+    if(!Utils.inJson(this.state.page, 'page_auth') || !Utils.inJson(this.state.page['page_auth'], OPTION_AUTH.SEARCH)) {
+      this.state.page['page_auth'] = {};
+      this.state.page['page_auth'][OPTION_AUTH.SEARCH] = true;
+      this.state.page['page_auth'][OPTION_AUTH.VIEW] = true;
+      this.state.page['page_auth'][OPTION_AUTH.CREATE] = true;
+      this.state.page['page_auth'][OPTION_AUTH.EDIT] = true;
+      this.state.page['page_auth'][OPTION_AUTH.UPLOAD] = true;
+      this.state.page['page_auth'][OPTION_AUTH.DOWNLOAD] = true;
+    }
+  }
+
   componentDidUpdate() {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     this._onAddDragDrop(div);
@@ -1191,15 +1300,14 @@ class Customize extends C {
   }
 
   UNSAFE_componentWillMount(){
-    const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
-    this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj));
+    this._onGetPageDefault();
   }
 
   render() {
     this.state.isUser.actions = PAGE_ACTION.CREATE;
 
     return (
-      <div>
+      <div className={ 'div-body-customize-box' }>
         <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }

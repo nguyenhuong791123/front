@@ -1,10 +1,10 @@
 function isNumber(val) {
-    if(isNull(val)) return false;
-    return /^([0-9])+$/.test(val.replace(/[-()\s]/g,''));
+    if(isEmpty(val)) return false;
+    return !Number.isNaN(Number(val));
 }
   
 function isTelNumber(val) {
-    if(isNull(val)) return false;
+    if(isEmpty(val)) return false;
     return /^([0-9]|#|\*|-)+$/.test(val.replace(/[-()\s]/g,''));
     // return true;///^([0-9]|#|\*|-)+$/.test(val.replace(/[-()\s]/g,''));
 }
@@ -69,8 +69,8 @@ var getLocationURL = function() {
 }
 
 var getUUID = function(max) {
-    if(Number.isNaN(Number(max))) return Math.random().toString(36).slice(-max);
-    return Math.random().toString(36).slice(-8);
+    if(Number.isNaN(Number(max))) return Math.random().toString(36).slice(-max).toString();
+    return Math.random().toString(36).slice(-8).toString();
 }
 
 var isFunc = function(obj, name) {

@@ -11,11 +11,20 @@ const doLogout = () => {
 };
 
 const getJsonValue = function(json, obj, key, defVal) {
-  if(json === undefined || json === null
-    || key === undefined || key === null || key === '') return defVal;
-    if(json[obj] === undefined || json[obj] === null) return defVal;
-    if(key in json) return json[key];
-    return defVal;
+  if(isEmpty(json) || !inJson(json, obj)) return defVal;
+  if(inJson(json[obj], key)) return json[obj][key];
+  return defVal;
+}
+
+function isEmpty(val) {
+  if(val === undefined || val === null || val === 'null' || val === 'NULL' || val === '') return true;
+  return false;
+}
+
+function inJson(json, key) {
+  if(isEmpty(json) || isEmpty(key)) return '';
+  if(key in json) return true;
+  return false;
 }
 
 const isUserInit = (isUser) => {
@@ -28,12 +37,12 @@ const isUserInit = (isUser) => {
       ,cId:  getJsonValue(isUser, 'info', 'cId', '')
       ,gId:  getJsonValue(isUser, 'info', 'gId', '')
       ,uId:  getJsonValue(isUser, 'info', 'uId', 1)
-      ,uName:  getJsonValue(isUser, 'info', 'uName', 'huongnv')
+      ,uName:  getJsonValue(isUser, 'info', 'uName', 'systemdemo')
       ,viewHeader: getJsonValue(isUser, 'info', 'viewHeader', false)
       ,path: getJsonValue(isUser, 'info', 'path', '/')
       ,action: getJsonValue(isUser, 'info', 'action', 'customer')
       ,theme: getJsonValue(isUser, 'info', 'theme', 'journal')
-      ,logo: getJsonValue(isUser, 'info', 'logo', '')
+      // ,logo: getJsonValue(isUser, 'info', 'logo', '')
     }
     ,options: {
       customize: getJsonValue(isUser, 'options', 'customize', false)

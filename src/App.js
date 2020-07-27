@@ -46,7 +46,7 @@ class App extends C {
         this._loadAuthCookies = this._loadAuthCookies.bind(this);
         this._onUpdateIsUserCallBack = this._onUpdateIsUserCallBack.bind(this);
         this._onUpdatePromise = this._onUpdatePromise.bind(this);
-        this._updateStateIsUser = this._updateStateIsUser.bind(this);
+        // this._updateStateIsUser = this._updateStateIsUser.bind(this);
         this._updateListHeaders = this._updateListHeaders.bind(this);
 
         this.state = {
@@ -71,38 +71,30 @@ class App extends C {
         // this.forceUpdate();
     }
 
-    _doLogin(isUser, options, menus) {
-        console.log('_doLogin');
-        console.log(menus);
-        this.state.menus = menus;
-        // isUser[SYSTEM.IS_ACTIVE_WINDOWN] = (!Utils.isEmpty(window.name) && window.name===SYSTEM.IS_ACTIVE_WINDOWN);
+    _doLogin(isUser, options) {
         const auth = { info: isUser, options: options };
-        // this._updateStateIsUser(auth);
-        // console.log(auth);
-        // this.forceUpdate();
+        auth.info['wn'] = Utils.getUUID();
         AuthSession.doLogin(auth).then(response => {
             const { token } = response;
             sessionService.saveSession({ token }).then(() => {
                 sessionService.saveUser(auth).then(() => {
-                    sessionStorage.setItem('session', window.name);
-                    //console.log(this);
-                    window.name = SYSTEM.IS_ACTIVE_WINDOWN;
-                    this._updateStateIsUser(auth);
-                    // callback(auth);
-                    //console.log('_doLogin complete !!!');
-                    //console.log(sessionService.loadUser('COOKIES'));
+                    if(Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))) {
+                        window.name = auth.info['wn'];
+                        sessionStorage.setItem(SYSTEM.IS_ACTIVE_WINDOWN, auth.info['wn']);
+                        localStorage.setItem(SYSTEM.IS_LOGIN, auth.info.uId);
+                    }
+                    this._onUpdateIsUserCallBack(auth);
                 });
             });
         });
     };
 
     _doLogout() {
-        const auth = { info:  AuthSession.isUserInit(null).info, options:  AuthSession.isUserInit(null).options };
+        const auth = { info:  AuthSession.isUserInit(null).info, options: AuthSession.isUserInit(null).options };
         auth.info.language = this.state.isUser.language;
         auth.info.theme = this.state.isUser.theme;
         this.state.isUser = auth.info;
         this.state.options = auth.options;
-        //console.log(this.state);
         const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
         if(!Utils.isEmpty(div)) div.remove();
         this.state.hasError = false;
@@ -110,64 +102,71 @@ class App extends C {
         AuthSession.doLogout().then(() => {
             sessionService.deleteSession();
             sessionService.deleteUser();
-            sessionStorage.removeItem('session');
-            //console.log('_doLogout complete !!!');
+            sessionStorage.removeItem(SYSTEM.IS_ACTIVE_WINDOWN);
+            localStorage.removeItem(SYSTEM.IS_LOGIN);
         }).catch(err => { throw (err); });
     };
 
-    _loadAuthCookies(isUser, callBack) {
+    _loadAuthCookies(auth, callBack) {
         const objAuth = sessionService.loadUser('COOKIES');
         this.state.hasError = false;
         if(objAuth !== undefined) {
-            //console.log('_loadAuthCookies');
-            //console.log(objAuth);
+            // console.log('_loadAuthCookies');
             objAuth.then(function(data) {
+                // console.log(data);
                 const isUrl = history.location.pathname;
                 if(isUrl.indexOf(ACTION.ERROR) !== -1) this._doLogout();
-                if(isUrl === ACTION.SLASH || data.info['path'] === ACTION.SLASH) {
+                data.info['path'] = isUrl;
+                data.info['viewHeader'] = (Utils.isEmpty(data.info['path']) || data.info['path'] === ACTION.SLASH)?false:true;
+
+                if(Utils.inJson(auth, 'info')) {
+                    data.info['cId'] = auth.info['cId'];
+                    data.info['theme'] = auth.info['theme'];
+                    data.info['action'] = auth.info['action'];
+                    data.options['dailer'] = auth.options['dailer'];    
+                }
+                if(Utils.isEmpty(data.info['cId']) || Utils.isEmpty(data.info['uId'])) {
                     data.info['path'] = ACTION.SLASH;
                     data.info['viewHeader'] = false;
                 }
-                const paths = isUrl.split('/');
-                var path = null;
-                if(!Utils.isEmpty(paths) && paths.length > 0) {
-                    path = paths[paths.length - 1];
+                if(Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))) {
+                    data.info['wn'] = Utils.getUUID();
+                    window.name = data.info['wn'];
+                    sessionStorage.setItem(SYSTEM.IS_ACTIVE_WINDOWN, data.info['wn']);
+                    localStorage.setItem(SYSTEM.IS_LOGIN, data.info.uId);
                 }
-                if(!Utils.isEmpty(path)) {
-                    data.info['path'] = ACTION.SLASH + path;
-                }
-                if(path === PAGE.SYSTEM) {
-                    data.info['action'] = PAGE.SYSTEM;
-                    data.info['actions'] = PAGE_ACTION.SYSTEM;
-                } else {
-                    data.info['actions'] = undefined;
+                callBack(data);
+            }).catch(function(error) {    
+                console.log(error);    
+                //console.log(AuthSession.isUserInit(isUser));
+                const isUrl = history.location.pathname;
+                auth.info['path'] = isUrl;
+                auth.info['viewHeader'] = (Utils.isEmpty(auth.info['path']) || auth.info['path'] === ACTION.SLASH)?false:true;
+                if(Utils.isEmpty(auth.info['cId']) || Utils.isEmpty(auth.info['uId'])) {
+                    auth.info['path'] = ACTION.SLASH;
+                    auth.info['viewHeader'] = false;
                 }
 
-                //console.log('_loadAuthCookies');
-                // data.info['menu'] = 1;
-                //console.log(data);
-                callBack(data);
-            }).catch(function(error) {
-                //console.log(error);
-                //console.log(AuthSession.isUserInit(isUser));
-                callBack(AuthSession.isUserInit(isUser));
+                console.log(auth);
+                callBack(AuthSession.isUserInit(auth));
             });
         } else {
             callBack({ info: AuthSession.isUserInit(null).info, options: AuthSession.isUserInit(null).options });
         }
     }
 
-    _onUpdateIsUserCallBack(auth) {
-        this._updateStateIsUser(auth);
-        this.forceUpdate();
-    }
+    // _onUpdateIsUserCallBack(auth) {
+    //     this._updateStateIsUser(auth);
+    //     // this.forceUpdate();
+    // }
 
     _onUpdatePromise(inIsUser, inOptions, callBack) {
         const auth = { info: inIsUser, options: inOptions };
         // //console.log(auth);
         const isUser = sessionService.loadUser('COOKIES');
-        //console.log('COOKIES');
-        //console.log(isUser);
+        // console.log('COOKIES');
+        // console.log(isUser);
+        // console.log(history.location.pathname);
         isUser.then(function(data) {
             if(!Utils.isEmpty(inIsUser)) {
                 var ukeys = Object.keys(inIsUser);
@@ -190,20 +189,25 @@ class App extends C {
             callBack(auth);
         }).catch(function(error) {
             //console.log('ERROR _onUpdatePromise');
-            //console.log(error);
+            console.log(error);
+            callBack({ info: AuthSession.isUserInit(null).info, options: AuthSession.isUserInit(null).options });
         });
     }
 
-    _updateStateIsUser(isUser) {
+    _onUpdateIsUserCallBack(auth) {
         console.log('_updateStateIsUser');
         console.log(this.state);
-        this.state.isUser = isUser.info;
-        this.state.options = isUser.options;
-        if(isUser.info.action === PAGE.SYSTEM) {
-            history.push(ACTION.SLASH + isUser.info.action);
+        console.log(auth);
+        this.state.isUser = auth.info;
+        this.state.options = auth.options;
+        // if(!sessionService.checkAuth) {
+        //     auth.info.path = ACTION.SLASH;
+        // }
+        if(auth.info.action === PAGE.SYSTEM) {
+            history.push(ACTION.SLASH + auth.info.action);
         } else {
-            this.state.isUser.actions = undefined;
-            history.push(isUser.info.path);
+            // this.state.isUser.actions = undefined;
+            history.push(auth.info.path);
         }
 
         const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
@@ -213,8 +217,27 @@ class App extends C {
             this._addCssLink();
         }
 
-        //console.log(history);
-        this.forceUpdate();
+        if(!Utils.isEmpty(this.state.isUser.cId) && !Utils.isEmpty(this.state.isUser.uId)) {
+            this._onGetMenus();
+        } else {
+            //console.log(history);
+            this.forceUpdate();
+        }
+    }
+
+    _onGetMenus() {
+        if(Utils.isEmpty(this.state.isUser.cId) || Utils.isEmpty(this.state.isUser.uId)) return;
+        const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'menus', options);
+        f.then(data => {
+            if(!Utils.isEmpty(data) && Utils.inJson(data, 'menus')) {
+                this.state.menus = data.menus;
+                this.forceUpdate();
+            }
+        }).catch(err => {
+          console.log(err);
+        });
     }
 
     _stopLoading() {
@@ -242,12 +265,10 @@ class App extends C {
     }
 
     UNSAFE_componentWillMount() {
-        //console.log(getCookie('uuid'));
         const options = { uuid: getCookie('uuid')};
         const host = Msg.getSystemMsg('sys', 'app_api_host');
         const f = Fetch.postLogin(host + 'mode', options);
         f.then(data => {
-          //console.log(data);
           if(!Utils.isEmpty(data) && Utils.inJson(data, 'company_id')) {
             this.state.isUser['cId'] = data.company_id;
             this.state.isUser['theme'] = data.company_theme;
@@ -259,17 +280,20 @@ class App extends C {
               ,home_page: data.company_home_page
               ,global_locale: data.company_global_locale
             }
-            console.log(this.state);
-            this._loadAuthCookies(this.state.isUser, this._updateStateIsUser);
-            // this._addCssLink();
-            // this.forceUpdate();
+            const auth = { info: this.state.isUser, options: this.state.options };
+            console.log(auth);
+            this._loadAuthCookies(auth, this._onUpdateIsUserCallBack.bind(this));
           }
         });
-
     }
 
     componentDidMount() {
         this._stopLoading();
+        window.addEventListener("beforeunload", (ev) => {
+            ev.preventDefault();
+            sessionStorage.removeItem(SYSTEM.IS_ACTIVE_WINDOWN);
+            localStorage.removeItem(SYSTEM.IS_LOGIN);
+        });
     }
 
     static getDerivedStateFromError(error) {
@@ -328,38 +352,45 @@ class App extends C {
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
-                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         onLogin={ this._doLogin.bind(this) }
                                                                         {...this.props} />} />
                                         <Route
+                                            onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + ACTION.LIST }
                                             render={ ({ props }) => <List
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
-                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         onUpdateListHeaders={ this._updateListHeaders.bind(this) }
                                                                         {...this.props} />} />
                                         <Route
+                                            onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + ACTION.CREATE }
                                             render={ ({ props }) => <Create
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
-                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />
                                         <Route
+                                            onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + ACTION.EDIT }
                                             render={ ({ props }) => <Create
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
-                                                                        onUpdateStateIsUser={ this._updateStateIsUser.bind(this) }
+                                                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />
                                         <Route
+                                            onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + ACTION.VIEW }
                                             render={ ({ props }) => <View isUser={ this.state.isUser } {...this.props} />} />
                                         <Route
+                                            onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + PAGE.CUSTOMIZE }
                                             render={ ({ props }) => <Customize
                                                                         company={ this.state.company }
@@ -369,6 +400,7 @@ class App extends C {
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />
                                         <Route
+                                            onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + PAGE.SYSTEM }
                                             render={ ({ props }) => <System
                                                                         company={ this.state.company }

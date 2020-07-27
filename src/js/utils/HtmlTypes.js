@@ -183,11 +183,11 @@ export const CUSTOMIZE = {
     ,LANGUAGE:'language'
     ,COLOR: 'color'
     ,QRAPPLINK: 'qr_app_link'
-    ,AUTH: 'auth'
-    ,SEARCH: 'search'
-    ,VIEW: 'view'
-    ,CREATE: 'creact'
-    ,EDIT: 'edit'
+    // ,AUTH: 'auth'
+    // ,SEARCH: 'search'
+    // ,VIEW: 'view'
+    // ,CREATE: 'creact'
+    // ,EDIT: 'edit'
 }
 
 export const OPTIONS_KEY = {
@@ -197,6 +197,16 @@ export const OPTIONS_KEY = {
     OPTION_REGEX: 'option_regex',
     OPTIONS_ITEM: 'option_item',
     OPTIONS_FILE: 'option_file'
+}
+
+export const OPTION_AUTH = {
+    AUTH: 'auth'
+    ,SEARCH: 'search'
+    ,VIEW: 'view'
+    ,CREATE: 'creact'
+    ,EDIT: 'edit'
+    ,UPLOAD: 'upload'
+    ,DOWNLOAD: 'download'
 }
 
 export const OPTIONS = [

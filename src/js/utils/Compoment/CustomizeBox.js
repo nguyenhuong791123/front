@@ -5,7 +5,7 @@ import { FaPlus, FaMinus } from 'react-icons/fa';
 // import InputCalendarBox from './CalendarBox';
 
 import { VARIANT_TYPES, ACTION } from '../Types';
-import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY, REGEXS } from '../HtmlTypes';
+import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY, OPTION_AUTH, REGEXS } from '../HtmlTypes';
 import Html from '../HtmlUtils'
 import Utils from '../Utils';
 import { fileToBase64 } from '../FileUtils';
@@ -82,7 +82,6 @@ export default class CustomizeBox extends C {
         if(this.state.mode !== ACTION.EDIT) {
             this.state.dragobject = null;
         }
-
     }
 
     _onChange(e) {
@@ -105,7 +104,7 @@ export default class CustomizeBox extends C {
             delete editBox.obj[OPTIONS_KEY.OPTION_TARGET];
             delete editBox.obj[OPTIONS_KEY.OPTIONS];
         } else {
-            var val = (!Number.isNaN(Number(obj.value)))?parseInt(obj.value):obj.value;
+            var val = (!Utils.isEmpty(obj.value) && !Number.isNaN(Number(obj.value)))?parseInt(obj.value):obj.value;
             if(name === 'obj_lists'
                 && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.SELECT)
                 && name !== CUSTOMIZE.LANGUAGE ) {
@@ -120,6 +119,8 @@ export default class CustomizeBox extends C {
                     lObj['label'] = obj.value;
                 }
                 editBox.obj[OPTIONS_KEY.OPTIONS][idx] = lObj;
+            } else if([ CUSTOMIZE.SEARCH , CUSTOMIZE.VIEW, CUSTOMIZE.CREATE, CUSTOMIZE.EDIT ].includes(name)) {
+                editBox.obj[CUSTOMIZE.AUTH][name] = obj.checked;
             } else if(name === OPTIONS_KEY.OPTION_TARGET && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.SELECT)) {
                 editBox.obj[OPTIONS_KEY.OPTION_TARGET] = val;
                 editBox.obj[CUSTOMIZE.DEFAULT] = '';
@@ -155,23 +156,18 @@ export default class CustomizeBox extends C {
                 if(obj.type === TYPE.CHECKBOX) {
                     val = obj.checked;
                 }
-                editBox.obj[name] = val;
-                const options = [ TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT ];
-                if(!options.includes(type) && !options.includes(name) && name !== CUSTOMIZE.LANGUAGE) {
-                    delete editBox.obj[OPTIONS_KEY.OPTION_CHECKED];
-                    delete editBox.obj[OPTIONS_KEY.OPTION_TARGET];
-                    delete editBox.obj[OPTIONS_KEY.OPTIONS];
-                    if (name === TYPE.CHILDENS && !Utils.isEmpty(editBox.obj[OPTIONS_KEY.OPTIONS_ITEM]))
-                        delete editBox.obj[OPTIONS_KEY.OPTIONS_ITEM];
-                } else if (name === CUSTOMIZE.LANGUAGE) {
-                    const label_language = CUSTOMIZE.LABEL + '_' + val;
-                    if (editBox.obj[label_language] === undefined) {
-                        editBox.obj[label_language] = '';
-                    }
-                    const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + val;
-                    if (editBox.obj[placeholder_language] === undefined) {
-                        editBox.obj[placeholder_language] = '';
-                    }
+                if (name === CUSTOMIZE.LABEL || name === CUSTOMIZE.PLACEHOLDER) {
+                    editBox.obj[name][editBox.obj[CUSTOMIZE.LANGUAGE]] = val;
+                } else {
+                    editBox.obj[name] = val;
+                    const options = [ TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT ];
+                    if(!options.includes(type) && !options.includes(name) && name !== CUSTOMIZE.LANGUAGE) {
+                        delete editBox.obj[OPTIONS_KEY.OPTION_CHECKED];
+                        delete editBox.obj[OPTIONS_KEY.OPTION_TARGET];
+                        delete editBox.obj[OPTIONS_KEY.OPTIONS];
+                        if (name === TYPE.CHILDENS && !Utils.isEmpty(editBox.obj[OPTIONS_KEY.OPTIONS_ITEM]))
+                            delete editBox.obj[OPTIONS_KEY.OPTIONS_ITEM];
+                    }                        
                 }
             }
     
@@ -189,7 +185,7 @@ export default class CustomizeBox extends C {
         if(Utils.isEmpty(editBox.obj[CUSTOMIZE.BOX_HEIGHT])) {
           editBox.obj[CUSTOMIZE.BOX_HEIGHT] = 80;
         }
-        // console.log(editBox);
+        console.log(editBox);
         this.props.updateEditBox(editBox);
     }
 
@@ -227,135 +223,159 @@ export default class CustomizeBox extends C {
         if(Utils.isEmpty(editBox[CUSTOMIZE.LABEL_COLOR])) editBox[CUSTOMIZE.LABEL_COLOR] = '#';
         if(Utils.isEmpty(editBox[CUSTOMIZE.LABEL_LAYOUT_COLOR])) editBox[CUSTOMIZE.LABEL_LAYOUT_COLOR] = '#';
 
+        let label = editBox[CUSTOMIZE.LABEL];
+        if(Utils.isEmpty(label)) {
+            label = {};
+            let placeholder = {};
+            const objs = Html.getLanguages();
+            for(let i=0; i<objs.length; i++) {
+                label[objs[i]] = '';
+                placeholder[objs[i]] = '';
+            }
+            editBox[CUSTOMIZE.LABEL] = label;
+            editBox[CUSTOMIZE.PLACEHOLDER] = placeholder;
+        }
         let auth = editBox[CUSTOMIZE.AUTH];
         if(Utils.isEmpty(auth)) {
-            auth[CUSTOMIZE.SEARCH] = false;
-            auth[CUSTOMIZE.VIEW] = false;
-            auth[CUSTOMIZE.CREATE] = false;
-            auth[CUSTOMIZE.EDIT] = false;
+            auth = {};
+            auth[CUSTOMIZE.SEARCH] = true;
+            auth[CUSTOMIZE.VIEW] = true;
+            auth[CUSTOMIZE.CREATE] = true;
+            auth[CUSTOMIZE.EDIT] = true;
+            editBox[CUSTOMIZE.AUTH] = auth;
         }
+
         return (
             <table className='table-overlay-box'>
                 <tbody>
-                <tr>
-                    <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'btn_auth') }</td>
-                    <td colSpan='3'>
-                        <div>
-                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_search') }</span>
-                            <input
-                                type={ TYPE.CHECKBOX }
-                                checked={ auth[CUSTOMIZE.SEARCH] }
-                                name={ CUSTOMIZE.SEARCH }
-                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
-                                onChange={ this._onChange.bind(this) }></input>
-                        </div>
-                        <div>
-                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_view') }</span>
-                            <input
-                                type={ TYPE.CHECKBOX }
-                                checked={ auth[CUSTOMIZE.SEARCH] }
-                                name={ CUSTOMIZE.VIEW }
-                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
-                                onChange={ this._onChange.bind(this) }></input>
-                        </div>
-                        <div>
-                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_create') }</span>
-                            <input
-                                type={ TYPE.CHECKBOX }
-                                checked={ auth[CUSTOMIZE.SEARCH] }
-                                name={ CUSTOMIZE.CREATE }
-                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
-                                onChange={ this._onChange.bind(this) }></input>
-                        </div>
-                        <div>
-                            <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }</span>
-                            <input
-                                type={ TYPE.CHECKBOX }
-                                checked={ auth[CUSTOMIZE.SEARCH] }
-                                name={ CUSTOMIZE.EDIT }
-                                // defaultValue={ auth[CUSTOMIZE.SEARCH] }
-                                onChange={ this._onChange.bind(this) }></input>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td colSpan='4'><h4>{ this.state.editBox.msg }</h4></td>
-                </tr>
-                <tr>
-                    <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
-                    <td>
+                    <tr>
+                        <td colSpan='4'><h4>{ this.state.editBox.msg }</h4></td>
+                    </tr>
                     {(() => {
-                        if (this.state.mode === ACTION.EDIT) {
+                        if ((obj === null || obj !== null)
+                            && editBox[CUSTOMIZE.TYPE] !== TYPE.DIV
+                            && editBox[CUSTOMIZE.TYPE] !== TYPE.TAB) {
                             return(
-                                <FormControl
-                                    disabled
-                                    as={ HTML_TAG.SELECT }
-                                    name={ CUSTOMIZE.TYPE }
-                                    value={ editBox[CUSTOMIZE.TYPE] }
-                                    onChange={ this._onChange.bind(this) }> { this.state.items }</FormControl>
-                        );
-                        } else {
-                            return(
-                                <FormControl
-                                    as={ HTML_TAG.SELECT }
-                                    name={ CUSTOMIZE.TYPE }
-                                    value={ editBox[CUSTOMIZE.TYPE] }
-                                    onChange={ this._onChange.bind(this) }> { this.state.items }</FormControl>
+                                <tr>
+                                <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'bt_auth') }</td>
+                                <td colSpan='3' className='td-auth-block'>
+                                    <div>
+                                        <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_search') }</span>
+                                        <input
+                                            type={ TYPE.CHECKBOX }
+                                            checked={ auth[OPTION_AUTH.SEARCH] }
+                                            name={ OPTION_AUTH.SEARCH }
+                                            // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                            onChange={ this._onChange.bind(this) }></input>
+                                    </div>
+                                    <div>
+                                        <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_view') }</span>
+                                        <input
+                                            type={ TYPE.CHECKBOX }
+                                            checked={ auth[OPTION_AUTH.VIEW] }
+                                            name={ OPTION_AUTH.VIEW }
+                                            // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                            onChange={ this._onChange.bind(this) }></input>
+                                    </div>
+                                    <div>
+                                        <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_create') }</span>
+                                        <input
+                                            type={ TYPE.CHECKBOX }
+                                            checked={ auth[OPTION_AUTH.CREATE] }
+                                            name={ OPTION_AUTH.CREATE }
+                                            // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                            onChange={ this._onChange.bind(this) }></input>
+                                    </div>
+                                    <div>
+                                        <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }</span>
+                                        <input
+                                            type={ TYPE.CHECKBOX }
+                                            checked={ auth[OPTION_AUTH.EDIT] }
+                                            name={ OPTION_AUTH.EDIT }
+                                            // defaultValue={ auth[CUSTOMIZE.SEARCH] }
+                                            onChange={ this._onChange.bind(this) }></input>
+                                    </div>
+                                </td>
+                            </tr>
                             );
                         }
                     })()}
-                    </td>
-                    <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_language') }</td>
-                    <td>
-                        <FormControl
-                            as={ HTML_TAG.SELECT }
-                            name={ CUSTOMIZE.LANGUAGE }
-                            value={ editBox[CUSTOMIZE.LANGUAGE] }
-                            onChange={ this._onChange.bind(this) }>
-                            { this.state.languages }
-                        </FormControl>
-                    </td>
-                </tr>
-    
-                <tr>
-                    <td className='td-not-break'>
-                        { Msg.getMsg(null, this.state.isUser.language, 'obj_label') }
-                        <span className={ 'required' }>*</span>
-                    </td>
-                    <td>
-                        <FormControl
-                            type={ TYPE.TEXT }
-                            name={ CUSTOMIZE.LABEL + '_' + editBox[CUSTOMIZE.LANGUAGE]}
-                            // defaultValue={ editBox[CUSTOMIZE.LABEL + '_' + editBox[CUSTOMIZE.LANGUAGE]] }
-                            value={ editBox[CUSTOMIZE.LABEL + '_' + editBox[CUSTOMIZE.LANGUAGE]] }
-                            onChange={ this._onChange.bind(this) }/>
-                    </td>
-                    <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_width') }</td>
-                    <td>
-                    <table style={ { width: '100%' } }>
-                        <tbody>
-                        <tr>
-                            <td>
-                                <FormControl
-                                    as={ HTML_TAG.SELECT }
-                                    name={ CUSTOMIZE.BOX_WIDTH }
-                                    value={ editBox[CUSTOMIZE.BOX_WIDTH] }
-                                    onChange={ this._onChange.bind(this) }> { this.state.widths }</FormControl>
-                            </td>
-                            <td style={ { width: '50px', textAlign: 'right'} }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_height') }</td>
-                            <td style={ { width: '40%' } }>
-                                <FormControl
-                                    as={ HTML_TAG.SELECT }
-                                    name={ CUSTOMIZE.BOX_HEIGHT }
-                                    value={ editBox[CUSTOMIZE.BOX_HEIGHT] }
-                                    onChange={ this._onChange.bind(this) }> { this.state.heights }</FormControl>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    </td>
-                </tr>
+
+                    <tr>
+                        <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
+                        <td>
+                        {(() => {
+                            if (this.state.mode === ACTION.EDIT) {
+                                return(
+                                    <FormControl
+                                        disabled
+                                        as={ HTML_TAG.SELECT }
+                                        name={ CUSTOMIZE.TYPE }
+                                        value={ editBox[CUSTOMIZE.TYPE] }
+                                        onChange={ this._onChange.bind(this) }> { this.state.items }</FormControl>
+                            );
+                            } else {
+                                return(
+                                    <FormControl
+                                        as={ HTML_TAG.SELECT }
+                                        name={ CUSTOMIZE.TYPE }
+                                        value={ editBox[CUSTOMIZE.TYPE] }
+                                        onChange={ this._onChange.bind(this) }> { this.state.items }</FormControl>
+                                );
+                            }
+                        })()}
+                        </td>
+                        <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_language') }</td>
+                        <td>
+                            <FormControl
+                                as={ HTML_TAG.SELECT }
+                                name={ CUSTOMIZE.LANGUAGE }
+                                value={ editBox[CUSTOMIZE.LANGUAGE] }
+                                onChange={ this._onChange.bind(this) }>
+                                { this.state.languages }
+                            </FormControl>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td className='td-not-break'>
+                            { Msg.getMsg(null, this.state.isUser.language, 'obj_label') }
+                            <span className={ 'required' }>*</span>
+                        </td>
+                        <td>
+                            <FormControl
+                                type={ TYPE.TEXT }
+                                name={ CUSTOMIZE.LABEL }
+                                // name={ CUSTOMIZE.LABEL + '_' + editBox[CUSTOMIZE.LANGUAGE]}
+                                // defaultValue={ editBox[CUSTOMIZE.LABEL + '_' + editBox[CUSTOMIZE.LANGUAGE]] }
+                                value={ editBox[CUSTOMIZE.LABEL][editBox[CUSTOMIZE.LANGUAGE]] }
+                                onChange={ this._onChange.bind(this) }/>
+                        </td>
+                        <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_width') }</td>
+                        <td>
+                        <table style={ { width: '100%' } }>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <FormControl
+                                        as={ HTML_TAG.SELECT }
+                                        name={ CUSTOMIZE.BOX_WIDTH }
+                                        value={ editBox[CUSTOMIZE.BOX_WIDTH] }
+                                        onChange={ this._onChange.bind(this) }> { this.state.widths }</FormControl>
+                                </td>
+                                <td style={ { width: '50px', textAlign: 'right'} }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_height') }</td>
+                                <td style={ { width: '40%' } }>
+                                    <FormControl
+                                        as={ HTML_TAG.SELECT }
+                                        name={ CUSTOMIZE.BOX_HEIGHT }
+                                        value={ editBox[CUSTOMIZE.BOX_HEIGHT] }
+                                        onChange={ this._onChange.bind(this) }> { this.state.heights }</FormControl>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        </td>
+                    </tr>
     
                 {(() => {
                     if (obj === null 
@@ -581,8 +601,8 @@ export default class CustomizeBox extends C {
                                 <td>
                                     <FormControl
                                         type={ TYPE.TEXT }
-                                        name={ CUSTOMIZE.PLACEHOLDER + '_' + editBox[CUSTOMIZE.LANGUAGE] }
-                                        value={ editBox[CUSTOMIZE.PLACEHOLDER + '_' + editBox[CUSTOMIZE.LANGUAGE]] }
+                                        name={ CUSTOMIZE.PLACEHOLDER }
+                                        value={ editBox[CUSTOMIZE.PLACEHOLDER][editBox[CUSTOMIZE.LANGUAGE]] }
                                         onChange={ this._onChange.bind(this) }/>
                                 </td>
                             );

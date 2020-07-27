@@ -237,6 +237,20 @@ $box-widths:(
     }
 }
 
+// button.btn-create-div {
+//     position: absolute;
+//     right: 13.6em;
+//     margin-bottom: .2em;
+//     margin-top: .3em;
+// }
+
+// button.btn-create-tab {
+//     position: absolute;
+//     right: 9.5em;
+//     margin-bottom: .2em;
+//     margin-top: .3em;
+// }
+
 div.form-group {
     > label {
         text-overflow: ellipsis;
@@ -270,16 +284,6 @@ div.div-context-menu {
         > a:hover {
             background: #f8f9fa;
         }
-    }
-}
-
-div.div-customize-box {
-    overflow: auto;
-    overflow-y: auto;
-
-    > div {
-        border: 1px solid #dee2e6;
-        border-radius: .5em;
     }
 }
 
@@ -323,5 +327,19 @@ div.div-list-box {
     div.div-table-body
     ,div.div-table-header {
         overflow: scroll;
+    }
+}
+
+div.div-actions-box {
+    display: flex;
+    position: absolute;
+    right: 0;
+    margin-bottom: .2em;
+    margin-top: .3em;
+}
+
+div.div-right-box {
+    input[type="range"] {
+        padding: 0;
     }
 }

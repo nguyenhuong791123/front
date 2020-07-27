@@ -64,7 +64,7 @@ class Pagin extends C {
                 })()}
                 { items }
                 {(() => {
-                    if(active < (pC - 1 && pC > PAGIN_PER_LIST)) { return ( <Pagination.Next id={ PAGIN.NEXT } onClick={ this._onClick.bind(this) } /> ); }
+                    if(active < (pC - 1) && pC > PAGIN_PER_LIST) { return ( <Pagination.Next id={ PAGIN.NEXT } onClick={ this._onClick.bind(this) } /> ); }
                 })()}
                 {(() => {
                     if(active < (pC - 2) && pC > PAGIN_PER_LIST) { return ( <Pagination.Last id={ PAGIN.NEXTALL } onClick={ this._onClick.bind(this) } /> ); }

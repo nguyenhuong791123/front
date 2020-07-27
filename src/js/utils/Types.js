@@ -8,6 +8,7 @@ export const NOT_LINK = 1;
 
 export const SYSTEM = {
     IS_ADMIN: 'admin'
+    ,IS_LOGIN: 'isLogin'
     ,IS_ACTIVE_WINDOWN: 'isActiveWindown'
     ,IS_DAILER_BOX: 'div_dailer_box'
     ,IS_CSS_LINK_ID: 'link_bootstrap_id'

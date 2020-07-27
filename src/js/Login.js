@@ -49,31 +49,55 @@ class Login extends C {
         const f = Fetch.postLogin(host + 'login', options);
         f.then(data => {
           if(!isEmpty(data)) {
-              //console.log(data.user);
-              //console.log(data.page);
               if(inJson(data, 'user')) {
-                this.state.isUser['uLid'] = this.state.uLid;
                 this.state.isUser['path'] = ACTION.SLASH + ACTION.LIST;
                 this.state.isUser['viewHeader'] = true;
                 if(!isEmpty(data.user.user_theme)) {
                   this.state.isUser['theme'] = data.user.user_theme;
                 }
+                this.state.isUser['uLid'] = data.user.user_login_id;
+                this.state.isUser['gId'] = data.user.group_id;
+                this.state.isUser['uName'] = data.user.user_name_first + ' ' + data.user.user_name_last;
                 this.state.isUser['menu'] = data.user.user_view_menu;
                 this.state.options['dailer'] = (data.user.user_cti_flag === 1)?true:false;
                 this.state.options['customize'] = (data.user.user_manager === 1)?true:false;
-                //console.log(this.state.isUser);
-                //console.log(this.state.options);
-                //console.log(data.page);
-                this.props.onLogin(this.state.isUser, this.state.options, data.page);
+                this.props.onLogin(this.state.isUser, this.state.options);
                 this.props.history.push(ACTION.SLASH + ACTION.LIST);
               }
-            if(inJson(data, 'error')) {
-              const key = Object.keys(data)[0];
-              const div = document.getElementById(key);
-              div.innerHTML = data[key];
-              div.style.display = 'block';
-            }
+              if(inJson(data, 'error')) {
+                const key = Object.keys(data)[0];
+                const div = document.getElementById(key);
+                div.innerHTML = data[key];
+                div.style.display = 'block';
+              }
           }
+        // f.then(data => {
+        //   if(!isEmpty(data)) {
+        //       //console.log(data.user);
+        //       //console.log(data.page);
+        //       if(inJson(data, 'user')) {
+        //         this.state.isUser['uLid'] = this.state.uLid;
+        //         this.state.isUser['path'] = ACTION.SLASH + ACTION.LIST;
+        //         this.state.isUser['viewHeader'] = true;
+        //         if(!isEmpty(data.user.user_theme)) {
+        //           this.state.isUser['theme'] = data.user.user_theme;
+        //         }
+        //         this.state.isUser['menu'] = data.user.user_view_menu;
+        //         this.state.options['dailer'] = (data.user.user_cti_flag === 1)?true:false;
+        //         this.state.options['customize'] = (data.user.user_manager === 1)?true:false;
+        //         //console.log(this.state.isUser);
+        //         //console.log(this.state.options);
+        //         //console.log(data.page);
+        //         this.props.onLogin(this.state.isUser, this.state.options, data.page);
+        //         this.props.history.push(ACTION.SLASH + ACTION.LIST);
+        //       }
+        //       if(inJson(data, 'error')) {
+        //         const key = Object.keys(data)[0];
+        //         const div = document.getElementById(key);
+        //         div.innerHTML = data[key];
+        //         div.style.display = 'block';
+        //       }
+        //   }
         }).catch(err => {
           //console.log(err);
           return;
@@ -114,15 +138,13 @@ class Login extends C {
   _onChangeSelect(e) {
     this.state.isUser.language = e.target.value;
     const auth = { info: this.state.isUser, options: this.state.options };
-    this.props.onUpdateStateIsUser(auth);
+    this.props.onUpdateIsUserCallBack(auth);
     // this.forceUpdate();
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
-    if (this.props.company !== nextProps.company)
-      this.setState({ company: nextProps.company });
-    if (this.props.isUser !== nextProps.isUser)
-      this.setState({ isUser: nextProps.isUser });
+    this.state.company = nextProps.company;
+    this.state.isUser = nextProps.isUser;
   }
 
   componentDidMount() {
