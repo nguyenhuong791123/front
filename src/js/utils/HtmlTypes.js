@@ -93,6 +93,7 @@ export const BOX_HEIGHT = {
 export const ATTR = {
     TYPE: 'type'
     ,ID: 'id'
+    ,IDX: 'idx'
     ,CODE: 'code'
     ,NAME: 'name'
     ,VALUE: 'value'
@@ -203,7 +204,7 @@ export const OPTION_AUTH = {
     AUTH: 'auth'
     ,SEARCH: 'search'
     ,VIEW: 'view'
-    ,CREATE: 'creact'
+    ,CREATE: 'create'
     ,EDIT: 'edit'
     ,UPLOAD: 'upload'
     ,DOWNLOAD: 'download'

@@ -21,7 +21,7 @@ div.div-tree-view-box ul > li ul {
 
 div.div-tree-view-box > ul div {
   cursor: pointer;
-  line-height: 2.5em;
+  line-height: 3em;
 }
 
 div.div-tree-view-box > ul div:first-child {
@@ -43,14 +43,15 @@ div.div-tree-view-box > ul li > div:first-child:hover {
 
 div.div-tree-view-box ul li > div.div-btn-group {
   position: absolute;
-  margin-top: -2.5em;
+  margin-top: -3.2em;
   left: 17%;
   padding: 0;
 }
 
 div.div-tree-view-box ul li > div.div-btn-group > input[type='checkbox'] {
   margin: .2em;
-  margin-top: .8em;  
+  margin-top: 1.3em;
+  margin-right: .5em;  
 }
 
 div.div-tree-view-box ul li > div.div-btn-group > input[type='checkbox']:hover {
@@ -58,13 +59,15 @@ div.div-tree-view-box ul li > div.div-btn-group > input[type='checkbox']:hover {
 }
 
 div.div-tree-view-box ul li > div.div-btn-group > button {
-  width: 100px;
+  width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: .5em;
+  border-radius: .3em !important;
 }
 
-div.div-tree-view-box ul li > div.div-btn-group > button.selected {
+/* div.div-tree-view-box ul li > div.div-btn-group > button.selected {
   color: brown;
-}
+} */
 

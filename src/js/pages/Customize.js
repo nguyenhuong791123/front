@@ -59,14 +59,15 @@ class Customize extends C {
       ,dragobject: null
       ,dragparent: null
       ,mode: ACTION.CREATE
-      ,pages: [
-        { id: 1, target: 'target_00', label: 'label_00' }
-        ,{ id: 3, target: 'target_001', label: 'label_001' }
-        ,{ id: 5, target: 'target_0000', label: 'label_0000' }
-        ,{ id: 7, target: 'target_003', label: 'label_003' }
-        ,{ id: 8, target: 'target_0000003', label: 'label_0000003' }
-        ,{ id: 10, target: 'target_0000031', label: 'target_0000031'} 
-      ]
+      ,menus: this.props.menus
+      // ,menus: [
+      //   { id: 1, target: 'target_00', label: 'label_00' }
+      //   ,{ id: 3, target: 'target_001', label: 'label_001' }
+      //   ,{ id: 5, target: 'target_0000', label: 'label_0000' }
+      //   ,{ id: 7, target: 'target_003', label: 'label_003' }
+      //   ,{ id: 8, target: 'target_0000003', label: 'label_0000003' }
+      //   ,{ id: 10, target: 'target_0000031', label: 'target_0000031'} 
+      // ]
     }
   };
 
@@ -575,7 +576,7 @@ class Customize extends C {
       console.log(obj);
       // obj.value Fecth To API
       if(Utils.isNumber(obj.value)) {
-        this._onLoadingStateSmaple();
+        this._onLoadingStateSmaple(obj.value);
       } else {
         this._onGetPageDefault();
       }
@@ -632,7 +633,7 @@ class Customize extends C {
             mode={ this.state.mode }
             dragobject={ this.state.dragobject }
             editBox={ this.state.overlayCreateEditBox }
-            pages={ this.state.pages }
+            menus={ this.state.menus }
             updateEditBox={ this._onUpdateEditBox.bind(this) }/>
         </div>
       </Alert>
@@ -886,12 +887,21 @@ class Customize extends C {
   }
 
   _getTitle() {
-    var items = [];
-    const pages = this.state.pages;
-    items.push( <option key={ 'frist_option' } value={ '' }>{ '---' }</option> );
-    for (let i=0; i<pages.length; i++) {
-      items.push( <option key={ i } value={ pages[i].id }>{ pages[i].label }</option> );
-    }
+    const options = this.state.menus.map((o, index) => {
+      if(Array.isArray(o['items'])) {
+        const opts = o['items'].map((i, idx) => {
+          return(<option key={ idx } value={ i.page_id }>{ i.page_name }</option>);
+        });
+        return(
+          <optgroup key={ index } label={ o.page_name }>
+            { opts }
+          </optgroup>
+        );
+      } else {
+        return(<option key={ index } value={ o.page_id }>{ o.page_name }</option>);
+      }
+    });
+
     return(
       <div className={ 'div-body-customize-header-box' }>
         {(() => {
@@ -916,10 +926,13 @@ class Customize extends C {
           } else {
             return (
               <div className='div-customize-title-box'>
-                <FormControl
-                  as={ HTML_TAG.SELECT }
-                  defaultValue={ this.state.page.page_id }
-                  onChange={ this._onChange.bind(this) }> { items }</FormControl>
+                <select
+                  className={ 'form-control' }
+                  value={ this.state.page.page_id }
+                  onChange={ this._onChange.bind(this) }>
+                  <option key={ 'frist_option' } value={ '' }>{ '---' }</option>
+                  { options }
+                </select>
                 {(() => {
                   if(Utils.isNumber(this.state.page.page_id)) {
                     return(
@@ -1221,9 +1234,9 @@ class Customize extends C {
     });
   }
 
-  _onLoadingStateSmaple() {
+  _onLoadingStateSmaple(value) {
     this.state.page = {
-      "page_id": 1,
+      "page_id": value,
       "page_name": "AAA",
       "form": [
         {
@@ -1281,6 +1294,12 @@ class Customize extends C {
       this.state.page['page_auth'][OPTION_AUTH.UPLOAD] = true;
       this.state.page['page_auth'][OPTION_AUTH.DOWNLOAD] = true;
     }
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    this.state.isUser = nextProps.isUser;
+    this.state.options = nextProps.options;
+    this.state.menus = nextProps.menus;
   }
 
   componentDidUpdate() {

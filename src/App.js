@@ -7,7 +7,7 @@ import { createStore, combineReducers, compose, applyMiddleware } from 'redux';
 import { sessionService, sessionReducer } from 'redux-react-session';
 import thunkMiddleware from 'redux-thunk';
 
-import { PAGE, PAGE_ACTION, ACTION, SYSTEM } from './js/utils/Types';
+import { PAGE, MSG_TYPE, ACTION, SYSTEM } from './js/utils/Types';
 import { HTML_TAG } from './js/utils/HtmlTypes';
 import { THEME } from './js/utils/Theme';
 import { getCookie } from './js/utils/Cookies';
@@ -73,12 +73,12 @@ class App extends C {
 
     _doLogin(isUser, options) {
         const auth = { info: isUser, options: options };
-        auth.info['wn'] = Utils.getUUID();
         AuthSession.doLogin(auth).then(response => {
             const { token } = response;
             sessionService.saveSession({ token }).then(() => {
                 sessionService.saveUser(auth).then(() => {
                     if(Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))) {
+                        auth.info['wn'] = Utils.getUUID();
                         window.name = auth.info['wn'];
                         sessionStorage.setItem(SYSTEM.IS_ACTIVE_WINDOWN, auth.info['wn']);
                         localStorage.setItem(SYSTEM.IS_LOGIN, auth.info.uId);
@@ -240,6 +240,11 @@ class App extends C {
         });
     }
 
+    _onUpdateMenus(menus) {
+        this.state.menus = menus;
+        this.forceUpdate();
+    }
+
     _stopLoading() {
         this.state.loading = false;
     }
@@ -311,7 +316,7 @@ class App extends C {
         //console.log(chrome.app);
         return (
             <div>
-                <LoadingOverlay active={ this.state.loading } spinner text='Loading your content...' />
+                <LoadingOverlay active={ this.state.loading } spinner text={ Msg.getMsg(MSG_TYPE.INFO, this.state.isUser.language, 'loading') } />
 
                 <Provider store={ store }>
                 {(() => {
@@ -396,6 +401,7 @@ class App extends C {
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
+                                                                        menus={ this.state.menus }
                                                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />
@@ -406,6 +412,8 @@ class App extends C {
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
+                                                                        menus={ this.state.menus }
+                                                                        onUpdateMenus={ this._onUpdateMenus.bind(this) }
                                                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />

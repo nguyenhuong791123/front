@@ -22,7 +22,7 @@ export default class CustomizeBox extends C {
 
         this.state = {
             isUser: this.props.isUser
-            ,pages: this.props.pages
+            ,menus: this.props.menus
             ,mode: this.props.mode
             ,editBox: this.props.editBox
             ,dragobject: this.props.dragobject
@@ -818,12 +818,12 @@ export default class CustomizeBox extends C {
                         || editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE
                         || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN
                         || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
-                        const pages = this.state.pages;
-                        var listPages = [];
-                        listPages.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
-                        if(Array.isArray(pages) && pages.length > 0) {
-                            for (let i=0; i<pages.length; i++) {
-                                listPages.push( <option key={ i } value={ pages[i].id }>{ pages[i].label }</option> );
+                        const menus = this.state.menus;
+                        var listmenus = [];
+                        listmenus.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+                        if(Array.isArray(menus) && menus.length > 0) {
+                            for (let i=0; i<menus.length; i++) {
+                                listmenus.push( <option key={ i } value={ menus[i].id }>{ menus[i].label }</option> );
                             }
                         }
                         return(
@@ -834,7 +834,7 @@ export default class CustomizeBox extends C {
                                         as={ HTML_TAG.SELECT }
                                         name={ TYPE.CHILDENS }
                                         value={ editBox[TYPE.CHILDENS] }
-                                        onChange={ this._onChange.bind(this) }> { listPages }</FormControl>
+                                        onChange={ this._onChange.bind(this) }> { listmenus }</FormControl>
                                 </td>
                             </tr>
                         );
