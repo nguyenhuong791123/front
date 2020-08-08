@@ -94,6 +94,7 @@ export const ATTR = {
     TYPE: 'type'
     ,ID: 'id'
     ,IDX: 'idx'
+    ,PIDX: 'pidx'
     ,CODE: 'code'
     ,NAME: 'name'
     ,VALUE: 'value'

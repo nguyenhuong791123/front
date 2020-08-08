@@ -68,9 +68,8 @@ var getLocationURL = function() {
     return window.location.protocol + '//' + window.location.host;
 }
 
-var getUUID = function(max) {
-    if(Number.isNaN(Number(max))) return Math.random().toString(36).slice(-max).toString();
-    return Math.random().toString(36).slice(-8).toString();
+var getUUID = function() {
+    return Math.random().toString(36).slice(2).toUpperCase();
 }
 
 var isFunc = function(obj, name) {

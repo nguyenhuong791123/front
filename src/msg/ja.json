@@ -31,6 +31,7 @@
   ,"bt_file": "ファイル"
   ,"bt_auth": "権限"
   ,"bt_copy": "複製"
+  ,"bt_group_menu": "グループメニュー"
 
   ,"base_info": "基本情報"
   ,"page_list": "ページ一覧"
@@ -62,7 +63,7 @@
   ,"unit": "単位"
 
   ,"title_page": "ページ名"
-  ,"title_fileld": "項目"
+  ,"title_field": "項目"
   ,"title_menu": "メニュー"
   ,"title_keyword": "検索キーワード"
   ,"title_register": "レジスター"

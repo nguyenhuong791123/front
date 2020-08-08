@@ -343,10 +343,10 @@ class Header extends C {
     window.onresize = function(event) {
       var divBody = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
       if(!Utils.isEmpty(divBody))
-        divBody.style.height = (window.innerHeight - 105) + 'px';
+        divBody.style.height = (window.innerHeight - 90) + 'px';
 
       const divListBox = this.document.getElementById(SYSTEM.IS_DIV_LIST_BOX);
-      console.log(divListBox);
+      // console.log(divListBox);
       if(!Utils.isEmpty(divListBox)) {
           divBody = divListBox.childNodes[1].lastChild;
           this.console.log();
@@ -403,7 +403,7 @@ class Header extends C {
                     if(this.state.isUser.menu === 1) {
                       return ( <LMenu
                                 isUser={ this.state.isUser }
-                                objs={ this.state.menus }
+                                menus={ this.state.menus }
                                 onClick={ this._onClick.bind(this) }/> );
                     }
                   })()}
@@ -413,7 +413,6 @@ class Header extends C {
                     isViewChat={ this.state.isViewChat }
                     title={ this.state.title }
                     objs={ this.state.headers }
-                    // objs={ this.state.listHeaders }
                     // chats= { this.state.listChats }
                     onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) }
                     />

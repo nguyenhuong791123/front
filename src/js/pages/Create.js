@@ -505,10 +505,18 @@ class Create extends C {
     return (
       <div className={ 'div-list-box' }>
         { this._onResetButtons() }
-        <Actions
+        <div className={ 'div-actions-box' }>
+          <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
+            { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
+          </Button>
+          <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+              { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
+          </Button>
+        </div>
+        {/* <Actions
             isUser={ this.state.isUser }
             onClickBack={ this._onClickBack.bind(this) }
-            onClickSubmit={ this._onClickSubmit.bind(this) } />
+            onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
         <div className="div-title-box">
           {/* <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5> */}
           <h5>{ this.state.page.page_name  + '/' + Msg.getMsg(null, this.state.isUser.language, labelKey) }</h5>

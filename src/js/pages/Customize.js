@@ -15,6 +15,7 @@ import { DRAG, MOUSE, TYPE, HTML_TAG, CUSTOMIZE, ATTR, OPTIONS_KEY, OPTION_AUTH 
 import { JSON_OBJ } from '../utils/JsonUtils';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
+import Fetch from '../utils/Fetch';
 
 import '../../css/Customize.scss';
 import Msg from '../../msg/Msg';
@@ -42,16 +43,10 @@ class Customize extends C {
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
-      ,page: {
-        page_id: '',
-        page_name: '',
-        page_auth: {  },
-        form: []
-      }
+      ,page: { page_id: '', page_name: '', page_key: '', page_auth: { }, form: [] }
       ,pageMode: ACTION.CREATE
-      // ,page_name: ''
-      // ,form: []
       ,error_msgs: []
+      ,selectDisabled: false
       ,alertActions: { show: false, class: '', style: {} }
       ,overlayDeleteBox: { show: false, msg: '', class: 'div-overlay-box', style: { textAlign: 'center' } }
       ,overlayCreateEditBox: { show: false, msg: '', class: 'div-overlay-box', style: {}, obj: {} }
@@ -60,27 +55,29 @@ class Customize extends C {
       ,dragparent: null
       ,mode: ACTION.CREATE
       ,menus: this.props.menus
-      // ,menus: [
-      //   { id: 1, target: 'target_00', label: 'label_00' }
-      //   ,{ id: 3, target: 'target_001', label: 'label_001' }
-      //   ,{ id: 5, target: 'target_0000', label: 'label_0000' }
-      //   ,{ id: 7, target: 'target_003', label: 'label_003' }
-      //   ,{ id: 8, target: 'target_0000003', label: 'label_0000003' }
-      //   ,{ id: 10, target: 'target_0000031', label: 'target_0000031'} 
-      // ]
     }
   };
+
+  _onClickCopy() {
+    this.state.pageMode = ACTION.CREATE;
+    const page = this.state.page;
+    page.page_id = '';
+    page.page_name = '';
+    this.state.selectDisabled = false;
+    this.forceUpdate();
+  }
 
   _onClickBack() {
     this.state.isUser.action = PAGE.SYSTEM;
     this.state.isUser.path = ACTION.SLASH + PAGE.SYSTEM;
     this.state.isUser.actions = PAGE_ACTION.SYSTEM;
-    this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+    this.props.onUpdateUser(this.state.isUser, this.state.options, this.state.menus, this.props.onUpdateIsUserCallBack);
   }
 
   _onClickSubmit() {
-    var obj = this.state.page.form[0].object;
-    if(!Utils.isEmpty(obj)) {
+    var obj = null;
+    if(Utils.inJson(this.state.page.form[0], 'object')) {
+      obj = this.state.page.form[0].object;
       if(Array.isArray(obj)) {
         obj = obj[0].schema.properties;
       } else {
@@ -93,13 +90,27 @@ class Customize extends C {
         this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required'));
       }
       if(Utils.isEmpty(obj) || Object.keys(obj).length <= 0) {
-        this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_fileld') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'setting'));
+        this.state.error_msgs.push(Msg.getMsg(null, this.props.isUser.language, 'title_field') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'setting'));
       }
       this.forceUpdate();
     } else {
       this._resetIdxJson();
-      console.log(JSON.stringify(this.state.page));
+      // console.log(JSON.stringify(this.state.page));
       // this._onClickBack();
+      if(Utils.isEmpty(this.state.page['page_key'])) {
+        this.state.page.page_key = 'table_' + Utils.getUUID();
+      }
+      const options = { page: this.state.page, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+      const host = Msg.getSystemMsg('sys', 'app_api_host');
+      const f = Fetch.postLogin(host + 'setPage', options);
+      f.then(data => {
+        if(!Utils.isEmpty(data) && Utils.inJson(data, 'page_id')) {
+          this.state.menus.push(data);
+          this._onClickBack();
+        }
+      }).catch(err => {
+        console.log(err);
+      });
     }
   }
 
@@ -576,8 +587,10 @@ class Customize extends C {
       console.log(obj);
       // obj.value Fecth To API
       if(Utils.isNumber(obj.value)) {
+        this.state.pageMode = ACTION.EDIT;
         this._onLoadingStateSmaple(obj.value);
       } else {
+        this.state.pageMode = ACTION.CREATE;
         this._onGetPageDefault();
       }
     }
@@ -618,13 +631,15 @@ class Customize extends C {
               type={ HTML_TAG.BUTTON }
               onClick={ this._onClickSaveOrEditItems.bind(this) }
               variant={ VARIANT_TYPES.WARNING }>
-              <FaCheck />
+                { Msg.getMsg(null, this.props.isUser.language, 'bt_insert') }
+              {/* <FaCheck /> */}
             </Button>
             <Button
               type={ HTML_TAG.BUTTON }
               onClick={ this._onClickClose.bind(this) }
-              variant={ VARIANT_TYPES.INFO }>
-              <FaReply />
+              variant={ VARIANT_TYPES.PRIMARY }>
+                { Msg.getMsg(null, this.props.isUser.language, 'bt_return') }
+              {/* <FaReply /> */}
             </Button>
           </div>
 
@@ -743,15 +758,17 @@ class Customize extends C {
         break;
       }
     }
-    var labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][this.state.isUser.language];
-    if(Utils.isEmpty(error) && !Utils.isEmpty(labelPlaceholder)) {
-      const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder');
-      for(let i=0; i<languages.length; i++) {
-        labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][languages[i]];
-        if(Utils.isEmpty(labelPlaceholder) || labelPlaceholder.length <= 30) continue;
-        error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (labelPlaceholder.length - 30));
-        break;
-      }
+    if(!Utils.isEmpty(obj[CUSTOMIZE.PLACEHOLDER])) {
+      var labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][this.state.isUser.language];
+      if(Utils.isEmpty(error) && !Utils.isEmpty(labelPlaceholder)) {
+        const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder');
+        for(let i=0; i<languages.length; i++) {
+          labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][languages[i]];
+          if(Utils.isEmpty(labelPlaceholder) || labelPlaceholder.length <= 30) continue;
+          error = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, 30, (labelPlaceholder.length - 30));
+          break;
+        }
+      }  
     }
     if(Utils.isEmpty(error)
       && obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS_FILE])) {
@@ -861,14 +878,16 @@ class Customize extends C {
           <Button
             type={ HTML_TAG.BUTTON }
             onClick={ this._onClickDelete.bind(this) }
-            variant={ VARIANT_TYPES.WARNING }>
-            <FaTrash />
+            variant={ VARIANT_TYPES.DANGER }>
+            {/* <FaTrash /> */}
+            { Msg.getMsg(null, this.props.isUser.language, 'bt_delete') }
           </Button>
           <Button
             type={ HTML_TAG.BUTTON }
             onClick={ this._onClickClose.bind(this) }
-            variant={ VARIANT_TYPES.INFO }>
-            <FaReply />
+            variant={ VARIANT_TYPES.PRIMARY }>
+            {/* <FaReply /> */}
+            { Msg.getMsg(null, this.props.isUser.language, 'bt_return') }
           </Button>
         </div>
       </Alert>
@@ -883,12 +902,13 @@ class Customize extends C {
     // }
     this.state.pageMode = (this.state.pageMode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
     if(this.state.pageMode === ACTION.CREATE) this._onGetPageDefault();
+    this.state.selectDisabled = false;
     this.forceUpdate();
   }
 
   _getTitle() {
     const options = this.state.menus.map((o, index) => {
-      if(Array.isArray(o['items'])) {
+      if(Array.isArray(o['items']) && !Utils.isEmpty(o['items'][0])) {
         const opts = o['items'].map((i, idx) => {
           return(<option key={ idx } value={ i.page_id }>{ i.page_name }</option>);
         });
@@ -905,7 +925,7 @@ class Customize extends C {
     return(
       <div className={ 'div-body-customize-header-box' }>
         {(() => {
-          console.log(this.state);
+          // console.log(this.state);
           if (this.state.pageMode === ACTION.CREATE && Utils.isEmpty(this.state.page.page_id)) {
             return (
               <div className='div-customize-title-box'>
@@ -918,7 +938,9 @@ class Customize extends C {
                 <Button
                   type={ TYPE.BUTTON }
                   onClick={ this._onClickChangeMode.bind(this) }
-                  variant={ VARIANT_TYPES.INFO }>
+                  variant={ VARIANT_TYPES.SECONDARY }
+                  title={ Msg.getMsg(null, this.props.isUser.language, 'bt_edit') }>
+                    {/* { Msg.getMsg(null, this.props.isUser.language, 'bt_edit') } */}
                   <FaBars />
                 </Button>
               </div>
@@ -927,6 +949,7 @@ class Customize extends C {
             return (
               <div className='div-customize-title-box'>
                 <select
+                  disabled={ this.state.selectDisabled }
                   className={ 'form-control' }
                   value={ this.state.page.page_id }
                   onChange={ this._onChange.bind(this) }>
@@ -938,8 +961,9 @@ class Customize extends C {
                     return(
                       <Button
                         type={ HTML_TAG.BUTTON }
-                        onClick={ this._onClickChangeMode.bind(this) }
-                        variant={ VARIANT_TYPES.INFO }>
+                        onClick={ this._onClickCopy.bind(this) }
+                        variant={ VARIANT_TYPES.SECONDARY }
+                        title={ Msg.getMsg(null, this.props.isUser.language, 'bt_copy') }>
                         <FaCopy />
                         {/* { Msg.getMsg(null, this.props.isUser.language, 'bt_copy') } */}
                       </Button>
@@ -952,10 +976,26 @@ class Customize extends C {
         })()}
 
         {(() => {
-          if (Utils.inJson(this.state.page, 'page_auth') && Utils.inJson(this.state.page['page_auth'], OPTION_AUTH.SEARCH)) {
+          if (Utils.inJson(this.state.page, 'page_auth')) {
+            const auths = Object.keys(this.state.page.page_auth).map((o, idx) => {
+              return(
+                <div key={ idx } className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
+                  <span onClick={ this._onChange.bind(this) }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_' + o.substr(3) ) }
+                  </span>
+                  <input
+                    type={ TYPE.CHECKBOX }
+                    checked={ this.state.page.page_auth[o] }
+                    name={ o }
+                    onChange={ this._onChange.bind(this) }></input>
+                </div>
+              );
+            });
+
             return(
               <div className={ 'div-customize-auth-box' }>
-                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                { auths }
+                {/* <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_search') }
                   </span>
@@ -965,7 +1005,7 @@ class Customize extends C {
                     name={ OPTION_AUTH.SEARCH }
                     onChange={ this._onChange.bind(this) }></input>
                 </div>
-                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_view') }
                   </span>
@@ -975,7 +1015,7 @@ class Customize extends C {
                     name={ OPTION_AUTH.VIEW }
                     onChange={ this._onChange.bind(this) }></input>
                 </div>
-                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
                   </span>
@@ -985,7 +1025,7 @@ class Customize extends C {
                     name={ OPTION_AUTH.CREATE }
                     onChange={ this._onChange.bind(this) }></input>
                 </div>
-                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }
                   </span>
@@ -995,7 +1035,7 @@ class Customize extends C {
                     name={ OPTION_AUTH.EDIT }
                     onChange={ this._onChange.bind(this) }></input>
                 </div>
-                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_upload') }
                   </span>
@@ -1005,7 +1045,7 @@ class Customize extends C {
                     name={ OPTION_AUTH.UPLOAD }
                     onChange={ this._onChange.bind(this) }></input>
                 </div>
-                <div className={ 'btn btn-info' } onClick={ this._onChange.bind(this) }>
+                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_download') }
                   </span>
@@ -1013,24 +1053,28 @@ class Customize extends C {
                     type={ TYPE.CHECKBOX }
                     checked={ this.state.page.page_auth[OPTION_AUTH.DOWNLOAD] }
                     name={ OPTION_AUTH.DOWNLOAD }
-                    onChange={ this._onChange.bind(this) }></input>
-                </div>
-                <div>
+                    onChange={ this._onChange.bind(this) }></input> */}
+                {/* </div> */}
+                <div className={ 'div-actions-box' }>
                   <Button
                     type={ TYPE.BUTTON }
                     id={ 'add_div' }
                     onClick={ this._onCreateDivOrTab.bind(this) }
-                    variant={ VARIANT_TYPES.PRIMARY }>
-                    {/* <FaPlus /> */}
+                    variant={ VARIANT_TYPES.SECONDARY }>
                     { Msg.getMsg(null, this.props.isUser.language, 'bt_div') }
                   </Button>
                   <Button
                     type={ TYPE.BUTTON }
                     id={ 'add_tab' }
                     onClick={ this._onCreateDivOrTab.bind(this) }
-                    variant={ VARIANT_TYPES.PRIMARY }>
-                    {/* <FaPlus /> */}
+                    variant={ VARIANT_TYPES.SECONDARY }>
                     { Msg.getMsg(null, this.props.isUser.language, 'bt_tab') }
+                  </Button>
+                  <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
+                  </Button>
+                  <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
                   </Button>
                 </div>
               </div>
@@ -1222,6 +1266,7 @@ class Customize extends C {
   // }
 
   _onFormAddAttribute() {
+    if(!Array.isArray(this.state.page.form)) return;
     this.state.page.form.map((f) => {
       var objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
@@ -1279,20 +1324,17 @@ class Customize extends C {
   }
 
   _onGetPageDefault() {
-    // const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
-    // this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj));
-    this.state.pageMode = ACTION.CREATE;
     this.state.page.page_id = '';
     this.state.page.page_name = '';
     this.state.page.form = [JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, {})];
     if(!Utils.inJson(this.state.page, 'page_auth') || !Utils.inJson(this.state.page['page_auth'], OPTION_AUTH.SEARCH)) {
       this.state.page['page_auth'] = {};
-      this.state.page['page_auth'][OPTION_AUTH.SEARCH] = true;
-      this.state.page['page_auth'][OPTION_AUTH.VIEW] = true;
-      this.state.page['page_auth'][OPTION_AUTH.CREATE] = true;
-      this.state.page['page_auth'][OPTION_AUTH.EDIT] = true;
-      this.state.page['page_auth'][OPTION_AUTH.UPLOAD] = true;
-      this.state.page['page_auth'][OPTION_AUTH.DOWNLOAD] = true;
+      this.state.page['page_auth'][ '00_' + OPTION_AUTH.SEARCH] = true;
+      this.state.page['page_auth'][ '01_' + OPTION_AUTH.VIEW] = true;
+      this.state.page['page_auth'][ '02_' + OPTION_AUTH.CREATE] = true;
+      this.state.page['page_auth'][ '03_' + OPTION_AUTH.EDIT] = true;
+      this.state.page['page_auth'][ '04_' + OPTION_AUTH.UPLOAD] = true;
+      this.state.page['page_auth'][ '05_' + OPTION_AUTH.DOWNLOAD] = true;
     }
   }
 
@@ -1300,12 +1342,19 @@ class Customize extends C {
     this.state.isUser = nextProps.isUser;
     this.state.options = nextProps.options;
     this.state.menus = nextProps.menus;
+    // Resquest API
+    if(!Utils.isEmpty(this.state.isUser.page)) {
+      this.state.selectDisabled = true;
+      this.state.page = this.state.isUser.page;
+      this.state.page['form'] = [];
+    }
   }
 
   componentDidUpdate() {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     this._onAddDragDrop(div);
     this._onFormAddAttribute();
+    div.style.display = 'block';
   }
 
   componentDidMount() {
@@ -1315,6 +1364,7 @@ class Customize extends C {
     div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
     div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
     div.addEventListener(MOUSE.MOUSEOVER, this._onMouseOver.bind(this), false);
+    // this.state.page['form'] = [];
     this._onAddDragDrop(div);
   }
 
@@ -1327,10 +1377,10 @@ class Customize extends C {
 
     return (
       <div className={ 'div-body-customize-box' }>
-        <Actions
+        {/* <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }
-          onClickSubmit={ this._onClickSubmit.bind(this) } />
+          onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
 
         { this._getErrorMsg() }
         { this._getTitle() }

@@ -119,8 +119,8 @@ export default class CustomizeBox extends C {
                     lObj['label'] = obj.value;
                 }
                 editBox.obj[OPTIONS_KEY.OPTIONS][idx] = lObj;
-            } else if([ CUSTOMIZE.SEARCH , CUSTOMIZE.VIEW, CUSTOMIZE.CREATE, CUSTOMIZE.EDIT ].includes(name)) {
-                editBox.obj[CUSTOMIZE.AUTH][name] = obj.checked;
+            } else if([ OPTION_AUTH.SEARCH , OPTION_AUTH.VIEW, OPTION_AUTH.CREATE, OPTION_AUTH.EDIT ].includes(name)) {
+                editBox.obj[OPTION_AUTH.AUTH][name] = obj.checked;
             } else if(name === OPTIONS_KEY.OPTION_TARGET && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.SELECT)) {
                 editBox.obj[OPTIONS_KEY.OPTION_TARGET] = val;
                 editBox.obj[CUSTOMIZE.DEFAULT] = '';
@@ -189,6 +189,15 @@ export default class CustomizeBox extends C {
         this.props.updateEditBox(editBox);
     }
 
+    _onDivAuthClick(e) {
+        const obj = e.target;
+        if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.DIV && obj.tagName !== HTML_TAG.SPAN)) return;
+        e.preventDefault();
+        let div = obj;
+        if(div.tagName === HTML_TAG.SPAN) div = obj.parentElement;
+        const input = div.getElementsByTagName(HTML_TAG.INPUT)[0];
+        if(!Utils.isEmpty(input)) input.click();
+    }
 
     // _fileToBase64(files, editObj) {
     //     editObj.obj[OPTIONS_KEY.OPTIONS_FILE] = [];
@@ -235,15 +244,16 @@ export default class CustomizeBox extends C {
             editBox[CUSTOMIZE.LABEL] = label;
             editBox[CUSTOMIZE.PLACEHOLDER] = placeholder;
         }
-        let auth = editBox[CUSTOMIZE.AUTH];
+        let auth = editBox[OPTION_AUTH.AUTH];
         if(Utils.isEmpty(auth)) {
             auth = {};
-            auth[CUSTOMIZE.SEARCH] = true;
-            auth[CUSTOMIZE.VIEW] = true;
-            auth[CUSTOMIZE.CREATE] = true;
-            auth[CUSTOMIZE.EDIT] = true;
-            editBox[CUSTOMIZE.AUTH] = auth;
+            auth[OPTION_AUTH.SEARCH] = true;
+            auth[OPTION_AUTH.VIEW] = true;
+            auth[OPTION_AUTH.CREATE] = true;
+            auth[OPTION_AUTH.EDIT] = true;
+            editBox[OPTION_AUTH.AUTH] = auth;
         }
+        console.log(editBox)
 
         return (
             <table className='table-overlay-box'>
@@ -259,7 +269,7 @@ export default class CustomizeBox extends C {
                                 <tr>
                                 <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'bt_auth') }</td>
                                 <td colSpan='3' className='td-auth-block'>
-                                    <div>
+                                    <div className={ 'btn btn-outline-info' } onClick={ this._onDivAuthClick.bind(this) }>
                                         <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_search') }</span>
                                         <input
                                             type={ TYPE.CHECKBOX }
@@ -268,7 +278,7 @@ export default class CustomizeBox extends C {
                                             // defaultValue={ auth[CUSTOMIZE.SEARCH] }
                                             onChange={ this._onChange.bind(this) }></input>
                                     </div>
-                                    <div>
+                                    <div className={ 'btn btn-outline-info' } onClick={ this._onDivAuthClick.bind(this) }>
                                         <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_view') }</span>
                                         <input
                                             type={ TYPE.CHECKBOX }
@@ -277,7 +287,7 @@ export default class CustomizeBox extends C {
                                             // defaultValue={ auth[CUSTOMIZE.SEARCH] }
                                             onChange={ this._onChange.bind(this) }></input>
                                     </div>
-                                    <div>
+                                    <div className={ 'btn btn-outline-info' } onClick={ this._onDivAuthClick.bind(this) }>
                                         <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_create') }</span>
                                         <input
                                             type={ TYPE.CHECKBOX }
@@ -286,7 +296,7 @@ export default class CustomizeBox extends C {
                                             // defaultValue={ auth[CUSTOMIZE.SEARCH] }
                                             onChange={ this._onChange.bind(this) }></input>
                                     </div>
-                                    <div>
+                                    <div className={ 'btn btn-outline-info' } onClick={ this._onDivAuthClick.bind(this) }>
                                         <span>{ Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }</span>
                                         <input
                                             type={ TYPE.CHECKBOX }

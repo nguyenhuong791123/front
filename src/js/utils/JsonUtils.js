@@ -10,7 +10,7 @@ import QRCodeBox from './Compoment/QRCodeBox';
 import FileBox from './Compoment/FileBox';
 import EditorBox from './Compoment/EditorBox';
 
-import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY } from './HtmlTypes';
+import { TYPE, CUSTOMIZE, HTML_TAG, OPTIONS_KEY, OPTION_AUTH } from './HtmlTypes';
 import Utils from './Utils';
 
 export const JSON_OBJ = {
@@ -58,6 +58,10 @@ export const JSON_OBJ = {
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.QRCODE && obj[CUSTOMIZE.QRAPPLINK]) {
       json[CUSTOMIZE.QRAPPLINK] = obj[CUSTOMIZE.QRAPPLINK];
+    }
+
+    if(Utils.inJson(obj, OPTION_AUTH.AUTH)) {
+      json[OPTION_AUTH.AUTH] = obj[OPTION_AUTH.AUTH];
     }
 
     return json;

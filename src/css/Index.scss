@@ -26,7 +26,7 @@ $box-widths:(
 @each $cls, $h in $box-heights {
     $idx: index($box-heights, $cls $h);
     div.#{$cls} {
-        height: $h + 'px';
+        height: $h + px;
         position: relative;
     }
     div.#{$cls} {
@@ -288,7 +288,7 @@ div.div-context-menu {
 }
 
 div.div-list-box {
-    position: relative;
+    // position: relative;
     > div.div-title-box {
         display: inline-flex;
         height: 3em;
@@ -302,14 +302,14 @@ div.div-list-box {
         > button {
             position: absolute;
             right: .5em;
-            top: .2em;
+            // top: .2em;
         }
     }
     div.div-paging-box {
         display: inline-flex;
         position: absolute;
         right: 7em;
-        top: .5em;
+        top: 3.5em;
         > div.div-count-per {
             display: inline-flex;
             > select {

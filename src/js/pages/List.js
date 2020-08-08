@@ -6,8 +6,7 @@ import { FaPlus } from 'react-icons/fa';
 
 import TableBox from '../utils/Compoment/TableBox';
 
-import { ACTION, PAGIN_PER, PAGIN_PER_LIST } from '../utils/Types';
-import { HTML_TAG, TYPE } from '../utils/HtmlTypes';
+import { ACTION, VARIANT_TYPES } from '../utils/Types';
 import Utils from '../utils/Utils';
 import Msg from '../../msg/Msg';
 
@@ -64,8 +63,10 @@ class List extends C {
             <div id={ 'div_list_box' } className="div-list-box">
                 <div className="div-title-box">
                     <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
-                    <Button onClick={ this._onClickCreate.bind(this) } variant="primary">
-                        <FaPlus />
+                    <Button
+                        variant={ VARIANT_TYPES.PRIMARY }
+                        onClick={ this._onClickCreate.bind(this) }>
+                        {/* <FaPlus /> */}
                         { Msg.getMsg(null, this.props.isUser.language, 'bt_create') }
                     </Button>
                 </div>

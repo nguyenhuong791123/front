@@ -52,6 +52,9 @@ nav.bm-item-list {
     ,> div {
         width: 100%;
     }
+    div.btn-info {
+        margin-right: .2em;
+    }
     a:hover {
         background-color: rgba(0,0,0,0.075);
     }

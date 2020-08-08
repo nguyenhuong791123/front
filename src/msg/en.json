@@ -31,6 +31,7 @@
   ,"bt_file": "File"
   ,"bt_auth": "Auth"
   ,"bt_copy": "Copy"
+  ,"bt_group_menu": "Group Menu"
 
   ,"base_info": "Base Info"
   ,"page_list": "Page List"
@@ -62,7 +63,7 @@
   ,"unit": "Unit"
 
   ,"title_page": "Page Name"
-  ,"title_fileld": "Field"
+  ,"title_field": "Field"
   ,"title_menu": "Menu"
   ,"title_keyword": "Search Keyword"
   ,"title_register": "Register"

@@ -28,15 +28,15 @@ class LMenu extends C {
     super(props);
 
     this._onClick = this._onClick.bind(this);
-    this.state = {
-      objs: props.objs
-    }
+    // this.state = {
+    //   menus: props.menus
+    // }
   }
 
   _onClick(e) {
     var obj = e.target;
-    const view = parseInt(obj.getAttribute("view"));
-    if(view === NOT_LINK) {
+    const flag = parseInt(obj.getAttribute("flag"));
+    if(flag === NOT_LINK) {
       const pObj = e.target.parentElement.parentElement;
       if(isEmpty(pObj)) return;
       const childs = e.target.parentElement.parentElement.childNodes;
@@ -68,9 +68,9 @@ class LMenu extends C {
     }
   }
 
-  _onRemoveSelected(objs) {
-    if(!Array.isArray(objs)) return;
-    objs.map((o) => {
+  _onRemoveSelected(menus) {
+    if(!Array.isArray(menus)) return;
+    menus.map((o) => {
       if(o.tagName === HTML_TAG.A) {
         o.className = o.className.replace(' selected', '');
       }
@@ -83,9 +83,9 @@ class LMenu extends C {
   }
 
   _getMenu(menus) {
-    if(isEmpty(menus) || menus.length === 0) return "";
+    if(isEmpty(menus) || menus.length === 0 || isEmpty(menus[0])) return "";
     return menus.map((o, index) => {
-      if(isEmpty(o.page_view) || o.page_view === LINK) {
+      if(o.page_flag === LINK) {
         return (
           <Nav.Link
             key={ o.page_id }
@@ -93,20 +93,20 @@ class LMenu extends C {
             mode={ 'menu-left' }
             action={ o.page_id }
             onClick={ this._onClick.bind(this) }
-            level={ o.page_level }
-            view={ o.page_view }>{ o.page_name }</Nav.Link>);
+            flag={ o.page_flag }>{ o.page_name }</Nav.Link>);
       } else {
         return (
-          <div key={ o.page_id }>
-            <div className="dropright" key={ o.page_id }>
+          <div key={ 'div_0_' + o.page_id }>
+            <div key={ 'div_1_' + o.page_id } className="btn-info">
               <Nav.Link
+                key={ o.page_id }
                 idx={ index }
                 onClick={ this._onClick.bind(this) }
                 className="dropdown-toggle"
-                level={ o.page_level }
-                view={ o.page_view }>{ o.page_name }</Nav.Link>
+                style={{ color: 'white' }}
+                flag={ o.page_flag }>{ o.page_name }</Nav.Link>
             </div>
-            <div className="div-left-menu-child div-left-menu-child-hide">
+            <div key={ 'div_2_' + o.page_id } className="div-left-menu-child div-left-menu-child-hide">
               { this._getMenu(o.items) }
             </div>
           </div>
@@ -116,6 +116,7 @@ class LMenu extends C {
   }
 
   render() {
+    // console.log(this.props.menus)
     return (
       <div>
         <Menu
@@ -125,7 +126,7 @@ class LMenu extends C {
           { ...this.props }
           customBurgerIcon={ <FaBars id='btn_menu_left' /> }
           customCrossIcon={ false }>
-          { this._getMenu(this.state.objs) }
+          { this._getMenu(this.props.menus) }
         </Menu>
       </div>
     );

@@ -70,7 +70,7 @@ export default class AlertAction extends C {
                     {/* <FaReply /> */}
                     { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
                   </Button>
-                  <br />
+                  {/* <br /> */}
                 </div>  
               );
             }
@@ -80,7 +80,7 @@ export default class AlertAction extends C {
               || isEmpty(this.state.isUser.actions.create)
               || (!isEmpty(this.state.isUser.actions.create) && this.state.isUser.actions.create)) {
               return (
-                <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.INFO }>
+                <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
                   {/* <FaPlus /> */}
                   { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
                 </Button>

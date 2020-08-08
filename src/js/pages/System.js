@@ -1,9 +1,16 @@
 import React, { Component as C } from 'react';
-import { ButtonGroup, Button } from 'react-bootstrap';
+import ReactDOM from 'react-dom';
+import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { Alert, ButtonGroup, Button, FormControl } from 'react-bootstrap';
+import { FaTrash } from 'react-icons/fa';
+import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
-import { SYSTEM, ACTION, PAGE_ACTION, VARIANT_TYPES, PAGE } from '../utils/Types';
-import { HTML_TAG, ATTR, TYPE, OPTION_AUTH } from '../utils/HtmlTypes';
+import AlertDelete from '../utils/Delete';
+import { SYSTEM, ACTION, PAGE_ACTION, VARIANT_TYPES, PAGE, MSG_TYPE } from '../utils/Types';
+import { HTML_TAG, ATTR, TYPE, DRAG, MOUSE } from '../utils/HtmlTypes';
+import Fetch from '../utils/Fetch';
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
 
@@ -19,14 +26,28 @@ class System extends C {
         this._onButtonClick = this._onButtonClick.bind(this);
         this._onCheckBoxClick = this._onCheckBoxClick.bind(this);
         this._onClickSubmit = this._onClickSubmit.bind(this);
+        this._onGroupSettingMenuCreate = this._onGroupSettingMenuCreate.bind(this);
 
         this.state = {
             isUser: this.props.isUser
             ,options: this.props.options
+            ,pagedelete: null
+            ,settingbox: {
+                setting: false,
+                page: {
+                    page_name: '',
+                    page_flag: 1,
+                    page_order: 0,
+                },
+                pages: [] }
+            ,msg: ''
+            ,draggable: false
+            ,dragobject: null
             ,pages: { page: [] }
             ,checked: []
             ,expanded: []
-            ,menus: this.props.menus
+            ,menus: []
+            ,auths: []
             ,btns: []
         };
     };
@@ -35,18 +56,43 @@ class System extends C {
         this.state.isUser.action = PAGE.CUSTOMIZE;
         this.state.isUser.path = ACTION.SLASH + PAGE.CUSTOMIZE;
         this.state.isUser.actions = undefined;
+        let auths = {};
+        this.state.auths[0].map((o) => {
+            auths[o] = true;
+        });
+        this.state.isUser.page = { page_id: '', page_name: '', page_auth: auths, form: [] };
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
     }
 
-    // _onClick(e) {
-    //     var obj = e.target;
-    //     if(obj.tagName !== HTML_TAG.DIV) return;
-    //     var className = (Html.hasAttribute(obj, ATTR.CLASS))?obj.className:'';
-    //     const selected = (className.indexOf(ACTION.SELECTED) === -1);
-    //     this._addSelected(obj, selected);
-    //     this._addChildSelected(obj, selected);
-    //     this._addParentSelected(obj, selected);
-    // }
+    _onClickEdit(e) {
+        var obj = e.target;
+        if(obj.tagName !== HTML_TAG.A || !Html.hasAttribute(obj, ATTR.PIDX) || !Html.hasAttribute(obj, ATTR.IDX)) return;
+        this.state.isUser.action = PAGE.CUSTOMIZE;
+        this.state.isUser.path = ACTION.SLASH + PAGE.CUSTOMIZE;
+        this.state.isUser.actions = undefined;
+
+        const iIdx = Html.hasAttribute(obj, ATTR.IDX)?obj.getAttribute(ATTR.IDX):null;
+        const liP = obj.parentElement.parentElement.parentElement.parentElement;
+        const pIdx = Html.hasAttribute(liP, ATTR.IDX)?liP.getAttribute(ATTR.IDX):null;
+        let page = null;
+        if(!Utils.isNumber(iIdx)) return;
+        if(!Utils.isNumber(pIdx)) {
+            page = this.state.menus[iIdx];
+        } else {
+            page = this.state.menus[pIdx]['items'][iIdx];
+        }
+        if(Array.isArray(this.state.auths[0]) && !Utils.isEmpty(page['page_auth'])) {
+            if(this.state.auths[0].length > Object.keys(page.page_auth).length) {
+                const auths = {}
+                this.state.auths[0].map((o) => {
+                    auths[o] = (Utils.isEmpty(page.page_auth[o]))?false:page.page_auth[o];
+                });
+                page.page_auth = auths;
+            }
+        }
+        this.state.isUser.page = page;
+        this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+    }
 
     _onButtonClick(e) {
         var obj = e.target;
@@ -59,23 +105,48 @@ class System extends C {
 
         const div = obj.parentElement;
         if(Utils.isEmpty(div) || div.tagName !== HTML_TAG.DIV) return;
-        const input = div.getElementsByTagName(HTML_TAG.INPUT)[0];
+        let input = div.getElementsByTagName(HTML_TAG.INPUT)[0];
         if(Utils.isEmpty(input) || input.getAttribute('type') !== TYPE.CHECKBOX) return;
         if(!Html.hasAttribute(div, ATTR.ID) || div.id.indexOf('div_btn_') === -1) {
-            const btns = Array.from(div.childNodes);
+            const btns = Array.from(div.childNodes).filter(function(x){ return x.tagName === HTML_TAG.BUTTON });
             const count = this._onCountButtonSelected(btns);
-            if(count === (btns.length - 1) && !input.checked) {
+            if(count === btns.length && !input.checked) {
                 // input.click();
                 input.checked = true;
-            } else if(count < (btns.length - 1) && input.checked) {
+            } else if(count < btns.length && input.checked) {
                 input.checked = false;
             }
+            const li = div.parentElement;
+            const ul = li.getElementsByTagName(HTML_TAG.UL)[0];
+            if(!Utils.isEmpty(ul)) {
+                const ulis = Array.from(ul.childNodes);
+                const pIdx = li.getAttribute(ATTR.IDX);
+                ulis.map((li) => {
+                    // const bts = Array.from(li.childNodes[1].childNodes);
+                    const bts = Array.from(li.childNodes[1].childNodes).filter(function(x){ return x.tagName === HTML_TAG.BUTTON });;
+                    bts.map((b) => {
+                        if(Html.hasAttribute(b, ATTR.CODE) && b.getAttribute(ATTR.CODE) === code) {
+                            const idx = b.getAttribute(ATTR.IDX);
+                            if(selected) {
+                                b.className = 'selected btn btn-' + VARIANT_TYPES.DARK;
+                            } else {
+                                b.className = 'btn btn-outline-' + VARIANT_TYPES.DARK;
+                            }
+                            this.state.menus[pIdx]['items'][idx]['page_auth'][code] = selected;
+                        }
+                    });
+                    const checked = this._onCountButtonSelected(bts);
+                    input = li.childNodes[1].getElementsByTagName(HTML_TAG.INPUT)[0];
+                    input.checked = (checked === bts.length);
+                });
+            }
         } else {
-            const btns = Array.from(div.childNodes);
+            // const btns = Array.from(div.childNodes);
+            const btns = Array.from(div.childNodes).filter(function(x){ return x.tagName === HTML_TAG.BUTTON });
             const count = this._onCountButtonSelected(btns);
-            if(count === (btns.length - 1) && !input.checked) {
+            if(count === btns.length && !input.checked) {
                 input.click();
-            } else if(count < (btns.length - 1)) {
+            } else if(count <= btns.length) {
                 if(count === 0) {
                     input.checked = true;
                     input.click();
@@ -114,14 +185,15 @@ class System extends C {
         if(div.tagName === HTML_TAG.DIV && div.className.indexOf('div-btn-group') !== -1) {
             const input = div.getElementsByTagName(HTML_TAG.INPUT)[0];
             if(Utils.isEmpty(input) || input.getAttribute('type') !== TYPE.CHECKBOX) return;
-            const btns = Array.from(div.childNodes);
+            // const btns = Array.from(div.childNodes);
+            const btns = Array.from(div.childNodes).filter(function(x){ return x.tagName === HTML_TAG.BUTTON });
             btns.map((btn) => {
                 if(Html.hasAttribute(btn, ATTR.CODE) && btn.getAttribute(ATTR.CODE) === code) {
                     this._addButtonSelected(btn, selected);
                 }
             });
             const count = this._onCountButtonSelected(btns);
-            if(count < (btns.length - 1) && input.checked) input.checked = false;
+            if(count < btns.length && input.checked) input.checked = false;
         }
     }
 
@@ -130,16 +202,22 @@ class System extends C {
         const className = obj.className;
         let liP = obj.parentElement.parentElement;
         let pIdx = liP.getAttribute(ATTR.IDX);
+        if(className.indexOf('selected ') === -1 && selected)
+            obj.className = 'selected ' + className.replace('btn-outline-', 'btn-');
+        if(!Utils.isEmpty(className) && className.indexOf('selected ') !== -1 && !selected)
+            obj.className = className.replace('selected ', '').replace('btn-', 'btn-outline-');
+
+        liP = liP.parentElement.parentElement;
+        pIdx = liP.getAttribute(ATTR.IDX);
+        const iIdx = Html.hasAttribute(obj, ATTR.IDX)?obj.getAttribute(ATTR.IDX):null;
+        const code = Html.hasAttribute(obj, ATTR.CODE)?obj.getAttribute(ATTR.CODE):null;
+        if(!Utils.isNumber(iIdx) || Utils.isEmpty(code)) return;
         if(!Utils.isNumber(pIdx)) {
-            liP = liP.parentElement.parentElement;
-            pIdx = liP.getAttribute(ATTR.IDX);
-            if(!Utils.isNumber(pIdx)) return;
-            const iIdx = Html.hasAttribute(obj, ATTR.IDX)?obj.getAttribute(ATTR.IDX):null;
-            const code = Html.hasAttribute(obj, ATTR.CODE)?obj.getAttribute(ATTR.CODE):null;
-            if(!Utils.isNumber(iIdx) || Utils.isEmpty(code)) return;
+            const auths = this.state.menus[iIdx]['page_auth'];
+            auths[code] = selected;
+        } else {
             const auths = this.state.menus[pIdx]['items'][iIdx]['page_auth'];
             auths[code] = selected;
-
             const div = liP.childNodes[1];
             if(!Utils.isEmpty(div)) {
                 const input = div.getElementsByTagName(HTML_TAG.INPUT)[0];
@@ -152,26 +230,16 @@ class System extends C {
                 if(!Utils.isEmpty(input) && !Utils.isEmpty(btP)) {
                     const vChecked = this._onVerticalChecked(pIdx, code);
                     const pChecked = this._onCountButtonSelected(Array.from(div.childNodes));
-                    // console.log(pChecked)
-                    // console.log(vChecked)
                     if(vChecked) {
                         if(pChecked === (div.childNodes.length - 2)) input.checked = vChecked;
-                        btP.className = 'selected ' + btP.className;
-                        // btP.className = 'selected btn btn-' + VARIANT_TYPES.SUCCESS;
+                        btP.className = 'selected btn btn-' + VARIANT_TYPES.DARK;
                     } else {
                         input.checked = vChecked;
-                        // btP.className = btP.className.replace('selected ', '');;
-                        btP.className = 'btn btn-outline-' + VARIANT_TYPES.SUCCESS;
+                        btP.className = 'btn btn-outline-' + VARIANT_TYPES.DARK;
                     }
                 }
             }
         }
-        if(className.indexOf('selected ') === -1 && selected)
-            // obj.className = 'selected ' + className;
-            obj.className = 'selected ' + className.replace('btn-outline-', 'btn-');
-        if(!Utils.isEmpty(className) && className.indexOf('selected ') !== -1 && !selected)
-            // obj.className = className.replace('selected ', '');
-            obj.className = className.replace('selected ', '').replace('btn-', 'btn-outline-');
     }
 
     _onCheckBoxClick(e) {
@@ -227,7 +295,8 @@ class System extends C {
         if(div.tagName === HTML_TAG.DIV && div.className.indexOf('div-btn-group') !== -1) {
             var add = false;
             var page = { action: obj.id, methods: [] };
-            const btns = Array.from(div.childNodes);
+            // const btns = Array.from(div.childNodes);
+            const btns = Array.from(div.childNodes).filter(function(x){ return x.tagName === HTML_TAG.BUTTON });
             btns.map((btn) => {
                 if(btn.type === TYPE.BUTTON
                     && Html.hasAttribute(btn, ATTR.CODE)
@@ -245,94 +314,90 @@ class System extends C {
         }
     }
 
-    // _addSelected(obj, selected) {
-    //     if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];
-    //     const className = obj.className;
-    //     if(selected) {
-    //         if(Utils.isEmpty(className) || className.indexOf(ACTION.SELECTED) === -1) {
-    //             obj.className = className + ACTION.SELECTED;
-    //         }
-    //     } else {
-    //         obj.className = className.replace(ACTION.SELECTED, '');
-    //     }
-    // }
-
-    // _addChildSelected(obj, selected) {
-    //     if(!Utils.isEmpty(obj) && obj.tagName === HTML_TAG.LI) obj = obj.childNodes[0];
-    //     this._addSelected(obj, selected);
-    //     const p = obj.parentElement;
-    //     const pUl = p.childNodes[p.childNodes.length-1];
-    //     if(Utils.isEmpty(pUl) || pUl.tagName !== HTML_TAG.UL) return;
-    //     const ulis = Array.from(pUl.childNodes);
-    //     ulis.map((li) => {
-    //         this._addChildSelected(li, selected);
-    //     });
-    // }
-
-    // _addParentSelected(obj, selected) {
-    //     if(Utils.isEmpty(obj) || (obj.tagName === HTML_TAG.DIV && obj.id === SYSTEM.IS_DIV_TREE_VIEW_BOX)) return;
-    //     const p = obj.parentElement.parentElement;
-    //     if(Utils.isEmpty(p) || p.childNodes.length <= 0 || p.tagName !== HTML_TAG.UL) return;
-    //     const ulis = Array.from(p.childNodes);
-    //     if(!selected) {
-    //         ulis.map((li) => {
-    //             if(!selected)
-    //                 selected = (!Utils.isEmpty(li.childNodes[0])
-    //                             && Html.hasAttribute(li.childNodes[0], ATTR.CLASS)
-    //                             && li.childNodes[0].className.indexOf(ACTION.SELECTED) !== -1);
-    //         });    
-    //     }
-    //     const pp = p.parentElement;
-    //     if(Utils.isEmpty(pp) || (pp.tagName === HTML_TAG.DIV && pp.id === SYSTEM.IS_DIV_TREE_VIEW_BOX)) return;
-    //     this._addSelected(pp.childNodes[0], selected);
-    //     this._addParentSelected(pp.childNodes[0], selected);
-    // }
-
     _getAllList() {
         if(Utils.isEmpty(this.state.menus) || this.state.menus.length <= 0) return "";
         var childs = [];
         this.state.menus.map((obj, index) => {
-            childs.push(this._geList(obj, index));
+            childs.push(this._geList(obj, index, index));
         });
         return(<ul>{ childs }</ul>);
     }
 
-    _geList(obj, idx) {
-        if(!Utils.inJson(obj, 'items') || obj.items.length <= 0) {
-            const className = (obj.page_flag === 1)?'btn-info':'';
-            // var div = (<div key={ idx } title={ obj.page_name }>{ obj.page_name }</div>);
-            var div = (<div key={ 'div_' + idx } className={ className }>{ obj.page_name }</div>);
+    _geList(obj, idx, mIdx) {
+        this._onGetAllAuths();
+        const allAuth = this.state.auths[mIdx];
+        if(!Utils.inJson(obj, 'items') || obj.items.length <= 0 || Utils.isEmpty(obj.items[0])) {
+            const className = (obj.page_flag === 1)?'btn-'+ VARIANT_TYPES.INFO:'';
+            const vDelete = Msg.getSystemMsg('sys', 'system_pages').includes(obj.page_key);
+            let div = (<div
+                        key={ 'div_' + idx }
+                        className={ className }
+                        onMouseOver={ this._onMouseOver.bind(this) }>
+                        <a href={ '#' } idx={ idx } pidx={ mIdx } onClick={ this._onClickEdit.bind(this) }>{ obj.page_name }</a>
+                        {(() => {
+                            if(!vDelete) {
+                                return (
+                                    <Button
+                                        type={ HTML_TAG.BUTTON }
+                                        onClick={ this._onClickViewDelete.bind(this) }
+                                        variant={ VARIANT_TYPES.WARNING }>
+                                        <FaTrash />
+                                    </Button>
+                                );
+                            }
+                        })()}
+                    </div>);
+            // var div = (<div key={ 'div_' + idx } className={ className }>
+            //             <a href={ '#' } id={ obj.page_id } onClick={ this._onClickEdit.bind(this) }>{ obj.page_name }</a>
+            //         </div>);
             // if(this.state.isUser.uLid === SYSTEM.IS_ADMIN)
                 // div = (<div key={ 'div_' + idx } className={ className } onClick={ this._onClick.bind(this) }>{ obj.page_name }</div>);
-            const auths = [];
-            if(Utils.inJson(obj, 'page_auth')) {
+            const auths = [this.state.auths.length];
+            if(Utils.inJson(obj, 'page_auth') && !Utils.isEmpty(obj['page_auth'])) {
                 const objs = Object.keys(obj.page_auth);
+                // console.log(objs);
                 objs.map((key, index) => {
                     const btSelected = (obj.page_auth[key])?'selected':'';
                     const variant = (obj.page_auth[key])?'':VARIANT_TYPES.OUTLINE;
-                    auths.push(<Button
-                                    key={ index }
+                    const aIdx = allAuth.indexOf(key);
+                    auths[aIdx] = (<Button
+                            key={ index }
                                     idx={ idx }
+                                    pidx={ mIdx }
                                     code={ key }
                                     className={ btSelected }
                                     // variant={ VARIANT_TYPES.OUTLINE + VARIANT_TYPES.INFO }
-                                    variant={ variant + VARIANT_TYPES.INFO }
+                                    variant={ variant + VARIANT_TYPES.SECONDARY }
                                     onClick={ this._onButtonClick.bind(this) }
                                     title={ Msg.getMsg(null, this.state.isUser.language, 'bt_' + key.substr(3)) }>
                                     { Msg.getMsg(null, this.state.isUser.language, 'bt_' + key.substr(3)) }
                                 </Button>);
                 });
             }
+            for(let i=0; i<auths.length; i++) {
+                if(!Utils.isEmpty(auths[i])) continue;
+                auths[i] = (<span key={ 'span_' + i } className='span-display-none'> </span>);
+            }
 
+            let checked = this._onAllChecked([obj]);
+            checked = (checked.length > 0)?checked[0].checked:true;
             return (
-                // <li key={ idx } id={ obj.page_id }>
-                <li key={ 'li_' + idx }>
+                <li
+                    key={ 'li_' + idx }
+                    idx={ idx }
+                    onDragStart={ this._onDragStart.bind(this) }
+                    draggable={ true }>
                     { div }
                     {(() => {
                         if(!Utils.isEmpty(auths) && auths.length > 0) {
                             return (
                                 <ButtonGroup className='div-btn-group'>
-                                    <input type={ TYPE.CHECKBOX } idx={ idx } onClick={ this._onCheckBoxClick.bind(this) } />
+                                    <input
+                                        type={ TYPE.CHECKBOX }
+                                        idx={ idx }
+                                        pidx={ mIdx }
+                                        defaultChecked={ checked }
+                                        onClick={ this._onCheckBoxClick.bind(this) } />
                                     { auths }
                                 </ButtonGroup>
                             );
@@ -340,24 +405,43 @@ class System extends C {
                     })()}
                 </li>);
         } else {
-            var childs = [];
+            let childs = [];
             obj.items.map((o, index) => {
-                childs.push(this._geList(o, index));
+                childs.push(this._geList(o, index, mIdx));
             });
-            // var div = (<div key={ 'div_' + idx } title={ obj.label }>{ obj.label }</div>);
             const className = (obj.page_flag === 1)?'btn-info':'';
-            var div = (<div key={ 'div_' + idx } className={ className }>{ obj.page_name }</div>);
+            const vDelete = Msg.getSystemMsg('sys', 'system_pages').includes(obj.page_key);
+            let div = (<div
+                        key={ 'div_' + idx }
+                        className={ className }
+                        onMouseOver={ this._onMouseOver.bind(this) }>
+                            { obj.page_name }
+                            {(() => {
+                                if(!vDelete) {
+                                    return (
+                                        <Button
+                                            type={ HTML_TAG.BUTTON }
+                                            onClick={ this._onClickViewDelete.bind(this) }
+                                            variant={ VARIANT_TYPES.WARNING }>
+                                            <FaTrash />
+                                        </Button>
+                                    );
+                                }
+                            })()}
+                    </div>);
             // if(this.state.isUser.uLid === SYSTEM.IS_ADMIN)
             //     div = (<div key={ 'div_' + idx } className={ className } onClick={ this._onClick.bind(this) }>{ obj.page_name }</div>);
             return(
                 <li
                     key={ 'li_' + idx }
                     idx={ idx }
+                    onDragStart={ this._onDragStart.bind(this) }
+                    draggable={ true }
                     className='parent'>
                     { div }
                     <ul key={ 'ul_' + idx }>{ childs }</ul>
                 </li>
-                );
+            );
         }
     }
 
@@ -378,7 +462,7 @@ class System extends C {
 
             const count = this._onCountButtonSelected(btns);
             const input = ul.getElementsByTagName(HTML_TAG.INPUT)[0];
-            if(count === (btns.length - 1) && !input.checked) input.checked = true;
+            if(count === btns.length && !input.checked) input.checked = true;
         } else {
             const ulis = Array.from(ul.childNodes);
             ulis.map((li) => {
@@ -387,58 +471,154 @@ class System extends C {
         }
     }
 
-    _onUpdateAuthParents() {
-        const div = document.getElementById(SYSTEM.IS_DIV_TREE_VIEW_BOX);
-        if(Utils.isEmpty(div) || Utils.isEmpty(div.childNodes[0]) || div.childNodes[0].childNodes.length <= 0) return;
-        const ulis = Array.from(div.childNodes[0].childNodes);
-        ulis.map((li, index) => {
-            this._getChildButtons(li, index);
-        });
+    _onDragStart(e) {
+        // e.preventDefault();
+        const obj = e.target;
+        if(obj.tagName !== HTML_TAG.LI && obj.tagName !== HTML_TAG.DIV) return;
+        this.state.dragobject = (obj.tagName === HTML_TAG.DIV)?obj.parentElement:obj;
+    }
 
-        if(!Utils.isEmpty(this.state.btns) && this.state.btns.length > 0) {
-            this.state.btns.map((o, index) => {
+    _onDragOver(e) {
+        e.preventDefault();
+        // e.stopPropagation();
+        // this.state.draggable = true;
+    }
+    
+    _onDragDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        let obj = e.target;
+        if(obj.tagName !== HTML_TAG.DIV
+            && obj.className !== 'div-list-box'
+            || Utils.isEmpty(this.state.dragobject.parentElement)
+            || Utils.isEmpty(this.state.dragobject.parentElement.parentElement)) return;
+        obj = obj.parentElement;
+        if(Utils.isEmpty(obj.className) && this.state.dragobject.className === 'parent') return;
+
+        const dragId = Array.from(obj.parentElement.childNodes).indexOf(this.state.dragobject);
+        const dropId = Array.from(obj.parentElement.childNodes).indexOf(obj);
+        if(dragId == dropId || dropId == -1) return;
+        const dragIdx = parseInt(this.state.dragobject.getAttribute(ATTR.IDX));
+        const dragpIdx = parseInt(this.state.dragobject.parentElement.parentElement.getAttribute(ATTR.IDX));
+        const dropIdx = parseInt(obj.getAttribute(ATTR.IDX));
+        const droppIdx = parseInt(obj.parentElement.parentElement.getAttribute(ATTR.IDX));
+
+        const menus = this.state.menus;
+        if(!Utils.isEmpty(obj.className) && obj.className === 'parent'
+            && obj.className !== this.state.dragobject.className) {
+                let menu = menus[dragIdx];
+                if(Utils.isNumber(dragpIdx)) menu = menus[dragpIdx]['items'][dragIdx];
+                if(!menus.includes(menu))
+                    menu['page_level'] = 0;
+                    menu['page_group_id'] = 0;
+                    if(Utils.inJson(menu, 'items')) delete menu['items']
+                    menus[dropIdx]['items'].push(menu);
+                    if(Utils.isNumber(dragpIdx)) {
+                        menus[dragpIdx]['items'].splice(dragIdx, 1);
+                    } else {
+                        menus.splice(dragIdx, 1);
+                    }
+        } else {
+            let aIdx = 0;
+            if(dragId > dropIdx) {
+                aIdx = (dropIdx===0)?0:(dropIdx - 1);
+            } else {
+                aIdx = dropIdx + 1;
+            }
+            if(!Utils.isNumber(dragpIdx) && !Utils.isNumber(droppIdx)) {
+                const dragMenu = menus[dragIdx];
+                const dropMenu = menus[dropIdx];
+                menus[dragIdx] = dropMenu;
+                menus[dropIdx] = dragMenu;
+            } else if(!Utils.isNumber(dragpIdx)) {
+                const menu = menus[dragIdx];
+                if(!menus[droppIdx]['items'].includes(menu))
+                    menu['page_level'] = 1;
+                    menu['page_group_id'] = menus[droppIdx]['items'][0]['page_group_id'];
+                    if(Utils.inJson(menu, 'items')) delete menu['items']
+                    menus[droppIdx]['items'].splice(aIdx, 0, menu);
+                    menus.splice(dragIdx, 1);
+            } else if(!Utils.isNumber(droppIdx)) {
+                const menu = menus[dragpIdx]['items'][dragIdx];
+                if(!menus.includes(menu))
+                    menu['page_level'] = 0;
+                    menu['page_group_id'] = 0;
+                    if(Utils.inJson(menu, 'items')) delete menu['items']
+                    if(!Utils.isEmpty(obj.className) && obj.className === 'div-list-box') {
+                        menus.push(menu);
+                    } else {
+                        menus.splice(aIdx, 0, menu);
+                    }
+                    menus[dragpIdx]['items'].splice(dragIdx, 1);
+            } else if(dragpIdx === droppIdx) {
+                const dragmenu = menus[dragpIdx]['items'][dragIdx];
+                const dropmenu = menus[droppIdx]['items'][dropIdx];
+                menus[droppIdx]['items'][dragIdx] = dropmenu;
+                menus[dragpIdx]['items'][dropIdx] = dragmenu;
+            } else if(dragpIdx !== droppIdx) {
+                const menu = menus[dragpIdx]['items'][dragIdx];
+                if(!menus[droppIdx]['items'].includes(menu))
+                    menu['page_level'] = 1;
+                    menu['page_group_id'] = menus[droppIdx]['items'][0]['page_group_id'];
+                    if(Utils.inJson(menu, 'items')) delete menu['items']
+                    menus[droppIdx]['items'].splice(aIdx, 0, menu);
+                    menus[dragpIdx]['items'].splice(dragIdx, 1);
+            }
+        }
+
+        console.log(menus);
+        this.forceUpdate();
+    }
+
+    _onUpdateAuthParents() {
+        const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+        if(Utils.isEmpty(div)) return;
+        this.state.auths.map((o, index) => {
+            const objs = this.state.menus[index]['items'];
+            let obj = null;
+            if(Array.isArray(objs) && !Utils.isEmpty(objs) && !Utils.isEmpty(objs[0])) {
                 const divOld = document.getElementById('div_btn_' + index);
                 if(!Utils.isEmpty(divOld)) divOld.remove();
-                const obj = document.createElement(HTML_TAG.DIV);
-                obj.className = 'div-btn-group btn-group';
+                obj = document.createElement(HTML_TAG.DIV);
                 obj.id = 'div_btn_' + index;
-                o.map((b, idx) => {
-                    const objs = this.state.menus[index]['items'];
-                    const checked = this._onAllChecked(objs);
-                    // console.log(checked);
-                    if(idx === 0 && b.tagName === HTML_TAG.INPUT) {
-                        b.onclick = this._onCheckBoxClick.bind(this);
-                        if(Array.isArray(checked) && checked.length > 0) {
-                            b.checked = checked[0].checked;
-                        } else {
-                            b.checked = true;
-                        }
+                obj.className = 'div-btn-group btn-group';
+                o.map((auth, idx) => {
+                    const checked = this._onVerticalChecked(index, auth);
+                    const bt = document.createElement(HTML_TAG.BUTTON);
+                    bt.setAttribute(ATTR.CODE, auth);
+                    bt.title = Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth.substr(3));
+                    bt.innerHTML = Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth.substr(3));
+                    if(checked) {
+                        bt.className = 'selected btn btn-' + VARIANT_TYPES.DARK;
                     } else {
-                        const code = b.getAttribute(ATTR.CODE);
-                        let className = b.className.replace(VARIANT_TYPES.INFO, VARIANT_TYPES.SUCCESS);
-                        if(Array.isArray(checked) && checked.length > 0) {
-                            for(let i=0; i<checked.length; i++) {
-                                if(code !== checked[i].auth) continue
-                                if(checked[i].checked) {
-                                    className = 'selected btn btn-' + VARIANT_TYPES.SUCCESS;
-                                } else {
-                                    className = 'btn btn-outline-' + VARIANT_TYPES.SUCCESS;
-                                }
-                                break
-                            }
-                        }
-                        b.className = className;
-                        b.onclick = this._onButtonClick.bind(this);
+                        bt.className = 'btn btn-outline-' + VARIANT_TYPES.DARK;
                     }
-                    obj.appendChild(b);
+                    bt.onclick = this._onButtonClick.bind(this);
+                    obj.appendChild(bt);
+    
+                    if(idx === 0) {
+                        const checked = this._onAllChecked(objs);    
+                        const input = document.createElement(HTML_TAG.INPUT);
+                        input.type = TYPE.CHECKBOX;
+                        input.onclick = this._onCheckBoxClick.bind(this);
+                        if(Array.isArray(checked) && checked.length > 0) {
+                            input.checked = checked[0].checked;
+                        } else {
+                            input.checked = true;
+                        }
+                        obj.prepend(input);
+                    }
                 });
-
+            }
+            // console.log(div.childNodes[0]);
+            if(!Utils.isEmpty(obj) && !Utils.isEmpty(div.childNodes[0]))
                 div.childNodes[0].childNodes[index].childNodes[0].after(obj);
-            });
-        }
+        });
     }
 
     _onAllChecked(objs) {
+        // console.log(objs);
+        if(!Array.isArray(objs) || Utils.isEmpty(objs[0])) return;
         let obj = [];
         objs.map((o, idx) => {
             if(!Utils.isEmpty(o['page_auth'])) {
@@ -454,25 +634,304 @@ class System extends C {
     _onVerticalChecked(idx, code) {
         if(!Utils.isNumber(idx) || Utils.isEmpty(code) || Utils.isEmpty(this.state.menus[idx])) return;
         const objs = this.state.menus[idx]['items'];
-        if(!Array.isArray(objs)) return;
+        if(!Array.isArray(objs) || Utils.isEmpty(objs[0])) return;
         let length = 0;
+        let count = 0;
         objs.map((o) => {
             if(!Utils.isEmpty(o['page_auth'])) {
                 Object.keys(o['page_auth']).map((a) => {
+                    if(a === code) length += 1;
                     if(o['page_auth'][a] && a === code)
-                        length += 1;
+                        count += 1;
                 });
             }
         });
-        console.log(length);
-        console.log(objs.length);
-        return (length === objs.length);
+        return (length === count);
+    }
+
+    _onGetAllAuths() {
+        if(!Array.isArray(this.state.menus)) return;
+        const auths = [this.state.menus.length];
+        this.state.menus.map((o, idx) => {
+            const items = o['items'];
+            auths[idx] = [];
+            if(Array.isArray(items) && !Utils.isEmpty(items[0])) {
+                items.map((i) => {
+                    if(!Utils.isEmpty(i['page_auth'])) {
+                        Object.keys(i['page_auth']).map((a) => {
+                            if(!auths[idx].includes(a)) auths[idx].push(a);
+                        });
+                    }    
+                });
+                auths[idx].sort();
+            } else {
+                if(!Utils.isEmpty(o['page_auth'])) {
+                    Object.keys(o['page_auth']).map((a) => {
+                        if(!auths[idx].includes(a)) auths[idx].push(a);
+                    });
+                }
+                auths[idx].sort();
+            }
+        });
+        this.state.auths = auths;
+    }
+
+    _onChange(e) {
+        const obj = e.target;
+        if(Utils.isEmpty(obj)) return;
+        this.state.settingbox.page.page_name = obj.value;
+    }
+
+    _onGroupSettingMenuCreate() {
+        this.state.settingbox.setting = true;
+        this.state.msg = Msg.getMsg(null, this.props.isUser.language, 'bt_create')
+        this.forceUpdate();
+    }
+
+    _onClickSaveGroupSettingMenu() {
+        const max = 30;
+        const value = this.state.settingbox.page.page_name;
+        this.state.msg = null;
+        if(Utils.isEmpty(value)) {
+            this.state.msg = Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required');
+        } else if(!Utils.isEmpty(value)
+                    && value.length > max) {
+            let msg = Msg.getMsg(null, this.props.isUser.language, 'title_page');
+            msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'max_length'), msg, max, value.length - max);
+            this.state.msg = msg;
+        } else if(!Array.isArray(this.state.settingbox.pages) || this.state.settingbox.pages.length <= 0) {
+            this.state.msg = Msg.getMsg(null, this.props.isUser.language, 'page_list') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'selected');
+        }
+
+        if(!Utils.isEmpty(this.state.msg)) {
+            this.forceUpdate();
+        } else {
+            const items = this.state.settingbox.pages.map((pId, idx) => {
+                const o = this.state.menus.filter(function(x){ return x.page_id === pId })[0];
+                if(!Utils.isEmpty(o)) {
+                    o.page_level = 1;
+                    o.page_order = idx;
+                    return o;    
+                }
+            });
+            const page = this.state.settingbox.page;
+            page['page_key'] = 'group_' + Utils.getUUID()
+            page['page_order'] = this.state.menus.length;
+            page['items'] = items;
+            const options = { page: page, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+            const host = Msg.getSystemMsg('sys', 'app_api_host');
+            const f = Fetch.postLogin(host + 'setGroupPage', options);
+            f.then(data => {
+                if(!Utils.isEmpty(data)) {
+                    // items.map((o) => {
+                    //     const idx = this.state.menus.findIndex(function(x, i){ return x.page_id === o.page_id });
+                    //     if(Utils.isNumber(idx)) this.state.menus.splice(idx, 1);
+                    // });
+                    // page['page_id'] = data['page_id'];
+                    // page['page_auth'] = data['page_auth'];
+                    // this.state.menus.push(page);
+
+                    this.state.settingbox.setting = false;
+                    this.state.settingbox.page = { page_name: '', page_flag: 1, page_order: 0 };
+                    this.state.settingbox.pages = [];
+
+                    // this.props.onUpdateMenus(this.state.menus);
+                    console.log(data)
+                    this.props.onUpdateMenus(data);
+                    // this.forceUpdate();
+                }
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    }
+
+    _onCheckBoxClickGroupSettingMenu(e) {
+        const obj = e.target;
+        if(Utils.isEmpty(obj)) return;
+        const value = (Utils.isNumber(obj.value))?parseInt(obj.value):obj.value;
+        const arr = this.state.settingbox.pages;
+        if(obj.checked) {
+            if(!arr.includes(value))
+                arr.push(value);
+        } else {
+            if(arr.includes(value))
+                arr.splice(arr.indexOf(value), 1);
+        }
+    }
+
+    _onClickClose() {
+        this.state.settingbox.page.page_name = '';
+        this.state.settingbox.pages = [];
+        this.state.settingbox.setting = false;
+        this.forceUpdate();
+    }
+
+    _onGetGroupSettingMenu() {
+        if(!this.state.settingbox.setting) return '';
+        return(
+            <Alert
+                show={ this.state.settingbox.setting }
+                variant={ VARIANT_TYPES.LIGHT }
+                className={ 'div-overlay-box' }>
+                    <div className='alert-light'>
+                        <div>
+                            <Button
+                                type={ HTML_TAG.BUTTON }
+                                onClick={ this._onClickSaveGroupSettingMenu.bind(this) }
+                                variant={ VARIANT_TYPES.WARNING }>
+                                {/* <FaCheck /> */}
+                                { Msg.getMsg(null, this.props.isUser.language, 'bt_insert') }
+                            </Button>
+                            <Button
+                                type={ HTML_TAG.BUTTON }
+                                onClick={ this._onClickClose.bind(this) }
+                                variant={ VARIANT_TYPES.PRIMARY }>
+                                {/* <FaReply /> */}
+                                { Msg.getMsg(null, this.props.isUser.language, 'bt_return') }
+                            </Button>
+                        </div>
+
+                        <table className='table-overlay-box'>
+                            <tbody>
+                                <tr>
+                                    <td colSpan='2'><h4>{ this.state.msg }</h4></td>
+                                </tr>
+                                <tr>
+                                    <td className='td-not-break'>{ Msg.getMsg(null, this.props.isUser.language, 'title_page') }</td>
+                                    <td>
+                                        <FormControl
+                                            type={ HTML_TAG.TEXT }
+                                            defaultValue={ this.state.settingbox.page.page_name }
+                                            onChange={ this._onChange.bind(this) }
+                                            placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required') }
+                                            className="mr-sm-2" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className='td-not-break'>{ Msg.getMsg(null, this.props.isUser.language, 'page_list') }</td>
+                                    <td>
+                                        {(() => {
+                                            if(Array.isArray(this.state.menus)) {
+                                                return this.state.menus.map((o, idx) => {
+                                                    if(Utils.isEmpty(o['items'])
+                                                        || (!Utils.isEmpty(o['items']) && Utils.isEmpty(o['items'][0]))) {
+                                                        const checked = this.state.settingbox.pages.includes(o.page_id);
+                                                        return(
+                                                            <div key={ idx } className={ 'form-check' } style={ { marginTop: '.3em', marginBottom: '.2em' } }>
+                                                                <input
+                                                                    key={ idx }
+                                                                    id={ 'page_id_' + o.page_id }
+                                                                    type={ TYPE.CHECKBOX }
+                                                                    defaultChecked={ checked }
+                                                                    value={ o.page_id }
+                                                                    className={ 'form-check-input' }
+                                                                    onClick={ this._onCheckBoxClickGroupSettingMenu.bind(this) } />
+                                                                <label className="form-check-label" htmlFor={ 'page_id_' + o.page_id }>{ o.page_name }</label>
+                                                            </div>
+                                                        );    
+                                                    }
+                                                });
+                                            }
+                                        })()}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+            {/* <Button
+              type={ HTML_TAG.BUTTON }
+              onMouseOver={ this._onMouseOut.bind(this) }
+              onClick={ this._onAddTabSchema.bind(this) }
+              variant={ VARIANT_TYPES.SECONDARY }>
+              <FaPlus />
+            </Button> */}
+          </Alert>
+        );
+    }
+
+    _onMouseOver(e) {
+        const obj = e.target;
+        if(Utils.isEmpty(obj) || obj.tagName !== HTML_TAG.DIV) return;
+        const idx = obj.parentElement.getAttribute(ATTR.IDX);
+        const pIdx = obj.parentElement.parentElement.parentElement.getAttribute(ATTR.IDX);
+        if(!Utils.isNumber(pIdx) || pIdx < 0) {
+            this.state.pagedelete = this.state.menus[idx];
+        } else {
+            this.state.pagedelete = this.state.menus[pIdx]['items'][idx];
+        }
+    }
+
+    _onClickViewDelete() {
+        if(Utils.isEmpty(this.state.pagedelete)) return;
+        const obj = {
+            id: 'page_delete_' + this.state.pagedelete['page_id']
+            ,show: true
+            ,msg: StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'delete'), this.state.pagedelete['page_name'])
+            ,style: { textAlign: 'center' }
+        }
+        const div = document.createElement(HTML_TAG.DIV);
+        div.id = obj.id;
+        document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX).appendChild(div);
+        ReactDOM.render(<AlertDelete
+            obj={ obj }
+            language={ this.state.isUser.language }
+            onClickDelete={ this._onClickPageDelete.bind(this) }
+            onClickBack={ this._onClickReturnDelete.bind(this) }/>
+            , document.getElementById(obj.id));
+    }
+
+    _onClickReturnDelete() {
+        if(Utils.isEmpty(this.state.pagedelete)) return;
+        const div = document.getElementById('page_delete_' + this.state.pagedelete['page_id']);
+        if(Utils.isEmpty(div)) return;
+        div.remove();
+    }
+
+    _onClickPageDelete() {
+        if(Utils.isEmpty(this.state.pagedelete)) return;
+        this._onClickReturnDelete();
+        const options = { page: this.state.pagedelete, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'deletePage', options);
+        f.then(data => {
+            if(!Utils.isEmpty(data)) {
+                // const menus = this.state.menus;
+                // const idx = menus.findIndex(function(x, i){ return x.page_id === data.page_id });
+                // if(Utils.isNumber(idx) && idx >= 0) {
+                //     this.state.menus.splice(idx, 1);
+                //     if(Utils.inJson(data, 'items') && Array.isArray(data['items']) && !Utils.isEmpty(data['items'][0])) {
+                //         const items = data['items'];
+                //         items.map((o) => {
+                //             menus.push(o);
+                //         });
+                //     }
+                // }
+                console.log(data);
+                // this.props.onUpdateMenus(menus);
+                this.props.onUpdateMenus(data);
+                // this.forceUpdate();
+            }
+        }).catch(err => {
+            console.log(err);
+        });
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.state.isUser = nextProps.isUser;
         this.state.options = nextProps.options;
-        this.state.menus = nextProps.menus;
+        const menus = this.state.menus;
+        if(menus !== nextProps.menus) {
+            this.setState({ menus: nextProps.menus });
+        }
+    }
+
+    componentDidMount() {
+        const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
+        if(Utils.isEmpty(div)) return;
+        div.addEventListener(DRAG.OVER, this._onDragOver.bind(this), false);
+        div.addEventListener(DRAG.DROP, this._onDragDrop.bind(this), false);
     }
 
     componentDidUpdate() {
@@ -481,19 +940,36 @@ class System extends C {
 
     render() {
         this.state.isUser.actions = PAGE_ACTION.SYSTEM;
-
+        const btDisable = this.state.menus.filter(function(x){
+            return (!Utils.inJson(x, 'items') || Utils.isEmpty(x['items']) || Utils.isEmpty(x['items'][0]))
+        });
+        // console.log(btDisable)
         return (
             <div className={ 'div-list-box' }>
-                <Actions
+                {/* { this._onOverlayPageDeleteBox() } */}
+                { this._onGetGroupSettingMenu() }
+                <div className={ 'div-actions-box' }>
+                    <Button disabled={ (btDisable.length <= 0) } onClick={ this._onGroupSettingMenuCreate.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
+                        { Msg.getMsg(null, this.state.isUser.language, 'bt_group_menu') }
+                        { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
+                    </Button>
+                    <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
+                        { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
+                    </Button>
+                    <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+                        { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
+                    </Button>
+                </div>
+                {/* <Actions
                     isUser={ this.state.isUser }
                     onClickAdd={ this._onClickAdd.bind(this) }
-                    onClickSubmit={ this._onClickSubmit.bind(this) } />
+                    onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
 
                 <div className="div-title-box">
                     <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
                 </div>
 
-                <div id={ SYSTEM.IS_DIV_TREE_VIEW_BOX } className='div-tree-view-box'>
+                <div id={ SYSTEM.IS_DIV_CUSTOMIZE_BOX } className='div-tree-view-box'>
                     { this._getAllList() }
                 </div>
             </div>
@@ -501,4 +977,5 @@ class System extends C {
     };
 };
 
-export default System;
+export default connect()(withRouter(System));
+// export default System;

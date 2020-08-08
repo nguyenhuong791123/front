@@ -98,6 +98,7 @@ class App extends C {
         const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
         if(!Utils.isEmpty(div)) div.remove();
         this.state.hasError = false;
+        this._onUpdateCompanyInfo();
         this.forceUpdate();
         AuthSession.doLogout().then(() => {
             sessionService.deleteSession();
@@ -160,6 +161,11 @@ class App extends C {
     //     // this.forceUpdate();
     // }
 
+    _onUpdatePromiseAndMenus(inIsUser, inOptions, menus, callBack) {
+        if(Array.isArray(menus)) this.state.menus = menus;
+        this._onUpdatePromise(inIsUser, inOptions, callBack)
+    }
+
     _onUpdatePromise(inIsUser, inOptions, callBack) {
         const auth = { info: inIsUser, options: inOptions };
         // //console.log(auth);
@@ -217,7 +223,10 @@ class App extends C {
             this._addCssLink();
         }
 
-        if(!Utils.isEmpty(this.state.isUser.cId) && !Utils.isEmpty(this.state.isUser.uId)) {
+        if(!Utils.isEmpty(auth.info.path)
+            && auth.info.path !== ACTION.SLASH
+            && !Utils.isEmpty(this.state.isUser.cId)
+            && !Utils.isEmpty(this.state.isUser.uId)) {
             this._onGetMenus();
         } else {
             //console.log(history);
@@ -231,8 +240,20 @@ class App extends C {
         const host = Msg.getSystemMsg('sys', 'app_api_host');
         const f = Fetch.postLogin(host + 'menus', options);
         f.then(data => {
-            if(!Utils.isEmpty(data) && Utils.inJson(data, 'menus')) {
-                this.state.menus = data.menus;
+            if(!Utils.isEmpty(data)) {
+                if(Utils.inJson(data, 'menus')) this.state.menus = data.menus;
+                if(Utils.inJson(data, 'user')) {
+                    if(!Utils.isEmpty(data.user.user_theme)) {
+                        this.state.isUser['theme'] = data.user.user_theme;
+                    }
+                    this.state.isUser['uLid'] = data.user.user_login_id;
+                    this.state.isUser['gId'] = data.user.group_id;
+                    this.state.isUser['uName'] = data.user.user_name_first + ' ' + data.user.user_name_last;
+                    this.state.isUser['menu'] = data.user.user_view_menu;
+                    this.state.options['dailer'] = (data.user.user_cti_flag === 1)?true:false;
+                    this.state.options['customize'] = (data.user.user_manager === 1)?true:false;
+                }
+                this._addCssLink();
                 this.forceUpdate();
             }
         }).catch(err => {
@@ -241,12 +262,13 @@ class App extends C {
     }
 
     _onUpdateMenus(menus) {
+        console.log(menus)
         this.state.menus = menus;
         this.forceUpdate();
     }
 
-    _stopLoading() {
-        this.state.loading = false;
+    _onLoading(loading) {
+        this.state.loading = loading;
     }
 
     _updateListHeaders(headers) {
@@ -269,7 +291,7 @@ class App extends C {
         }
     }
 
-    UNSAFE_componentWillMount() {
+    _onUpdateCompanyInfo() {
         const options = { uuid: getCookie('uuid')};
         const host = Msg.getSystemMsg('sys', 'app_api_host');
         const f = Fetch.postLogin(host + 'mode', options);
@@ -286,19 +308,22 @@ class App extends C {
               ,global_locale: data.company_global_locale
             }
             const auth = { info: this.state.isUser, options: this.state.options };
-            console.log(auth);
             this._loadAuthCookies(auth, this._onUpdateIsUserCallBack.bind(this));
           }
         });
     }
 
+    UNSAFE_componentWillMount() {
+        this._onUpdateCompanyInfo();
+    }
+
     componentDidMount() {
-        this._stopLoading();
         window.addEventListener("beforeunload", (ev) => {
             ev.preventDefault();
             sessionStorage.removeItem(SYSTEM.IS_ACTIVE_WINDOWN);
             localStorage.removeItem(SYSTEM.IS_LOGIN);
         });
+        this._onLoading(false);
     }
 
     static getDerivedStateFromError(error) {
@@ -344,6 +369,7 @@ class App extends C {
                                         options={ this.state.options }
                                         menus={ this.state.menus }
                                         headers={ this.state['headers'] }
+                                        // onUpdateListHeaders={ this._updateListHeaders.bind(this) }
                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                         onLogout={ this._doLogout.bind(this) }
@@ -402,7 +428,7 @@ class App extends C {
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
                                                                         menus={ this.state.menus }
-                                                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                        onUpdateUser={ this._onUpdatePromiseAndMenus.bind(this) }
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />
                                         <Route

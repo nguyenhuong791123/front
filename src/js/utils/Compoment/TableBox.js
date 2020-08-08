@@ -399,10 +399,11 @@ export default class TableBox extends C {
         const tblPos = tbl.getBoundingClientRect();
         let left = (pos.x + pos.width) - 33;
         const input = obj.getElementsByTagName(HTML_TAG.INPUT)[0];
-        if(!Utils.isEmpty(input)) left = left - 30; 
+        if(!Utils.isEmpty(input)) left = left - 30;
         if((tblPos.x + tblPos.width) <= left) return;
         this.state.sort.obj = obj;
-        this.state.sort.style = { top: '3.2em', left : left };
+        // this.state.sort.style = { top: '3.5em', left : left };
+        this.state.sort.style = { marginTop: '.4em', left : (left + 5) };
         this.state.sort.show = true;
         this.forceUpdate();
     }

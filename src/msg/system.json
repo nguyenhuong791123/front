@@ -5,6 +5,16 @@
         ,"app_css_host": "http://vmdev:8081/static/"
         ,"app_dailer_host": "http://vmdev:8082/"
         ,"app_api_host": "http://vmdev:8085/"
+        ,"system_pages": [
+          "mente.page_info"
+          ,"company.company_info"
+          ,"company.group_info"
+          ,"company.users_info"
+          ,"system.api_info"
+          ,"system.server_info"
+          ,"system_auth"
+          ,"company_auth"
+        ]
       }
     ,"basic":
       {
