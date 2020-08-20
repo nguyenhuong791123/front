@@ -111,7 +111,24 @@ class Header extends C {
         }
         if(path === ACTION.SLASH + ACTION.CREATE) this.state.isUser.actions = PAGE_ACTION.CREATE;
         this.state.isUser.path = path;
-        //console.log(path);
+
+        // let page = null;
+        // if(Utils.isNumber(action)) {
+        //   const menus = this.state.menus;
+        //   for(let i=0; i<menus.length; i++) {
+        //     const items = menus[i]['items'];
+        //     if(!Utils.isEmpty(items) && Array.isArray(items) && !Utils.isEmpty(items[0])) {
+        //       page = items.filter(function(x){ return x.page_id === parseInt(action) })[0];
+        //       if(!Utils.isEmpty(page)) break;
+        //     }
+        //     if(menus[i]['page_id'] === parseInt(action)) {
+        //       page = menus[i];
+        //       break;
+        //     }
+        //   }
+        // }
+        // if(Utils.isEmpty(page)) return;
+
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }
       //console.log('HEADER _onClick complete !!!');

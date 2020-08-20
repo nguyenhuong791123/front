@@ -5,7 +5,7 @@ div.div-calendar-box {
 }
 
 div.div-calendar-box div.rlc-calendar {
-    width: 282px;
+    width: 285px;
 }
 
 div.div-calendar-box div.rlc-calendar div.rlc-date-details {
@@ -15,6 +15,11 @@ div.div-calendar-box div.rlc-calendar div.rlc-date-details {
 div.div-calendar-box div.rlc-calendar div.rlc-details div.rlc-date-details-wrapper {
     margin: 0;
     text-align: center;
+}
+
+div.div-calendar-box div.rlc-calendar div.rlc-details div.rlc-date-time-selects {
+    position: absolute;
+    right: -6.2em;
 }
 
 div.div-calendar-box select {

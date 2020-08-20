@@ -8,6 +8,7 @@ import { VARIANT_TYPES, ACTION } from '../Types';
 import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY, OPTION_AUTH, REGEXS } from '../HtmlTypes';
 import Html from '../HtmlUtils'
 import Utils from '../Utils';
+import Fetch from '../Fetch';
 import { fileToBase64 } from '../FileUtils';
 
 import Msg from '../../../msg/Msg';
@@ -34,6 +35,8 @@ export default class CustomizeBox extends C {
             ,options: []
             ,optionTargets: {}
             ,defaultType: TYPE.TEXT
+            ,pageItems: []
+            ,forms: []
         }
     }
 
@@ -72,12 +75,29 @@ export default class CustomizeBox extends C {
         for(let i=0; i<objs.length; i++) {
             this.state.languages.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
         }
-        objs = OPTIONS; 
-        this.state.options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
-        for(let i=0; i<objs.length; i++) {
-            this.state.options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
-            this.state.optionTargets[objs[i]] = [{ 'value': 1, 'label': 'User1' }];
-        }
+
+        const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, language: this.state.isUser.language };
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'patitions', options);
+        f.then(data => {
+            if(!Utils.isEmpty(data)) {
+                console.log(data);
+                this.state.options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+                for(let i=0; i<data.length; i++) {
+                    this.state.options.push( <option key={ i } value={ data[i]['option_name'] }>{ data[i]['object_label'] }</option> );
+                    // this.state.optionTargets[i] = [{ 'value': data[i]['option_name'], 'label': 'User1' }];
+                }
+            }
+        }).catch(err => {
+          console.log(err);
+        });
+    
+        // objs = OPTIONS;
+        // this.state.options.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+        // for(let i=0; i<objs.length; i++) {
+        //     this.state.options.push( <option key={ i } value={ objs[i] }>{ Msg.getMsg(null, this.state.isUser.language, objs[i]) }</option> );
+        //     this.state.optionTargets[objs[i]] = [{ 'value': 1, 'label': 'User1' }];
+        // }
 
         if(this.state.mode !== ACTION.EDIT) {
             this.state.dragobject = null;
@@ -127,13 +147,29 @@ export default class CustomizeBox extends C {
                 if(Utils.isEmpty(val)) {
                     editBox.obj[OPTIONS_KEY.OPTIONS] = [{ 'value': '', 'label': '' }];
                 } else {
-                    const options = this.state.optionTargets[val];
-                    if(Array.isArray(options) && options.length > 0) {
-                        editBox.obj[OPTIONS_KEY.OPTIONS] = [];
-                        options.map((o) => {
-                            editBox.obj[OPTIONS_KEY.OPTIONS].push({ 'value': (!Number.isNaN(Number(o['value'])))?parseInt(o['value']):o['value'], 'label': o['label'] });
+                    const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, patition: val };
+                    const host = Msg.getSystemMsg('sys', 'app_api_host');
+                    const f = Fetch.postLogin(host + 'optionPatition', options);
+                    editBox.obj[OPTIONS_KEY.OPTIONS] = [];
+                    f.then(data => {
+                      if(!Utils.isEmpty(data)) {
+                        console.log(data);
+                        data.map((o) => {
+                            editBox.obj[OPTIONS_KEY.OPTIONS].push({ 'value': o['option_id'], 'label': o['option_value'] });
                         });
-                    }    
+                        this.forceUpdate();
+                    }
+                    }).catch(err => {
+                      console.log(err);
+                    });
+
+                    // const options = this.state.optionTargets[val];
+                    // if(Array.isArray(options) && options.length > 0) {
+                    //     editBox.obj[OPTIONS_KEY.OPTIONS] = [];
+                    //     options.map((o) => {
+                    //         editBox.obj[OPTIONS_KEY.OPTIONS].push({ 'value': (!Number.isNaN(Number(o['value'])))?parseInt(o['value']):o['value'], 'label': o['label'] });
+                    //     });
+                    // }    
                 }
             } else if(name.indexOf(OPTIONS_KEY.OPTIONS_ITEM) !== -1
                     && (type === TYPE.HIDDEN || type === TYPE.DISABLE || type === TYPE.CHILDENS || type === TYPE.QRCODE)) {
@@ -168,6 +204,24 @@ export default class CustomizeBox extends C {
                         if (name === TYPE.CHILDENS && !Utils.isEmpty(editBox.obj[OPTIONS_KEY.OPTIONS_ITEM]))
                             delete editBox.obj[OPTIONS_KEY.OPTIONS_ITEM];
                     }                        
+                }
+
+                if(Utils.isNumber(val) && (type === TYPE.HIDDEN || type === TYPE.DISABLE || type === TYPE.QRCODE)) {
+                    const options = { cId: this.state.isUser.cId, pId: parseInt(val), language: this.state.isUser.language };
+                    const host = Msg.getSystemMsg('sys', 'app_api_host');
+                    const f = Fetch.postLogin(host + 'getPage', options);
+                    f.then(data => {
+                        if(!Utils.isEmpty(data)) {
+                            this.state.forms = data['form'];
+                            this.forceUpdate();
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                    // this.state.pageItems.push({ 'value': 1, 'label': 'Item_01' });
+                    // this.state.pageItems.push({ 'value': 2, 'label': 'Item_02' });
+                    // this.state.pageItems.push({ 'value': 3, 'label': 'Item_03' });
+                    // this.state.pageItems.push({ 'value': 4, 'label': 'Item_03' });
                 }
             }
     
@@ -833,7 +887,15 @@ export default class CustomizeBox extends C {
                         listmenus.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
                         if(Array.isArray(menus) && menus.length > 0) {
                             for (let i=0; i<menus.length; i++) {
-                                listmenus.push( <option key={ i } value={ menus[i].id }>{ menus[i].label }</option> );
+                                const items = menus[i]['items'];
+                                if(Array.isArray(items) && !Utils.isEmpty(items[0])) {
+                                    const opts = items.map((o, idx) => {
+                                        return ( <option key={ idx } value={ o['page_id'] }>{ o['page_name'] }</option> );
+                                    });
+                                    listmenus.push( <optgroup key={ i } label={ menus[i]['page_name'] }>{ opts }</optgroup> );                              
+                                } else {
+                                    listmenus.push( <option key={ i } value={ menus[i]['page_id'] }>{ menus[i]['page_name'] }</option> );
+                                }
                             }
                         }
                         return(
@@ -854,34 +916,57 @@ export default class CustomizeBox extends C {
                     if (editBox[TYPE.CHILDENS]
                         && (editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN
                             || editBox[CUSTOMIZE.TYPE] === TYPE.DISABLE
-                            || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE)) {
-                        var pageItems = [];
-                        pageItems.push({ 'value': 1, 'label': 'Item_01' });
-                        pageItems.push({ 'value': 2, 'label': 'Item_02' });
-                        pageItems.push({ 'value': 3, 'label': 'Item_03' });
-                        pageItems.push({ 'value': 4, 'label': 'Item_03' });
-
+                            || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE)
+                        && (Array.isArray(this.state.forms) && this.state.forms.length > 0)) {
                         const checkboxName = (editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE)?OPTIONS_KEY.OPTIONS_ITEM + '[]':OPTIONS_KEY.OPTIONS_ITEM;
                         const inputType = (editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE)?HTML_TAG.CHECKBOX:HTML_TAG.RADIO;
                         const values = editBox[OPTIONS_KEY.OPTIONS_ITEM];
-                        const items = pageItems.map((obj, idx) => {
-                            var checked = false;
-                            if(inputType === HTML_TAG.CHECKBOX) checked = (Array.isArray(values) && values.includes(obj['value']))?true:false;
-                            if(inputType === HTML_TAG.RADIO) checked = (!Utils.isEmpty(values) && (values === obj['value']))?true:false;
+                        const items = this.state.forms.map((f, fIdx) => {
+                            const ps = f['object']['schema']['properties'];
+                            const list = Object.keys(ps).map((key, idx) => {
+                                var checked = false;
+                                if(inputType === HTML_TAG.CHECKBOX) checked = (Array.isArray(values) && values.includes(key))?true:false;
+                                if(inputType === HTML_TAG.RADIO) checked = (!Utils.isEmpty(values) && (values === key))?true:false;
+                                return (
+                                    <div key={ idx } className={ 'form-check' } style={{ width: '50%', float: 'left', padding: '.2em', paddingLeft: '1.5em' }}>
+                                        <input
+                                            type={ inputType }
+                                            id={ HTML_TAG.CHECKBOX + '_' + idx }
+                                            name={ checkboxName }
+                                            checked={ checked }
+                                            value={ key }
+                                            onChange={ this._onChange.bind(this) }
+                                            className={ 'form-check-input' } />
+                                        <label className="form-check-label" htmlFor={ HTML_TAG.CHECKBOX + '_' + idx }>{ ps[key]['title'] }</label>
+                                    </div>
+                                );
+                            });
                             return (
-                                <div key={ idx } className={ 'form-check' }>
-                                    <input
-                                        type={ inputType }
-                                        id={ HTML_TAG.CHECKBOX + '_' + idx }
-                                        name={ checkboxName }
-                                        checked={ checked }
-                                        value={ obj['value'] }
-                                        onChange={ this._onChange.bind(this) }
-                                        className={ 'form-check-input' } />
-                                    <label className="form-check-label" htmlFor={ HTML_TAG.CHECKBOX + '_' + idx }>{ obj['label'] }</label>
+                                <div key={ fIdx }>
+                                    <h5>{ f['object']['schema']['title'] }</h5>
+                                    { list }
                                 </div>
                             );
                         });
+                        console.log(this.state.forms);
+                        // const items = this.state.pageItems.map((obj, idx) => {
+                        //     var checked = false;
+                        //     if(inputType === HTML_TAG.CHECKBOX) checked = (Array.isArray(values) && values.includes(obj['value']))?true:false;
+                        //     if(inputType === HTML_TAG.RADIO) checked = (!Utils.isEmpty(values) && (values === obj['value']))?true:false;
+                        //     return (
+                        //         <div key={ idx } className={ 'form-check' } style={{ width: '50%', float: 'left', padding: '.2em', paddingLeft: '1.5em' }}>
+                        //             <input
+                        //                 type={ inputType }
+                        //                 id={ HTML_TAG.CHECKBOX + '_' + idx }
+                        //                 name={ checkboxName }
+                        //                 checked={ checked }
+                        //                 value={ obj['value'] }
+                        //                 onChange={ this._onChange.bind(this) }
+                        //                 className={ 'form-check-input' } />
+                        //             <label className="form-check-label" htmlFor={ HTML_TAG.CHECKBOX + '_' + idx }>{ obj['label'] }</label>
+                        //         </div>
+                        //     );
+                        // });
                         return(
                             <tr>
                                 <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'item_list') }</td>

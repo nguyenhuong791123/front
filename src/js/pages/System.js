@@ -25,7 +25,7 @@ class System extends C {
         this._onClickAdd = this._onClickAdd.bind(this);
         this._onButtonClick = this._onButtonClick.bind(this);
         this._onCheckBoxClick = this._onCheckBoxClick.bind(this);
-        this._onClickSubmit = this._onClickSubmit.bind(this);
+        // this._onClickSubmit = this._onClickSubmit.bind(this);
         this._onGroupSettingMenuCreate = this._onGroupSettingMenuCreate.bind(this);
 
         this.state = {
@@ -139,7 +139,7 @@ class System extends C {
                     input = li.childNodes[1].getElementsByTagName(HTML_TAG.INPUT)[0];
                     input.checked = (checked === bts.length);
                 });
-            }
+            }    
         } else {
             // const btns = Array.from(div.childNodes);
             const btns = Array.from(div.childNodes).filter(function(x){ return x.tagName === HTML_TAG.BUTTON });
@@ -160,6 +160,21 @@ class System extends C {
                     });
                 }
             }
+        }
+
+        if(Utils.isEmpty(div.parentElement.parentElement.parentElement)) return;
+        const liP = div.parentElement.parentElement.parentElement;
+        let idx = div.parentElement.getAttribute(ATTR.IDX);
+        let pIdx = liP.getAttribute(ATTR.IDX);
+        if(!Utils.isNumber(pIdx)) {
+            const pages = this.state.menus[idx];
+            if(Utils.inJson(pages, 'items') && Array.isArray(pages['items']) && !Utils.isEmpty(pages['items'][0])) {
+                pages['items'].map((page) => {
+                    this._onUpdatePages(page);
+                });    
+            }
+        } else {
+            this._onUpdatePages(this.state.menus[pIdx]['items'][idx]);
         }
     }
 
@@ -259,7 +274,21 @@ class System extends C {
         });
 
         const ul = div.parentElement.childNodes[div.parentElement.childNodes.length-1];
-        if(Utils.isEmpty(ul) || ul.tagName !== HTML_TAG.UL) return;
+        if(Utils.isEmpty(ul) || ul.tagName !== HTML_TAG.UL) {
+            if(!Utils.isEmpty(div.parentElement.parentElement.parentElement)) {
+                const liP = div.parentElement.parentElement.parentElement;
+                let idx = div.parentElement.getAttribute(ATTR.IDX);
+                let pIdx = liP.getAttribute(ATTR.IDX);
+                let page = null;
+                if(Utils.isNumber(pIdx) && Utils.isNumber(idx)) {
+                    page = this.state.menus[pIdx]['items'][idx];
+                } else {
+                    page = this.state.menus[idx];
+                }
+                this._onUpdatePages(page);
+            }
+            return;
+        }
         this.state[ACTION.SELECTED] = selected;
         const ulis = Array.from(ul.childNodes);
         ulis.map((li) => {
@@ -282,10 +311,39 @@ class System extends C {
         }
     }
 
-    _onClickSubmit() {
-        console.log(this.state.menus);
-        this.props.onUpdateMenus(this.state.menus);
+    _onUpdatePages(page) {
+        if(Utils.isEmpty(page)) return;
+        const options = { page: page, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'updatePage', options);
+        f.then(data => {
+            if(!Utils.isEmpty(data)) {
+                console.log(data)
+                // this.setState({ menus: data });
+                // this.forceUpdate();
+                // this.props.onUpdateMenus(data);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
     }
+
+    // _onClickSubmit() {
+    //     console.log(this.state.menus);
+    //     // window.location.reload(false);
+    //     const options = { pages: this.state.menus, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+    //     const host = Msg.getSystemMsg('sys', 'app_api_host');
+    //     const f = Fetch.postLogin(host + 'updatePages', options);
+    //     f.then(data => {
+    //         if(!Utils.isEmpty(data)) {
+    //             this.props.onUpdateMenus(data);
+    //         }
+    //     }).catch(err => {
+    //         console.log(err);
+    //     });
+    //     // console.log(menus);
+    //     // this.props.onUpdateMenus(this.state.menus);
+    // }
 
     _getSelected(obj) {
         if(Utils.isEmpty(obj)
@@ -316,6 +374,13 @@ class System extends C {
 
     _getAllList() {
         if(Utils.isEmpty(this.state.menus) || this.state.menus.length <= 0) return "";
+        this.state.menus.map((o) => {
+            if(Utils.inJson(o, 'items') && Array.isArray(o['items']) && !Utils.isEmpty(o['items'][0])) {
+                o['items'].sort((a, b) => ((a.page_order > b.page_order)?1:-1));
+            }
+        });
+        this.state.menus.sort((a, b) => ((a.page_order > b.page_order)?1:-1));
+  
         var childs = [];
         this.state.menus.map((obj, index) => {
             childs.push(this._geList(obj, index, index));
@@ -329,16 +394,24 @@ class System extends C {
         if(!Utils.inJson(obj, 'items') || obj.items.length <= 0 || Utils.isEmpty(obj.items[0])) {
             const className = (obj.page_flag === 1)?'btn-'+ VARIANT_TYPES.INFO:'';
             const vDelete = Msg.getSystemMsg('sys', 'system_pages').includes(obj.page_key);
+            const style = (idx === mIdx)?{ marginRight: '.5em' }:{};
             let div = (<div
                         key={ 'div_' + idx }
                         className={ className }
                         onMouseOver={ this._onMouseOver.bind(this) }>
-                        <a href={ '#' } idx={ idx } pidx={ mIdx } onClick={ this._onClickEdit.bind(this) }>{ obj.page_name }</a>
+                        <a
+                            href={ '#' }
+                            idx={ idx }
+                            pidx={ mIdx }
+                            onClick={ this._onClickEdit.bind(this) }>
+                                { obj.page_name }
+                            </a>
                         {(() => {
                             if(!vDelete) {
                                 return (
                                     <Button
                                         type={ HTML_TAG.BUTTON }
+                                        style={ style }
                                         onClick={ this._onClickViewDelete.bind(this) }
                                         variant={ VARIANT_TYPES.WARNING }>
                                         <FaTrash />
@@ -355,23 +428,22 @@ class System extends C {
             const auths = [this.state.auths.length];
             if(Utils.inJson(obj, 'page_auth') && !Utils.isEmpty(obj['page_auth'])) {
                 const objs = Object.keys(obj.page_auth);
-                // console.log(objs);
+                console.log(obj);
                 objs.map((key, index) => {
                     const btSelected = (obj.page_auth[key])?'selected':'';
-                    const variant = (obj.page_auth[key])?'':VARIANT_TYPES.OUTLINE;
+                    const variant = (obj.page_auth[key])?VARIANT_TYPES.SECONDARY:VARIANT_TYPES.OUTLINE + VARIANT_TYPES.SECONDARY;
                     const aIdx = allAuth.indexOf(key);
                     auths[aIdx] = (<Button
-                            key={ index }
-                                    idx={ idx }
-                                    pidx={ mIdx }
-                                    code={ key }
-                                    className={ btSelected }
-                                    // variant={ VARIANT_TYPES.OUTLINE + VARIANT_TYPES.INFO }
-                                    variant={ variant + VARIANT_TYPES.SECONDARY }
-                                    onClick={ this._onButtonClick.bind(this) }
-                                    title={ Msg.getMsg(null, this.state.isUser.language, 'bt_' + key.substr(3)) }>
-                                    { Msg.getMsg(null, this.state.isUser.language, 'bt_' + key.substr(3)) }
-                                </Button>);
+                        key={ index }
+                        idx={ idx }
+                        pidx={ mIdx }
+                        code={ key }
+                        className={ btSelected }
+                        variant={ variant }
+                        onClick={ this._onButtonClick.bind(this) }
+                        title={ Msg.getMsg(null, this.state.isUser.language, 'bt_' + key.substr(3)) }>
+                        { Msg.getMsg(null, this.state.isUser.language, 'bt_' + key.substr(3)) }
+                    </Button>);
                 });
             }
             for(let i=0; i<auths.length; i++) {
@@ -525,9 +597,11 @@ class System extends C {
             } else {
                 aIdx = dropIdx + 1;
             }
+            // if(Number.isNaN(Number(aIdx))) return;
             if(!Utils.isNumber(dragpIdx) && !Utils.isNumber(droppIdx)) {
                 const dragMenu = menus[dragIdx];
                 const dropMenu = menus[dropIdx];
+                if(Utils.isEmpty(dropMenu)) return;
                 menus[dragIdx] = dropMenu;
                 menus[dropIdx] = dragMenu;
             } else if(!Utils.isNumber(dragpIdx)) {
@@ -566,8 +640,33 @@ class System extends C {
             }
         }
 
+        // this._onWindownReload();
+        // window.location.reload(false);
         console.log(menus);
-        this.forceUpdate();
+        menus.map((o, idx) => {
+            o['page_order'] = idx;
+            if(Utils.inJson(o, 'items') && Array.isArray(o['items']) && !Utils.isEmpty(o['items'][0])) {
+                o['items'].map((i, cIdx) => {
+                    i['page_order'] = cIdx;
+                });
+            }
+        });
+
+        const options = { pages: menus, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'updatePages', options);
+        f.then(data => {
+            if(!Utils.isEmpty(data)) {
+                // console.log(data)
+                // this.setState({ menus: data });
+                // this.forceUpdate();
+                this.props.onUpdateMenus(data);
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+        // console.log(menus);
+        // this.forceUpdate();
     }
 
     _onUpdateAuthParents() {
@@ -575,6 +674,7 @@ class System extends C {
         if(Utils.isEmpty(div)) return;
         this.state.auths.map((o, index) => {
             const objs = this.state.menus[index]['items'];
+            console.log(objs);
             let obj = null;
             if(Array.isArray(objs) && !Utils.isEmpty(objs) && !Utils.isEmpty(objs[0])) {
                 const divOld = document.getElementById('div_btn_' + index);
@@ -583,12 +683,12 @@ class System extends C {
                 obj.id = 'div_btn_' + index;
                 obj.className = 'div-btn-group btn-group';
                 o.map((auth, idx) => {
-                    const checked = this._onVerticalChecked(index, auth);
+                    const selected = this._onVerticalChecked(index, auth);
                     const bt = document.createElement(HTML_TAG.BUTTON);
                     bt.setAttribute(ATTR.CODE, auth);
                     bt.title = Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth.substr(3));
                     bt.innerHTML = Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth.substr(3));
-                    if(checked) {
+                    if(selected) {
                         bt.className = 'selected btn btn-' + VARIANT_TYPES.DARK;
                     } else {
                         bt.className = 'btn btn-outline-' + VARIANT_TYPES.DARK;
@@ -714,6 +814,16 @@ class System extends C {
                     return o;    
                 }
             });
+
+            // const page = this.state.settingbox.page;
+            // page['page_key'] = 'group_' + Utils.getUUID()
+            // page['page_order'] = this.state.menus.length;
+            // page['items'] = items;
+
+            // this.state.menus.push(page);
+            // this.forceUpdate();
+
+            // this._onWindownReload();
             const page = this.state.settingbox.page;
             page['page_key'] = 'group_' + Utils.getUUID()
             page['page_order'] = this.state.menus.length;
@@ -723,21 +833,13 @@ class System extends C {
             const f = Fetch.postLogin(host + 'setGroupPage', options);
             f.then(data => {
                 if(!Utils.isEmpty(data)) {
-                    // items.map((o) => {
-                    //     const idx = this.state.menus.findIndex(function(x, i){ return x.page_id === o.page_id });
-                    //     if(Utils.isNumber(idx)) this.state.menus.splice(idx, 1);
-                    // });
-                    // page['page_id'] = data['page_id'];
-                    // page['page_auth'] = data['page_auth'];
-                    // this.state.menus.push(page);
-
                     this.state.settingbox.setting = false;
                     this.state.settingbox.page = { page_name: '', page_flag: 1, page_order: 0 };
                     this.state.settingbox.pages = [];
 
-                    // this.props.onUpdateMenus(this.state.menus);
-                    console.log(data)
+                    // console.log(data)
                     this.props.onUpdateMenus(data);
+                    // this.setState({ menus: data });
                     // this.forceUpdate();
                 }
             }).catch(err => {
@@ -891,26 +993,41 @@ class System extends C {
 
     _onClickPageDelete() {
         if(Utils.isEmpty(this.state.pagedelete)) return;
+        // this._onWindownReload();
         this._onClickReturnDelete();
+        // const menus = this.state.menus;
+        // const pd = this.state.pagedelete;
+        // const items = pd['items'];
+        // const idx = menus.findIndex(function(x){ return x.page_id === pd.page_id });
+        // if(Utils.inJson(pd, 'items') && Array.isArray(pd['items']) && !Utils.isEmpty(pd['items'][0])) {
+        //     // const idx = menus.findIndex(function(x){ return x.page_id === pd.page_id });
+        //     menus.splice(idx, 1);
+        //     items.map((o, index) => {
+        //         o['page_order'] = (menus.length + index);
+        //         menus.push(o);
+        //     });
+        // } else {
+        //     if(Utils.isNumber(idx)) {
+        //         menus.splice(idx, 1);
+        //     } else {
+        //         menus.map((o) => {
+        //             if(Utils.inJson(o, 'items') && Array.isArray(o['items']) && !Utils.isEmpty(o['items'][0])) {
+        //                 const idx = o['items'].findIndex(function(x){ return x.page_id === pd.page_id });
+        //                 if(Utils.isNumber(idx)) o['items'].splice(idx, 1);
+        //             }
+        //         });    
+        //     }
+        // }
+        // console.log(menus);
+        // console.log(items);
+        // this.forceUpdate();
         const options = { page: this.state.pagedelete, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
         const host = Msg.getSystemMsg('sys', 'app_api_host');
         const f = Fetch.postLogin(host + 'deletePage', options);
         f.then(data => {
             if(!Utils.isEmpty(data)) {
-                // const menus = this.state.menus;
-                // const idx = menus.findIndex(function(x, i){ return x.page_id === data.page_id });
-                // if(Utils.isNumber(idx) && idx >= 0) {
-                //     this.state.menus.splice(idx, 1);
-                //     if(Utils.inJson(data, 'items') && Array.isArray(data['items']) && !Utils.isEmpty(data['items'][0])) {
-                //         const items = data['items'];
-                //         items.map((o) => {
-                //             menus.push(o);
-                //         });
-                //     }
-                // }
-                console.log(data);
-                // this.props.onUpdateMenus(menus);
                 this.props.onUpdateMenus(data);
+                // this.setState({ menus: data });
                 // this.forceUpdate();
             }
         }).catch(err => {
@@ -918,9 +1035,14 @@ class System extends C {
         });
     }
 
+    _onWindownReload() {
+        window.location.reload(false);
+    }
+
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.state.isUser = nextProps.isUser;
         this.state.options = nextProps.options;
+        // this.state.menus = nextProps.menus;
         const menus = this.state.menus;
         if(menus !== nextProps.menus) {
             this.setState({ menus: nextProps.menus });
@@ -956,9 +1078,9 @@ class System extends C {
                     <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
                         { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
                     </Button>
-                    <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+                    {/* <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
                         { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
-                    </Button>
+                    </Button> */}
                 </div>
                 {/* <Actions
                     isUser={ this.state.isUser }

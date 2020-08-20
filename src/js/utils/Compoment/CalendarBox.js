@@ -45,9 +45,10 @@ export default  class CalendarBox extends C {
         const cBox = document.createElement(HTML_TAG.DIV);
         cBox.id = 'div_calendar_box_view';
         obj.parentElement.appendChild(cBox);
+        const datetime = this.state.id.replace('root_', '').startsWith('datetime');
         ReactDOM.render(<Calendar
             objId={ this.state.id }
-            // datetime={ this.state.datetime }
+            datetime={ datetime }
             onChangeCalendar={ this._onChangeCalendar.bind(this) }
             {...this.props} />
             ,document.getElementById(cBox.id));

@@ -4,7 +4,7 @@ import { FaTimes } from 'react-icons/fa';
 import { withRouter } from "react-router-dom";
 import { connect } from 'react-redux';
 
-import Actions from '../utils/Actions';
+// import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 import ImageBox from '../utils/Compoment/ImageBox';
 import TimeBox from '../utils/Compoment/TimeBox';
@@ -21,7 +21,7 @@ import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
 import StringUtil from 'util';
 import Msg from '../../msg/Msg';
-import { HTML_TAG, CUSTOMIZE, TYPE, MOUSE } from '../utils/HtmlTypes';
+import { HTML_TAG, CUSTOMIZE, TYPE, MOUSE, OPTIONS_KEY } from '../utils/HtmlTypes';
 import { PAGE_ACTION, ACTION, SYSTEM, VARIANT_TYPES, MSG_TYPE } from '../utils/Types';
 
 class Create extends C {
@@ -35,62 +35,14 @@ class Create extends C {
     this._onResetClick = this._onResetClick.bind(this);
 
     this.state = {
-      isUser: this.props.isUser
-      ,options: this.props.options
+      isUser: props.isUser
+      ,options: props.options
       ,alertActions: { show: false, style: {} }
       ,overObject: null
-      ,isValidate: true
-      ,page: {}
+      ,isValidate: false
+      // ,page: props.page
     }
   };
-
-  UNSAFE_componentWillMount(){
-    console.log("Data submitted: ", this.props.onUpdateStateIsUser);
-    this.state.page = {
-      "page_id": 1,
-      "page_name": "Create",
-      "page_mode": 0,
-      "form": [
-        {
-          "page_id": 1,
-          "object_type": "tab",
-          "object_key": "form_0.gw6yqa642dq",
-          "className": "div-box-100",
-          "idx": 0,
-          "object": [
-            {
-              "schema_id": 1,
-              "schema": {
-                "idx": 0,
-                "type": "object",
-                "tab_name": "DIV_00",
-                "box_type": "TAB",
-                "form_idx": 0,
-                "properties": {
-                  "text_0.xtadqn6yuz": {
-                    "idx": 1,
-                    "type": "string",
-                    "title": "dd",
-                    "language": "ja"
-                  }
-                }
-              },
-              "ui": {
-                "text_0.xtadqn6yuz": {
-                  "classNames": "div-box div-box-25 div-box-height-80"
-                }
-              },
-              "data": {
-                "text_0.xtadqn6yuz": "aaaaa"
-              }
-            }
-          ]
-        }
-      ]
-    }
-
-    this._onSortForms();
-  }
 
   _onFormatJson(obj) {
     if(Utils.isEmpty(obj) || !Array.isArray(obj)) return;
@@ -102,7 +54,10 @@ class Create extends C {
   }
 
   _onSortForms() {
-    var forms = this.state.page.form;
+    if(!Utils.inJson(this.state.isUser.page, 'form')) return;
+    var forms = this.state.isUser.page.form;
+    console.log(forms)
+    if(Utils.isEmpty(forms)) return;
     console.log(forms);
     forms.map((f) => {
       var objs = f.object;
@@ -172,7 +127,8 @@ class Create extends C {
     this._onFormValidate();
     if(this.state.isValidate) return
 
-    console.log("Data submitted: ", this.state.page.formData);
+    console.log("Data submitted: ", this.state.form);
+    this.state.isUser.page.form = [];
     this._onClickBack();
   }
 
@@ -181,11 +137,11 @@ class Create extends C {
     console.log(e);
     const fidx = e.schema.form_idx;
     const idx = e.schema.idx;
-    var form = this.state.page.form;
-    if(e.schema.box_type === HTML_TAG.DIV) {
+    var form = this.state.isUser.page.form;
+    if(e.schema.schema_type === HTML_TAG.DIV) {
       form[fidx].object.data = e.formData;
     }
-    if(e.schema.box_type === HTML_TAG.TAB) {
+    if(e.schema.schema_type === HTML_TAG.TAB) {
       form[fidx].object[idx].data = e.formData;
     }
     this.setState({ form });
@@ -235,6 +191,7 @@ class Create extends C {
                   viewError = true;
               }
               if(!Utils.isEmpty(error) && viewError) {
+                this.state.isValidate = true;
                 l.innerHTML = "<font class='required'>" + error + "</font>";
                 setTimeout(function() {
                   l.innerHTML = label;
@@ -319,7 +276,10 @@ class Create extends C {
   // }
 
   _onFormValidate() {
-    this.state.page.form.map((f) => {
+    const form = this.state.isUser.page.form;
+    if(Utils.isEmpty(form)) return;
+    this.state.isValidate = false;
+    this.state.isUser.page.form.map((f) => {
       var objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
         objs.map((obj) => {
@@ -332,7 +292,9 @@ class Create extends C {
   }
 
   _onFormAddAttribute() {
-    this.state.page.form.map((f) => {
+    const form = this.state.isUser.page.form;
+    if(Utils.isEmpty(form)) return;
+    this.state.isUser.page.form.map((f) => {
       var objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
         objs.map((obj) => {
@@ -373,9 +335,9 @@ class Create extends C {
     const nav = div.childNodes[0];
     var object = null;
     if(nav.tagName === HTML_TAG.NAV) {
-      object = this.state.page.form[form_idx].object[Html.getIdxTabSelected(nav)];
+      object = this.state.isUser.page.form[form_idx].object[Html.getIdxTabSelected(nav)];
     } else {
-      object = this.state.page.form[form_idx].object;
+      object = this.state.isUser.page.form[form_idx].object;
     }
     if(Utils.isEmpty(object)) return;
     var objs = Array.from(obj.parentElement.childNodes);
@@ -433,7 +395,7 @@ class Create extends C {
     obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.overObject = obj;
     const pos = obj.getBoundingClientRect();
-    this.state.alertActions.style = { top: (pos.y - 45), left : (pos.x + pos.width) - 35, zIndex: 1 };
+    this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 30, zIndex: 1 };
     this.state.alertActions.show = true;
     this.forceUpdate();
   }
@@ -476,7 +438,7 @@ class Create extends C {
     objs.map((d) => {
       if(d.tagName === HTML_TAG.DIV) {
         const l = d.getElementsByTagName(HTML_TAG.LABEL)[0];
-        if(!Utils.isEmpty(l.getAttribute('for'))) {
+        if(!Utils.isEmpty(l) && !Utils.isEmpty(l.getAttribute('for'))) {
           var type = l.getAttribute('for').replace('root_', '');
           type = type.split('_')[0];
           if(!Utils.isEmpty(l) && type !== TYPE.IMAGE && type !== TYPE.DISABLE && type !== TYPE.QRCODE)
@@ -491,9 +453,13 @@ class Create extends C {
     this._onFindFields();
   }
 
+  UNSAFE_componentWillMount() {
+    this._onSortForms();
+  }
+
   render() {
     var labelKey = 'bt_create';
-    const pageMode = this.state.page['page_mode'];
+    const pageMode = Utils.inJson(this.state.isUser.page, 'page_mode')?this.state.isUser.page['page_mode']:'';
     if(Utils.isEmpty(pageMode) || pageMode === 0) {
       this.state.isUser.actions = PAGE_ACTION.CREATE;
     } else {
@@ -519,12 +485,12 @@ class Create extends C {
             onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
         <div className="div-title-box">
           {/* <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5> */}
-          <h5>{ this.state.page.page_name  + '/' + Msg.getMsg(null, this.state.isUser.language, labelKey) }</h5>
+          <h5>{ this.state.isUser.page.page_name  + '/' + Msg.getMsg(null, this.state.isUser.language, labelKey) }</h5>
         </div>
 
         <CForm
           isUser={ this.state.isUser }
-          form={ this.state.page.form }
+          form={ this.state.isUser.page.form }
           updateFormData={ this._onUpdateFormData.bind(this) } />
       </div>
     )

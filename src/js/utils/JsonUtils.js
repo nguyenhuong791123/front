@@ -69,7 +69,7 @@ export const JSON_OBJ = {
   ,getJsonUi: (obj, idx) => {
     var json = {};
     const placeholder = obj[CUSTOMIZE.PLACEHOLDER][obj[CUSTOMIZE.LANGUAGE]];
-    if(!Utils.isEmpty(obj[CUSTOMIZE.PLACEHOLDER])) {
+    if(!Utils.isEmpty(placeholder)) {
       if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
         json['ui:help'] = placeholder;
       } else {
@@ -243,7 +243,8 @@ export const JSON_OBJ = {
           schema: {
             type: 'object',
             title: HTML_TAG.DIV + '_' + (idx+'').padStart(2, '0'),
-            box_type: HTML_TAG.DIV,
+            schema_type: HTML_TAG.DIV,
+            schema_key: 'schema_'+ Utils.getUUID(),
             form_idx: idx,
             idx: 0,
             properties: {},
@@ -267,7 +268,8 @@ export const JSON_OBJ = {
             schema: {
                 type: 'object',
                 tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'),
-                box_type: HTML_TAG.TAB,
+                schema_type: HTML_TAG.TAB,
+                schema_key: 'schema_'+ Utils.getUUID(),
                 form_idx: idx,
                 idx: 0,
                 properties: {},
@@ -279,7 +281,7 @@ export const JSON_OBJ = {
             data: {}
           }
           // ,{
-          //   schema: { type: 'object', tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'), box_type: HTML_TAG.TAB, form_idx: idx, idx: 1, properties: {}, definitions: {}, obj: jObj }, ui: {}, data: {}
+          //   schema: { type: 'object', tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'), schema_type: HTML_TAG.TAB, form_idx: idx, idx: 1, properties: {}, definitions: {}, obj: jObj }, ui: {}, data: {}
           // }
         ]
       }
@@ -290,7 +292,8 @@ export const JSON_OBJ = {
       schema: {
           type: 'object',
           tab_name: HTML_TAG.TAB + '_' + (idx+'').padStart(2, '0'),
-          box_type: HTML_TAG.TAB,
+          schema_type: HTML_TAG.TAB,
+          schema_key: 'schema_'+ Utils.getUUID(),
           form_idx: form_idx,
           idx: idx,
           properties: {},

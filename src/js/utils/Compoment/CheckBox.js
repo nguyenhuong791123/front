@@ -21,6 +21,7 @@ export default class CheckBox extends C {
         console.log(this.props);
         const def = this.props.schema;
         if(!Utils.inJson(def, OPTIONS_KEY.OPTIONS)) return('Not List!!!');
+        // const patitions = [ 'sex', 'sys_auth', 'sys_api', 'deleted', 'flag', 'on_off', 'age', 'user_manager' ];
         const objs = Array.from(def.options);
         if(objs.length > 1) {
             var values = [];
@@ -31,6 +32,7 @@ export default class CheckBox extends C {
             }
             return objs.map((obj, idx) => {
                 const checked = (!Utils.isEmpty(values) && values.includes(obj['value']))?true:false;
+                // const oVal = (Utils.inJson(def, OPTIONS_KEY.OPTION_TARGET) && patitions.includes(def[OPTIONS_KEY.OPTION_TARGET]))?obj['id']:obj['value'];
                 return (
                     <div key={ idx } className={ 'form-check' }>
                         <input type={ 'checkbox' }

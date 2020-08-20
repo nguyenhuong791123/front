@@ -55,6 +55,7 @@ class Customize extends C {
       ,dragparent: null
       ,mode: ACTION.CREATE
       ,menus: this.props.menus
+      // ,patitions: []
     }
   };
 
@@ -541,18 +542,7 @@ class Customize extends C {
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
     this.state.mode = ACTION.CREATE;
     const editObj = this.state.overlayCreateEditBox.obj;
-    // const label_language = CUSTOMIZE.LABEL + '_' + this.state.isUser.language;
-    // editObj[label_language] = '';
-
-    // const placehoders = [ HTML_TAG.LEGEND, HTML_TAG.NAV ];
-    // if(placehoders.includes(obj.tagName)) {
-    //   const placeholder_language = CUSTOMIZE.PLACEHOLDER + '_' + this.state.isUser.language;
-    //   editObj[placeholder_language] = '';  
-    // }
-
     editObj[CUSTOMIZE.TYPE] = TYPE.TEXT;
-    // editObj[CUSTOMIZE.LABEL_ALIGN] = ALIGN.LEFT;
-    // editObj[CUSTOMIZE.TEXT_ALIGN] = ALIGN.LEFT;
     editObj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;
 
     this.state.overlayCreateEditBox.msg = Msg.getMsg(null, this.state.isUser.language, 'bt_create');
@@ -649,6 +639,7 @@ class Customize extends C {
             dragobject={ this.state.dragobject }
             editBox={ this.state.overlayCreateEditBox }
             menus={ this.state.menus }
+            // options={ this.state.patitions }
             updateEditBox={ this._onUpdateEditBox.bind(this) }/>
         </div>
       </Alert>
@@ -1158,18 +1149,18 @@ class Customize extends C {
     const fidx = e.schema.form_idx;
     const idx = e.schema.idx;
     var form = this.state.page.form;
-    if(e.schema.box_type === HTML_TAG.DIV) {
+    if(e.schema.schema_type === HTML_TAG.DIV) {
       form[fidx].object.data = e.formData;
     }
-    if(e.schema.box_type === HTML_TAG.TAB) {
+    if(e.schema.schema_type === HTML_TAG.TAB) {
       form[fidx].object[idx].data = e.formData;
     }
     this.setState({ form });
 
-    // if(e.schema.box_type === HTML_TAG.DIV) {
+    // if(e.schema.schema_type === HTML_TAG.DIV) {
     //   this.state.page.form[form_idx].object.data = e.formData;
     // }
-    // if(e.schema.box_type === HTML_TAG.TAB) {
+    // if(e.schema.schema_type === HTML_TAG.TAB) {
     //   this.state.page.form[form_idx].object[idx].data = e.formData;
     // }
     // console.log(this.state.page.form[form_idx]);
@@ -1297,7 +1288,7 @@ class Customize extends C {
                 "idx": 0,
                 "type": "object",
                 "tab_name": "DIV_00",
-                "box_type": "TAB",
+                "schema_type": "TAB",
                 "form_idx": 0,
                 "properties": {
                   "text_0.xtadqn6yuz": {
@@ -1348,6 +1339,18 @@ class Customize extends C {
       this.state.page = this.state.isUser.page;
       this.state.page['form'] = [];
     }
+
+    // const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+    // const host = Msg.getSystemMsg('sys', 'app_api_host');
+    // const f = Fetch.postLogin(host + 'options', options);
+    // f.then(data => {
+    //   if(!Utils.isEmpty(data)) {
+    //     console.log(data);
+    //     // this.state.patitions = data;
+    //   }
+    // }).catch(err => {
+    //   console.log(err);
+    // });
   }
 
   componentDidUpdate() {

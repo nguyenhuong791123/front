@@ -236,7 +236,7 @@ class App extends C {
 
     _onGetMenus() {
         if(Utils.isEmpty(this.state.isUser.cId) || Utils.isEmpty(this.state.isUser.uId)) return;
-        const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+        const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, language: this.state.isUser.language };
         const host = Msg.getSystemMsg('sys', 'app_api_host');
         const f = Fetch.postLogin(host + 'menus', options);
         f.then(data => {
@@ -264,7 +264,8 @@ class App extends C {
     _onUpdateMenus(menus) {
         console.log(menus)
         this.state.menus = menus;
-        this.forceUpdate();
+        window.location.reload(false);
+        // this.forceUpdate();
     }
 
     _onLoading(loading) {

@@ -5,7 +5,7 @@ import { slide as Menu } from "react-burger-menu";
 
 import { LINK, NOT_LINK } from '../Types';
 import { HTML_TAG } from '../HtmlTypes';
-import { isEmpty } from '../Utils';
+import { inJson, isEmpty } from '../Utils';
 
 var styles = {
   bmBurgerButton: { position: 'fixed', width: '36px', left: '7px', top: '.5em', height: '30px' },
@@ -84,6 +84,13 @@ class LMenu extends C {
 
   _getMenu(menus) {
     if(isEmpty(menus) || menus.length === 0 || isEmpty(menus[0])) return "";
+    menus.map((o) => {
+      if(inJson(o, 'items') && Array.isArray(o['items']) && !isEmpty(o['items'][0])) {
+          o['items'].sort((a, b) => ((a.page_order > b.page_order)?1:-1));
+      }
+    });
+    menus.sort((a, b) => ((a.page_order > b.page_order)?1:-1));
+
     return menus.map((o, index) => {
       if(o.page_flag === LINK) {
         return (
