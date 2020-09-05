@@ -19,13 +19,15 @@ div.div-menu-right {
         }
 
         > nav {
+            height: 91% !important;
             > div {
                 width: 100%;
                 margin-bottom: .5em;
             }
             div:last-child {
                 height: 100%;
-                overflow-y: hidden;
+                overflow-y: auto;
+                // overflow-y: hidden;
             }
         }
     }
@@ -139,6 +141,9 @@ div.div-menu-right {
     //     }
     // }
     div.div-right-box {
+        // input[type="range"] {
+        //     padding: 0;
+        // }    
         > table {
             width: 100%;
             > tbody {

@@ -1,12 +1,12 @@
 import React, { Component as C } from "react";
 import ReactDOM from 'react-dom';
-import { NavDropdown } from 'react-bootstrap';
+// import { NavDropdown } from 'react-bootstrap';
 import { convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 // import { Form } from 'react-bootstrap';
 import { FaRocketchat, FaEllipsisV } from 'react-icons/fa';
 import { slide as Menu } from "react-burger-menu";
-import FormBS4 from "react-jsonschema-form-bs4";
+// import FormBS4 from "react-jsonschema-form-bs4";
 
 import CEditor from "../CEditor";
 import Html from '../HtmlUtils';
@@ -145,7 +145,7 @@ class RMenu extends C {
               o['style']['width'] = width + '%';
             }  
           } else {
-            o.view = obj.checked;
+            o.search = obj.checked;
           }
         }
       });
@@ -199,14 +199,19 @@ class RMenu extends C {
   }
 
   _onPageSetting(div) {
-    if(isEmpty(div) || !Array.isArray(this.state.objs) || this.state.objs.length <= 0) return;
+    if(!this.state.isUser.path.endsWith(ACTION.LIST)
+      || isEmpty(div)
+      || !inJson(this.state.isUser, 'page')
+      || !inJson(this.state.isUser['page'], 'columns')) return;
+    this.state.objs = this.state.isUser['page']['columns'];
+    if(!Array.isArray(this.state.objs) || this.state.objs.length <= 0) return;
     console.log(this.state.objs);
     const tbl = (
       <table>
         <tbody>
           {(() => {
             return this.state.objs.map((o, idx) => {
-              let value = 100;
+              let value = 150;
               let unit = 'px';
               let min = 30;
               let max = window.innerWidth;
@@ -215,7 +220,7 @@ class RMenu extends C {
                   value = o['style']['width'].toString().replace('%', '');
                   unit = '%';
                   min = 5;
-                  max = 100;
+                  max = 150;
                 } else {
                   value = o['style']['width'].toString().replace('px', '');
                 }
@@ -228,7 +233,7 @@ class RMenu extends C {
                     <input
                       type={ HTML_TAG.CHECKBOX }
                       value={ o.field }
-                      checked={ o.view }
+                      checked={ o.search }
                       onChange={ this._onInputChange.bind(this) } />
                   </td>
                   <td>
@@ -239,7 +244,7 @@ class RMenu extends C {
                     <input
                       type={ HTML_TAG.RANGE }
                       idx={ o.field }
-                      disabled={ !o.view }
+                      disabled={ !o.search }
                       value={ value }
                       min={ min }
                       max={ max }
@@ -351,10 +356,10 @@ class RMenu extends C {
   }
 
   UNSAFE_componentWillReceiveProps(props) {
-    console.log('HEADER componentWillReceiveProps');
+    console.log('RMenu componentWillReceiveProps');
     this.state.isUser = props.isUser;
     this.state.title = props.title;
-    this.state.objs = props.objs;
+    // this.state.objs = props.objs;
     console.log(this.state);
     // this.state.objs = (props.isViewChat)?props.chats:props.objs;
 
@@ -362,8 +367,8 @@ class RMenu extends C {
     if(props.isViewChat) {
       this._onChat(div);
     } else {
-      if(!Array.isArray(props.objs) || props.objs.length <= 0) return;
-      this.state.objs = props.objs;
+      if (!inJson(this.state.isUser, 'page') || !inJson(this.state.isUser['page'], 'columns')) return;
+      this.state.objs = this.state.isUser['page']['columns'];
       this._onPageSetting(div);
     }
   }

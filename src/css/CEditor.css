@@ -20,21 +20,3 @@ div.rdw-editor-toolbar > div.div-btn-send {
   color: red;
 }
 
-/* div.rdw-fontsize-dropdown
-,div.rdw-fontsize-wrapper
-,div.rdw-colorpicker-wrapper {
-  margin-bottom: 0;
-} */
-
-/* div.div-box-height-80 div.rdw-block-wrapper, 
-div.div-box-height-80 div.rdw-fontfamily-wrapper, 
-div.div-box-height-80 div.rdw-list-dropdown, 
-div.div-box-height-80 div.rdw-text-align-dropdown, 
-div.div-box-height-80 div.rdw-remove-wrapper, 
-div.div-box-height-80 div.rdw-embedded-wrapper, 
-div.div-box-height-80 div.rdw-image-wrapper, 
-div.div-box-height-80 div.rdw-history-dropdown {
-  display: none;
-  padding: 0;
-  margin: 0;
-} */

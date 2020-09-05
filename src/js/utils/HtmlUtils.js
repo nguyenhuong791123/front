@@ -62,7 +62,12 @@ const object = {
       for(let i=0; i<arr.length; i++) {
         if(obj.childNodes[i] === undefined
           || obj.childNodes[i].getAttribute('aria-selected') !== 'true') continue;
-        return i;
+        if(obj.childNodes[i].hasAttribute('data-rb-event-key')
+          && !Number.isNaN(Number(obj.childNodes[i].getAttribute('data-rb-event-key')))) {
+          return parseInt(obj.childNodes[i].getAttribute('data-rb-event-key'));
+        } else {
+          return i;
+        }
       }
     }
     ,getIdxParent:(obj) => {

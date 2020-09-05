@@ -28,7 +28,7 @@ class AlertBox extends C {
 
     render() {
         if(isEmpty(this.state.errors) || this.state.errors.length <= 0) return "";
-        var styles = { right: '1em', top: '3em', position: 'absolute', zIndex: '20' };
+        var styles = { right: '1em', top: '3em', position: 'absolute', zIndex: 2 };
         return (
             <div className="div-context-menu" style={ styles }>
                 <Alert show={ this.state.show } variant={ this.state.variant }>

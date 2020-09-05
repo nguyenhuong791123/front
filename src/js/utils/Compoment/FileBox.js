@@ -17,6 +17,7 @@ export default class FileBox extends C {
         super(props);
     
         this._onChange = this._onChange.bind(this);
+        this._onClick = this._onClick.bind(this);
         this._onRemove = this._onRemove.bind(this);
 
         const language = this.props.schema.language;
@@ -32,6 +33,13 @@ export default class FileBox extends C {
             total: 0,
         }
     };
+
+    _onClick(e) {
+        const obj = e.target;
+        if(Utils.isEmpty(obj) || obj.tagName !== 'FONT') return;
+        const o = document.getElementById(this.state.id);
+        if(!Utils.isEmpty(o)) o.click();
+    }
 
     _onChange(e) {
         const obj = e.target;
@@ -226,14 +234,14 @@ export default class FileBox extends C {
 
         return (
             <div>
-                <LoadingOverlay active={ this.state.loading } spinner text='Loading your content...' />
+                <LoadingOverlay active={ this.state.loading } spinner text={ Msg.getMsg(MSG_TYPE.INFO, this.state.language, 'loading') } />
                 <div id={ 'div_' + this.state.id } className={ className }>
                     <input
                         multiple={ this.state.multiple }
                         type={ TYPE.FILE }
                         id={ this.state.id }
                         onChange={ this._onChange.bind(this) } />
-                    <font className={ 'btn btn-info' }>
+                    <font className={ 'btn btn-info' } onClick={ this._onClick.bind(this) }>
                         { this.state.title }<br />{ this.state.size }
                     </font>
                 </div>

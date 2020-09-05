@@ -63,6 +63,15 @@ div.div-body-customize-box {
             border: 1px solid #dee2e6;
             border-radius: .5em;
         }
+        div.checkboxes {
+            padding-top: .3em;
+        }
+        div.form-check-inline {
+            padding-top: .3em;
+            > input[type="radio"] {
+                margin-left: .5em;
+            }
+        }
     }
 }
 
@@ -87,7 +96,7 @@ div.div-overlay-box {
         > button {
             margin: .2em;
         }
-        > div {
+        > div:first-child {
             position: absolute;
             right: -4.5em;
             display: grid;
@@ -144,5 +153,15 @@ div.div-overlay-box {
     div.div-overlay-box-add-items {
         overflow-x: auto;
         max-height: 460px;
+        > div {
+            > h5 {
+                padding: .3em;
+                margin: 0;
+                padding-bottom: 0;
+            }
+            > h5::before {
+                content: '● ';
+            }
+        }
     }
 }

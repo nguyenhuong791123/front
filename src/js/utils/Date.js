@@ -1,14 +1,18 @@
 function dateTime(date, language, datetime, pattern) {
-    var y = date.getFullYear();
-    var m = (date.getMonth() + 1);
-    var d = date.getDate();
+    let h = date.getHours();
+    if(language === 'ja') {
+        date.setHours(h + 9);
+        h = date.getHours();
+    }
+    let y = date.getFullYear();
+    let m = (date.getMonth() + 1);
+    let d = date.getDate();
     if(pattern === undefined || pattern === null) pattern = '-';
     if(m < 10) m = '0' + m;
     if(d < 10) d = '0' + d;
-    var time = '';
+    let time = '';
     if(datetime) {
-        var h = date.getHours();
-        var mm = date.getMinutes();
+        let mm = date.getMinutes();
         if(h < 10) h = '0' + h;
         if(mm < 10) mm = '0' + mm;
         time = ' ' + h + ':' + mm;  

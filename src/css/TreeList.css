@@ -79,7 +79,7 @@ div.div-tree-view-box ul li > div.div-btn-group > input[type='checkbox']:hover {
 }
 
 div.div-tree-view-box ul li > div.div-btn-group > button {
-  width: 120px;
+  /* width: 120px; */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

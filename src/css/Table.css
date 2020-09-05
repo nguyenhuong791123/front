@@ -31,7 +31,21 @@ table.table thead tr th:first-child input[type='checkbox'] {
     cursor: pointer;
 }
 
-table.table thead th {
+table.table thead tr:first-child > th {
+    text-align: center;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+table.table tr.selected {
+    background-color: #2a9fd685 !important;
+}
+
+table.table tbody tr td {
+    word-break: break-all;
+}
+/* table.table thead th {
     padding: 0;
     border-bottom-width: 0;
     border-bottom: 0;
@@ -39,7 +53,6 @@ table.table thead th {
 
 table.table thead th label {
     margin-left: .3em;
-    /* margin-bottom: 0; */
 }
 
 table.table thead input {
@@ -49,4 +62,8 @@ table.table thead input {
 table.table tr.selected {
     background-color: #2a9fd685 !important;
 }
+
+table.table tbody tr td {
+    word-break: break-all;
+} */
 

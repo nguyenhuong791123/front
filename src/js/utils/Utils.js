@@ -45,7 +45,7 @@ function getJsonValue(json, key) {
     return key;
 }
   
-var getLocale = function(props, language) {
+const getLocale = function(props, language) {
     if(!isEmpty(props.ua)
         && !isEmpty(props.ua.language)) {
       return props.ua.language;
@@ -53,7 +53,7 @@ var getLocale = function(props, language) {
     return isEmpty(language)?'ja':language;
 }
 
-var getQueryLocale = function(props, language) {
+const getQueryLocale = function(props, language) {
     if(!isEmpty(props.location)
         && !isEmpty(props.location.query)
         && !isEmpty(props.location.query.language)) {
@@ -62,19 +62,19 @@ var getQueryLocale = function(props, language) {
     return isEmpty(language)?'ja':language;
 }
 
-var getLocationURL = function() {
-    var url = window.location.origin;
+const getLocationURL = function() {
+    const url = window.location.origin;
     if(!isEmpty(url)) return url;
     return window.location.protocol + '//' + window.location.host;
 }
 
-var getUUID = function() {
-    return Math.random().toString(36).slice(2).toUpperCase();
+const getUUID = function() {
+    // return new Date().getTime().toString(16).toUpperCase() + Math.random().toString(36).slice(2).toUpperCase();
+    return new Date().getTime().toString(16);
 }
 
-var isFunc = function(obj, name) {
-    if(Utils.inJson(obj, name)
-        && (typeof obj[name] === 'function')) return true;
+const isFunc = function(obj, name) {
+    if(inJson(obj, name) && (typeof obj[name] === 'function')) return true;
     return false;
 }
 

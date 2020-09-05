@@ -32,28 +32,28 @@ class CForm extends C {
         console.log(this.state.form);
     }
 
-    _getTabs(idx, items, active, className) {
+    _getTabs(idx, items, fromId, active, className) {
         if(Utils.isEmpty(items) || items.length === 0) return "";
         const tabs = items.map((f, index) => {
         if(!Utils.inJson(f.schema, 'tab_name')) return "";
             const fKey = 'tab_' + index;
             return(
-                <Tab key={ index } eventKey={ index } title={  f.schema.tab_name }>
+                <Tab key={ index } eventKey={ index } title={ f.schema.tab_name }>
                     <FormBS4
-                        // idPrefix={ f.object_key }
+                        idPrefix={ fromId + '_' + index }
                         key={ fKey }
                         schema={ f.schema }
                         uiSchema={ f.ui }
                         formData={ f.data }
                         onChange={ this._onChange.bind(this) }
                         onError={ this._onError.bind(this) }>
-                        <button type="submit" id={ 'tab_bt_' + index } className="btn-submit-form-hidden" />
+                        <button type="submit" id={ 'tab_bt_' + index + '_' + fromId } className="btn-submit-form-hidden" />
                     </FormBS4>
                 </Tab>
             );
         });
         return (
-            <div key={ idx } id={ 'div_customize_' + idx } idx={ idx } className={ className }>
+            <div key={ idx } id={ 'div_customize_' + idx } fromid={ fromId } idx={ idx } className={ className }>
                 <Tabs key={ idx } defaultActiveKey={ active } onSelect={ this._onSelect.bind(this) }>
                     { tabs }
                 </Tabs>
@@ -68,23 +68,24 @@ class CForm extends C {
         return f.map((o, index) => {
             const t = o.object_type;
             const className = Utils.inJson(o, 'className')?o.className:"";
+            // console.log(o.object.ui);
             if(t === 'div') {
                 return(
-                    <div key={ index } id={ 'div_customize_' + index } idx={ index } className={ className }>
+                    <div key={ index } id={ 'div_customize_' + index } fromid={ o.object_key } idx={ index } className={ className }>
                         <FormBS4
-                            // idPrefix={ o.object_key }
+                            idPrefix={ o.object_key }
                             key={ index }
                             schema={ o.object.schema }
                             uiSchema={ o.object.ui }
                             formData={ o.object.data }
                             onChange={ this._onChange.bind(this) }
                             onError={ this._onError.bind(this) }>
-                            <button type="submit" id={ 'div_bt_' + index } className="btn-submit-form-hidden" />
+                            <button type="submit" id={ 'div_bt_' + index + '_' + o.object_key } className="btn-submit-form-hidden" />
                         </FormBS4>
                     </div>
                 );
             } else if(t === 'tab' && o.object.length > 0) {
-               return( this._getTabs(index, o.object, o.active, className) );
+               return( this._getTabs(index, o.object, o.object_key, o.active, className) );
             } else {
                 return "";
             }
@@ -92,10 +93,16 @@ class CForm extends C {
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        if (this.props.form !== nextProps.form) {
+        console.log('Form');
+        if (this.state.form !== nextProps.form) {
+            console.log(this.state.form);
             this.setState({ form: nextProps.form });
         }
     }
+
+    // UNSAFE_componentWillUnmount() {
+    //     this.props.cancel();
+    // }
 
     render() {
         // console.log(this.props.form);

@@ -1,6 +1,10 @@
 import React, { Component as C } from 'react';
+
 import { CUSTOMIZE, OPTIONS_KEY } from '../HtmlTypes';
+import { SYSTEM } from '../Types';
 import Utils from '../Utils';
+import { THEME } from '../../utils/Theme';
+import Msg from '../../../msg/Msg';
 
 export default class SelectBox extends C {
     constructor(props) {
@@ -11,15 +15,12 @@ export default class SelectBox extends C {
     };
 
     _getOptions() {
-        console.log(this.props);
+        // console.log(this.props);
         const def = this.props.schema;
         if(!Utils.inJson(def, OPTIONS_KEY.OPTIONS)) return('Not List!!!');
-        // const patitions = [ 'sex', 'sys_auth', 'sys_api', 'deleted', 'flag', 'on_off', 'age', 'user_manager' ];
         const objs = Array.from(def.options);
         return objs.map((obj, idx) => {
-            // const oVal = (Utils.inJson(def, OPTIONS_KEY.OPTION_TARGET) && patitions.includes(def[OPTIONS_KEY.OPTION_TARGET]))?obj['id']:obj['value'];
             return (
-                // <option key={ idx } value={ oVal }>{ obj['label'] }</option>
                 <option key={ idx } value={ obj['value'] }>{ obj['label'] }</option>
             );    
         });
@@ -36,7 +37,15 @@ export default class SelectBox extends C {
         } else {
             value = obj.value;
         }
-        this.props.onChange(value);
+
+        if(!Utils.isEmpty(this.props.id) && this.props.id.endsWith('_theme')) {
+            const link = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
+            if(!Utils.isEmpty(link) && !Utils.isEmpty(value)) {
+                link.href = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(value);
+            }    
+        }
+
+        this.props.onChange(Utils.isNumber(value)?parseInt(value):value);
     }
 
     render() {

@@ -4,7 +4,7 @@ div.div-calendar-box {
     z-index: 2;
 }
 
-div.div-calendar-box div.rlc-calendar {
+/* div.div-calendar-box div.rlc-calendar {
     width: 285px;
 }
 
@@ -15,16 +15,15 @@ div.div-calendar-box div.rlc-calendar div.rlc-date-details {
 div.div-calendar-box div.rlc-calendar div.rlc-details div.rlc-date-details-wrapper {
     margin: 0;
     text-align: center;
-}
+} */
 
-div.div-calendar-box div.rlc-calendar div.rlc-details div.rlc-date-time-selects {
+/* div.div-calendar-box div.rlc-calendar div.rlc-details div.rlc-date-time-selects {
     position: absolute;
     right: -6.2em;
-}
+} */
 
-div.div-calendar-box select {
+/* div.div-calendar-box select {
     height: calc(1.5em + 0.75rem + 2px);
-    /* padding: 0.375rem 1rem; */
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.5;
@@ -37,4 +36,4 @@ div.div-calendar-box select {
     transition: border-color 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
-}
+} */

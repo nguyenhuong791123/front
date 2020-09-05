@@ -13,7 +13,7 @@ var styles = {
   bmBurgerBarsHover: { background: '#a90000' },
   bmCrossButton: { height: '24px', width: '24px' },
   // bmCross: { background: '#bdc3c7' },
-  bmMenuWrap: { position: 'fixed', height: '100%' },
+  bmMenuWrap: { position: 'fixed', height: '100%', marginLeft: '-0.2em' },
   // bmMenu: { background: '#373a47', padding: '2.5em 1.5em 0', fontSize: '1.15em' },
   // bmMenu: { background: '#373a47' },
   bmMorphShape: { fill: '#373a47' },

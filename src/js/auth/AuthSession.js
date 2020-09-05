@@ -27,6 +27,21 @@ function inJson(json, key) {
   return false;
 }
 
+const loadAuthCookies = (sessionService, callBack) => {
+  const objAuth = sessionService.loadUser('COOKIES');
+  if(objAuth !== undefined) {
+      objAuth.then(function(data) {
+          console.log(data);
+          callBack(data);
+      }).catch(function(error) {    
+          console.log(error);
+          callBack(isUserInit(auth));
+      });
+  } else {
+      callBack({ info: isUserInit(null).info, options: isUserInit(null).options });
+  }
+}
+
 const isUserInit = (isUser) => {
   var reUser = {
     info: {
@@ -58,3 +73,4 @@ module.exports.getJsonValue = getJsonValue;
 module.exports.isUserInit = isUserInit;
 module.exports.doLogin = doLogin;
 module.exports.doLogout = doLogout;
+module.exports.loadAuthCookies = loadAuthCookies;

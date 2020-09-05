@@ -11,6 +11,19 @@ $box-heights:(
     div-box-height-800: 800,
 );
 
+$box-side-heights:(
+    div-box-height-hori-80: 40,
+    div-box-height-hori-160: 80,
+    div-box-height-hori-240: 120,
+    div-box-height-hori-320: 160,
+    div-box-height-hori-400: 200,
+    div-box-height-hori-480: 240,
+    div-box-height-hori-560: 280,
+    div-box-height-hori-640: 320,
+    div-box-height-hori-720: 360,
+    div-box-height-hori-800: 400,
+);
+
 $box-widths:(
     div-box-10: 10%,
     div-box-15: 15%,
@@ -23,28 +36,308 @@ $box-widths:(
     div-box-100: 100%,
 );
 
+@each $cls, $h in $box-side-heights {
+    $idx: index($box-side-heights, $cls $h);
+    div.#{$cls} {
+        height: $h + px;
+        display: inline-flex;
+        padding: 0 !important;
+        label {
+            width: 30% !important;
+            margin-bottom: -.1em !important;
+        }
+        div.form-check-inline {
+            padding-top: .3em;
+            > input[type="radio"] {
+                margin-left: .5em;
+            }
+            > label {
+                word-break: keep-all;
+            }
+        }
+    }
+    div.#{$cls} {
+        div.checkboxes
+        ,div.field-radio-group
+        // ,> img
+        // ,> div > img
+        ,> textarea {
+            height: ($h) + px;
+        }
+        > select {
+            height: ($h) + px !important;
+        }
+        > img
+        ,> div > img {
+            position: relative;
+            height: ($h - 4) + px;
+            margin-top: .05em;
+            // top: .1em;
+        }
+        div.checkboxes {
+            padding-top: .3em;
+        }
+        div.div-image-file-box {
+            width: 100%;
+            > input[type=file] {
+                position: absolute;
+                top: 2.5em;
+                left: 0;
+                width: 100%;
+                cursor: pointer;
+                opacity: 0;
+            }
+        }
+        div.div-table-body {
+            height: ($h - 77) + px;
+            overflow: scroll;
+        }
+        div.div-table-header {
+            overflow: scroll;
+        }
+        canvas {
+            height: ($h - 48) + px !important;
+            width: ($h - 48) + px !important;
+            position: relative;
+            top: .3em;
+        }
+        // div.div-inline {
+        //     > div.checkboxes
+        //     , > div.form-check-inline
+        //     , > div.field-radio-group {
+        //         margin-left: .5em;
+        //     }
+        // }
+        div.div-editor-box {
+            height: ($h - 42) + px;
+            div.DraftEditor-editorContainer {
+                height: ($h - 85) + px !important;
+                // border: 1px solid #ced4da;
+            }
+            div.rdw-link-modal {
+                label {
+                    padding: 0;
+                    margin: 0;
+                }
+                input {
+                    display: block;
+                    width: 100%;
+                    height: calc(1.5em + 0.75rem + 2px);
+                    padding: 0.375rem 1rem;
+                    font-size: 1rem;
+                    font-weight: 400;
+                    line-height: 1.5;
+                    color: #495057;
+                    background-color: #fff;
+                    background-clip: padding-box;
+                    border: 1px solid #ced4da;
+                    border-radius: 0.25rem;
+                }
+                label.rdw-link-modal-target-option {
+                    display: none;
+                }
+            }
+            div.rdw-fontsize-dropdown
+            ,div.rdw-fontsize-wrapper
+            ,div.rdw-colorpicker-wrapper {
+                margin-bottom: 0;
+            }
+            div.rdw-block-wrapper
+            ,div.rdw-fontfamily-wrapper
+            ,div.rdw-list-dropdown
+            ,div.rdw-text-align-dropdown
+            ,div.rdw-remove-wrapper
+            ,div.rdw-embedded-wrapper
+            ,div.rdw-image-wrapper
+            ,div.rdw-history-dropdown
+            ,div.rdw-link-wrapper {
+              display: none;
+              padding: 0;
+              margin: 0;
+            }
+            div.rdw-editor-main {
+                margin-top: -.2em;
+            }
+            div.public-DraftStyleDefault-block {
+                margin: 0;
+            }
+        }
+        > div {
+            width: 100%;
+            > div.div-file-box
+            ,> div.div-file-multiple-box {
+                height: ($h - 4) + px;
+                margin-top: .05em;
+                > div {
+                    overflow: auto;
+                    overflow-y: auto;
+                    height: ($h - 40) + px;
+                }
+                > font {
+                    padding: 0;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    display: inline-block;
+                    width: 100%;
+                    cursor: pointer;
+                    font-size: small;
+                    // height: ($h - 4) + px;
+                    // margin-top: .05em;        
+                }
+                > input[type=file] {
+                    position: absolute;
+                    top: 2.5em;
+                    // left: 0;
+                    // width: 100%;
+                    cursor: pointer;
+                    opacity: 0;
+                }
+                >div.div-btn-download {
+                    margin-top: -2.3em;
+                    > button {
+                        margin: 0;
+                        padding: .1em;
+                        font-size: 80%;
+                        position: absolute;
+                        margin-top: .5em;
+                        margin-left: .5em;
+        
+                        > svg {
+                            padding: 0;
+                            margin-left: .3em;
+                            margin-top: -.3em;
+                        }
+                    }
+                }
+                table {
+                    width: 100%;
+                    tbody {
+                        tr {
+                            td {
+                                button {
+                                    margin: 0;
+                                    padding: .1em;
+                                    font-size: 80%;
+                    
+                                    > svg {
+                                        padding: 0;
+                                        margin-left: .3em;
+                                        margin-top: -.3em;
+                                    }
+                                }                
+                            }
+                            td:first-child
+                            ,td:last-child {
+                                width: 1em;
+                            }
+                            td:nth-child(2) {
+                                text-overflow: ellipsis;
+                                overflow: hidden;
+                                white-space: nowrap;
+                                max-width: 100px;
+                            }
+                            td:nth-last-child(2) {
+                                width: 4em;
+                            }
+                        }
+                    }
+                }
+            }
+            > div.div-paging-box {
+                display: inline-flex;
+                position: absolute;
+                right: .5em;
+                top: .2em;
+                > div.div-count-per {
+                    display: inline-flex;
+                    > select {
+                        font-size: 80%;
+                    }
+                    > span {
+                        padding-left: .2em;
+                        padding-right: .2em;
+                        margin-top: .3em;
+                    }
+                }
+                > ul {
+                    font-size: 80%;
+                }
+            }
+            > div.div-file-box {
+                > font {
+                    height: ($h - 4) + px;
+                    margin-top: .05em; 
+                }
+                // > input[type=file] {
+                //     height: 50%;
+                // }
+            }
+            > div.div-file-multiple-box {
+                font {
+                    height: 38px;
+                }
+            }
+            div._loading_overlay_content {
+                font-size: 80%;
+            }
+            div._loading_overlay_spinner {
+                margin-bottom: 0;
+            }
+        }
+        div#div_calendar_box_view {
+            position: absolute;
+            margin-top: ($h) + px;;
+        }
+    }
+}
+
 @each $cls, $h in $box-heights {
     $idx: index($box-heights, $cls $h);
     div.#{$cls} {
         height: $h + px;
         position: relative;
+        div.form-check-inline {
+            padding-top: .3em;
+            > input[type="radio"] {
+                margin-left: .5em;
+            }
+            > label {
+                word-break: keep-all;
+            }
+        }
     }
     div.#{$cls} {
         div.checkboxes
         ,div.field-radio-group
         ,> img
+        ,> div > img
         ,> textarea {
             height: ($h - 42) + px;
         }
         > select {
             height: ($h - 42) + px !important;
         }
-        > img {
+        > img
+        ,> div > img {
             position: relative;
-            top: .1em;
+            // top: .1em;
+        }
+        div.checkboxes {
+            padding-top: .3em;
+        }
+        div.div-image-file-box {
+            > input[type=file] {
+                position: absolute;
+                top: 2.5em;
+                left: 0;
+                width: 100%;
+                cursor: pointer;
+                opacity: 0;
+            }
         }
         div.div-table-body {
-            height: ($h - 77) + px;
+            height: ($h - 120) + px;
             overflow: scroll;
         }
         div.div-table-header {
@@ -213,7 +506,7 @@ $box-widths:(
                     height: ($h - 42) + px;
                 }
                 > input[type=file] {
-                    height: 100%;
+                    height: 50%;
                 }
             }
             > div.div-file-multiple-box {
@@ -234,6 +527,9 @@ $box-widths:(
 @each $cls, $w in $box-widths {
     div.#{$cls} {
         width: $w;
+        float: left;
+        border: 1px solid #dee2e6;
+        // border-radius: .5em;
     }
 }
 
@@ -257,9 +553,10 @@ div.form-group {
         overflow: hidden;
         white-space: nowrap;    
         width: 100%;
-        background-color: gainsboro;
+        // background-color: gainsboro;
         padding: .3em;
         margin-bottom: -.3em;
+        border: 1px solid #dee2e6;
     }
 }
 
@@ -297,7 +594,7 @@ div.div-list-box {
             margin-top: .3em;
         }
         > h5::before {
-            content: '●';
+            content: '● ';
         }
         > button {
             position: absolute;
@@ -329,6 +626,16 @@ div.div-list-box {
     ,div.div-table-header {
         overflow: scroll;
     }
+    legend {
+        font-size: 1rem;
+    }
+    nav {
+        > a {
+            padding: 2px;
+            padding-left: .5em;
+            padding-right: .5em;
+        }
+    }
 }
 
 div.div-actions-box {
@@ -339,8 +646,35 @@ div.div-actions-box {
     margin-top: .3em;
 }
 
-div.div-right-box {
-    input[type="range"] {
+div.div-inline {
+    > div.checkboxes
+    , > div.form-check-inline
+    , > div.field-radio-group {
+        display: flex;
+        overflow-x: auto;
+    }
+}
+
+div.div-calendar-box {
+    div.ant-picker-content {
+        ul:last-child {
+            display: none;
+        }
+    }
+    div.ant-picker {
+        width: 100%;
         padding: 0;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        div.ant-picker-input {
+            input {
+                height: calc(1.5em + 0.75rem + 2px);
+                font-size: .9rem;
+                padding: 0.375rem 0.75rem;
+            }
+            span {
+                margin-right: .5em;
+            }
+        }
     }
 }

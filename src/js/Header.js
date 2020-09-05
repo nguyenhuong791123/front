@@ -1,12 +1,13 @@
 import React, { Component as C } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Navbar, Nav, NavDropdown, Form, FormControl, Image } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, FormControl, Image } from 'react-bootstrap';
 import { FaUser, FaSearch, FaTty, FaPhone, FaMailBulk, FaUserCog, FaSitemap, FaKey, FaLink, FaRocketchat } from 'react-icons/fa';
 
-import { PAGE_ACTION, ACTION , LINK, NOT_LINK, PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
-import { HTML_TAG, ATTR } from './utils/HtmlTypes';
+import { PAGE_ACTION, ACTION , PAGE, WINDOWN_WIDTH, VARIANT_TYPES, SYSTEM, DISPLAY_TYPE } from './utils/Types';
+import { HTML_TAG, ATTR, TYPE, OPTIONS_KEY } from './utils/HtmlTypes';
 import { THEME } from './utils/Theme';
+import Fetch from './utils/Fetch';
 import Html from './utils/HtmlUtils';
 import Utils from './utils/Utils';
 import LMenu from './utils/header/LMenu';
@@ -28,7 +29,7 @@ class Header extends C {
     this._onLogout = this._onLogout.bind(this);
     this._onOpenBoxPhone = this._onOpenBoxPhone.bind(this);
     this._newWindow = this._newWindow.bind(this);
-    this._onChangeTheme = this._onChangeTheme.bind(this);
+    // this._onChangeTheme = this._onChangeTheme.bind(this);
     this._onUpdateListHeaders = this._onUpdateListHeaders.bind(this);
 
     this.state = {
@@ -93,7 +94,16 @@ class Header extends C {
         const url = window.location.protocol + '//' + window.location.host;
         var path = obj.href.replace(url, '').replace('#', '');
         if(action !== PAGE.SYSTEM) {
-          path = ACTION.SLASH + ACTION.LIST;
+          if(action === PAGE.USER) {
+            path = ACTION.SLASH + ACTION.VIEW;
+            const page = this.state.menus.filter(function(x){ return x.page_key === 'company.users_info' })[0];
+            sessionStorage.setItem(SYSTEM.IS_ACTION_PAGE_ID, page['page_id']);
+            sessionStorage.setItem(SYSTEM.IS_ACTION_ROW_ID, this.state.isUser.uId);
+          } else {
+            path = ACTION.SLASH + ACTION.LIST;
+            sessionStorage.setItem(SYSTEM.IS_ACTION_PAGE_ID, action);
+            sessionStorage.removeItem(SYSTEM.IS_ACTION_ROW_ID);
+          }
         }
         if(action === PAGE.SYSTEM) {
           const body = document.getElementById('div_body');
@@ -128,7 +138,11 @@ class Header extends C {
         //   }
         // }
         // if(Utils.isEmpty(page)) return;
-
+        // if(Utils.isNumber(action)) {
+        //   this._onGetPageInfo(action);
+        // } else {
+        //   this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+        // }
         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
       }
       //console.log('HEADER _onClick complete !!!');
@@ -136,6 +150,130 @@ class Header extends C {
       //console.log('HEADER _onClick Not setting action !!!');
     }
   }
+
+  // _onGetPageInfo(action) {
+  //   if(!Utils.isNumber(action)) return;
+  //   let options = { cId: this.state.isUser.cId, pId: parseInt(action), language: this.state.isUser.language };
+  //   const host = Msg.getSystemMsg('sys', 'app_api_host');
+  //   const f = Fetch.postLogin(host + 'getPage', options);
+  //   f.then(data => {
+  //       if(!Utils.isEmpty(data)) {
+  //           data.form.map((f) => {
+  //               const ps = f['object']['schema']['properties'];
+  //               data['patitions'] = Object.keys(ps).filter(function(key) {
+  //                   return (key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))
+  //               });
+  //           });
+
+  //           if(Array.isArray(data['patitions']) && data['patitions'].length > 0) {
+  //               options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+  //               const ff = Fetch.postLogin(host + 'distinctPatitions', options);
+  //               ff.then(disdata => {
+  //                   if(!Utils.isEmpty(disdata)) {
+  //                       console.log(disdata);
+  //                       const forms = data.form;
+  //                       let patitions = [];
+  //                       forms.map((f) => {
+  //                           const ps = f['object']['schema']['properties'];
+  //                           patitions = data['patitions'].map((p) => {
+  //                               if(Utils.inJson(ps[p], 'option_target') && disdata.includes(ps[p]['option_target'])
+  //                                   || p.endsWith('_city')
+  //                                   || p.endsWith('group_parent_id')
+  //                                   || p.endsWith('group_info_company_id')
+  //                                   || p.endsWith('api_info_company_id')
+  //                                   || p.endsWith('server_info_company_id')
+  //                                   || p.endsWith('server_info_server_type')
+  //                                   || p.endsWith('users_info_group_id')) {
+  //                                   return ps[p]['option_target'];
+  //                               } else {
+  //                                   return p;
+  //                               }
+  //                           });
+  //                           console.log(patitions);
+  //                           patitions.filter(function (x, i, self) {
+  //                               return self.indexOf(x) === i;
+  //                           });
+  //                       });
+
+  //                       console.log(patitions);
+  //                       options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, patitions: patitions };
+  //                       const ff = Fetch.postLogin(host + 'options', options);
+  //                       ff.then(pdata => {
+  //                           if(!Utils.isEmpty(pdata)) {
+  //                               const pforms = data.form;
+  //                               pforms.map((f) => {
+  //                                   const ps = f['object']['schema']['properties'];
+  //                                   Object.keys(ps).map((key) => {
+  //                                       if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
+  //                                           ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
+  //                                       } else if(ps[key]['option_target'] === 'pages') {
+  //                                         const menus = this.state.menus;
+  //                                         let listmenus = menus.map((m) => {
+  //                                           if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
+  //                                             const items = m['items'];
+  //                                             return items.map((i) => {
+  //                                               return { value: i['page_id'], label: i['page_name']}
+  //                                             });
+  //                                           } else {
+  //                                             return { value: m['page_id'], label: m['page_name']}
+  //                                           }
+  //                                         });
+  //                                         // listmenus.splice(0, 0, { value: '', label: '---' });
+  //                                         ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
+  //                                       } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+  //                                         pdata.map((d) => {
+  //                                               if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+  //                                                   ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+  //                                               }
+  //                                           });
+  //                                       }
+  //                                   });
+  //                               });
+  //                           }
+  //                           delete data['patitions'];
+  //                           // this._onUpdateCreateCallBack(data);
+  //                           this.state.isUser['page'] = data;
+  //                           this._onSetPageColums();
+  //                           this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+  //                       }).catch(err => {
+  //                           console.log(err);
+  //                       });
+  //                   } else {
+  //                       // this._onUpdateCreateCallBack(data);
+  //                       this.state.isUser['page'] = data;
+  //                       this._onSetPageColums();
+  //                       this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+  //                   }
+  //               }).catch(err => {
+  //                   console.log(err);
+  //               });
+  //           } else {
+  //               // this._onUpdateCreateCallBack(data);
+  //               this.state.isUser['page'] = data;
+  //               this._onSetPageColums();
+  //               this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+  //           }
+  //       }
+  //   }).catch(err => {
+  //       console.log(err);
+  //   });
+  // }
+
+  // _onSetPageColums() {
+  //   if(!Utils.inJson(this.state.isUser, 'page') || !Array.isArray(this.state.isUser['page']['form'])) return;
+  //   const fs = this.state.isUser['page']['form'];
+  //   this.state.isUser['page']['columns'] = [];
+  //   fs.map((f) => {
+  //     const ps = f['object']['schema']['properties'];
+  //     Object.keys(ps).map((key) => {
+  //       if(!key.startsWith('hidden_')) {
+  //         this.state.isUser['page']['columns'].push(
+  //           { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), view: ps[key]['auth']['view'] }
+  //         );
+  //       }
+  //     });
+  //   });
+  // }
 
   _onLogout(){
     this.props.onLogout();
@@ -221,50 +359,50 @@ class Header extends C {
 
       document.body.prepend(div);
     }
-    this._setLocalStrageTheme(div);
+    // this._setLocalStrageTheme(div);
   }
 
-  _setLocalStrageTheme(isExists) {
-    // window.localStorage.setItem('theme', Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
-    // const css_path = THEME.getTheme(this.state.isUser.theme);
-    if(Utils.isEmpty(isExists)) return;
-    const obj = isExists.childNodes[0];
-    if(Utils.isEmpty(obj) || Utils.isEmpty(obj.contentWindow)) return;
-    const link = obj.contentWindow.document.querySelector('#style_id');
-    if(Utils.isEmpty(link)) return;
-    link.href = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
-  }
+  // _setLocalStrageTheme(isExists) {
+  //   // window.localStorage.setItem('theme', Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme));
+  //   // const css_path = THEME.getTheme(this.state.isUser.theme);
+  //   if(Utils.isEmpty(isExists)) return;
+  //   const obj = isExists.childNodes[0];
+  //   if(Utils.isEmpty(obj) || Utils.isEmpty(obj.contentWindow)) return;
+  //   const link = obj.contentWindow.document.querySelector('#style_id');
+  //   if(Utils.isEmpty(link)) return;
+  //   link.href = Msg.getSystemMsg('sys', 'app_css_host') + THEME.getTheme(this.state.isUser.theme);
+  // }
 
-  _onChangeTheme(e) {
-    this.state.isUser.theme = e.target.value;
-    const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
-    this._setLocalStrageTheme(div);
-    this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
-  }
+  // _onChangeTheme(e) {
+  //   this.state.isUser.theme = e.target.value;
+  //   const div = document.getElementById(SYSTEM.IS_DAILER_BOX);
+  //   this._setLocalStrageTheme(div);
+  //   this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+  // }
 
   _onUpdateAction(action) {
     this.state.isUser.action = action;
     this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
   }
 
-  _getTheme() {
-    const o = THEME.getThemes();
-    //console.log(o);
-    var keys = Object.keys(o);
-    var options = [];
-    for(var i=0; i<keys.length; i++) {
-      options.push(<option key={ i } value={ o[keys[i]] } >{ keys[i] }</option>);
-    }
-    return(
-      <Form.Control
-        className='select-theme'
-        as={ HTML_TAG.SELECT }
-        value={ this.state.isUser.theme }
-        onChange={ this._onChangeTheme.bind(this) }>
-        { options }
-      </Form.Control>
-    );
-  }
+  // _getTheme() {
+  //   const o = THEME.getThemes();
+  //   //console.log(o);
+  //   var keys = Object.keys(o);
+  //   var options = [];
+  //   for(var i=0; i<keys.length; i++) {
+  //     options.push(<option key={ i } value={ o[keys[i]] } >{ keys[i] }</option>);
+  //   }
+  //   return(
+  //     <Form.Control
+  //       className='select-theme'
+  //       as={ HTML_TAG.SELECT }
+  //       value={ this.state.isUser.theme }
+  //       onChange={ this._onChangeTheme.bind(this) }>
+  //       { options }
+  //     </Form.Control>
+  //   );
+  // }
 
   // _onSetListHeaders() {
   //   if(Utils.isEmpty(this.state.headers) || this.state.headers.length <= 0) return;
@@ -366,8 +504,8 @@ class Header extends C {
       // console.log(divListBox);
       if(!Utils.isEmpty(divListBox)) {
           divBody = divListBox.childNodes[1].lastChild;
-          this.console.log();
-          if(!Utils.isEmpty(divBody))
+          console.log(divBody);
+          if(!Utils.isEmpty(divBody) && divBody.tagName === HTML_TAG.DIV)
             divBody.style.height = (window.innerHeight - 130) + 'px';
       }
     };
@@ -376,9 +514,12 @@ class Header extends C {
 
   UNSAFE_componentWillReceiveProps(nextProps) {
     //console.log('HEADER componentWillReceiveProps');
-    this.state.isUser = nextProps.isUser;
+    // if(this.state.isUser !== nextProps.isUser) {
+    //   this._onGetPageInfo(this.state.isUser['action']);
+    // }
     //console.log('render')
     //console.log(this.state.isUser)
+    this.state.isUser = nextProps.isUser;
     this.state.options = nextProps.options;
     this.state.company = nextProps.company;
     this.state.headers = nextProps.headers;
@@ -405,8 +546,8 @@ class Header extends C {
     var menuType = (this.state.isUser.menu===1)?'tab_menu_1':'tab_menu_0';
     var menuClass = (this.state.isUser.menu===0)?' mr-auto-parent':''
     const isCallClass = (this.state.dailer.isCall && this.state.dailer.register)?'blinking':'';
-    const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):'';
-    const iconStyle = (this.state.isUser.menu === 1)?{ marginLeft: '2.5em' }:null;
+    // const theme = (this.state.isUser.uLid === 'admin')?(this._getTheme()):'';
+    const iconStyle = (this.state.isUser.menu === 1)?{ marginLeft: '3em' }:null;
 
     return (
       <div className='div-header'>
@@ -429,7 +570,8 @@ class Header extends C {
                     isUser={ this.state.isUser }
                     isViewChat={ this.state.isViewChat }
                     title={ this.state.title }
-                    objs={ this.state.headers }
+                    // objs={ this.state.headers }
+                    // objs={ this.state.headers }
                     // chats= { this.state.listChats }
                     onUpdateListHeaders={ this._onUpdateListHeaders.bind(this) }
                     />
@@ -473,7 +615,7 @@ class Header extends C {
 
               <div id={ SYSTEM.IS_DIV_HEADER_FORM } className='div-header-form'>
                 {/* ADMIN場合Themeリストを表示 */}
-                { theme }
+                {/* { theme } */}
                 {/* グローバル検索 */}
                 <FormControl type='text' id='input_global_search' placeholder='Search'/>
                 <Nav.Link href='#search' className='global-search'><FaSearch /></Nav.Link>

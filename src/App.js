@@ -80,6 +80,8 @@ class App extends C {
                     if(Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))) {
                         auth.info['wn'] = Utils.getUUID();
                         window.name = auth.info['wn'];
+                        sessionStorage.setItem(SYSTEM.IS_ACTION_PAGE_ID, auth.info['action']);
+                        sessionStorage.setItem(SYSTEM.IS_ACTION_ROW_ID, 0);
                         sessionStorage.setItem(SYSTEM.IS_ACTIVE_WINDOWN, auth.info['wn']);
                         localStorage.setItem(SYSTEM.IS_LOGIN, auth.info.uId);
                     }
@@ -117,19 +119,27 @@ class App extends C {
                 // console.log(data);
                 const isUrl = history.location.pathname;
                 if(isUrl.indexOf(ACTION.ERROR) !== -1) this._doLogout();
+                const pId = sessionStorage.getItem(SYSTEM.IS_ACTION_PAGE_ID);
+                const rId = sessionStorage.getItem(SYSTEM.IS_ACTION_ROW_ID);
+                if(Utils.isNumber(pId))
+                    data.info['action'] = parseInt(pId);
+                data.info['rId'] = Utils.isNumber(rId)?parseInt(rId):0;
                 data.info['path'] = isUrl;
                 data.info['viewHeader'] = (Utils.isEmpty(data.info['path']) || data.info['path'] === ACTION.SLASH)?false:true;
 
-                if(Utils.inJson(auth, 'info')) {
+                if(Utils.inJson(auth, 'info') && !Utils.isNumber(data.info['cId'])) {
                     data.info['cId'] = auth.info['cId'];
-                    data.info['theme'] = auth.info['theme'];
-                    data.info['action'] = auth.info['action'];
-                    data.options['dailer'] = auth.options['dailer'];    
                 }
-                if(Utils.isEmpty(data.info['cId']) || Utils.isEmpty(data.info['uId'])) {
-                    data.info['path'] = ACTION.SLASH;
-                    data.info['viewHeader'] = false;
-                }
+                // if(Utils.inJson(auth, 'info')) {
+                //     data.info['cId'] = auth.info['cId'];
+                //     data.info['theme'] = auth.info['theme'];
+                //     data.info['action'] = auth.info['action'];
+                //     data.options['dailer'] = auth.options['dailer'];    
+                // }
+                // if(Utils.isEmpty(data.info['cId']) || Utils.isEmpty(data.info['uId'])) {
+                //     data.info['path'] = ACTION.SLASH;
+                //     data.info['viewHeader'] = false;
+                // }
                 if(Utils.isEmpty(localStorage.getItem(SYSTEM.IS_LOGIN))) {
                     data.info['wn'] = Utils.getUUID();
                     window.name = data.info['wn'];
@@ -143,7 +153,10 @@ class App extends C {
                 const isUrl = history.location.pathname;
                 auth.info['path'] = isUrl;
                 auth.info['viewHeader'] = (Utils.isEmpty(auth.info['path']) || auth.info['path'] === ACTION.SLASH)?false:true;
-                if(Utils.isEmpty(auth.info['cId']) || Utils.isEmpty(auth.info['uId'])) {
+                const pId = sessionStorage.getItem(SYSTEM.IS_ACTION_PAGE_ID);
+                if(Utils.isNumber(pId)) {
+                    auth.info['action'] = Utils.isNumber(pId)?parseInt(pId):pId;
+                } else {
                     auth.info['path'] = ACTION.SLASH;
                     auth.info['viewHeader'] = false;
                 }
@@ -394,6 +407,7 @@ class App extends C {
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
+                                                                        menus={ this.state.menus }
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         onUpdateListHeaders={ this._updateListHeaders.bind(this) }
                                                                         {...this.props} />} />
@@ -404,6 +418,7 @@ class App extends C {
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
                                                                         options={ this.state.options }
+                                                                        menus={ this.state.menus }
                                                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
                                                                         {...this.props} />} />
@@ -413,6 +428,7 @@ class App extends C {
                                             render={ ({ props }) => <Create
                                                                         company={ this.state.company }
                                                                         isUser={ this.state.isUser }
+                                                                        menus={ this.state.menus }
                                                                         options={ this.state.options }
                                                                         onUpdateUser={ this._onUpdatePromise.bind(this) }
                                                                         onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }

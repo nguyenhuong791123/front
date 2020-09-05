@@ -78,17 +78,30 @@ export const BOX_WIDTH = {
 }
 
 export const BOX_HEIGHT = {
-    80: '80px'
-    ,160: '160px'
-    ,240: '240px'
-    ,320: '320px'
-    ,400: '400px'
-    ,480: '480px'
-    ,560: '560px'
-    ,640: '640px'
-    ,720: '720px'
-    ,800: '800px'
+    80: '1倍'
+    ,160: '2倍'
+    ,240: '3倍'
+    ,320: '4倍'
+    ,400: '5倍'
+    ,480: '6倍'
+    ,560: '7倍'
+    ,640: '8倍'
+    ,720: '9倍'
+    ,800: '10倍'
 }
+
+// export const BOX_HEIGHT = {
+//     80: '80px'
+//     ,160: '160px'
+//     ,240: '240px'
+//     ,320: '320px'
+//     ,400: '400px'
+//     ,480: '480px'
+//     ,560: '560px'
+//     ,640: '640px'
+//     ,720: '720px'
+//     ,800: '800px'
+// }
 
 export const ATTR = {
     TYPE: 'type'
@@ -173,18 +186,27 @@ export const CUSTOMIZE = {
     ,DEFAULT: 'default'
     ,PLACEHOLDER: 'placeholder'
     ,MAX_LENGTH: 'max_length'
-    ,LABEL_COLOR: 'label_color'
-    ,LABEL_LAYOUT_COLOR: 'label_layout_color'
-    ,LABEL_ALIGN: 'label_align'
-    ,TEXT_COLOR: 'text_color'
-    ,TEXT_LAYOUT_COLOR: 'text_layout_color'
-    ,TEXT_ALIGN: 'text_align'
+    ,LABEL_CSS: 'label_css'
+    ,TEXT_CSS: 'text_css'
+    ,COLOR: 'color'
+    ,LAYOUT_COLOR: 'layout_color'
     ,STYLE: 'style'
+    ,ALIGN: 'align'
+    // ,MAX_LENGTH: 'max_length'
+    // ,LABEL_COLOR: 'label_color'
+    // ,LABEL_LAYOUT_COLOR: 'label_layout_color'
+    // ,LABEL_ALIGN: 'label_align'
+    // ,LABEL_STYLE: 'label_style'
+    // ,TEXT_COLOR: 'text_color'
+    // ,TEXT_LAYOUT_COLOR: 'text_layout_color'
+    // ,TEXT_ALIGN: 'text_align'
+    // ,TEXT_STYLE: 'text_style'
     ,MULTIPLE_FILE: 'multiple_file'
     ,BOOLEAN: 'boolean'
     ,LANGUAGE:'language'
     ,COLOR: 'color'
     ,QRAPPLINK: 'qr_app_link'
+    ,CHANGED: 'changed'
     // ,AUTH: 'auth'
     // ,SEARCH: 'search'
     // ,VIEW: 'view'
@@ -198,7 +220,11 @@ export const OPTIONS_KEY = {
     OPTION_TARGET: 'option_target',
     OPTION_REGEX: 'option_regex',
     OPTIONS_ITEM: 'option_item',
-    OPTIONS_FILE: 'option_file'
+    OPTION_DISABLED: 'option_disabled',
+    OPTIONS_FILE: 'option_file',
+    OPTIONS_SEARCH: 'search_condition',
+    OPTIONS_PAGE_LAYOUT: 'page_layout',
+    OPTIONS_PAGE_OPEN: 'page_open'
 }
 
 export const OPTION_AUTH = {
@@ -210,6 +236,31 @@ export const OPTION_AUTH = {
     ,UPLOAD: 'upload'
     ,DOWNLOAD: 'download'
 }
+
+export const OPTIONS_SEARCH = {
+    CONDITION: 'condition'
+    ,VALUE: 'value'
+}
+
+export const SEARCH_OPTIONS = [
+    { value: "AND %s='${0}'", label: { en: 'AND', ja: 'AND 完全一致', vi: 'AND' } }
+    ,{ value: "OR %s='${0}'", label: { en: 'OR', ja: 'OR 完全一致', vi: 'OR' } }
+    ,{ value: "AND %s>='${0}'", label: { en: 'AND GREATER THAN', ja: 'AND より大きい', vi: 'AND GREATER THAN' } }
+    ,{ value: "OR %s>='${0}'", label: { en: 'OR GREATER THAN', ja: 'OR より大きい', vi: 'OR GREATER THAN' } }
+    ,{ value: "AND %s<='${0}'", label: { en: 'AND LESS THAN', ja: 'AND より小さい', vi: 'AND LESS THAN' } }
+    ,{ value: "OR %s<='${0}'", label: { en: 'OR LESS THAN', ja: 'OR より小さい', vi: 'OR LESS THAN' } }
+    ,{ value: "AND %s LIKE '%${0}'", label: { en: 'AND START WIDTH', ja: 'AND 前方一致', vi: 'AND START WIDTH' } }
+    ,{ value: "OR %s LIKE '%${0}'", label: { en: 'OR START WIDTH', ja: 'OR 前方一致', vi: 'OR START WIDTH' } }
+    ,{ value: "AND %s LIKE '${0}%'", label: { en: 'AND END WIDTH', ja: 'AND 後方一致', vi: 'AND END WIDTH' } }
+    ,{ value: "OR %s LIKE '${0}%'", label: { en: 'OR END WIDTH', ja: 'OR 後方一致', vi: 'OR END WIDTH' } }
+    ,{ value: "AND %s LIKE '%${0}%'", label: { en: 'AND START END WIDTH', ja: 'AND 前後一致', vi: 'AND START END WIDTH' } }
+    ,{ value: "OR %s LIKE '%${0}%'", label: { en: 'OR START END WIDTH', ja: 'OR 前後一致', vi: 'OR START END WIDTH' } }
+]
+
+export const PAGE_LAYOUT = [
+    { value: 0, label: { en: 'Vertical', ja: '縦型', vi: 'Vertical' } }
+    ,{ value: 1, label: { en: 'Horizontal', ja: '横型', vi: 'Horizontal' } }
+]
 
 export const OPTIONS = [
     'groups',

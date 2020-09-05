@@ -3,13 +3,14 @@ import ReactDOM from 'react-dom';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Alert, ButtonGroup, Button, FormControl } from 'react-bootstrap';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaWindowRestore } from 'react-icons/fa';
 import StringUtil from 'util';
 
 import Actions from '../utils/Actions';
 import AlertDelete from '../utils/Delete';
 import { SYSTEM, ACTION, PAGE_ACTION, VARIANT_TYPES, PAGE, MSG_TYPE } from '../utils/Types';
-import { HTML_TAG, ATTR, TYPE, DRAG, MOUSE } from '../utils/HtmlTypes';
+import { HTML_TAG, ATTR, TYPE, DRAG, OPTIONS_KEY } from '../utils/HtmlTypes';
+import { THEME } from '../utils/Theme';
 import Fetch from '../utils/Fetch';
 import Html from '../utils/HtmlUtils';
 import Utils from '../utils/Utils';
@@ -91,7 +92,319 @@ class System extends C {
             }
         }
         this.state.isUser.page = page;
-        this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+        console.log(page)
+        this._onGetPageInfo(this.state.isUser.page['page_id']);
+    }
+
+    _onGetPageInfo(action) {
+        if(!Utils.isNumber(action)) return;
+        let options = { cId: this.state.isUser.cId, pId: parseInt(action), language: this.state.isUser.language };
+        const host = Msg.getSystemMsg('sys', 'app_api_host');
+        const f = Fetch.postLogin(host + 'getEditCustomizePage', options);
+        f.then(data => {
+            data['patitions'] = [];
+            if(!Utils.isEmpty(data)) {
+                data.form.map((f) => {
+                    const objs = f['object'];
+                    if(Array.isArray(objs)) {
+                        objs.map((o) => {
+                            const ps = o['schema']['properties'];
+                            Object.keys(ps).filter(function(key) {
+                                if (key.startsWith(TYPE.CHECKBOX)
+                                    || key.startsWith(TYPE.RADIO)
+                                    || key.startsWith(TYPE.SELECT)
+                                    && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET])) {
+                                    data['patitions'].push(key);
+                                }
+                            });
+                        })
+                    } else {
+                        const ps = objs['schema']['properties'];
+                        Object.keys(ps).filter(function(key) {
+                            if (key.startsWith(TYPE.CHECKBOX)
+                                || key.startsWith(TYPE.RADIO)
+                                || key.startsWith(TYPE.SELECT)
+                                && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET])) {
+                                data['patitions'].push(key);
+                            }
+                        });    
+                    }
+                });
+    
+                if(Array.isArray(data['patitions']) && data['patitions'].length > 0) {
+                    options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+                    const ff = Fetch.postLogin(host + 'distinctPatitions', options);
+                    ff.then(disdata => {
+                        if(!Utils.isEmpty(disdata)) {
+                            console.log(disdata);
+                            const opts = [ 'company_info', 'group_info', 'users_info', 'city_info', 'menus', 'pages' ];
+                            const forms = data.form;
+                            let patitions = [];
+                            forms.map((f) => {
+                                const objs = f['object'];
+                                if(Array.isArray(objs)) {
+                                    objs.map((o) => {
+                                        const ps = o['schema']['properties'];
+                                        data['patitions'].map((p) => {
+                                            if(Utils.inJson(ps, p)) {
+                                                if(Utils.inJson(ps[p], 'option_target')
+                                                    && (disdata.includes(ps[p]['option_target']) || opts.includes(ps[p]['option_target']))
+                                                    ) {
+                                                    patitions.push(ps[p]['option_target']);
+                                                } else {
+                                                    patitions.push(p);
+                                                }
+                                            }
+                                        });
+                                    })
+                                } else {
+                                    const ps = objs['schema']['properties'];
+                                    data['patitions'].map((p) => {
+                                        if(Utils.inJson(ps, p)) {
+                                            if(Utils.inJson(ps[p], 'option_target')
+                                                && (disdata.includes(ps[p]['option_target']) || opts.includes(ps[p]['option_target']))
+                                                ) {
+                                                patitions.push(ps[p]['option_target']);
+                                            } else {
+                                                patitions.push(p);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                            patitions.filter(function (x, i, self) {
+                                return self.indexOf(x) === i;
+                            });
+
+                            console.log(patitions);
+                            options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, patitions: patitions };
+                            const ff = Fetch.postLogin(host + 'options', options);
+                            ff.then(pdata => {
+                                if(!Utils.isEmpty(pdata)) {
+                                    const pforms = data.form;
+                                    pforms.map((f) => {
+                                        const objs = f['object'];
+                                        if(Array.isArray(objs)) {
+                                            objs.map((o) => {
+                                                const ps = o['schema']['properties'];
+                                                Object.keys(ps).map((key) => {
+                                                    if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
+                                                        ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
+                                                    } else if(ps[key]['option_target'] === 'pages') {
+                                                        const menus = this.props.menus;
+                                                        let listmenus = menus.map((m) => {
+                                                            if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
+                                                            const items = m['items'];
+                                                            return items.map((i) => {
+                                                                return { value: i['page_id'], label: i['page_name']}
+                                                            });
+                                                            } else {
+                                                            return { value: m['page_id'], label: m['page_name']}
+                                                            }
+                                                        });
+                                                        ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
+                                                    } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+                                                        pdata.map((d) => {
+                                                            if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+                                                                ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            })
+                                        } else {
+                                            const ps = objs['schema']['properties'];
+                                            Object.keys(ps).map((key) => {
+                                                if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
+                                                    ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
+                                                } else if(ps[key]['option_target'] === 'pages') {
+                                                    const menus = this.props.menus;
+                                                    let listmenus = menus.map((m) => {
+                                                        if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
+                                                        const items = m['items'];
+                                                        return items.map((i) => {
+                                                            return { value: i['page_id'], label: i['page_name']}
+                                                        });
+                                                        } else {
+                                                        return { value: m['page_id'], label: m['page_name']}
+                                                        }
+                                                    });
+                                                    ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
+                                                } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+                                                    pdata.map((d) => {
+                                                        if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+                                                            ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+                                                        }
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                delete data['patitions'];
+                                this.state.isUser['page'] = data;
+                                this._onSetPageColums();
+                                this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+                            }).catch(err => {
+                                console.log(err);
+                            });
+                        } else {
+                            this.state.isUser['page'] = data;
+                            this._onSetPageColums();
+                            this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    });
+                } else {
+                    this.state.isUser['page'] = data;
+                    this._onSetPageColums();
+                    this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+                }
+            }
+        }).catch(err => {
+            console.log(err);
+        });
+      }
+
+    // _onGetPageInfo(action) {
+    //     if(!Utils.isNumber(action)) return;
+    //     let options = { cId: this.state.isUser.cId, pId: parseInt(action), language: this.state.isUser.language };
+    //     const host = Msg.getSystemMsg('sys', 'app_api_host');
+    //     const f = Fetch.postLogin(host + 'getEditCustomizePage', options);
+    //     f.then(data => {
+    //         if(!Utils.isEmpty(data)) {
+    //             data.form.map((f) => {
+    //                 const ps = f['object']['schema']['properties'];
+    //                 data['patitions'] = Object.keys(ps).filter(function(key) {
+    //                     return (key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))
+    //                 });
+    //             });
+    
+    //             if(Array.isArray(data['patitions']) && data['patitions'].length > 0) {
+    //                 options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+    //                 const ff = Fetch.postLogin(host + 'distinctPatitions', options);
+    //                 ff.then(disdata => {
+    //                     if(!Utils.isEmpty(disdata)) {
+    //                         console.log(disdata);
+    //                         const forms = data.form;
+    //                         let patitions = [];
+    //                         forms.map((f) => {
+    //                             const ps = f['object']['schema']['properties'];
+    //                             patitions = data['patitions'].map((p) => {
+    //                                 if(Utils.inJson(ps[p], 'option_target') && disdata.includes(ps[p]['option_target'])
+    //                                     || p.endsWith('_city')
+    //                                     || p.endsWith('group_parent_id')
+    //                                     || p.endsWith('group_info_company_id')
+    //                                     || p.endsWith('api_info_company_id')
+    //                                     || p.endsWith('server_info_company_id')
+    //                                     || p.endsWith('server_info_server_type')
+    //                                     || p.endsWith('users_info_group_id')) {
+    //                                     return ps[p]['option_target'];
+    //                                 } else {
+    //                                     return p;
+    //                                 }
+    //                             });
+    //                             console.log(patitions);
+    //                             patitions.filter(function (x, i, self) {
+    //                                 return self.indexOf(x) === i;
+    //                             });
+    //                         });
+    
+    //                         console.log(patitions);
+    //                         options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, patitions: patitions };
+    //                         const ff = Fetch.postLogin(host + 'options', options);
+    //                         ff.then(pdata => {
+    //                             if(!Utils.isEmpty(pdata)) {
+    //                                 const pforms = data.form;
+    //                                 pforms.map((f) => {
+    //                                     const ps = f['object']['schema']['properties'];
+    //                                     Object.keys(ps).map((key) => {
+    //                                         if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
+    //                                             ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
+    //                                         } else if(ps[key]['option_target'] === 'pages') {
+    //                                           const menus = this.state.menus;
+    //                                           let listmenus = menus.map((m) => {
+    //                                             if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
+    //                                               const items = m['items'];
+    //                                               return items.map((i) => {
+    //                                                 return { value: i['page_id'], label: i['page_name']}
+    //                                               });
+    //                                             } else {
+    //                                               return { value: m['page_id'], label: m['page_name']}
+    //                                             }
+    //                                           });
+    //                                           // listmenus.splice(0, 0, { value: '', label: '---' });
+    //                                           ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
+    //                                         } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+    //                                           pdata.map((d) => {
+    //                                                 if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+    //                                                     ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+    //                                                 }
+    //                                             });
+    //                                         }
+    //                                     });
+    //                                 });
+    //                             }
+    //                             delete data['patitions'];
+    //                             this.state.isUser['page'] = data;
+    //                             this._onSetPageColums();
+    //                             this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+    //                             // this.forceUpdate()
+    //                         }).catch(err => {
+    //                             console.log(err);
+    //                         });
+    //                     } else {
+    //                         this.state.isUser['page'] = data;
+    //                         this._onSetPageColums();
+    //                         this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+    //                         // this.forceUpdate()
+    //                     }
+    //                 }).catch(err => {
+    //                     console.log(err);
+    //                 });
+    //             } else {
+    //                 this.state.isUser['page'] = data;
+    //                 this._onSetPageColums();
+    //                 this.props.onUpdateUser(this.state.isUser, this.state.options, this.props.onUpdateIsUserCallBack);
+    //                 // this.forceUpdate()
+    //             }
+    //         }
+    //     }).catch(err => {
+    //         console.log(err);
+    //     });
+    // }
+    
+    _onSetPageColums() {
+        if(!Utils.inJson(this.state.isUser, 'page') || !Array.isArray(this.state.isUser['page']['form'])) return;
+        const fs = this.state.isUser['page']['form'];
+        this.state.isUser['page']['columns'] = [];
+        fs.map((f) => {
+            const objs = f['object'];
+            if(Array.isArray(objs)) {
+                objs.map((o) => {
+                    const ps = o['schema']['properties'];
+                    Object.keys(ps).map((key) => {
+                        if(!key.startsWith('hidden_')) {
+                        this.state.isUser['page']['columns'].push(
+                                // { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), view: ps[key]['auth']['view'] }
+                                { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), search: ps[key]['auth']['search'] }
+                            );
+                        }
+                    });
+                })
+            } else {
+                const ps = objs['schema']['properties'];
+                Object.keys(ps).map((key) => {
+                    if(!key.startsWith('hidden_')) {
+                    this.state.isUser['page']['columns'].push(
+                            { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), search: ps[key]['auth']['search'] }
+                            // { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), view: ps[key]['auth']['view'] }
+                        );
+                    }
+                });
+            }
+        });
     }
 
     _onButtonClick(e) {
@@ -395,6 +708,7 @@ class System extends C {
             const className = (obj.page_flag === 1)?'btn-'+ VARIANT_TYPES.INFO:'';
             const vDelete = Msg.getSystemMsg('sys', 'system_pages').includes(obj.page_key);
             const style = (idx === mIdx)?{ marginRight: '.5em' }:{};
+            const variant = (obj.page_open === 1)?VARIANT_TYPES.PRIMARY:VARIANT_TYPES.OUTLINE + VARIANT_TYPES.PRIMARY;
             let div = (<div
                         key={ 'div_' + idx }
                         className={ className }
@@ -404,8 +718,14 @@ class System extends C {
                             idx={ idx }
                             pidx={ mIdx }
                             onClick={ this._onClickEdit.bind(this) }>
-                                { obj.page_name }
-                            </a>
+                            { obj.page_name }
+                        </a>
+                        <Button
+                            style={ style }
+                            variant={ variant }
+                            title={ 'New Windown' }>
+                            <FaWindowRestore />
+                        </Button>
                         {(() => {
                             if(!vDelete) {
                                 return (
@@ -1025,10 +1345,12 @@ class System extends C {
         const host = Msg.getSystemMsg('sys', 'app_api_host');
         const f = Fetch.postLogin(host + 'deletePage', options);
         f.then(data => {
-            if(!Utils.isEmpty(data)) {
+            if(!Utils.isEmpty(data) && !Utils.inJson(data, 'error')) {
                 this.props.onUpdateMenus(data);
                 // this.setState({ menus: data });
                 // this.forceUpdate();
+            } else if(Utils.inJson(data, 'error')) {
+                console.log(data['error']);
             }
         }).catch(err => {
             console.log(err);
@@ -1058,6 +1380,10 @@ class System extends C {
 
     componentDidUpdate() {
         this._onUpdateAuthParents();
+    }
+
+    UNSAFE_componentWillUnmount() {
+        this.props.cancel();
     }
 
     render() {

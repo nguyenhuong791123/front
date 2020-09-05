@@ -140,14 +140,14 @@ div.checkboxes > div.form-check {
     padding-top: .3em;
 }
 
-div.div-inline > div.checkboxes
+/* div.div-inline > div.checkboxes
 ,div.div-inline > div.form-check-inline
 ,div.div-inline > div.field-radio-group {
     height: 38px;
     display: flex;
     overflow-x: auto;
     padding-left: .5em;
-}
+} */
 
 div.div-box textarea {
     /* height: 119px; */
@@ -196,6 +196,10 @@ div.div-customize-actions svg {
 div.div-customize-actions-child button {
     font-size: 75%;
 }
+div.div-customize-actions-child select {
+    font-size: 50%;
+    padding-top: .5em;
+}
 
 /* div.div-customize-actions button:last-child {
     margin-left: .2em;
@@ -206,7 +210,8 @@ div.div-customize-actions button {
 
 div.form-group fieldset legend {
     padding-left: 0.5em;
-    margin-bottom: 0;
+    margin-bottom: 6px;
+    /* font-size: 1rem; */
     /* font-size: 1rem; */
     /* background-color: #cce5ff; */
 }
@@ -229,13 +234,12 @@ div.form-group fieldset legend::before {
     content: '● ';
 }
 
-div.form-group fieldset div.div-box {
-    /* height: 82px; */
+/* div.form-group fieldset div.div-box {
     padding: 0.2em;
     float: left;
     margin: 0;
     border: 1px solid gainsboro;
-}
+} */
 
 /* div.form-group > label {
     width: 100%;

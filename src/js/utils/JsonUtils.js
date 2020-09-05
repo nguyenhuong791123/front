@@ -5,6 +5,7 @@ import CheckBox from './Compoment/CheckBox';
 import RadioBox from './Compoment/RadioBox';
 import SelectBox from './Compoment/SelectBox';
 import TableBox from './Compoment/TableBox';
+import Calendar from './Calendar';
 import CalendarBox from './Compoment/CalendarBox';
 import QRCodeBox from './Compoment/QRCodeBox';
 import FileBox from './Compoment/FileBox';
@@ -40,8 +41,9 @@ export const JSON_OBJ = {
     }
   
     var json = { type: type, title: obj[CUSTOMIZE.LABEL][obj[CUSTOMIZE.LANGUAGE]], idx: idx, language: obj[CUSTOMIZE.LANGUAGE], obj: obj };
-    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
-      json['datetime'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?false:true;
+    if(obj[CUSTOMIZE.TYPE] === TYPE.DATETIME || obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
+      // json['datetime'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?false:true;
+      json['datetype'] = obj[CUSTOMIZE.TYPE];
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
@@ -60,24 +62,32 @@ export const JSON_OBJ = {
       json[CUSTOMIZE.QRAPPLINK] = obj[CUSTOMIZE.QRAPPLINK];
     }
 
+    if(obj[CUSTOMIZE.TYPE] === TYPE.IMAGE && obj[CUSTOMIZE.REQUIRED]) {
+      json[CUSTOMIZE.CHANGED] = obj[CUSTOMIZE.REQUIRED];
+    }
+
     if(Utils.inJson(obj, OPTION_AUTH.AUTH)) {
       json[OPTION_AUTH.AUTH] = obj[OPTION_AUTH.AUTH];
     }
 
     return json;
   }
-  ,getJsonUi: (obj, idx) => {
+  ,getJsonUi: (obj, pl) => {
     var json = {};
-    const placeholder = obj[CUSTOMIZE.PLACEHOLDER][obj[CUSTOMIZE.LANGUAGE]];
-    if(!Utils.isEmpty(placeholder)) {
-      if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
-        json['ui:help'] = placeholder;
-      } else {
-        json['ui:placeholder'] = placeholder;        
-      }
+    if(Utils.inJson(obj, CUSTOMIZE.PLACEHOLDER)) {
+      const placeholder = obj[CUSTOMIZE.PLACEHOLDER][obj[CUSTOMIZE.LANGUAGE]];
+      if(!Utils.isEmpty(placeholder)) {
+        if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO) {
+          json['ui:help'] = placeholder;
+        } else {
+          json['ui:placeholder'] = placeholder;        
+        }
+      }  
     }
+    let classNames = '';
+    if(Utils.isNumber(pl) && pl === 1) classNames = 'hori-';
     if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_WIDTH])) json['classNames'] = 'div-box div-box-' + obj[CUSTOMIZE.BOX_WIDTH];
-    if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + obj[CUSTOMIZE.BOX_HEIGHT];
+    if(!Utils.isEmpty(obj[CUSTOMIZE.BOX_HEIGHT])) json['classNames'] += ' div-box-height-' + classNames + obj[CUSTOMIZE.BOX_HEIGHT];
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX || obj[CUSTOMIZE.TYPE] === TYPE.RADIO || obj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
       if(!obj[OPTIONS_KEY.OPTION_CHECKED] && obj[CUSTOMIZE.TYPE] !== TYPE.SELECT) {
         json['classNames'] += ' div-inline';
@@ -115,14 +125,14 @@ export const JSON_OBJ = {
       json['classNames'] += ' div-image-box';
       json['ui:widget'] = ImageBox;
     }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME) {
-      json['ui:widget'] = CalendarBox;
+    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME || obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
+      json['ui:widget'] = Calendar;
     }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
-      json['ui:widget'] = TimeBox;
-    }
+    // if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
+    //   json['ui:widget'] = TimeBox;
+    // }
     if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
-      if(TYPE.CHILDENS && idx === 1) json['classNames'] += ' div-list-not-title';
+      // if(TYPE.CHILDENS && idx === 1) json['classNames'] += ' div-list-not-title';
       json['classNames'] += ' div-customize-table';
       json['ui:widget'] = TableBox;
     }
@@ -143,19 +153,51 @@ export const JSON_OBJ = {
       json[CUSTOMIZE.MAX_LENGTH] = obj[CUSTOMIZE.MAX_LENGTH];
     }
 
-    var style = '';
-    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_COLOR]) && obj[CUSTOMIZE.LABEL_COLOR] !== '#') {
-      style += 'color:' + obj[CUSTOMIZE.LABEL_COLOR] + ';';
+    let style = '';
+    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_CSS])) {
+      const color = obj[CUSTOMIZE.LABEL_CSS][CUSTOMIZE.COLOR];
+      if(!Utils.isEmpty(color) && color !== '#') {
+        style += 'color:' + color + ';';
+      }
+      const layout = obj[CUSTOMIZE.LABEL_CSS][CUSTOMIZE.LAYOUT_COLOR];
+      if(!Utils.isEmpty(layout) && layout !== '#') {
+        style += 'background-color:' + layout + ';';
+      }
+      const css = obj[CUSTOMIZE.LABEL_CSS][CUSTOMIZE.STYLE];
+      if(!Utils.isEmpty(css)) {
+        style += css;
+      }
+      json[CUSTOMIZE.LABEL_CSS] = style;
     }
-    if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_LAYOUT_COLOR]) && obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] !== '#') {
-      style += 'background-color:' + obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] + ';';
+
+    style = '';
+    if(!Utils.isEmpty(obj[CUSTOMIZE.TEXT_CSS])) {
+      const color = obj[CUSTOMIZE.TEXT_CSS][CUSTOMIZE.COLOR];
+      if(!Utils.isEmpty(color) && color !== '#') {
+        style += 'color:' + color + ';';
+      }
+      const layout = obj[CUSTOMIZE.TEXT_CSS][CUSTOMIZE.LAYOUT_COLOR];
+      if(!Utils.isEmpty(layout) && layout !== '#') {
+        style += 'background-color:' + layout + ';';
+      }
+      const css = obj[CUSTOMIZE.TEXT_CSS][CUSTOMIZE.STYLE];
+      if(!Utils.isEmpty(css)) {
+        style += css;
+      }
+      json[CUSTOMIZE.TEXT_CSS] = style;
     }
-    if(!Utils.isEmpty(obj[CUSTOMIZE.STYLE])) {
-      style += obj[CUSTOMIZE.STYLE];
-    }
-    if(!Utils.isEmpty(style)) {
-      json['style'] = style;
-    }
+    // if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_COLOR]) && obj[CUSTOMIZE.LABEL_COLOR] !== '#') {
+    //   style += 'color:' + obj[CUSTOMIZE.LABEL_COLOR] + ';';
+    // }
+    // if(!Utils.isEmpty(obj[CUSTOMIZE.LABEL_LAYOUT_COLOR]) && obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] !== '#') {
+    //   style += 'background-color:' + obj[CUSTOMIZE.LABEL_LAYOUT_COLOR] + ';';
+    // }
+    // if(!Utils.isEmpty(obj[CUSTOMIZE.STYLE])) {
+    //   style += obj[CUSTOMIZE.STYLE];
+    // }
+    // if(!Utils.isEmpty(style)) {
+    //   json['style'] = style;
+    // }
 
     if(obj[CUSTOMIZE.REQUIRED]) {
       json[CUSTOMIZE.REQUIRED] = obj[CUSTOMIZE.REQUIRED];

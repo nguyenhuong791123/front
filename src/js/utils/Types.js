@@ -10,6 +10,8 @@ export const SYSTEM = {
     IS_ADMIN: 'admin'
     ,IS_LOGIN: 'isLogin'
     ,IS_ACTIVE_WINDOWN: 'isActiveWindown'
+    ,IS_ACTION_PAGE_ID: 'isActionPageId'
+    ,IS_ACTION_ROW_ID: 'isActionRowId'
     ,IS_DAILER_BOX: 'div_dailer_box'
     ,IS_CSS_LINK_ID: 'link_bootstrap_id'
     ,IS_TAB_MENU: 'div-nav-tab-menu'

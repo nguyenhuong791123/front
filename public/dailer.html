@@ -62,11 +62,10 @@
                   </svg>
                 </button>
               </span>
-              <label id="txtCallStatus">アカウント情報</label>
             </td>
           </tr>
 
-          <tr id="trDivVideo" style="display: none">
+          <!-- <tr id="trDivVideo" style="display: none">
             <td colspan=4>
               <div id="divVideo" class="div-video">
                 <div id="divVideoLocal">
@@ -77,7 +76,7 @@
                 </div>
               </div>
             </td>          
-          </tr>
+          </tr> -->
 
           <tr id="divSettingInfo">
             <td>
@@ -226,6 +225,26 @@
                   </td>
                 </tr>
               </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td colspan=4>
+              <!-- <label id="txtCallStatus">アカウント情報</label> -->
+              <label id="txtCallStatus"></label>
+            </td>          
+          </tr>
+
+          <tr id="trDivVideo" style="display: none">
+            <td colspan=4>
+              <div id="divVideo" class="div-video">
+                <div id="divVideoLocal">
+                  <video class="video_local" id="video_local" autoplay="autoplay" muted="true"></video>
+                </div>
+                <div id="divVideoRemote" class="div_video_remote">
+                  <video class="video_remote" id="video_remote" autoplay="autoplay"></video>
+                </div>
+              </div>
             </td>
           </tr>
         </table>

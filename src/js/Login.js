@@ -6,7 +6,9 @@ import { FaSignInAlt, FaUnlockAlt } from 'react-icons/fa';
 import StringUtil from 'util';
 
 import { ACTION, MSG_TYPE } from './utils/Types';
-import { isEmpty, inJson } from './utils/Utils';
+import { TYPE, OPTIONS_KEY } from './utils/HtmlTypes';
+import { isEmpty, inJson, isNumber } from './utils/Utils';
+import { THEME } from './utils/Theme';
 import Fetch from './utils/Fetch';
 
 import Msg from '../msg/Msg';
@@ -59,9 +61,11 @@ class Login extends C {
               this.state.isUser['gId'] = data.user.group_id;
               this.state.isUser['uName'] = data.user.user_name_first + ' ' + data.user.user_name_last;
               this.state.isUser['menu'] = data.user.user_view_menu;
+              this.state.isUser['action'] = data.user.user_default_page_id;
               this.state.options['dailer'] = (data.user.user_cti_flag === 1)?true:false;
               this.state.options['customize'] = (data.user.user_manager === 1)?true:false;
               this.props.onLogin(this.state.isUser, this.state.options);
+              // this._onGetPageInfo(this.state.isUser['action'])
               this.props.history.push(ACTION.SLASH + ACTION.LIST);
             }
             if(inJson(data, 'error')) {

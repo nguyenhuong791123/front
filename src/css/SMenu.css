@@ -4,13 +4,13 @@ div.div-menu-right {
   z-index: 10 !important;
 }
 
-div.div-menu-right div.div-box-title {
+div.div-menu-right div.box-title {
   text-align: center;
   padding-top: .3em;
   font-weight: bold;
 }
 
-div.div-box-title input[type='file'] {
+div.box-title input[type='file'] {
   display: none;
   /* position: absolute;
   z-index: -1; */
@@ -105,7 +105,7 @@ div.div-chat-box > div:first-child {
   padding-right: .5em;
 }
 
-div.div-chat-box > div:first-child div.div-box-right {
+div.div-chat-box > div:first-child div.box-right {
   text-align: right;
   display: flow-root;
 }
@@ -114,7 +114,7 @@ div.div-chat-box > div:first-child > div {
   margin-bottom: .2em;
 }
 
-div.div-chat-box > div:first-child div.div-box-right > table {
+div.div-chat-box > div:first-child div.box-right > table {
   max-width: 85%;
   float: right;
 }
@@ -127,7 +127,7 @@ div.div-chat-box > div:first-child svg:hover {
   cursor: pointer;
 }
 
-div.div-chat-box > div:first-child div.div-box-msg {
+div.div-chat-box > div:first-child div.box-msg {
   width: 100%;
   border: 1px solid #dee2e6;
   padding-right: .2em;
@@ -135,7 +135,7 @@ div.div-chat-box > div:first-child div.div-box-msg {
   border-radius: .3em;
 }
 
-div.div-chat-box > div:first-child div.div-box-left {
+div.div-chat-box > div:first-child div.box-left {
   text-align: left;
 }
 
@@ -157,7 +157,7 @@ div.div-chat-box > div:last-child > span:hover {
   background-color: #cce5ff;
 }
 
-div.div-chat-box div.div-box-msg > p {
+div.div-chat-box div.box-msg > p {
   margin-bottom: 0;
 }
 

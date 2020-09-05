@@ -3,16 +3,27 @@ import React, { Component as C } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Alert, Button, FormControl } from 'react-bootstrap';
-import { FaEdit, FaTrash, FaReply, FaPlus, FaCopy, FaCheck, FaBars } from 'react-icons/fa';
+import { FaSearch, FaPlus, FaEdit, FaUpload, FaDownload, FaTrash, FaReply, FaCopy, FaCheck, FaBars, FaEye } from 'react-icons/fa';
 import StringUtil from 'util';
 
-import Actions from '../utils/Actions';
 import CForm from '../utils/CForm';
 import CustomizeBox from '../utils/Compoment/CustomizeBox';
+import ImageBox from '../utils/Compoment/ImageBox';
+import TimeBox from '../utils/Compoment/TimeBox';
+import RadioBox from '../utils/Compoment/RadioBox';
+import CheckBox from '../utils/Compoment/CheckBox';
+import SelectBox from '../utils/Compoment/SelectBox';
+import TableBox from '../utils/Compoment/TableBox';
+import QRCodeBox from '../utils/Compoment/QRCodeBox';
+import FileBox from '../utils/Compoment/FileBox';
+import InputCalendarBox from '../utils/Compoment/CalendarBox';
+import Calendar from '../utils/Calendar';
+import EditorBox from '../utils/Compoment/EditorBox';
 
 import { VARIANT_TYPES, SYSTEM, PAGE, ACTION, PAGE_ACTION, MSG_TYPE } from '../utils/Types';
-import { DRAG, MOUSE, TYPE, HTML_TAG, CUSTOMIZE, ATTR, OPTIONS_KEY, OPTION_AUTH } from '../utils/HtmlTypes';
+import { DRAG, MOUSE, TYPE, HTML_TAG, CUSTOMIZE, ATTR, OPTIONS_KEY, OPTION_AUTH, PAGE_LAYOUT } from '../utils/HtmlTypes';
 import { JSON_OBJ } from '../utils/JsonUtils';
+import { THEME } from '../utils/Theme';
 import Html from '../utils/HtmlUtils'
 import Utils from '../utils/Utils';
 import Fetch from '../utils/Fetch';
@@ -43,7 +54,7 @@ class Customize extends C {
     this.state = {
       isUser: this.props.isUser
       ,options: this.props.options
-      ,page: { page_id: '', page_name: '', page_key: '', page_auth: { }, form: [] }
+      ,page: { page_id: '', page_name: '', page_key: '', page_layout: 0, page_open: 0, page_auth: { }, form: [] }
       ,pageMode: ACTION.CREATE
       ,error_msgs: []
       ,selectDisabled: false
@@ -64,6 +75,59 @@ class Customize extends C {
     const page = this.state.page;
     page.page_id = '';
     page.page_name = '';
+    page.page_key = 'customize.table_' + Utils.getUUID();
+    delete page['page_id_seq'];
+    if(Array.isArray(page.form) && page.form.length > 0) {
+      page.form.map((f) => {
+        const objs = f['object'];
+        f.object_key = 'form_'+ Utils.getUUID();
+        delete f['form_id']
+        if(Array.isArray(objs)) {
+          objs.map((o) => {
+            o.schema_key = 'schema_' + Utils.getUUID();
+            delete o['schema']['schema_id'];
+            const ps = o['schema']['properties'];
+            Object.keys(ps).map((p) => {
+              delete ps[p]['properties_id'];
+              if(p.indexOf('_seq_id_') !== -1 ||
+                [
+                  'number_company_info_company_id', 
+                  'number_group_info_group_id', 
+                  'number_users_info_user_id', 
+                  'number_server_info_server_id', 
+                  'number_api_info_api_id', 
+                  'number_page_info_page_id', 
+                ].includes(p)) {
+                delete ps[p];
+                if(Utils.inJson(o['ui'], p)) delete o['ui'][p];
+                if(Utils.inJson(o['data'], p)) delete o['data'][p];
+              }  
+            });
+          });
+        } else {
+          objs.schema_key = 'schema_' + Utils.getUUID();
+          delete objs['schema']['schema_id'];
+          const ps = objs['schema']['properties'];
+          Object.keys(ps).map((p) => {
+            delete ps[p]['properties_id'];
+            if(p.indexOf('_seq_id_') !== -1 ||
+              [
+                'number_company_info_company_id', 
+                'number_group_info_group_id', 
+                'number_users_info_user_id', 
+                'number_server_info_server_id', 
+                'number_api_info_api_id', 
+                'number_page_info_page_id', 
+              ].includes(p)) {
+              delete ps[p];
+              if(Utils.inJson(objs['ui'], p)) delete objs['ui'][p];
+              if(Utils.inJson(objs['data'], p)) delete objs['data'][p];
+            }
+          });
+        }
+      });
+    }
+    console.log(page);
     this.state.selectDisabled = false;
     this.forceUpdate();
   }
@@ -76,7 +140,7 @@ class Customize extends C {
   }
 
   _onClickSubmit() {
-    var obj = null;
+    let obj = null;
     if(Utils.inJson(this.state.page.form[0], 'object')) {
       obj = this.state.page.form[0].object;
       if(Array.isArray(obj)) {
@@ -99,7 +163,7 @@ class Customize extends C {
       // console.log(JSON.stringify(this.state.page));
       // this._onClickBack();
       if(Utils.isEmpty(this.state.page['page_key'])) {
-        this.state.page.page_key = 'table_' + Utils.getUUID();
+        this.state.page.page_key = 'customize.table_' + Utils.getUUID();
       }
       const options = { page: this.state.page, cId: this.state.isUser.cId, uId: this.state.isUser.uId };
       const host = Msg.getSystemMsg('sys', 'app_api_host');
@@ -108,6 +172,8 @@ class Customize extends C {
         if(!Utils.isEmpty(data) && Utils.inJson(data, 'page_id')) {
           this.state.menus.push(data);
           this._onClickBack();
+        } else if(!Utils.isEmpty(data) && Utils.inJson(data, 'error')) {
+          console.log(data['error']);
         }
       }).catch(err => {
         console.log(err);
@@ -118,7 +184,7 @@ class Customize extends C {
   _addTopDivSelected(obj) {
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(div) || div.childNodes.length <= 0) return;
-    var add = (obj.className.indexOf(' ' + ACTION.SELECTED) === -1);
+    let add = (obj.className.indexOf(' ' + ACTION.SELECTED) === -1);
     const objs = Array.from(div.childNodes);
     objs.map((o) => {
       if(Html.hasAttribute(o, ATTR.CLASS)) o.className = o.className.replace(' ' + ACTION.SELECTED, '');
@@ -203,8 +269,8 @@ class Customize extends C {
     if(Utils.isEmpty(obj)) return;
     if(this.state.draggable === 1
       && (e.target.tagName === HTML_TAG.LEGEND || e.target.tagName === HTML_TAG.NAV)) {
-      var div = null;
-      var pDiv = null;
+      let div = null;
+      let pDiv = null;
       if(e.target.tagName === HTML_TAG.NAV) {
         div = e.target.parentElement;
         pDiv = div;
@@ -248,8 +314,8 @@ class Customize extends C {
       const tPDiv = div.parentElement;
       const dPObj = this.state.dragobject.parentElement;
       if(tPDiv.id !== dPObj.id) return;
-      var dragId = Array.from(tPDiv.childNodes).indexOf(div);
-      var dropId = Array.from(tPDiv.childNodes).indexOf(this.state.dragobject);
+      let dragId = Array.from(tPDiv.childNodes).indexOf(div);
+      let dropId = Array.from(tPDiv.childNodes).indexOf(this.state.dragobject);
       if(dragId < 0 || dropId < 0) return;
       if(!Utils.isEmpty(tPDiv.childNodes[0]) && tPDiv.childNodes[0].tagName === HTML_TAG.LEGEND) {
         if(dragId > 0) dragId -= 1;
@@ -264,7 +330,7 @@ class Customize extends C {
 
     if(this.state.draggable === 3
       && (e.target.tagName === HTML_TAG.LEGEND || e.target.tagName === HTML_TAG.NAV)) {
-      var div = null;
+      let div = null;
       if(e.target.tagName === HTML_TAG.NAV) {
         div = e.target.parentElement;
       } else {
@@ -287,7 +353,7 @@ class Customize extends C {
       const a = e.target;
       const nav = e.target.parentElement;
       if(a.tagName !== HTML_TAG.A || nav.tagName !== HTML_TAG.NAV) return;
-      var div = nav.parentElement;
+      let div = nav.parentElement;
       const pdIdx = Array.from(div.parentElement.childNodes).indexOf(div);
       const ptIdx = Array.from(div.parentElement.childNodes).indexOf(this.state.dragparent);
       if(pdIdx === -1 || ptIdx === -1 || pdIdx !== ptIdx) return;
@@ -314,13 +380,13 @@ class Customize extends C {
     const pos = obj.getBoundingClientRect();
     this.state.alertActions.style = { top: (obj.tagName === HTML_TAG.NAV)?(pos.y + 3):pos.y, left: (obj.offsetLeft + obj.offsetWidth) - 110 };
     if(obj.tagName === HTML_TAG.NAV) {
-      var selected = obj.childNodes[obj.childNodes.length - 1];
+      let selected = obj.childNodes[obj.childNodes.length - 1];
       this.state.alertActions.add_tab_style = { top: (selected.offsetTop + 3), left : (selected.offsetLeft + selected.offsetWidth) + 5 };
       this.state.alertActions.add_tab_show = true;
     } else {
       this.state.alertActions.add_tab_show = false;
     }
-    var className = 'div-customize-actions';
+    let className = 'div-customize-actions';
     if(obj.tagName === HTML_TAG.LABEL && Utils.isEmpty(obj.className)) {
       const pos = obj.getBoundingClientRect();
       className += ' div-customize-actions-child';
@@ -338,7 +404,8 @@ class Customize extends C {
     // console.log(this.state.dragobject);
     if(obj.tagName === HTML_TAG.BUTTON) {
       this.state.alertActions.show = true;
-      if(this.state.dragobject.tagName === HTML_TAG.NAV) this.state.alertActions.add_tab_show = true;
+      if(!Utils.isEmpty(this.state.dragobject) && this.state.dragobject.tagName === HTML_TAG.NAV)
+        this.state.alertActions.add_tab_show = true;
     } else {
       this.state.alertActions.show = false;
       this.state.alertActions.add_tab_show = false;
@@ -352,18 +419,18 @@ class Customize extends C {
   _resetIdxJson() {
     const obj = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     if(Utils.isEmpty(obj)) return;
-    var objs = Array.from(obj.childNodes);
-    var forms = this.state.page.form;
+    let objs = Array.from(obj.childNodes);
+    let forms = this.state.page.form;
     objs.map((o, idx) => {
       const divIdx = o.getAttribute('idx');
       if(!Utils.isEmpty(divIdx)) {
         forms[divIdx].idx = idx;
         o.setAttribute('idx', idx);
-        var childs = o.childNodes[0];
+        let childs = o.childNodes[0];
         if(childs.tagName === HTML_TAG.FORM) {
           childs = o.childNodes[0].childNodes[0].childNodes[0].childNodes;
           forms[divIdx].object.schema.form_idx = idx;
-          var properties = forms[divIdx].object.schema.properties;
+          let properties = forms[divIdx].object.schema.properties;
           if(Utils.inJson(properties, 'hidden_form_reload')) {
             delete properties['hidden_form_reload'];
             if(Utils.inJson(forms[divIdx].object.data, 'hidden_form_reload')) delete forms[divIdx].object.data['hidden_form_reload'];
@@ -374,7 +441,7 @@ class Customize extends C {
             if(childs[i].tagName !== HTML_TAG.DIV) continue;
             const label = childs[i].childNodes[0];
             if(Utils.isEmpty(label) || Utils.isEmpty(label.getAttribute('for'))) continue;
-            const field = label.getAttribute('for').replace('root_', '');
+            const field = label.getAttribute('for').replace(forms[divIdx].object_key + '_', '');
             // console.log(field);
             properties[field].idx = i;
             if(Utils.inJson(properties[field].obj, OPTIONS_KEY.OPTIONS_FILE)) delete properties[field].obj[OPTIONS_KEY.OPTIONS_FILE];
@@ -383,27 +450,26 @@ class Customize extends C {
           const tabChilds = o.childNodes[0].childNodes;
           const divChilds = o.childNodes[1].childNodes;
           if(tabChilds.length !== divChilds.length) return;
-          for(let i=0; i<divChilds.length; i++) {
+          for(let i=0; i<tabChilds.length; i++) {
             const tabIdx = tabChilds[i].getAttribute('data-rb-event-key');
-            var object = forms[divIdx].object[tabIdx];
+            let object = forms[divIdx].object[tabIdx];
             object.schema.form_idx = idx;
             object.schema.idx = i;
-            var properties = object.schema.properties;
+            let properties = object.schema.properties;
             if(Utils.inJson(properties, 'hidden_form_reload')) {
               delete properties['hidden_form_reload'];
               if(Utils.inJson(object.data, 'hidden_form_reload')) delete object.data['hidden_form_reload'];
               if(Utils.inJson(object.ui, 'hidden_form_reload')) delete object.ui['hidden_form_reload'];
             }
-            childs = divChilds[i].childNodes[0].childNodes[0].childNodes[0].childNodes;
+            childs = divChilds[tabIdx].childNodes[0].childNodes[0].childNodes[0].childNodes;
             // console.log(childs);
             // console.log(properties);
             for(let o=0; o<childs.length; o++) {
               if(childs[o].tagName !== HTML_TAG.DIV) continue;
               const label = childs[o].childNodes[0];
-              console.log(label);
               if(Utils.isEmpty(label) || Utils.isEmpty(label.getAttribute('for'))) continue;
-              const field = label.getAttribute('for').replace('root_', '');
-              console.log(field);
+              const fKey = forms[divIdx].object_key + '_' + tabIdx;
+              const field = label.getAttribute('for').replace(fKey + '_', '');
               properties[field].idx = o;
               if(Utils.inJson(properties[field].obj, OPTIONS_KEY.OPTIONS_FILE)) delete properties[field].obj[OPTIONS_KEY.OPTIONS_FILE];
             }
@@ -419,7 +485,7 @@ class Customize extends C {
     const obj = this.state.dragobject;
     if(obj.tagName !== HTML_TAG.NAV) return;
     const form_idx = Html.getIdxParent(obj);
-    var form = this.state.page.form[form_idx];
+    let form = this.state.page.form[form_idx];
     if(Utils.isEmpty(form)) return;
     const idx = obj.childNodes.length;
     const jObj = JSON_OBJ.getEditJSONObject(false, idx, this.state.isUser.language);
@@ -503,15 +569,18 @@ class Customize extends C {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
     this.state.mode = ACTION.EDIT;
-    var idx = Html.getIdxParent(obj);
-    var form = this.state.page.form[idx];
-    var key = obj.getAttribute('for');
-    var properties = null;
+    let idx = Html.getIdxParent(obj);
+    let form = this.state.page.form[idx];
+    let key = obj.getAttribute('for');
+    let properties = null;
+    let editObj = this.state.overlayCreateEditBox.obj;
     if(!Utils.isEmpty(key)) {
-      key = key.replace('root_', '');
+      key = key.replace(form.object_key + '_', '');
       if(Array.isArray(form.object)) {
         const div = document.getElementById('div_customize_' + idx);
-        properties = form.object[Html.getIdxTabSelected(div.childNodes[0])].schema.properties[key];
+        const tabIdx = Html.getIdxTabSelected(div.childNodes[0]);
+        key = key.replace(tabIdx+ '_', '');
+        properties = form.object[tabIdx].schema.properties[key];
       } else {
         properties = form.object.schema.properties[key];
       }
@@ -523,14 +592,36 @@ class Customize extends C {
         properties = form.object.schema;
       }
     }
-    if(!Utils.isEmpty(properties)) this.state.overlayCreateEditBox.obj = properties.obj;
-    if(this.state.overlayCreateEditBox.obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
-      const itemName = this.state.overlayCreateEditBox.obj['item_name'];
+    console.log(properties);
+    if(!Utils.isEmpty(properties)) editObj = properties.obj;
+    if(editObj[CUSTOMIZE.TYPE] === TYPE.FILE) {
+      const itemName = editObj['item_name'];
       const value = form.object.data[itemName];
-      this.state.overlayCreateEditBox.obj[OPTIONS_KEY.OPTIONS_FILE] = value;
+      editObj[OPTIONS_KEY.OPTIONS_FILE] = value;
     }
-    console.log(this.state.overlayCreateEditBox.obj);
-    const label = this.state.overlayCreateEditBox.obj[CUSTOMIZE.LABEL][this.state.isUser.language];
+    if(!Utils.inJson(editObj, CUSTOMIZE.REQUIRED) && editObj[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
+      editObj[CUSTOMIZE.REQUIRED] = properties['changed'];
+    }
+    if(editObj[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
+      || editObj[CUSTOMIZE.TYPE] === TYPE.RADIO
+      || editObj[CUSTOMIZE.TYPE] === TYPE.SELECT) {
+      if(!Utils.inJson(editObj, OPTIONS_KEY.OPTION_TARGET)) {
+        editObj[OPTIONS_KEY.OPTION_TARGET] = properties[OPTIONS_KEY.OPTION_TARGET];
+      }
+      if(!Utils.inJson(editObj, OPTIONS_KEY.OPTIONS)) {
+        editObj[OPTIONS_KEY.OPTIONS] = properties[OPTIONS_KEY.OPTIONS];
+      }
+    }
+    console.log(editObj);
+    if(!Utils.inJson(editObj, CUSTOMIZE.LANGUAGE)) {
+      editObj[CUSTOMIZE.LANGUAGE] = this.state.isUser.language;      
+    }
+    if(!Utils.inJson(editObj, CUSTOMIZE.PLACEHOLDER)) {
+      editObj[CUSTOMIZE.PLACEHOLDER] = {};
+    }
+    const label = editObj[CUSTOMIZE.LABEL][this.state.isUser.language];
+
+    this.state.overlayCreateEditBox.obj = editObj;
     this.state.overlayCreateEditBox.msg = '「' + label + '」' + Msg.getMsg(null, this.state.isUser.language, 'bt_edit');
     this.state.overlayCreateEditBox.show = true;
     this.state.overlayDeleteBox.show = false;
@@ -573,12 +664,12 @@ class Customize extends C {
     } else if(obj.tagName === HTML_TAG.INPUT) {
       this.state.page.page_name = obj.value;
     }
-    if(obj.tagName === 'SELECT') {
+    if(obj.tagName === HTML_TAG.SELECT.toUpperCase()) {
       console.log(obj);
       // obj.value Fecth To API
       if(Utils.isNumber(obj.value)) {
         this.state.pageMode = ACTION.EDIT;
-        this._onLoadingStateSmaple(obj.value);
+        // this._onLoadingStateSmaple(obj.value);
       } else {
         this.state.pageMode = ACTION.CREATE;
         this._onGetPageDefault();
@@ -616,7 +707,7 @@ class Customize extends C {
         variant={ VARIANT_TYPES.LIGHT }
         className={ this.state.overlayCreateEditBox.class }>
         <div className='alert-light' style={ this.state.overlayCreateEditBox.style }>
-          <div>
+          <div id={ SYSTEM.IS_DIV_CUSTOMIZE_EDIT_BOX + '_button' }>
             <Button
               type={ HTML_TAG.BUTTON }
               onClick={ this._onClickSaveOrEditItems.bind(this) }
@@ -649,7 +740,8 @@ class Customize extends C {
   _onOpenOverlayDelete() {
     const obj = this.state.dragobject;
     if(Utils.isEmpty(obj) || (obj.tagName !== HTML_TAG.LEGEND && obj.tagName !== HTML_TAG.LABEL && obj.tagName !== HTML_TAG.NAV)) return;
-    this.state.overlayDeleteBox.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
+    this.state.overlayDeleteBox.msg = StringUtil.format(Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'delete'), '「' + obj.innerText + '」')
+    // this.state.overlayDeleteBox.msg = '「' + obj.innerText + '」' + 'を削除してよろしくですか？';
     this.state.overlayDeleteBox.show = true;
     this.state.overlayCreateEditBox.show = false;
     this.forceUpdate();
@@ -666,7 +758,7 @@ class Customize extends C {
     if(obj.tagName === HTML_TAG.NAV) {
       const idx = Html.getIdxParent(obj);
       if(!Utils.isNumber(idx)) return;
-      var tabIdx = null;
+      let tabIdx = null;
       const arr = Array.from(obj.childNodes);
       for(let i=0; i<arr.length; i++) {
         if(obj.childNodes[i] === undefined
@@ -683,7 +775,7 @@ class Customize extends C {
     if(obj.tagName === HTML_TAG.LABEL) {
       if(!Html.hasAttribute(obj, ATTR.FOR)) return;
       const divParent = Html.getDivParent(obj);
-      var isDiv = true;
+      let isDiv = true;
       if(!Utils.isEmpty(divParent.childNodes[0]) && divParent.childNodes[0].tagName === HTML_TAG.NAV) {
         isDiv = false;
       }
@@ -719,7 +811,7 @@ class Customize extends C {
     td.style.display = 'table-cell';
     td.innerText = '';
     if(Utils.isEmpty(this.state.dragobject)) return;
-    var obj = this.state.dragobject.cloneNode(true);
+    let obj = this.state.dragobject.cloneNode(true);
     if(obj.tagName !== HTML_TAG.LEGEND)  obj = this.state.dragobject.parentElement.cloneNode(true);
     td.appendChild(obj);
   }
@@ -733,8 +825,8 @@ class Customize extends C {
   }
 
   _onValidateSaveOrEditItems(obj) {
-    var error = null;
-    var label = obj[CUSTOMIZE.LABEL][this.state.isUser.language];
+    let error = null;
+    let label = obj[CUSTOMIZE.LABEL][this.state.isUser.language];
     const languages = Html.getLanguages();
     if(Utils.isEmpty(label)) {
       const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_label');
@@ -750,7 +842,7 @@ class Customize extends C {
       }
     }
     if(!Utils.isEmpty(obj[CUSTOMIZE.PLACEHOLDER])) {
-      var labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][this.state.isUser.language];
+      let labelPlaceholder = obj[CUSTOMIZE.PLACEHOLDER][this.state.isUser.language];
       if(Utils.isEmpty(error) && !Utils.isEmpty(labelPlaceholder)) {
         const msg = Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder');
         for(let i=0; i<languages.length; i++) {
@@ -778,14 +870,21 @@ class Customize extends C {
       error += Msg.getMsg(null, this.state.isUser.language, 'or');
       error += Msg.getMsg(null, this.state.isUser.language, 'page_list') + Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
     }
+    if(Utils.isEmpty(error)
+      && obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS
+      && !Utils.isNumber(obj[TYPE.CHILDENS])) {
+      error = Msg.getMsg(null, this.state.isUser.language, 'page_list');
+      error += Msg.getMsg(MSG_TYPE.ERROR, this.state.isUser.language, 'selected');
+    }
+
     // return "<font class='required'>" + error + '</font>';
     return error;
   }
 
   _onClickSaveOrEditItems() {
-    var div = this.state.dragobject.parentElement;
-    var editBox = this.state.overlayCreateEditBox;
-    var obj = editBox.obj;
+    let div = this.state.dragobject.parentElement;
+    let editBox = this.state.overlayCreateEditBox;
+    let obj = editBox.obj;
     if(Utils.isEmpty(div) || Utils.isEmpty(obj)) return;
     editBox.msg = this._onValidateSaveOrEditItems(obj);
     if(Utils.isEmpty(editBox.msg)) {
@@ -799,15 +898,15 @@ class Customize extends C {
         div = this.state.dragobject.parentElement.parentElement.parentElement.parentElement;
       }
 
-      var idx = div.id.split('_')[2];
+      let idx = div.id.split('_')[2];
       if(!Utils.isNumber(idx)
         && (this.state.dragobject.tagName === HTML_TAG.LEGEND || this.state.dragobject.tagName === HTML_TAG.NAV)) {
           idx = Html.getIdxParent(this.state.dragobject);
       }
 
-      var form = this.state.page.form[idx];
+      let form = this.state.page.form[idx];
       if(Utils.isEmpty(form)) return;
-      var fObj = form.object;
+      let fObj = form.object;
       if(this.state.dragobject.tagName === HTML_TAG.NAV || Array.isArray(form.object)) {
         fObj = form.object[Html.getIdxTabSelected(this.state.dragobject)];
       } else {
@@ -828,7 +927,7 @@ class Customize extends C {
 
         // JSON_OBJ.addHiddenFieldFormReload(fObj);
       } else {
-        var itemName = '';
+        let itemName = '';
         if(this.state.mode === ACTION.EDIT && Utils.inJson(obj, 'item_name')) {
           itemName = obj['item_name'];
         } else {
@@ -838,12 +937,9 @@ class Customize extends C {
         const idx = Object.keys(fObj.schema.properties).length;
         obj['language'] = this.state.isUser.language;
         fObj.schema.properties[itemName] = JSON_OBJ.getJsonSchema(obj, itemName, idx);
-        // fObj.schema['requireds'] = JSON_OBJ.getRequiredItem(obj, itemName, fObj.schema['requireds']);
   
-        fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj);
+        fObj.ui[itemName] = JSON_OBJ.getJsonUi(obj, this.state.page[OPTIONS_KEY.OPTIONS_PAGE_LAYOUT]);
         fObj.data[itemName] = JSON_OBJ.getDefaultDatas(obj, itemName);
-
-        // JSON_OBJ.addHiddenFieldFormReload(fObj);
       }
       JSON_OBJ.addHiddenFieldFormReload(fObj);
 
@@ -894,6 +990,89 @@ class Customize extends C {
     this.state.pageMode = (this.state.pageMode === ACTION.CREATE)?ACTION.EDIT:ACTION.CREATE;
     if(this.state.pageMode === ACTION.CREATE) this._onGetPageDefault();
     this.state.selectDisabled = false;
+    this.forceUpdate();
+  }
+
+  _onPageLayoutChange(e) {
+    const obj = e.target;
+    if(Utils.isEmpty(obj) || !Utils.isNumber(obj.value) || !Array.isArray(this.state.page.form)) return;
+    this.state.page[OPTIONS_KEY.OPTIONS_PAGE_LAYOUT] = parseInt(obj.value);
+    const fs = this.state.page.form;
+    fs.map((f, idx) => {
+      const objs = f['object'];
+      if(Array.isArray(objs)) {
+        objs.map((ui, idx) => {
+          const keys = Object.keys(ui['ui']);
+          keys.map((k) => {
+            if(!k.startsWith(TYPE.CHILDENS)) {
+              let hObj = document.getElementById(f.object_key + '_' + idx + '_' + k);
+              console.log(hObj);
+              if(!Utils.isEmpty(hObj)
+                && hObj.tagName === HTML_TAG.INPUT
+                && hObj.getAttribute('type') === TYPE.FILE) {
+                hObj = hObj.parentElement.parentElement;
+              }
+              if(k.startsWith('image_')) {
+                hObj = document.getElementById('div_' + f.object_key + '_' + idx + '_' + k);
+              }
+              if(!Utils.isEmpty(hObj)
+                && Utils.inJson(ui['ui'][k], 'classNames')
+                || (Utils.inJson(ui['ui'][k], 'ui:widget')
+                && String(ui['ui'][k]['ui:widget']) !== TYPE.HIDDEN)) {
+                let classNames = ui['ui'][k]['classNames'];
+                let hObjCls = hObj.parentElement.className;
+                if(parseInt(obj.value) === 0) {
+                  classNames = classNames.replace('-hori', '');
+                  hObjCls = hObjCls.replace('-hori', '');
+                } else {
+                  classNames = classNames.replace('div-box-height', 'div-box-height-hori');
+                  hObjCls = hObjCls.replace('div-box-height', 'div-box-height-hori');
+                }
+                ui['ui'][k]['classNames'] = classNames;
+                hObj.parentElement.className = hObjCls;
+              }
+            }
+          });
+          // JSON_OBJ.addHiddenFieldFormReload(ui);
+        });
+      } else {
+        const keys = Object.keys(objs['ui']);
+        keys.map((k) => {
+          if(!k.startsWith(TYPE.CHILDENS)) {
+            let hObj = document.getElementById(f.object_key + '_' + k);
+            console.log(hObj);
+            if(!Utils.isEmpty(hObj)
+              && hObj.tagName === HTML_TAG.INPUT
+              && hObj.getAttribute('type') === TYPE.FILE) {
+              hObj = hObj.parentElement.parentElement;
+            }
+            if(k.startsWith('image_')) {
+              hObj = document.getElementById('div_' + f.object_key + '_' + k);
+            }
+            if(!Utils.isEmpty(hObj)
+              && Utils.inJson(objs['ui'][k], 'classNames')
+              || (Utils.inJson(objs['ui'][k], 'ui:widget')
+              && String(objs['ui'][k]['ui:widget']) !== TYPE.HIDDEN)) {
+              let classNames = objs['ui'][k]['classNames'];
+              let hObjCls = hObj.parentElement.className;
+              if(parseInt(obj.value) === 0) {
+                classNames = classNames.replace('-hori', '');
+                hObjCls = hObjCls.replace('-hori', '');
+              } else {
+                classNames = classNames.replace('div-box-height', 'div-box-height-hori');
+                hObjCls = hObjCls.replace('div-box-height', 'div-box-height-hori');
+              }
+              objs['ui'][k]['classNames'] = classNames;
+              hObj.parentElement.className = hObjCls;
+            }
+          }
+        });
+        // JSON_OBJ.addHiddenFieldFormReload(objs);
+      }
+      // this.state.page.form[idx] = f;
+    });
+    console.log(obj.value);
+    console.log(this.state.page);
     this.forceUpdate();
   }
 
@@ -948,7 +1127,15 @@ class Customize extends C {
                   { options }
                 </select>
                 {(() => {
-                  if(Utils.isNumber(this.state.page.page_id)) {
+                  if(Utils.isNumber(this.state.page.page_id) &&
+                    ![
+                      'company.company_info', 
+                      'company.group_info', 
+                      'company.users_info', 
+                      'system.server_info', 
+                      'system.api_info', 
+                      'mente.page_info', 
+                    ].includes(this.state.page.page_key)) {
                     return(
                       <Button
                         type={ HTML_TAG.BUTTON }
@@ -969,10 +1156,26 @@ class Customize extends C {
         {(() => {
           if (Utils.inJson(this.state.page, 'page_auth')) {
             const auths = Object.keys(this.state.page.page_auth).map((o, idx) => {
+              const auth = o.substr(3);
+              // let icon = null;
+              // if(auth === OPTION_AUTH.SEARCH) icon = (<FaSearch />);
+              // if(auth === OPTION_AUTH.VIEW) icon = (<FaEye />);
+              // if(auth === OPTION_AUTH.CREATE) icon = (<FaPlus />);
+              // if(auth === OPTION_AUTH.EDIT) icon = (<FaEdit />);
+              // if(auth === OPTION_AUTH.UPLOAD) icon = (<FaUpload />);
+              // if(auth === OPTION_AUTH.DOWNLOAD) icon = (<FaDownload />);
+              // const selected = (!this.state.page.page_auth[o])?VARIANT_TYPES.OUTLINE + VARIANT_TYPES.SECONDARY:VARIANT_TYPES.SECONDARY;
               return(
+                // <Button
+                //   key={ idx }
+                //   variant={ selected }
+                //   onClick={ this._onChange.bind(this) }
+                //   title={ Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth ) }>
+                //   { icon }
+                // </Button>
                 <div key={ idx } className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
                   <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_' + o.substr(3) ) }
+                    { Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth ) }
                   </span>
                   <input
                     type={ TYPE.CHECKBOX }
@@ -983,69 +1186,22 @@ class Customize extends C {
               );
             });
 
+            const layouts = PAGE_LAYOUT.map((o, idx) => {
+              const label = (Utils.inJson(o['label'],this.state.isUser.language))
+                ?o['label'][this.state.isUser.language]:o['label']['ja'];
+              return(<option key={ idx } value={ o['value'] }>{ label }</option>);
+            })
             return(
               <div className={ 'div-customize-auth-box' }>
                 { auths }
-                {/* <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
-                  <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_search') }
-                  </span>
-                  <input
-                    type={ TYPE.CHECKBOX }
-                    checked={ this.state.page.page_auth[OPTION_AUTH.SEARCH] }
-                    name={ OPTION_AUTH.SEARCH }
-                    onChange={ this._onChange.bind(this) }></input>
-                </div>
-                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
-                  <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_view') }
-                  </span>
-                  <input
-                    type={ TYPE.CHECKBOX }
-                    checked={ this.state.page.page_auth[OPTION_AUTH.VIEW] }
-                    name={ OPTION_AUTH.VIEW }
-                    onChange={ this._onChange.bind(this) }></input>
-                </div>
-                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
-                  <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
-                  </span>
-                  <input
-                    type={ TYPE.CHECKBOX }
-                    checked={ this.state.page.page_auth[OPTION_AUTH.CREATE] }
-                    name={ OPTION_AUTH.CREATE }
-                    onChange={ this._onChange.bind(this) }></input>
-                </div>
-                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
-                  <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_edit') }
-                  </span>
-                  <input
-                    type={ TYPE.CHECKBOX }
-                    checked={ this.state.page.page_auth[OPTION_AUTH.EDIT] }
-                    name={ OPTION_AUTH.EDIT }
-                    onChange={ this._onChange.bind(this) }></input>
-                </div>
-                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
-                  <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_upload') }
-                  </span>
-                  <input
-                    type={ TYPE.CHECKBOX }
-                    checked={ this.state.page.page_auth[OPTION_AUTH.UPLOAD] }
-                    name={ OPTION_AUTH.UPLOAD }
-                    onChange={ this._onChange.bind(this) }></input>
-                </div>
-                <div className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
-                  <span onClick={ this._onChange.bind(this) }>
-                    { Msg.getMsg(null, this.state.isUser.language, 'bt_download') }
-                  </span>
-                  <input
-                    type={ TYPE.CHECKBOX }
-                    checked={ this.state.page.page_auth[OPTION_AUTH.DOWNLOAD] }
-                    name={ OPTION_AUTH.DOWNLOAD }
-                    onChange={ this._onChange.bind(this) }></input> */}
-                {/* </div> */}
+                <FormControl
+                  as={ HTML_TAG.SELECT }
+                  style={ { width: 'auto', marginTop: '.3em' } }
+                  defaultValue={ this.state.page[OPTIONS_KEY.OPTIONS_PAGE_LAYOUT] }
+                  onChange={ this._onPageLayoutChange.bind(this) }>
+                    { layouts }
+                </FormControl>
+
                 <div className={ 'div-actions-box' }>
                   <Button
                     type={ TYPE.BUTTON }
@@ -1072,43 +1228,6 @@ class Customize extends C {
             );
           }
         })()}
-
-        {/* {(() => {
-          if (this.state.mode === ACTION.CREATE) {
-            return (
-              <div className='div-customize-title-box'>
-                <FormControl
-                  type={ HTML_TAG.TEXT }
-                  defaultValue={ this.state.page.page_id }
-                  onChange={ this._onChange.bind(this) }
-                  placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required') }
-                  className="mr-sm-2" />
-                <Button
-                  type={ TYPE.BUTTON }
-                  onClick={ this._onClickChangeMode.bind(this) }
-                  variant={ VARIANT_TYPES.INFO }>
-                  <FaBars />
-                </Button>
-              </div>
-            );
-          }
-          if (this.state.mode === ACTION.EDIT) {
-            return (
-              <div className='div-customize-title-box'>
-                <FormControl
-                  as={ HTML_TAG.SELECT }
-                  onChange={ this._onChange.bind(this) }
-                  defaultValue={ TYPE.TEXT }> { items }</FormControl>
-                <Button
-                  type={ HTML_TAG.BUTTON }
-                  onClick={ this._onClickChangeMode.bind(this) }
-                  variant={ VARIANT_TYPES.INFO }>
-                  <FaPlus />
-                </Button>
-              </div>
-            );
-          }
-        })()} */}
       </div>
     );
   }
@@ -1148,7 +1267,7 @@ class Customize extends C {
     console.log(e);
     const fidx = e.schema.form_idx;
     const idx = e.schema.idx;
-    var form = this.state.page.form;
+    let form = this.state.page.form;
     if(e.schema.schema_type === HTML_TAG.DIV) {
       form[fidx].object.data = e.formData;
     }
@@ -1176,15 +1295,15 @@ class Customize extends C {
     });
   }
 
-  _onAddAttribute(object) {
-    var objs = Object.keys(object.ui);
-    if(!Array.isArray(objs) || objs.length <= 0) return;
+  _onAddAttribute(object, fKey) {
+    let objs = Object.keys(object.ui);
+    if(!Array.isArray(objs) || Utils.isEmpty(fKey) ||  objs.length <= 0) return;
     objs.map((o) => {
       const field = o;
       const obj = object.ui[o];
-      const root = document.getElementById('root_' + field);
+      const root = document.getElementById(fKey + '_' + field);
       if(!Utils.isEmpty(root)) {
-        var div = root.parentElement;
+        let div = root.parentElement;
         if(field.split('_')[0] === TYPE.FILE) {
           div = root.parentElement.parentElement.parentElement;
           // this._onSetLabeFile(root);
@@ -1192,9 +1311,10 @@ class Customize extends C {
 
         if(!Utils.isEmpty(div)) {
           if((Utils.inJson(obj, CUSTOMIZE.REQUIRED) && obj[CUSTOMIZE.REQUIRED])
-            || (Utils.inJson(obj, CUSTOMIZE.STYLE) && !Utils.isEmpty(obj[CUSTOMIZE.STYLE]))) {
-  
-            var l = div.getElementsByTagName(HTML_TAG.LABEL)[0];
+            || (Utils.inJson(obj, CUSTOMIZE.LABEL_CSS) && !Utils.isEmpty(obj[CUSTOMIZE.LABEL_CSS]))
+            || (Utils.inJson(obj, CUSTOMIZE.TEXT_CSS) && !Utils.isEmpty(obj[CUSTOMIZE.TEXT_CSS]))) {
+
+            let l = div.getElementsByTagName(HTML_TAG.LABEL)[0];
             if(field.split('_')[0] === TYPE.FILE) {
               l = div.getElementsByTagName(HTML_TAG.LABEL)[0];
             }
@@ -1205,17 +1325,25 @@ class Customize extends C {
                 && obj[CUSTOMIZE.REQUIRED]) {
                 l.innerHTML = label + "<font class='required'>*</font>";
               }
-              const style = l.style;
-              if(Utils.inJson(obj, CUSTOMIZE.STYLE)
-                && !Utils.isEmpty(obj[CUSTOMIZE.STYLE])
-                && style !== obj[CUSTOMIZE.STYLE]) {
-                l.setAttribute('style', obj[CUSTOMIZE.STYLE]);
+              const l_style = l.style;
+              if(Utils.inJson(obj, CUSTOMIZE.LABEL_CSS)
+                && !Utils.isEmpty(obj[CUSTOMIZE.LABEL_CSS])
+                && l_style !== obj[CUSTOMIZE.LABEL_CSS]) {
+                l.setAttribute('style', obj[CUSTOMIZE.LABEL_CSS]);
+              }
+            }
+
+            if(Utils.inJson(obj, CUSTOMIZE.TEXT_CSS) && !Utils.isEmpty(obj[CUSTOMIZE.TEXT_CSS])) {
+              const t = div.lastChild;
+              if(!Utils.isEmpty(t)) {
+                const t_style = t.style;
+                if(t_style !== obj[CUSTOMIZE.TEXT_CSS]) t.setAttribute('style', obj[CUSTOMIZE.TEXT_CSS]);
               }
             }
           }
         }
 
-        // var input = document.getElementById('root_' + field);
+        // let input = document.getElementById('root_' + field);
         // if(!Utils.isEmpty(input)) {
         //   if(input.tagName === HTML_TAG.DIV && (input.id === 'root_' + field)) {
         //     const divs = Array.from(input.childNodes);
@@ -1235,89 +1363,244 @@ class Customize extends C {
     });
   }
 
-  // _onSetLabeFile(obj) {
-  //   var label = document.getElementById('front_' + obj.id);
-  //   if(Utils.isEmpty(label)) {
-  //     label = document.createElement('front');
-  //     label.id = 'front_' + obj.id;
-  //     obj.parentElement.appendChild(label);
-  //   }
-
-  //   const ui = obj.parentElement.parentElement.getElementsByTagName(HTML_TAG.UL)[0];
-  //   if(!Utils.isEmpty(ui)) {
-  //     const list = Array.from(ui.childNodes);
-  //     if(list.length > 1) {
-  //       label.innerHTML = '(' + list.length + ')Files' ;
-  //     } else {
-  //       label.innerHTML = list[0].childNodes[0].innerHTML;
-  //     }
-  //   } else {
-  //     label.innerHTML = "Choise File!!!";
-  //   }
-  // }
-
   _onFormAddAttribute() {
     if(!Array.isArray(this.state.page.form)) return;
     this.state.page.form.map((f) => {
-      var objs = f.object;
+      let objs = f.object;
       if(Array.isArray(objs) && objs.length > 0) {
         objs.map((obj) => {
-          this._onAddAttribute(obj);
+          this._onAddAttribute(obj, f.object_key);
         });
       } else {
-        this._onAddAttribute(objs);
+        this._onAddAttribute(objs, f.object_key);
       }
     });
   }
 
-  _onLoadingStateSmaple(value) {
-    this.state.page = {
-      "page_id": value,
-      "page_name": "AAA",
-      "form": [
-        {
-          "page_id": 1,
-          "object_type": "tab",
-          "object_key": "form_0.gw6yqa642dq",
-          "className": "div-box-100",
-          "idx": 0,
-          "object": [
-            {
-              "schema_id": 1,
-              "schema": {
-                "idx": 0,
-                "type": "object",
-                "tab_name": "DIV_00",
-                "schema_type": "TAB",
-                "form_idx": 0,
-                "properties": {
-                  "text_0.xtadqn6yuz": {
-                    "idx": 1,
-                    "type": "string",
-                    "title": "dd",
-                    "language": "ja"
-                  }
-                }
-              },
-              "ui": {
-                "text_0.xtadqn6yuz": {
-                  "classNames": "div-box div-box-25 div-box-height-80"
-                }
-              },
-              "data": {
-                "text_0.xtadqn6yuz": "aaaaa"
-              }
-            }
-          ]
-        }
-      ]
-    }
-  }
+  // _onGetPageInfo(properties, action) {
+  //   if(!Utils.isNumber(action)) return;
+  //   let options = { cId: this.state.isUser.cId, pId: parseInt(action), language: this.state.isUser.language };
+  //   const host = Msg.getSystemMsg('sys', 'app_api_host');
+  //   const f = Fetch.postLogin(host + 'getPage', options);
+  //   f.then(data => {
+  //     console.log(data)
+  //     data['patitions'] = [];
+  //     if(!Utils.isEmpty(data)) {
+  //       data.form.map((f) => {
+  //         const objs = f['object'];
+  //         if(Array.isArray(objs)) {
+  //           objs.map((o) => {
+  //           const ps = o['schema']['properties'];
+  //           Object.keys(ps).filter(function(key) {
+  //             if (key.startsWith(TYPE.CHECKBOX)
+  //               || key.startsWith(TYPE.RADIO)
+  //               || key.startsWith(TYPE.SELECT)
+  //               && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET])) {
+  //                 data['patitions'].push(key);
+  //               }
+  //             });
+  //           })
+  //         } else {
+  //           const ps = objs['schema']['properties'];
+  //           Object.keys(ps).filter(function(key) {
+  //             if (key.startsWith(TYPE.CHECKBOX)
+  //               || key.startsWith(TYPE.RADIO)
+  //               || key.startsWith(TYPE.SELECT)
+  //               && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET])) {
+  //                 data['patitions'].push(key);
+  //               }
+  //             });    
+  //         }
+  //       });
+
+  //       if(Array.isArray(data['patitions']) && data['patitions'].length > 0) {
+  //         options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
+  //         const ff = Fetch.postLogin(host + 'distinctPatitions', options);
+  //         ff.then(disdata => {
+  //           if(!Utils.isEmpty(disdata)) {
+  //             console.log(disdata);
+  //             const opts = [ 'company_info', 'group_info', 'users_info', 'city_info', 'menus', 'pages' ];
+  //             const forms = data.form;
+  //             let patitions = [];
+  //             forms.map((f) => {
+  //             const objs = f['object'];
+  //             if(Array.isArray(objs)) {
+  //               objs.map((o) => {
+  //                 const ps = o['schema']['properties'];
+  //                 data['patitions'].map((p) => {
+  //                 if(Utils.inJson(ps, p)) {
+  //                   if(Utils.inJson(ps[p], 'option_target')
+  //                     && (disdata.includes(ps[p]['option_target']) || opts.includes(ps[p]['option_target']))) {
+  //                       patitions.push(ps[p]['option_target']);
+  //                   } else {
+  //                       patitions.push(p);
+  //                   }
+  //                 }
+  //                 });
+  //               })
+  //             } else {
+  //               const ps = objs['schema']['properties'];
+  //               data['patitions'].map((p) => {
+  //               if(Utils.inJson(ps, p)) {
+  //                   if(Utils.inJson(ps[p], 'option_target')
+  //                     && (disdata.includes(ps[p]['option_target']) || opts.includes(ps[p]['option_target']))) {
+  //                      patitions.push(ps[p]['option_target']);
+  //                   } else {
+  //                     patitions.push(p);
+  //                   }
+  //                 }
+  //               });
+  //             }
+  //           });
+  //           patitions.filter(function (x, i, self) { return self.indexOf(x) === i; });
+
+  //           console.log(patitions);
+  //           options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, patitions: patitions };
+  //           const ff = Fetch.postLogin(host + 'options', options);
+  //           ff.then(pdata => {
+  //           if(!Utils.isEmpty(pdata)) {
+  //             const pforms = data.form;
+  //             pforms.map((f) => {
+  //               const objs = f['object'];
+  //               if(Array.isArray(objs)) {
+  //                 objs.map((o) => {
+  //                   const ps = o['schema']['properties'];
+  //                   Object.keys(ps).map((key) => {
+  //                     if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+  //                       pdata.map((d) => {
+  //                         if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+  //                           ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+  //                         }
+  //                       });
+  //                     }
+  //                     // if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
+  //                     //   ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
+  //                     // } else if(ps[key]['option_target'] === 'pages') {
+  //                     //   const menus = this.props.menus;
+  //                     //   let listmenus = menus.map((m) => {
+  //                     //     if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
+  //                     //       const items = m['items'];
+  //                     //       return items.map((i) => {
+  //                     //         return { value: i['page_id'], label: i['page_name']}
+  //                     //       });
+  //                     //     } else {
+  //                     //       return { value: m['page_id'], label: m['page_name']}
+  //                     //     }
+  //                     //   });
+  //                     //   ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
+  //                     // } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+  //                     //   pdata.map((d) => {
+  //                     //     if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+  //                     //       ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+  //                     //     }
+  //                     //   });
+  //                     // }
+  //                   });
+  //                 })
+  //               } else {
+  //                 const ps = objs['schema']['properties'];
+  //                 Object.keys(ps).map((key) => {
+  //                   if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+  //                     pdata.map((d) => {
+  //                       if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+  //                         ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+  //                       }
+  //                     });
+  //                   }
+  //                   // if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
+  //                   //   ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
+  //                   // } else if(ps[key]['option_target'] === 'pages') {
+  //                   //   const menus = this.props.menus;
+  //                   //   let listmenus = menus.map((m) => {
+  //                   //     if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
+  //                   //       const items = m['items'];
+  //                   //       return items.map((i) => {
+  //                   //         return { value: i['page_id'], label: i['page_name']}
+  //                   //       });
+  //                   //     } else {
+  //                   //       return { value: m['page_id'], label: m['page_name']}
+  //                   //     }
+  //                   //   });
+  //                   //   ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
+  //                   // } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
+  //                   //   pdata.map((d) => {
+  //                   //     if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
+  //                   //       ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
+  //                   //     }
+  //                   //   });
+  //                   // }
+  //                 });
+  //               }
+  //             });
+  //           }
+  //           delete data['patitions'];
+  //           properties['page'] = data;
+  //           properties['cId'] = this.state.isUser.cId;
+  //           properties['uId'] = this.state.isUser.uId;
+  //           this._onSetPageColums(properties);
+  //           this.forceUpdate()
+  //           }).catch(err => {
+  //             console.log(err);
+  //           });
+  //         } else {
+  //           properties['page'] = data;
+  //           properties['cId'] = this.state.isUser.cId;
+  //           properties['uId'] = this.state.isUser.uId;
+  //           this._onSetPageColums(properties);
+  //           this.forceUpdate()
+  //         }
+  //       }).catch(err => {
+  //         console.log(err);
+  //       });
+  //     } else {
+  //       properties['page'] = data;
+  //       properties['cId'] = this.state.isUser.cId;
+  //       properties['uId'] = this.state.isUser.uId;
+  //       this._onSetPageColums(properties);
+  //       this.forceUpdate()
+  //       }
+  //     }
+  //   }).catch(err => {
+  //       console.log(err);
+  //   });
+  // }
+
+  // _onSetPageColums(properties) {
+  //   if(!Utils.inJson(properties, 'page') || !Utils.inJson(properties['page'], 'form') || !Array.isArray(properties['page']['form'])) return;
+  //   const fs = properties['page']['form'];
+  //   properties['page']['columns'] = [];
+  //   fs.map((f) => {
+  //     const objs = f['object'];
+  //     JSON_OBJ.addHiddenFieldFormReload(f);
+  //     if(Array.isArray(objs)) {
+  //       objs.map((o) => {
+  //         const ps = o['schema']['properties'];
+  //           Object.keys(ps).map((key) => {
+  //             properties['page']['columns'].push(
+  //               { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), search: ps[key]['auth']['search'] }
+  //             );
+  //         });
+  //       })
+  //     } else {
+  //       const ps = objs['schema']['properties'];
+  //       Object.keys(ps).map((key) => {
+  //         properties['page']['columns'].push(
+  //           { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), search: ps[key]['auth']['search'] }
+  //         );
+  //       });
+  //     }
+  //   });
+  //   console.log(fs);
+  // }
 
   _onGetPageDefault() {
     this.state.page.page_id = '';
     this.state.page.page_name = '';
-    this.state.page.form = [JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, {})];
+    this.state.page.page_layout = 0;
+    this.state.page.page_open = 0;
+    const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
+    this.state.page.form.push(JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj));
+    // this.state.page.form = [JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, {})];
     if(!Utils.inJson(this.state.page, 'page_auth') || !Utils.inJson(this.state.page['page_auth'], OPTION_AUTH.SEARCH)) {
       this.state.page['page_auth'] = {};
       this.state.page['page_auth'][ '00_' + OPTION_AUTH.SEARCH] = true;
@@ -1333,11 +1616,22 @@ class Customize extends C {
     this.state.isUser = nextProps.isUser;
     this.state.options = nextProps.options;
     this.state.menus = nextProps.menus;
+    console.log(this.state.isUser.page)
+
     // Resquest API
     if(!Utils.isEmpty(this.state.isUser.page)) {
       this.state.selectDisabled = true;
       this.state.page = this.state.isUser.page;
-      this.state.page['form'] = [];
+      if(!Utils.isNumber(this.state.page['page_id'])) {
+        if(!Utils.inJson(this.state.page, OPTIONS_KEY.OPTIONS_PAGE_LAYOUT)) {
+          this.state.page.page_layout = 0;
+          this.state.page.page_open = 0;
+        }
+        const jObj = JSON_OBJ.getEditJSONObject(true, Object.keys(this.state.page.form).length, this.state.isUser.language);
+        this.state.page['form'] = [JSON_OBJ.getDafaultDivOrTab(true, Object.keys(this.state.page.form).length, jObj)];
+      } else {
+        this._onSortForms();
+      }
     }
 
     // const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
@@ -1353,7 +1647,70 @@ class Customize extends C {
     // });
   }
 
+  _onSortForms() {
+    if(!Utils.inJson(this.state.isUser.page, 'form')) return;
+    let forms = this.state.isUser.page.form;
+    console.log(forms)
+    if(Utils.isEmpty(forms)) return;
+    console.log(forms);
+    forms.map((f) => {
+      let objs = f.object;
+      if(Array.isArray(objs) && objs.length > 0) {
+        objs.sort((a, b) => ((a.schema.idx > b.schema.idx)?1:-1));
+        return objs.map((obj) => {
+          // this._formatUiWidget(obj.ui, obj.schema.definitions);  
+          this._formatUiWidget(obj.ui);  
+          let lists = Object.keys(obj.schema.properties).map((o) => { 
+            return { key: o, obj: obj.schema.properties[o] };
+          });
+          lists.sort((a, b) => ((a.obj.idx > b.obj.idx)?1:-1));
+          let properties = {};
+          for(let i=0; i<lists.length; i++) {
+            properties[lists[i].key] = lists[i].obj;
+          }
+          obj.schema.properties = properties;
+          return obj;
+        });
+      } else {
+        this._formatUiWidget(objs.ui);
+        let lists = Object.keys(objs.schema.properties).map((o) => { 
+          return { key: o, obj: objs.schema.properties[o] };
+        });
+        lists.sort((a, b) => ((a.obj.idx > b.obj.idx)?1:-1));
+        let properties = {};
+        for(let i=0; i<lists.length; i++) {
+          properties[lists[i].key] = lists[i].obj;
+        }
+        objs.schema.properties = properties;
+        return objs;
+      }
+    });
+    forms.sort((a, b) => ((a.idx > b.idx)?1:-1));
+  }
+
+  _formatUiWidget(ui) {
+    if(Utils.isEmpty(ui)) return;
+    const uiKeys = Object.keys(ui);
+    const targets = [ TYPE.IMAGE, TYPE.TIME, TYPE.CHECKBOX, TYPE.RADIO, TYPE.SELECT, TYPE.CHILDENS, TYPE.DATE, TYPE.DATETIME, TYPE.QRCODE, TYPE.FILE, TYPE.EDITOR ];
+    uiKeys.map((o) => {
+      const field = o.split('_')[0];
+      if(!Utils.isEmpty(field) && (targets.includes(field))) {
+        if(field === TYPE.IMAGE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = ImageBox;
+        // if(field === TYPE.TIME && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = TimeBox;
+        if(field === TYPE.RADIO && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = RadioBox;
+        if(field === TYPE.CHECKBOX && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = CheckBox;
+        if(field === TYPE.SELECT && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = SelectBox;
+        if(field === TYPE.CHILDENS && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = TableBox;
+        if(field === TYPE.QRCODE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = QRCodeBox;
+        if(field === TYPE.FILE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = FileBox;  
+        if((field === TYPE.DATETIME || field === TYPE.DATE || field === TYPE.TIME) && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = Calendar;
+        if(field === TYPE.EDITOR && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = EditorBox;  
+      }
+    });
+  }
+
   componentDidUpdate() {
+    // console.log('componentDidUpdate')
     const div = document.getElementById(SYSTEM.IS_DIV_CUSTOMIZE_BOX);
     this._onAddDragDrop(div);
     this._onFormAddAttribute();
@@ -1373,6 +1730,10 @@ class Customize extends C {
 
   UNSAFE_componentWillMount(){
     this._onGetPageDefault();
+  }
+
+  UNSAFE_componentWillUnmount() {
+    this.props.cancel();
   }
 
   render() {

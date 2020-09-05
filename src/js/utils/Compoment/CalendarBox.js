@@ -56,6 +56,22 @@ export default  class CalendarBox extends C {
         const boxX = cal.offsetLeft + cal.offsetWidth;
         if(boxX > window.innerWidth) {
             cal.style.left = (window.innerWidth - (cal.offsetWidth + 5)) + 'px';
+        } else {
+            console.log(cBox.parentElement);
+            const p = cBox.parentElement;
+            const input = cBox.parentElement.getElementsByTagName(HTML_TAG.INPUT)[0];
+            if(!isEmpty(input)) {
+                const pos = input.getBoundingClientRect();
+                if((pos.x + cal.offsetWidth) > window.innerWidth) {
+                    if(cBox.parentElement.className.indexOf('box-height-hori') > -1) {
+                        cBox.style.left = ((pos.x - cal.offsetWidth) + pos.width) + 'px';
+                    } else {
+                        cal.style.left = -(cal.offsetWidth-pos.width) + 'px';
+                    }
+                } else {
+                    cBox.style.left = pos.x + 'px';    
+                }
+            }
         }
     }
 
