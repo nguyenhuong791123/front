@@ -377,6 +377,7 @@ class Customize extends C {
       || obj.tagName === HTML_TAG.LABEL && Utils.isEmpty(obj.getAttribute('for'))) return;
     obj.addEventListener(MOUSE.MOUSEOUT, this._onMouseOut.bind(this), false);
     this.state.alertActions.show = true;
+    this.state.alertActions['customize'] = true;
     const pos = obj.getBoundingClientRect();
     this.state.alertActions.style = { top: (obj.tagName === HTML_TAG.NAV)?(pos.y + 3):pos.y, left: (obj.offsetLeft + obj.offsetWidth) - 110 };
     if(obj.tagName === HTML_TAG.NAV) {
@@ -391,6 +392,13 @@ class Customize extends C {
       const pos = obj.getBoundingClientRect();
       className += ' div-customize-actions-child';
       this.state.alertActions.style = { top: pos.y, left : (pos.x + pos.width) - 55, zIndex: 2 };
+      const key = obj.getAttribute(ATTR.FOR);
+      if(!Utils.isEmpty(key) && !Utils.isEmpty(key.match(/\d+/g))) {
+        const cus = key.match(/\d+/g).map(Number);
+        this.state.alertActions['customize'] = (Array.isArray(cus) && cus.length > 0);
+      } else {
+        this.state.alertActions['customize'] = false;
+      }
     }
     this.state.alertActions.class = className;
     this.state.dragobject = obj;
@@ -537,7 +545,6 @@ class Customize extends C {
           if (obj.tagName === HTML_TAG.LEGEND || obj.tagName === HTML_TAG.NAV) {
             return(
               <Button
-                type={ HTML_TAG.BUTTON }
                 onMouseOver={ this._onMouseOut.bind(this) }
                 onClick={ this._onOpenOverlayCreate.bind(this) }
                 variant={ VARIANT_TYPES.SECONDARY }>
@@ -548,19 +555,24 @@ class Customize extends C {
         })()}
 
         <Button
-          type={ HTML_TAG.BUTTON }
           onMouseOver={ this._onMouseOut.bind(this) }
           onClick={ this._onOpenOverlayEdit.bind(this) }
           variant={ VARIANT_TYPES.SECONDARY }>
           <FaEdit />
         </Button>
-        <Button
-          type={ HTML_TAG.BUTTON }
-          onMouseOver={ this._onMouseOut.bind(this) }
-          onClick={ this._onOpenOverlayDelete.bind(this) }
-          variant={ VARIANT_TYPES.DANGER }>
-          <FaTrash />
-        </Button>
+
+        {(() => {
+          if (this.state.alertActions['customize']) {
+            return(
+              <Button
+                onMouseOver={ this._onMouseOut.bind(this) }
+                onClick={ this._onOpenOverlayDelete.bind(this) }
+                variant={ VARIANT_TYPES.DANGER }>
+                <FaTrash />
+              </Button>    
+            );
+          }
+        })()}
       </Alert>
     );
   }
@@ -932,6 +944,7 @@ class Customize extends C {
           itemName = obj['item_name'];
         } else {
           itemName = obj[CUSTOMIZE.TYPE] + '_' + Utils.getUUID();
+          if(Utils.isNumber(this.state.page['page_id'])) itemName = itemName + '_customize';
         }
   
         const idx = Object.keys(fObj.schema.properties).length;
@@ -1025,8 +1038,10 @@ class Customize extends C {
                   classNames = classNames.replace('-hori', '');
                   hObjCls = hObjCls.replace('-hori', '');
                 } else {
-                  classNames = classNames.replace('div-box-height', 'div-box-height-hori');
-                  hObjCls = hObjCls.replace('div-box-height', 'div-box-height-hori');
+                  if(classNames.indexOf('-hori') === -1) {
+                    classNames = classNames.replace('div-box-height', 'div-box-height-hori');
+                    hObjCls = hObjCls.replace('div-box-height', 'div-box-height-hori');  
+                  }
                 }
                 ui['ui'][k]['classNames'] = classNames;
                 hObj.parentElement.className = hObjCls;
@@ -1093,12 +1108,15 @@ class Customize extends C {
     });
 
     return(
-      <div className={ 'div-body-customize-header-box' }>
-        {(() => {
-          // console.log(this.state);
+      <table>
+        <tbody>
+            <tr>
+                <td>
+                {(() => {
           if (this.state.pageMode === ACTION.CREATE && Utils.isEmpty(this.state.page.page_id)) {
             return (
-              <div className='div-customize-title-box'>
+              //className='div-customize-title-box'
+              <div>
                 <FormControl
                   type={ HTML_TAG.TEXT }
                   defaultValue={ this.state.page.page_name }
@@ -1110,14 +1128,14 @@ class Customize extends C {
                   onClick={ this._onClickChangeMode.bind(this) }
                   variant={ VARIANT_TYPES.SECONDARY }
                   title={ Msg.getMsg(null, this.props.isUser.language, 'bt_edit') }>
-                    {/* { Msg.getMsg(null, this.props.isUser.language, 'bt_edit') } */}
                   <FaBars />
                 </Button>
               </div>
             );
           } else {
+            //className='div-customize-title-box'
             return (
-              <div className='div-customize-title-box'>
+              <div>
                 <select
                   disabled={ this.state.selectDisabled }
                   className={ 'form-control' }
@@ -1152,8 +1170,9 @@ class Customize extends C {
             );
           }
         })()}
-
-        {(() => {
+                </td>
+                <td style={{ textAlign: 'right'}}>
+                {(() => {
           if (Utils.inJson(this.state.page, 'page_auth')) {
             const auths = Object.keys(this.state.page.page_auth).map((o, idx) => {
               const auth = o.substr(3);
@@ -1191,18 +1210,20 @@ class Customize extends C {
                 ?o['label'][this.state.isUser.language]:o['label']['ja'];
               return(<option key={ idx } value={ o['value'] }>{ label }</option>);
             })
+            // className={ 'div-customize-auth-box' }
+            //className={ 'div-actions-box' }
             return(
-              <div className={ 'div-customize-auth-box' }>
-                { auths }
+              <div>
                 <FormControl
                   as={ HTML_TAG.SELECT }
-                  style={ { width: 'auto', marginTop: '.3em' } }
+                  style={{ width: 'auto' }}
                   defaultValue={ this.state.page[OPTIONS_KEY.OPTIONS_PAGE_LAYOUT] }
                   onChange={ this._onPageLayoutChange.bind(this) }>
                     { layouts }
                 </FormControl>
-
-                <div className={ 'div-actions-box' }>
+                { auths }
+                
+                <div>
                   <Button
                     type={ TYPE.BUTTON }
                     id={ 'add_div' }
@@ -1228,7 +1249,128 @@ class Customize extends C {
             );
           }
         })()}
-      </div>
+                </td>
+            </tr>
+        </tbody>
+      </table>
+      // <div className={ 'div-body-customize-header-box' }>
+      //   {(() => {
+      //     if (this.state.pageMode === ACTION.CREATE && Utils.isEmpty(this.state.page.page_id)) {
+      //       return (
+      //         <div className='div-customize-title-box'>
+      //           <FormControl
+      //             type={ HTML_TAG.TEXT }
+      //             defaultValue={ this.state.page.page_name }
+      //             onChange={ this._onChange.bind(this) }
+      //             placeholder={ Msg.getMsg(null, this.props.isUser.language, 'title_page') + Msg.getMsg(MSG_TYPE.ERROR, this.props.isUser.language, 'required') }
+      //             className="mr-sm-2" />
+      //           <Button
+      //             type={ TYPE.BUTTON }
+      //             onClick={ this._onClickChangeMode.bind(this) }
+      //             variant={ VARIANT_TYPES.SECONDARY }
+      //             title={ Msg.getMsg(null, this.props.isUser.language, 'bt_edit') }>
+      //             <FaBars />
+      //           </Button>
+      //         </div>
+      //       );
+      //     } else {
+      //       return (
+      //         <div className='div-customize-title-box'>
+      //           <select
+      //             disabled={ this.state.selectDisabled }
+      //             className={ 'form-control' }
+      //             value={ this.state.page.page_id }
+      //             onChange={ this._onChange.bind(this) }>
+      //             <option key={ 'frist_option' } value={ '' }>{ '---' }</option>
+      //             { options }
+      //           </select>
+      //           {(() => {
+      //             if(Utils.isNumber(this.state.page.page_id) &&
+      //               ![
+      //                 'company.company_info', 
+      //                 'company.group_info', 
+      //                 'company.users_info', 
+      //                 'system.server_info', 
+      //                 'system.api_info', 
+      //                 'mente.page_info', 
+      //               ].includes(this.state.page.page_key)) {
+      //               return(
+      //                 <Button
+      //                   type={ HTML_TAG.BUTTON }
+      //                   onClick={ this._onClickCopy.bind(this) }
+      //                   variant={ VARIANT_TYPES.SECONDARY }
+      //                   title={ Msg.getMsg(null, this.props.isUser.language, 'bt_copy') }>
+      //                   <FaCopy />
+      //                 </Button>
+      //               );
+      //             }
+      //           })()}
+      //         </div>
+      //       );
+      //     }
+      //   })()}
+
+      //   {(() => {
+      //     if (Utils.inJson(this.state.page, 'page_auth')) {
+      //       const auths = Object.keys(this.state.page.page_auth).map((o, idx) => {
+      //         const auth = o.substr(3);
+      //         return(
+      //           <div key={ idx } className={ 'btn btn-outline-info' } onClick={ this._onChange.bind(this) }>
+      //             <span onClick={ this._onChange.bind(this) }>
+      //               { Msg.getMsg(null, this.state.isUser.language, 'bt_' + auth ) }
+      //             </span>
+      //             <input
+      //               type={ TYPE.CHECKBOX }
+      //               checked={ this.state.page.page_auth[o] }
+      //               name={ o }
+      //               onChange={ this._onChange.bind(this) }></input>
+      //           </div>
+      //         );
+      //       });
+
+      //       const layouts = PAGE_LAYOUT.map((o, idx) => {
+      //         const label = (Utils.inJson(o['label'],this.state.isUser.language))
+      //           ?o['label'][this.state.isUser.language]:o['label']['ja'];
+      //         return(<option key={ idx } value={ o['value'] }>{ label }</option>);
+      //       })
+      //       return(
+      //         <div className={ 'div-customize-auth-box' }>
+      //           { auths }
+      //           <FormControl
+      //             as={ HTML_TAG.SELECT }
+      //             style={ { width: 'auto', marginTop: '.3em' } }
+      //             defaultValue={ this.state.page[OPTIONS_KEY.OPTIONS_PAGE_LAYOUT] }
+      //             onChange={ this._onPageLayoutChange.bind(this) }>
+      //               { layouts }
+      //           </FormControl>
+
+      //           <div className={ 'div-actions-box' }>
+      //             <Button
+      //               type={ TYPE.BUTTON }
+      //               id={ 'add_div' }
+      //               onClick={ this._onCreateDivOrTab.bind(this) }
+      //               variant={ VARIANT_TYPES.SECONDARY }>
+      //               { Msg.getMsg(null, this.props.isUser.language, 'bt_div') }
+      //             </Button>
+      //             <Button
+      //               type={ TYPE.BUTTON }
+      //               id={ 'add_tab' }
+      //               onClick={ this._onCreateDivOrTab.bind(this) }
+      //               variant={ VARIANT_TYPES.SECONDARY }>
+      //               { Msg.getMsg(null, this.props.isUser.language, 'bt_tab') }
+      //             </Button>
+      //             <Button onClick={ this._onClickBack.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
+      //               { Msg.getMsg(null, this.state.isUser.language, 'bt_return') }
+      //             </Button>
+      //             <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
+      //               { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
+      //             </Button>
+      //           </div>
+      //         </div>
+      //       );
+      //     }
+      //   })()}
+      // </div>
     );
   }
 
@@ -1377,222 +1519,6 @@ class Customize extends C {
     });
   }
 
-  // _onGetPageInfo(properties, action) {
-  //   if(!Utils.isNumber(action)) return;
-  //   let options = { cId: this.state.isUser.cId, pId: parseInt(action), language: this.state.isUser.language };
-  //   const host = Msg.getSystemMsg('sys', 'app_api_host');
-  //   const f = Fetch.postLogin(host + 'getPage', options);
-  //   f.then(data => {
-  //     console.log(data)
-  //     data['patitions'] = [];
-  //     if(!Utils.isEmpty(data)) {
-  //       data.form.map((f) => {
-  //         const objs = f['object'];
-  //         if(Array.isArray(objs)) {
-  //           objs.map((o) => {
-  //           const ps = o['schema']['properties'];
-  //           Object.keys(ps).filter(function(key) {
-  //             if (key.startsWith(TYPE.CHECKBOX)
-  //               || key.startsWith(TYPE.RADIO)
-  //               || key.startsWith(TYPE.SELECT)
-  //               && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET])) {
-  //                 data['patitions'].push(key);
-  //               }
-  //             });
-  //           })
-  //         } else {
-  //           const ps = objs['schema']['properties'];
-  //           Object.keys(ps).filter(function(key) {
-  //             if (key.startsWith(TYPE.CHECKBOX)
-  //               || key.startsWith(TYPE.RADIO)
-  //               || key.startsWith(TYPE.SELECT)
-  //               && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET])) {
-  //                 data['patitions'].push(key);
-  //               }
-  //             });    
-  //         }
-  //       });
-
-  //       if(Array.isArray(data['patitions']) && data['patitions'].length > 0) {
-  //         options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
-  //         const ff = Fetch.postLogin(host + 'distinctPatitions', options);
-  //         ff.then(disdata => {
-  //           if(!Utils.isEmpty(disdata)) {
-  //             console.log(disdata);
-  //             const opts = [ 'company_info', 'group_info', 'users_info', 'city_info', 'menus', 'pages' ];
-  //             const forms = data.form;
-  //             let patitions = [];
-  //             forms.map((f) => {
-  //             const objs = f['object'];
-  //             if(Array.isArray(objs)) {
-  //               objs.map((o) => {
-  //                 const ps = o['schema']['properties'];
-  //                 data['patitions'].map((p) => {
-  //                 if(Utils.inJson(ps, p)) {
-  //                   if(Utils.inJson(ps[p], 'option_target')
-  //                     && (disdata.includes(ps[p]['option_target']) || opts.includes(ps[p]['option_target']))) {
-  //                       patitions.push(ps[p]['option_target']);
-  //                   } else {
-  //                       patitions.push(p);
-  //                   }
-  //                 }
-  //                 });
-  //               })
-  //             } else {
-  //               const ps = objs['schema']['properties'];
-  //               data['patitions'].map((p) => {
-  //               if(Utils.inJson(ps, p)) {
-  //                   if(Utils.inJson(ps[p], 'option_target')
-  //                     && (disdata.includes(ps[p]['option_target']) || opts.includes(ps[p]['option_target']))) {
-  //                      patitions.push(ps[p]['option_target']);
-  //                   } else {
-  //                     patitions.push(p);
-  //                   }
-  //                 }
-  //               });
-  //             }
-  //           });
-  //           patitions.filter(function (x, i, self) { return self.indexOf(x) === i; });
-
-  //           console.log(patitions);
-  //           options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId, patitions: patitions };
-  //           const ff = Fetch.postLogin(host + 'options', options);
-  //           ff.then(pdata => {
-  //           if(!Utils.isEmpty(pdata)) {
-  //             const pforms = data.form;
-  //             pforms.map((f) => {
-  //               const objs = f['object'];
-  //               if(Array.isArray(objs)) {
-  //                 objs.map((o) => {
-  //                   const ps = o['schema']['properties'];
-  //                   Object.keys(ps).map((key) => {
-  //                     if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
-  //                       pdata.map((d) => {
-  //                         if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
-  //                           ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
-  //                         }
-  //                       });
-  //                     }
-  //                     // if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
-  //                     //   ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
-  //                     // } else if(ps[key]['option_target'] === 'pages') {
-  //                     //   const menus = this.props.menus;
-  //                     //   let listmenus = menus.map((m) => {
-  //                     //     if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
-  //                     //       const items = m['items'];
-  //                     //       return items.map((i) => {
-  //                     //         return { value: i['page_id'], label: i['page_name']}
-  //                     //       });
-  //                     //     } else {
-  //                     //       return { value: m['page_id'], label: m['page_name']}
-  //                     //     }
-  //                     //   });
-  //                     //   ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
-  //                     // } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
-  //                     //   pdata.map((d) => {
-  //                     //     if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
-  //                     //       ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
-  //                     //     }
-  //                     //   });
-  //                     // }
-  //                   });
-  //                 })
-  //               } else {
-  //                 const ps = objs['schema']['properties'];
-  //                 Object.keys(ps).map((key) => {
-  //                   if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
-  //                     pdata.map((d) => {
-  //                       if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
-  //                         ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
-  //                       }
-  //                     });
-  //                   }
-  //                   // if(key.endsWith('_theme') && ps[key]['option_target'] === 'themes') {
-  //                   //   ps[key][OPTIONS_KEY.OPTIONS] = THEME.getOptionsThemes();
-  //                   // } else if(ps[key]['option_target'] === 'pages') {
-  //                   //   const menus = this.props.menus;
-  //                   //   let listmenus = menus.map((m) => {
-  //                   //     if(Utils.inJson(m, 'items') && Array.isArray(m['items']) && !Utils.isEmpty(m['items'][0])) {
-  //                   //       const items = m['items'];
-  //                   //       return items.map((i) => {
-  //                   //         return { value: i['page_id'], label: i['page_name']}
-  //                   //       });
-  //                   //     } else {
-  //                   //       return { value: m['page_id'], label: m['page_name']}
-  //                   //     }
-  //                   //   });
-  //                   //   ps[key][OPTIONS_KEY.OPTIONS] = listmenus;
-  //                   // } else if((key.startsWith(TYPE.CHECKBOX) || key.startsWith(TYPE.RADIO) || key.startsWith(TYPE.SELECT) && !Utils.isEmpty(ps[key][OPTIONS_KEY.OPTION_TARGET]))) {
-  //                   //   pdata.map((d) => {
-  //                   //     if (d['option_name'] === ps[key]['option_target'] && patitions.includes(d['option_name'])) {
-  //                   //       ps[key][OPTIONS_KEY.OPTIONS] = d['options'];
-  //                   //     }
-  //                   //   });
-  //                   // }
-  //                 });
-  //               }
-  //             });
-  //           }
-  //           delete data['patitions'];
-  //           properties['page'] = data;
-  //           properties['cId'] = this.state.isUser.cId;
-  //           properties['uId'] = this.state.isUser.uId;
-  //           this._onSetPageColums(properties);
-  //           this.forceUpdate()
-  //           }).catch(err => {
-  //             console.log(err);
-  //           });
-  //         } else {
-  //           properties['page'] = data;
-  //           properties['cId'] = this.state.isUser.cId;
-  //           properties['uId'] = this.state.isUser.uId;
-  //           this._onSetPageColums(properties);
-  //           this.forceUpdate()
-  //         }
-  //       }).catch(err => {
-  //         console.log(err);
-  //       });
-  //     } else {
-  //       properties['page'] = data;
-  //       properties['cId'] = this.state.isUser.cId;
-  //       properties['uId'] = this.state.isUser.uId;
-  //       this._onSetPageColums(properties);
-  //       this.forceUpdate()
-  //       }
-  //     }
-  //   }).catch(err => {
-  //       console.log(err);
-  //   });
-  // }
-
-  // _onSetPageColums(properties) {
-  //   if(!Utils.inJson(properties, 'page') || !Utils.inJson(properties['page'], 'form') || !Array.isArray(properties['page']['form'])) return;
-  //   const fs = properties['page']['form'];
-  //   properties['page']['columns'] = [];
-  //   fs.map((f) => {
-  //     const objs = f['object'];
-  //     JSON_OBJ.addHiddenFieldFormReload(f);
-  //     if(Array.isArray(objs)) {
-  //       objs.map((o) => {
-  //         const ps = o['schema']['properties'];
-  //           Object.keys(ps).map((key) => {
-  //             properties['page']['columns'].push(
-  //               { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), search: ps[key]['auth']['search'] }
-  //             );
-  //         });
-  //       })
-  //     } else {
-  //       const ps = objs['schema']['properties'];
-  //       Object.keys(ps).map((key) => {
-  //         properties['page']['columns'].push(
-  //           { field: key, label: ps[key]['title'], type: key.substring(0, key.indexOf('_')), search: ps[key]['auth']['search'] }
-  //         );
-  //       });
-  //     }
-  //   });
-  //   console.log(fs);
-  // }
-
   _onGetPageDefault() {
     this.state.page.page_id = '';
     this.state.page.page_name = '';
@@ -1633,18 +1559,6 @@ class Customize extends C {
         this._onSortForms();
       }
     }
-
-    // const options = { cId: this.state.isUser.cId, uId: this.state.isUser.uId };
-    // const host = Msg.getSystemMsg('sys', 'app_api_host');
-    // const f = Fetch.postLogin(host + 'options', options);
-    // f.then(data => {
-    //   if(!Utils.isEmpty(data)) {
-    //     console.log(data);
-    //     // this.state.patitions = data;
-    //   }
-    // }).catch(err => {
-    //   console.log(err);
-    // });
   }
 
   _onSortForms() {
@@ -1703,7 +1617,7 @@ class Customize extends C {
         if(field === TYPE.CHILDENS && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = TableBox;
         if(field === TYPE.QRCODE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = QRCodeBox;
         if(field === TYPE.FILE && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = FileBox;  
-        if((field === TYPE.DATETIME || field === TYPE.DATE || field === TYPE.TIME) && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = Calendar;
+        if((field === TYPE.DATETIME || field === TYPE.DATE || field === TYPE.MONTH || field === TYPE.TIME) && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = Calendar;
         if(field === TYPE.EDITOR && !Utils.inJson(ui[o], 'ui:widget')) ui[o]['ui:widget'] = EditorBox;  
       }
     });
@@ -1740,7 +1654,7 @@ class Customize extends C {
     this.state.isUser.actions = PAGE_ACTION.CREATE;
 
     return (
-      <div className={ 'div-body-customize-box' }>
+      <div className={ 'div-body-customize-box div-list-box' }>
         {/* <Actions
           isUser={ this.state.isUser }
           onClickBack={ this._onClickBack.bind(this) }

@@ -229,12 +229,12 @@ class App extends C {
             history.push(auth.info.path);
         }
 
-        const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
-        if(!Utils.isEmpty(this.state.isUser.theme)
-            && !Utils.isEmpty(obj.href)
-            && obj.href.indexOf('/' + this.state.isUser.theme + '/') === -1) {
-            this._addCssLink();
-        }
+        // const obj = document.getElementById(SYSTEM.IS_CSS_LINK_ID);
+        // if(!Utils.isEmpty(this.state.isUser.theme)
+        //     && !Utils.isEmpty(obj.href)
+        //     && obj.href.indexOf('/' + this.state.isUser.theme + '/') === -1) {
+        //     this._addCssLink();
+        // }
 
         if(!Utils.isEmpty(auth.info.path)
             && auth.info.path !== ACTION.SLASH
@@ -436,7 +436,14 @@ class App extends C {
                                         <Route
                                             onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + ACTION.VIEW }
-                                            render={ ({ props }) => <View isUser={ this.state.isUser } {...this.props} />} />
+                                            render={ ({ props }) => <View
+                                                                        company={ this.state.company }
+                                                                        isUser={ this.state.isUser }
+                                                                        menus={ this.state.menus }
+                                                                        options={ this.state.options }
+                                                                        onUpdateUser={ this._onUpdatePromise.bind(this) }
+                                                                        onUpdateIsUserCallBack={ this._onUpdateIsUserCallBack.bind(this) }
+                                                                        {...this.props} />} />
                                         <Route
                                             onEnter={ sessionService.checkAuth }
                                             path={ ACTION.SLASH + PAGE.CUSTOMIZE }

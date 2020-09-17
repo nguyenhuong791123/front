@@ -14,5 +14,8 @@
     ,"error_msg": "・ エラーメッセージ"
     ,"error_stack": "・ エラースタック"
     ,"error_detail": "・ エラー詳細"
+    ,"error_uri": "%sはURL形でなければなりません。[http[s]://, ftp://]"
+    ,"error_mail": "%sはE-mail形でなければなりません。[xxx@example.com]"
+    ,"error_tel": "%sは電話番号形でなければなりません。[0X-XXXX-XXXX, 0X0-XXXX-XXXX"
 }
   

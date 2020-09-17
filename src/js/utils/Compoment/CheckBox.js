@@ -3,6 +3,13 @@ import Utils from '../Utils';
 import { OPTIONS_KEY } from '../HtmlTypes';
 
 export default class CheckBox extends C {
+    constructor(props) {
+        super(props);
+    
+        this._onChecked = this._onChecked.bind(this);
+        this.state = { codes: [ 'city_info' ] }
+    };
+
     _onChecked(e) {
         const obj = e.target;
         if(obj === undefined) return;
@@ -11,7 +18,10 @@ export default class CheckBox extends C {
         if(divs === undefined) return;
         divs.map((o) => {
             const input = o.childNodes[0];
-            var value = (!Utils.isEmpty(input.value) && !Number.isNaN(Number(input.value)))?parseInt(input.value):input.value;
+            var value = (!Utils.isEmpty(input.value)
+                        && !Number.isNaN(Number(input.value))
+                        && Utils.inJson(this.props.schema, 'option_target')
+                        && !this.state.codes.includes(this.props.schema['option_target']))?parseInt(input.value):input.value;
             if(input.tagName === 'INPUT' && input.checked) checkeds.push(value);
         });
         this.props.onChange(checkeds);
@@ -27,7 +37,10 @@ export default class CheckBox extends C {
             var values = [];
             if(!Utils.isEmpty(this.props.value) && Array.isArray(this.props.value)) {
                 values = this.props.value.map((o) => {
-                    return (!Utils.isEmpty(o) && !Number.isNaN(Number(o)))?parseInt(o):o;
+                    return (!Utils.isEmpty(o)
+                            && !Number.isNaN(Number(o))
+                            && Utils.inJson(this.props.schema, 'option_target')
+                            && !this.state.codes.includes(this.props.schema['option_target']))?parseInt(o):o;
                 });    
             }
             return objs.map((obj, idx) => {
@@ -47,7 +60,9 @@ export default class CheckBox extends C {
             });    
         } else {
             var obj = objs[0];
-            var value = (Utils.isNumber(this.props.value))?parseInt(this.props.value):this.props.value;
+            var value = (Utils.isNumber(this.props.value)
+                        && Utils.inJson(this.props.schema, 'option_target')
+                        && !this.state.codes.includes(this.props.schema['option_target']))?parseInt(this.props.value):this.props.value;
             const checked = (value === obj['value'])?true:false;
             return (
                 <div className={ 'form-check' }>

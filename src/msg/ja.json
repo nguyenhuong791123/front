@@ -72,6 +72,7 @@
   ,"title_messenger": "メッセンジャー"
   ,"title_home": "ホーム"
 
+  ,"obj_item": "項目"
   ,"obj_type": "種類"
   ,"obj_language": "言語"
   ,"obj_label": "ラベル"
@@ -93,5 +94,7 @@
   ,"obj_value": "値"
   ,"obj_qr_app_link": "URL"
   ,"obj_regex": "Regex"
+  ,"obj_number": "小数点"
+  ,"obj_round": "四捨五入"
 }
   

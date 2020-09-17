@@ -206,6 +206,7 @@ class RMenu extends C {
     this.state.objs = this.state.isUser['page']['columns'];
     if(!Array.isArray(this.state.objs) || this.state.objs.length <= 0) return;
     console.log(this.state.objs);
+    //id={ 'page_menu_fields' }
     const tbl = (
       <table>
         <tbody>
@@ -226,6 +227,7 @@ class RMenu extends C {
                 }
               }
 
+                //draggable="true"
               return(
                 <tr key={ idx }>
                   <td>
@@ -372,6 +374,23 @@ class RMenu extends C {
       this._onPageSetting(div);
     }
   }
+
+  _onDragStartHandleEvent(e) {
+    // console.log(e.target);
+  }
+
+  _onDropHandleEvent(e) {
+    console.log(e.target);
+  }
+
+  // componentDidUpdate() {
+  //   const tbl = document.getElementById('page_menu_fields');
+  //   if(isEmpty(tbl)) return;
+  //   tbl.addEventListener('dragstart', this._onDragStartHandleEvent.bind(this), false);
+  //   tbl.addEventListener('dragover', this._onDragStartHandleEvent.bind(this), false);
+  //   tbl.addEventListener('drop', this._onDropHandleEvent.bind(this), false);
+  //   tbl.addEventListener('dragend', this._onDropHandleEvent.bind(this), false);
+  // }
 
   render() {
     return (

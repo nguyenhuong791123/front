@@ -68,6 +68,7 @@ export default class ImageBox extends C {
     }
 
     render() {
+        if(!Utils.inJson(this.state, 'file') || Utils.isEmpty(this.state['file'])|| !Utils.inJson(this.state['file'], 'data')) return '';
         const changed = (Utils.inJson(this.props.schema, 'changed'))?this.props.schema['changed']:false;
         if(!changed) {
             return(<div className={ 'div-image-file-box' } id={ 'div_' + this.state.id }>

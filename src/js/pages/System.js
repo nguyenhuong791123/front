@@ -720,12 +720,6 @@ class System extends C {
                             onClick={ this._onClickEdit.bind(this) }>
                             { obj.page_name }
                         </a>
-                        <Button
-                            style={ style }
-                            variant={ variant }
-                            title={ 'New Windown' }>
-                            <FaWindowRestore />
-                        </Button>
                         {(() => {
                             if(!vDelete) {
                                 return (
@@ -739,6 +733,12 @@ class System extends C {
                                 );
                             }
                         })()}
+                        <Button
+                            // style={ style }
+                            variant={ variant }
+                            title={ 'New Windown' }>
+                            <FaWindowRestore />
+                        </Button>
                     </div>);
             // var div = (<div key={ 'div_' + idx } className={ className }>
             //             <a href={ '#' } id={ obj.page_id } onClick={ this._onClickEdit.bind(this) }>{ obj.page_name }</a>
@@ -1357,9 +1357,9 @@ class System extends C {
         });
     }
 
-    _onWindownReload() {
-        window.location.reload(false);
-    }
+    // _onWindownReload() {
+    //     window.location.reload(false);
+    // }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
         this.state.isUser = nextProps.isUser;
@@ -1394,28 +1394,35 @@ class System extends C {
         // console.log(btDisable)
         return (
             <div className={ 'div-list-box' }>
-                {/* { this._onOverlayPageDeleteBox() } */}
+                {/* { this._onOverlayPageDeleteBox() } div-actions-box*/}
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <h5>{ Msg.getMsg(null, this.state.isUser.language, 'page_setting') + '/' + Msg.getMsg(null, this.state.isUser.language, 'bt_list') }</h5>
+                            </td>
+                            <td style={{ textAlign: 'right'}}>
+                                <Button disabled={ (btDisable.length <= 0) } onClick={ this._onGroupSettingMenuCreate.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
+                                    { Msg.getMsg(null, this.state.isUser.language, 'bt_group_menu') }
+                                    { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
+                                </Button>
+                                <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
+                                    { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
+                                </Button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
                 { this._onGetGroupSettingMenu() }
-                <div className={ 'div-actions-box' }>
-                    <Button disabled={ (btDisable.length <= 0) } onClick={ this._onGroupSettingMenuCreate.bind(this) } variant={ VARIANT_TYPES.SECONDARY }>
-                        { Msg.getMsg(null, this.state.isUser.language, 'bt_group_menu') }
-                        { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
-                    </Button>
-                    <Button onClick={ this._onClickAdd.bind(this) } variant={ VARIANT_TYPES.PRIMARY }>
-                        { Msg.getMsg(null, this.state.isUser.language, 'bt_create') }
-                    </Button>
-                    {/* <Button type="submit" onClick={ this._onClickSubmit.bind(this) } variant={ VARIANT_TYPES.WARNING }>
-                        { Msg.getMsg(null, this.state.isUser.language, 'bt_insert') }
-                    </Button> */}
-                </div>
+
                 {/* <Actions
                     isUser={ this.state.isUser }
                     onClickAdd={ this._onClickAdd.bind(this) }
                     onClickSubmit={ this._onClickSubmit.bind(this) } /> */}
 
-                <div className="div-title-box">
+                {/* <div className="div-title-box">
                     <h5>{ this.state.isUser.path + '/' + this.state.isUser.action }</h5>
-                </div>
+                </div> */}
 
                 <div id={ SYSTEM.IS_DIV_CUSTOMIZE_BOX } className='div-tree-view-box'>
                     { this._getAllList() }

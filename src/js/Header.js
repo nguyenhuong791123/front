@@ -589,8 +589,12 @@ class Header extends C {
             onClick={ this._newWindow.bind(this) }
             className={ 'header-image-icon' }>
             {(() => {
-              if(!Utils.isEmpty(this.state.company.logo)) {
-                return(<Image src={ this.state.company.logo } rounded />);
+              if(!Utils.isEmpty(this.state.company.logo)
+                && Utils.inJson(this.state.company.logo, 'data')
+                && !Utils.isEmpty(this.state.company.logo['data'])) {
+                return(<Image src={ this.state.company.logo['data'] } rounded />);
+              } else {
+                return(<Image src={ '' } rounded />);
               }
             })()}
             <span>SmartCRM Ver0.1.0</span>

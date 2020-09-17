@@ -72,6 +72,7 @@
   ,"title_messenger": "Messenger"
   ,"title_home": "Home"
 
+  ,"obj_item": "Item"
   ,"obj_type": "Type"
   ,"obj_language": "Languages"
   ,"obj_label": "Label"
@@ -93,5 +94,7 @@
   ,"obj_value": "Value"
   ,"obj_qr_app_link": "URL"
   ,"obj_regex": "Regex"
+  ,"obj_number": "Number"
+  ,"obj_round": "Round"
 }
   

@@ -5,10 +5,16 @@ const SYMBOL = {
 }
 
 const DATE_REGX = {
-  DATE_HYPHEN: 'YYYY-MM-DD'
-  ,DATETIME_HYPHEN: 'YYYY-MM-DD HH:mm:ss'
-  ,DATE_SLASH: 'YYYY/MM/DD'
-  ,DATETIME_SLASH: 'YYYY/MM/DD HH:mm:ss'
+  YYYYMM_HYPHEN: 'YYYY-MM'
+  ,YYYYMMDD_HYPHEN: 'YYYY-MM-DD'
+  ,YYYYMMDDHHmm_HYPHEN: 'YYYY-MM-DD HH:mm'
+  ,YYYYMMDDHHmmss_HYPHEN: 'YYYY-MM-DD HH:mm:ss'
+  ,YYYYMM_SLASH: 'YYYY/MM'
+  ,YYYYMMDD_SLASH: 'YYYY/MM/DD'
+  ,YYYYMMDDHHmm_SLASH: 'YYYY/MM/DD HH:mm'
+  ,YYYYMMDDHHmmss_SLASH: 'YYYY/MM/DD HH:mm:ss'
+  ,HHmmss: 'HH:mm:ss'
+  ,HHmm: 'HH:mm'
 }
 
 const isDateTime = function (symbol, locale) {
@@ -93,7 +99,29 @@ const isMonthDay = function (symbol, locale) {
 }
 
 function isDateType(date) {
+  if(date === undefined || date === null || date.length <= 0) return false;
   return!!(function(d){return(d!=='Invalid Date'&&!isNaN(d))})(new Date(date));
+}
+
+const isStringToYearMonth = function (dateStr, symbol, locale) {
+  if(!isDateType(dateStr)) return '';
+  let date =  new Date(Date.parse(dateStr));
+  if(symbol === undefined || symbol === null) symbol = '';
+  let h = date.getHours();
+  if(locale === 'ja') {
+    date.setHours(h + 9);
+  } else if(locale === 'vi') {
+    date.setHours(h + 7);
+  }
+  let m = date.getMonth() + 1;
+  let d = date.getDate();
+  if(m < 10) m = '0' + m;
+  if(d < 10) d = '0' + d;
+  if(locale === 'ja') {
+    return date.getFullYear().toString() + symbol + m.toString();
+  } else {
+    return d.toString() + symbol + m.toString();
+  }
 }
 
 const isStringToDate = function (dateStr, symbol, locale) {
@@ -179,6 +207,7 @@ module.exports.isMonthDay = isMonthDay;
 module.exports.isDateTime = isDateTime;
 module.exports.isFullDateTime = isFullDateTime;
 module.exports.isDateType = isDateType;
+module.exports.isStringToYearMonth = isStringToYearMonth;
 module.exports.isStringToDate = isStringToDate;
 module.exports.isStringToDateTime = isStringToDateTime;
 module.exports.isStringToFullDateTime = isStringToFullDateTime;

@@ -44,7 +44,9 @@ export const TYPE = {
     ,EDITOR: 'editor'
     ,DATE: 'date'
     ,DATETIME: 'datetime'
+    ,MONTH: 'month'
     ,TIME: 'time'
+    ,INTERGER: 'integer'
     ,NUMBER: 'number'
     ,CHECKBOX: 'checkbox'
     ,RADIO: 'radio'
@@ -78,7 +80,7 @@ export const BOX_WIDTH = {
 }
 
 export const BOX_HEIGHT = {
-    80: '1倍'
+    80: '---'
     ,160: '2倍'
     ,240: '3倍'
     ,320: '4倍'
@@ -224,7 +226,11 @@ export const OPTIONS_KEY = {
     OPTIONS_FILE: 'option_file',
     OPTIONS_SEARCH: 'search_condition',
     OPTIONS_PAGE_LAYOUT: 'page_layout',
-    OPTIONS_PAGE_OPEN: 'page_open'
+    OPTIONS_PAGE_OPEN: 'page_open',
+    OPTIONS_NUMBER: 'option_number',
+    OPTIONS_ROUND: 'option_round',
+    OPTIONS_FORMAT_TYPE: 'option_format',
+    OPTIONS_CALENDAR_TYPE: 'option_calendar'
 }
 
 export const OPTION_AUTH = {
@@ -279,4 +285,17 @@ export const REGEXS = [
     '%',
     '&',
     '@'
+]
+
+export const DOUBLES = [
+    { value: '0', label: 0 }
+    ,{ value: '0.1', label: 1 }
+    ,{ value: '0.01', label: 2 }
+    ,{ value: '0.001', label: 3 }
+]
+
+export const FORMAT_TYPE = [
+    { value: 'uri', label: 'URL' }
+    ,{ value: 'email', label: 'E-mail' }
+    ,{ value: 'tel', label: 'Tel' }
 ]

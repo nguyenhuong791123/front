@@ -36,6 +36,7 @@ export default class TableBox extends C {
         const language = (!Utils.isEmpty(this.props.schema) && Utils.inJson(this.props.schema, 'language'))
                             ?this.props.schema.language
                             :this.props.language;
+        console.log(language)
         const cId = (!Utils.isEmpty(this.props.schema) && Utils.inJson(this.props.schema, 'cId'))
                             ?this.props.schema.cId
                             :this.props.cId;
@@ -120,14 +121,18 @@ export default class TableBox extends C {
             cell.colSpan = (this.state.columns.length+1);
             cell.id = rowId + '_' + HTML_TAG.TD;
             row.appendChild(cell);
-            ReactDOM.render(<View id={ obj.id } />, document.getElementById(rowId + '_' + HTML_TAG.TD));
+            ReactDOM.render(<View id={ obj.id } page={ this.state.page } />, document.getElementById(rowId + '_' + HTML_TAG.TD));
         } else {
             if(Utils.isEmpty(obj.className)
                 || obj.className.indexOf(ACTION.SELECTED) === -1) {
                 obj.setAttribute(ATTR.CLASS, ACTION.SELECTED);
-                sessionStorage.setItem(SYSTEM.IS_ACTION_ROW_ID, Utils.isNumber(obj.id)?parseInt(obj.id):obj.id);
             } else {
                 obj.removeAttribute(ATTR.CLASS);
+            }
+            const ids = this._getTrSelected();
+            if(!Utils.isEmpty(ids) && Array.isArray(ids) && ids.length === 1) {
+                sessionStorage.setItem(SYSTEM.IS_ACTION_ROW_ID, Utils.isNumber(ids[0])?parseInt(ids[0]):ids[0]);
+            } else {
                 sessionStorage.removeItem(SYSTEM.IS_ACTION_ROW_ID);
             }
         }
@@ -231,7 +236,7 @@ export default class TableBox extends C {
                     // delete style['height'];
                 }
                 let isLabel = (<label>{ o.label }</label>);
-                if(type === TYPE.DATETIME  || type === TYPE.DATE || type === TYPE.TIME) {
+                if(type === TYPE.DATETIME || type === TYPE.DATE || type === TYPE.MONTH || type === TYPE.TIME) {
                     isLabel = (<Calendar
                                 id={ o.field }
                                 range={ true }
@@ -283,21 +288,20 @@ export default class TableBox extends C {
                                         { items }
                                     </datalist>
                                 </div>);
-                } else if(type === TYPE.NUMBER) {
+                } else if(type === TYPE.INTERGER) {
                     isLabel = (<FormControl
-                                    type={ TYPE.NUMBER }
+                                    type={ TYPE.INTERGER }
                                     style={ { backgroundColor: 'white' } }
                                     // placeholder={ o.label }
                                     onChange={ this._onChange.bind(this) }
                                     // onFocus={ this._onFocus.bind(this) }
                                     onKeyDown={ this._onThKeyDown.bind(this) } />);
-                } else if(!o.field.endsWith('_image') && !o.field.endsWith('_logo')) {
+                // } else if(!o.field.endsWith('_image') && !o.field.endsWith('_logo')) {
+                } else if(!o.field.endsWith('_password') && !o.field.startsWith('password_')) {
                     isLabel = (<FormControl
                                     type={ HTML_TAG.INPUT }
                                     style={ { backgroundColor: 'white' } }
-                                    // placeholder={ o.label }
                                     onChange={ this._onChange.bind(this) }
-                                    // onFocus={ this._onFocus.bind(this) }
                                     onKeyDown={ this._onThKeyDown.bind(this) } />);
                 }
                 th_1st.push(<th key={ index } title={ o.label } style={ o.style } className={ 'btn-primary' }>{ o.label }</th>);
@@ -347,14 +351,33 @@ export default class TableBox extends C {
     _getBody() {
         // [ { id: 1, name: "Item name 1", price3: 1001, price4: 1001, price5: 1001, price6: 1001 } ]
         if(Utils.isEmpty(this.state.datas) || !Array.isArray(this.state.datas) || Utils.isEmpty(this.state.datas[0])) return "";
-        // console.log(this.state.isCols);
+        console.log(this.state.datas);
         // const length = this.state.columns.length;
         let trs = this.state.datas.map((o, index) => {
             if(Utils.inJson(o, 'items')) {
-                const items = o['items'];
+                const items = o['items'].filter(function(x) { return !Utils.isEmpty(Object.keys(x)[0]) });
+                console.log(items);
                 items.map((k) => {
-                    const k1 = Object.keys(k)[0];
-                    o[k1] = k[k1];
+                    const k1 = Object.keys(k).filter(function(x) { return x !== 'field_id' })[0];
+                    if (!Utils.isEmpty(k1)) {
+                        o[k1] = k[k1];
+                        this.state.page.form.map((f) => {
+                            const objs = f['object'];
+                            if(Array.isArray(objs)) {
+                                objs.map((sc) => {
+                                    const ps = sc['schema']['properties'];
+                                    if(Utils.inJson(ps, k1)) {
+                                        ps[k1]['field_id'] = k['field_id'];
+                                    }      
+                                })
+                            } else {
+                                const ps = objs['schema']['properties'];
+                                if(Utils.inJson(ps, k1)) {
+                                    ps[k1]['field_id'] = k['field_id'];
+                                }      
+                            }
+                        });
+                    }
                 });
                 delete o['items'];
             }
@@ -366,19 +389,46 @@ export default class TableBox extends C {
                 const style = ('style' in columns)?columns.style:'';
                 if(!Utils.isEmpty(columns) && Utils.inJson(o, keys[i])) {
                     let data = o[keys[i]];
-                    if(keys[i].endsWith('_image') || keys[i].endsWith('_logo')) {
-                        data = (<img src={ o[keys[i]] } />);
+                    // if(keys[i].startsWith('image_') || keys[i].startsWith('file_') || keys[i].endsWith('_logo')) {
+                    if(keys[i].startsWith('image_') || keys[i].startsWith('file_')) {
+                        if(keys[i].startsWith('image_')
+                            && Utils.inJson(o[keys[i]], 'data')
+                            && !Utils.isEmpty(o[keys[i]]['data'])) {
+                            data = (<img src={ o[keys[i]]['data'] } style={{ height: '70px', marginLeft: '25%' }} />);
+                        } else if(keys[i].startsWith('file_')
+                                    && !Utils.isEmpty(o[keys[i]])
+                                    && Array.isArray(o[keys[i]]) && o[keys[i]].length > 0) {
+                            const fs = o[keys[i]];
+                            data = fs.map((f, idx) => {
+                                return (<a href='#' key={ idx }>{ f['name'] }</a>);
+                            })
+                        } else {
+                            data = ('');
+                        }
+                    } else if(keys[i].startsWith('text_')
+                                && !Utils.isEmpty(o[keys[i]]
+                                && (Utils.isUrl(o[keys[i]]) || Utils.isMail(o[keys[i]])) || Utils.isTel(o[keys[i]]))) {
+                        if(Utils.isUrl(o[keys[i]])) {
+                            data = (<a href={ o[keys[i]] } target={ '_blank' }>{ o[keys[i]] }</a>);
+                        } else if(Utils.isMail(o[keys[i]])) {
+                            data = (<a href='#'>{ o[keys[i]] }</a>);
+                        } else if(Utils.isTel(o[keys[i]])) {
+                            data = (<a href='#'>{ o[keys[i]] }</a>);
+                        }
                     } else if(keys[i].startsWith('password_') || keys[i].endsWith('_password')) {
                         data = '******';
                     }
-                    if(Utils.inJson(columns, 'type') && [ 'date', 'datetime' ].includes(columns.type)) {
-                        if(!Utils.isEmpty(data) && DateUtils.isDateType(data))
+                    if(Utils.inJson(columns, 'type') && [ 'date', 'month', 'datetime' ].includes(columns.type)) {
+                        if(!Utils.isEmpty(data) && DateUtils.isDateType(data)) {
                             // console.log(data)
                             if(columns.type === 'datetime') {
                                 data = DateUtils.isStringToDateTime(data, DateUtils.SYMBOL.SLASH, this.state.language);
+                            } else if(columns.type === 'month') {
+                                    data = DateUtils.isStringToYearMonth(data, DateUtils.SYMBOL.SLASH, this.state.language);
                             } else {
                                 data = DateUtils.isStringToDate(data, DateUtils.SYMBOL.SLASH, this.state.language);
                             }
+                        }
                     }
     
                     if(!Utils.isEmpty(style)) {
@@ -402,7 +452,10 @@ export default class TableBox extends C {
                     onClick={ this._onTrClick.bind(this) }
                     onDoubleClick={ this._onDblClick.bind(this) }
                     onContextMenu={ this._onContextMenu.bind(this) } >
-                    <td><FaRegEye /></td>
+                    <td>
+                        {/* <FaRegEye /> */}
+                        <input type={ TYPE.CHECKBOX } onClick={ this._onCheckBoxClick.bind(this) } />
+                    </td>
                     { tds }
                 </tr>
             );
@@ -632,8 +685,8 @@ export default class TableBox extends C {
         if(!Utils.isEmpty(obj) && obj.getAttribute('type') !== TYPE.CHECKBOX) {
             searchs.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
             for (let i=0; i<SEARCH_OPTIONS.length; i++) {
-                if([ TYPE.DATETIME, TYPE.DATE, TYPE.TIME, TYPE.NUMBER ].includes(ftype) && i > 5) continue;
-                if(![ TYPE.DATETIME, TYPE.DATE, TYPE.TIME, TYPE.NUMBER ].includes(ftype) && i > 1 && i < 6) continue;
+                if([ TYPE.DATETIME, TYPE.DATE, TYPE.TIME, TYPE.INTERGER ].includes(ftype) && i > 5) continue;
+                if(![ TYPE.DATETIME, TYPE.DATE, TYPE.TIME, TYPE.INTERGER ].includes(ftype) && i > 1 && i < 6) continue;
                 const label = (Utils.inJson(SEARCH_OPTIONS[i]['label'], this.state.language))
                     ?SEARCH_OPTIONS[i]['label'][this.state.language]
                     :SEARCH_OPTIONS[i]['label']['ja'];
@@ -748,7 +801,7 @@ export default class TableBox extends C {
                     onChange={ this._onPerChange.bind(this) }> { items }</FormControl>
                 <span>{ this.state.atPage }</span>
                 <span>/</span>
-                <span>{ Math.ceil(this.state.total / this.state.per) }</span>
+                <span>{ Math.ceil(this.state.total / this.state.per) }Page</span>
             </div>
         );
     }
@@ -758,10 +811,10 @@ export default class TableBox extends C {
             if(this.state.page != nextProps.page) {
                 console.log(nextProps.page);
                 this.state.page = nextProps.page;
-                this.state.language = nextProps.page;
                 this.state.cId = nextProps.cId;
                 this.state.uId = nextProps.uId;
-                this._onGetData();    
+                this.state.language = nextProps.language;
+                this._onGetData();
             }
         } else if(Utils.inJson(nextProps, 'schema')
             && Utils.inJson(nextProps['schema'], 'obj')
@@ -780,9 +833,9 @@ export default class TableBox extends C {
     UNSAFE_componentWillMount() {
         if(Utils.inJson(this.props, 'page')) {
             this.state.page = this.props.page;
-            this.state.language = this.props.page;
             this.state.cId = this.props.cId;
             this.state.uId = this.props.uId;
+            this.state.language = this.props.language;
         } else if(Utils.inJson(this.props, 'schema')
             && Utils.inJson(this.props['schema'], 'obj')
             && Utils.inJson(this.props['schema']['obj'], 'page')) {
@@ -794,12 +847,15 @@ export default class TableBox extends C {
         this._onGetData(); 
     }
 
-    UNSAFE_componentWillUnmount() {
-        this.props.cancel();
-    }
+    // UNSAFE_componentWillUnmount() {
+    //     this.props.cancel();
+    // }
 
     _onGetData() {
         if(!Utils.inJson(this.state, 'page')
+            || !Utils.inJson(this.state['page'], 'page_id')
+            || !Utils.inJson(this.state['page'], 'page_key')
+            || !Utils.inJson(this.state['page'], 'page_id_seq')
             || !Utils.inJson(this.state['page'], 'form')
             || !Array.isArray(this.state['page']['form'])) return;
         this.state.columns = this.state['page']['columns'];
@@ -822,8 +878,7 @@ export default class TableBox extends C {
             page_id: this.state['page']['page_id'],
             page_key: this.state['page']['page_key'],
             page_id_seq: this.state['page']['page_id_seq'],
-            columns: columns,
-            reference: []
+            columns: columns
         };
         const options = { cId: this.state.cId, uId: this.state.uId, page: page };
         const host = Msg.getSystemMsg('sys', 'app_api_host');
@@ -850,17 +905,17 @@ export default class TableBox extends C {
                     if(this.state.viewPaging) {
                         return (
                             <div className="div-paging-box">
+                                <Pagination
+                                    total={ this.state.total }
+                                    atPage={ this.state.atPage }
+                                    per={ this.state.per }
+                                    onUpdateAtPage={ this._onUpdateAtPage.bind(this) } />
                                 {/* リスト件数PER件数より小さい場合表示されない */}
                                 {(() => {
                                     if(this.state.total > PAGIN_PER) {
                                         return ( this._getPageCountPer() );
                                     }
                                 })()}
-                                <Pagination
-                                    total={ this.state.total }
-                                    atPage={ this.state.atPage }
-                                    per={ this.state.per }
-                                    onUpdateAtPage={ this._onUpdateAtPage.bind(this) } />
                             </div>
                         );
                     }

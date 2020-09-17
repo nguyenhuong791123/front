@@ -17,7 +17,7 @@ import Utils from './Utils';
 export const JSON_OBJ = {
   getJsonSchema: (obj, itemName, idx) => {
     obj['item_name'] = itemName;
-    var type = 'string';
+    let type = 'string';
     const array = [
       TYPE.TEXT,
       TYPE.TEXTAREA,
@@ -25,6 +25,7 @@ export const JSON_OBJ = {
       TYPE.PASSWORD,
       TYPE.DATE,
       TYPE.DATETIME,
+      TYPE.MONTH,
       TYPE.TIME,
       TYPE.FILE,
       TYPE.COLOR,
@@ -39,11 +40,18 @@ export const JSON_OBJ = {
     if(!array.includes(obj[CUSTOMIZE.TYPE])) {
       type = obj[CUSTOMIZE.TYPE];
     }
-  
-    var json = { type: type, title: obj[CUSTOMIZE.LABEL][obj[CUSTOMIZE.LANGUAGE]], idx: idx, language: obj[CUSTOMIZE.LANGUAGE], obj: obj };
-    if(obj[CUSTOMIZE.TYPE] === TYPE.DATETIME || obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
+    
+    let json = { type: type, title: obj[CUSTOMIZE.LABEL][obj[CUSTOMIZE.LANGUAGE]], idx: idx, language: obj[CUSTOMIZE.LANGUAGE], obj: obj };
+    if(obj[CUSTOMIZE.TYPE] === TYPE.DATETIME || obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.MONTH || obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       // json['datetime'] = (obj[CUSTOMIZE.TYPE] === TYPE.DATE)?false:true;
       json['datetype'] = obj[CUSTOMIZE.TYPE];
+    }
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.NUMBER
+      && Utils.inJson(obj, OPTIONS_KEY.OPTIONS_NUMBER)
+      && !Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS_NUMBER])) {
+      json['multipleOf'] = obj[OPTIONS_KEY.OPTIONS_NUMBER];
+      json[OPTIONS_KEY.OPTIONS_ROUND] = obj[OPTIONS_KEY.OPTIONS_ROUND];
     }
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.FILE) {
@@ -73,7 +81,7 @@ export const JSON_OBJ = {
     return json;
   }
   ,getJsonUi: (obj, pl) => {
-    var json = {};
+    let json = {};
     if(Utils.inJson(obj, CUSTOMIZE.PLACEHOLDER)) {
       const placeholder = obj[CUSTOMIZE.PLACEHOLDER][obj[CUSTOMIZE.LANGUAGE]];
       if(!Utils.isEmpty(placeholder)) {
@@ -125,7 +133,7 @@ export const JSON_OBJ = {
       json['classNames'] += ' div-image-box';
       json['ui:widget'] = ImageBox;
     }
-    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME || obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
+    if(obj[CUSTOMIZE.TYPE] === TYPE.DATE || obj[CUSTOMIZE.TYPE] === TYPE.DATETIME || obj[CUSTOMIZE.TYPE] === TYPE.MONTH || obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
       json['ui:widget'] = Calendar;
     }
     // if(obj[CUSTOMIZE.TYPE] === TYPE.TIME) {
@@ -147,6 +155,12 @@ export const JSON_OBJ = {
 
     if(obj[CUSTOMIZE.TYPE] === TYPE.EDITOR) {
       json['ui:widget'] = EditorBox;
+    }
+
+    if(obj[CUSTOMIZE.TYPE] === TYPE.TEXT
+      && Utils.inJson(obj, OPTIONS_KEY.OPTIONS_FORMAT_TYPE)
+      && !Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS_FORMAT_TYPE])) {
+      json[OPTIONS_KEY.OPTIONS_FORMAT_TYPE] = obj[OPTIONS_KEY.OPTIONS_FORMAT_TYPE];      
     }
 
     if(!Utils.isEmpty(obj[CUSTOMIZE.MAX_LENGTH]) && !Number.isNaN(Number(obj[CUSTOMIZE.MAX_LENGTH]))) {
@@ -225,9 +239,9 @@ export const JSON_OBJ = {
       } else if(obj[CUSTOMIZE.TYPE] === TYPE.CHILDENS) {
         return (!Utils.isEmpty(obj[TYPE.CHILDENS]) && !Number.isNaN(Number(obj[TYPE.CHILDENS])))?parseInt(obj[TYPE.CHILDENS]):obj[TYPE.CHILDENS];
       } else if(obj[CUSTOMIZE.TYPE] === TYPE.HIDDEN || obj[CUSTOMIZE.TYPE] === TYPE.DISABLE || obj[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
-        var value = (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?('default=' + obj[CUSTOMIZE.DEFAULT]):'';
+        let value = (!Utils.isEmpty(obj[CUSTOMIZE.DEFAULT]))?('default=' + obj[CUSTOMIZE.DEFAULT]):'';
         if(!Number.isNaN(Number(obj[TYPE.CHILDENS])) && !Utils.isEmpty(obj[OPTIONS_KEY.OPTIONS_ITEM])) {
-          var fields = '';
+          let fields = '';
           if(Array.isArray(obj[OPTIONS_KEY.OPTIONS_ITEM])) {
             obj[OPTIONS_KEY.OPTIONS_ITEM].map((o, idx) => {
               if(idx === 0) {
@@ -249,7 +263,7 @@ export const JSON_OBJ = {
     }
   }
   ,getEditJSONObject:(div, idx, language) => {
-    var jObj = {};
+    let jObj = {};
     jObj[CUSTOMIZE.LANGUAGE] = language;
     jObj[CUSTOMIZE.BOX_WIDTH] = 100;
     if(Utils.isEmpty(jObj[CUSTOMIZE.LABEL]))

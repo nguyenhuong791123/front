@@ -151,8 +151,13 @@ class Login extends C {
       <div>
         <div className="alert alert-success" style={{ fontSize: '180%' }}>
           {(() => {
-            if(!isEmpty(this.state.company.logo)) {
-              return(<img src={ this.state.company.logo } style={{ width: '1.5em', height: '1.5em', marginRight: '.5em' }}/>);
+            console.log(this.state.company);
+            if(!isEmpty(this.state.company.logo)
+              && inJson(this.state.company.logo, 'data')
+              && !isEmpty(this.state.company.logo['data'])) {
+              return(<img src={ this.state.company.logo['data'] } style={{ width: '1.5em', height: '1.5em', marginRight: '.5em' }}/>);
+            } else {
+              return(<img src={ '' } style={{ width: '1.5em', height: '1.5em', marginRight: '.5em' }} />);
             }
           })()}
           { this.state.company.name }

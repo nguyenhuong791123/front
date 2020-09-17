@@ -275,7 +275,7 @@ class List extends C {
         }
     }
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
         console.log(this.state.isUser);
         if(Utils.inJson(this.state.isUser, 'action')
             && Utils.isNumber(this.state.isUser['action'])) {
@@ -297,15 +297,31 @@ class List extends C {
                         const pageName = (Utils.inJson(this.state.isUser, 'page'))?this.state.isUser['page']['page_name']:'';
                         return(
                             <div id={ 'div_list_box' } className="div-list-box">
-                                <div className="div-title-box">
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <h5>{ pageName + '/' + Msg.getMsg(null, this.state.isUser.language, 'bt_list') }</h5>
+                                            </td>
+                                            <td style={{ textAlign: 'right'}}>
+                                                <Button
+                                                    variant={ VARIANT_TYPES.PRIMARY }
+                                                    onClick={ this._onClickAction.bind(this) }>
+                                                    {/* <FaPlus /> */}
+                                                    { Msg.getMsg(null, this.props.isUser.language, 'bt_create') }
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                {/* <div className="div-title-box">
                                     <h5>{ pageName + '/' + Msg.getMsg(null, this.state.isUser.language, 'bt_list') }</h5>
                                     <Button
                                         variant={ VARIANT_TYPES.PRIMARY }
                                         onClick={ this._onClickAction.bind(this) }>
-                                        {/* <FaPlus /> */}
                                         { Msg.getMsg(null, this.props.isUser.language, 'bt_create') }
                                     </Button>
-                                </div>
+                                </div> */}
 
                                 <TableBox
                                     id={ this.state.isUser.action }

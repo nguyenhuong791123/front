@@ -4,7 +4,7 @@ import { Button, Form, FormControl } from 'react-bootstrap';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 
 import { VARIANT_TYPES, ACTION, MSG_TYPE, SYSTEM } from '../Types';
-import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY, OPTION_AUTH, REGEXS } from '../HtmlTypes';
+import { TYPE, ALIGN, HTML_TAG, CUSTOMIZE, BOX_WIDTH, BOX_HEIGHT, OPTIONS, OPTIONS_KEY, OPTION_AUTH, REGEXS, DOUBLES, FORMAT_TYPE } from '../HtmlTypes';
 import Html from '../HtmlUtils'
 import Utils from '../Utils';
 import Fetch from '../Fetch';
@@ -47,16 +47,16 @@ export default class CustomizeBox extends C {
       }
 
     _onRemoveItem(e) {
-        var obj = Html.getButton(e);
+        let obj = Html.getButton(e);
         if(Utils.isEmpty(obj)) return;
-        var idx = obj.id.split('_')[1];
+        let idx = obj.id.split('_')[1];
         if(Number.isNaN(Number(idx))) return;
         this.state.editBox.obj[OPTIONS_KEY.OPTIONS].splice(idx, 1);
         this.props.updateEditBox(this.state.editBox);
     }
 
     _onloadOptions() {
-        var objs = Object.keys(TYPE);
+        let objs = Object.keys(TYPE);
         for (let i=0; i<objs.length; i++) {
             this.state.items.push( <option key={ i } value={ TYPE[objs[i]] }>{ TYPE[objs[i]] }</option> );
         }
@@ -114,7 +114,7 @@ export default class CustomizeBox extends C {
         const type = editBox.obj[CUSTOMIZE.TYPE];
 
         if(name === CUSTOMIZE.DEFAULT && (type === TYPE.FILE || type === TYPE.IMAGE)) {
-            var files = obj.files;
+            let files = obj.files;
             console.log(files);
             if(Utils.isEmpty(files) || files.length <= 0) {
                 if(Utils.inJson(editBox.obj, OPTIONS_KEY.OPTIONS_FILE)) delete editBox.obj[OPTIONS_KEY.OPTIONS_FILE];
@@ -126,13 +126,15 @@ export default class CustomizeBox extends C {
             delete editBox.obj[OPTIONS_KEY.OPTION_TARGET];
             delete editBox.obj[OPTIONS_KEY.OPTIONS];
         } else {
-            var val = (!Utils.isEmpty(obj.value) && !Number.isNaN(Number(obj.value)))?parseInt(obj.value):obj.value;
+            let val = (!Utils.isEmpty(obj.value)
+                        && !Number.isNaN(Number(obj.value))
+                        && type !== TYPE.NUMBER)?parseInt(obj.value):obj.value;
             if(name === 'obj_lists'
                 && (type === TYPE.CHECKBOX || type === TYPE.RADIO || type === TYPE.SELECT)
                 && name !== CUSTOMIZE.LANGUAGE ) {
-                var idx = obj.id.split('_')[1];
+                let idx = obj.id.split('_')[1];
                 if(Number.isNaN(Number(idx))) return;
-                var lObj = editBox.obj[OPTIONS_KEY.OPTIONS][idx];
+                let lObj = editBox.obj[OPTIONS_KEY.OPTIONS][idx];
                 if(obj.id.startsWith('values_')) {
                     lObj['value'] = val;
                     // lObj['value'] = (!Number.isNaN(Number(obj.value)))?parseInt(obj.value):obj.value;
@@ -181,7 +183,7 @@ export default class CustomizeBox extends C {
                         editBox.obj[OPTIONS_KEY.OPTIONS_ITEM].push(value);
                     }
                     if(!obj.checked && editBox.obj[OPTIONS_KEY.OPTIONS_ITEM].includes(value)) {
-                        var idx = editBox.obj[OPTIONS_KEY.OPTIONS_ITEM].indexOf(value);
+                        let idx = editBox.obj[OPTIONS_KEY.OPTIONS_ITEM].indexOf(value);
                         editBox.obj[OPTIONS_KEY.OPTIONS_ITEM].splice(idx, 1);
                     }
                 } else {
@@ -483,8 +485,8 @@ export default class CustomizeBox extends C {
     // _fileToBase64(files, editObj) {
     //     editObj.obj[OPTIONS_KEY.OPTIONS_FILE] = [];
     //     Object.keys(files).map(i => {
-    //         var f = {};
-    //         var reader = new FileReader();
+    //         let f = {};
+    //         let reader = new FileReader();
     //         reader.onload = function () {
     //             f['name'] = files[i].name;
     //             f['data'] = reader.result;
@@ -501,10 +503,10 @@ export default class CustomizeBox extends C {
     render() {
         const obj = this.state.dragobject;
         const editBox = this.state.editBox.obj;
-        const dateType = [ TYPE.DATE, TYPE.DATETIME, TYPE.TIME ];
+        const dateType = [ TYPE.DATE, TYPE.DATETIME, TYPE.MONTH, TYPE.TIME ];
         if(dateType.includes(editBox[CUSTOMIZE.TYPE])) {
             this.state.defaultType = (editBox[CUSTOMIZE.TYPE] === TYPE.DATETIME)?'datetime-local':editBox[CUSTOMIZE.TYPE];
-        } else if(editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER) {
+        } else if(editBox[CUSTOMIZE.TYPE] === TYPE.INTERGER || editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER) {
             this.state.defaultType = TYPE.NUMBER;
         } else {
             this.state.defaultType = TYPE.TEXT;
@@ -612,7 +614,10 @@ export default class CustomizeBox extends C {
                         })()}
 
                         <tr>
-                            <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
+                            <td className='td-not-break'>
+                                { Msg.getMsg(null, this.state.isUser.language, 'obj_item') }
+                                { Msg.getMsg(null, this.state.isUser.language, 'obj_type') }
+                            </td>
                             <td>
                             {(() => {
                                 if (this.state.mode === ACTION.EDIT) {
@@ -730,7 +735,7 @@ export default class CustomizeBox extends C {
                                         if(editBox[CUSTOMIZE.TYPE] === TYPE.CHECKBOX
                                             || editBox[CUSTOMIZE.TYPE] === TYPE.RADIO
                                             || editBox[CUSTOMIZE.TYPE] === TYPE.SELECT) {
-                                            var defaultOptions = [];
+                                            let defaultOptions = [];
                                             defaultOptions.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
                                             if(Utils.inJson(editBox, OPTIONS_KEY.OPTIONS)) {
                                                 editBox[OPTIONS_KEY.OPTIONS].map((o, idx) => {
@@ -748,18 +753,34 @@ export default class CustomizeBox extends C {
                                                 </td>
                                             );
                                         } else {
-                                            return(
-                                            <td>
-                                                <FormControl
-                                                    type={ this.state.defaultType }
-                                                    name={ CUSTOMIZE.DEFAULT }
-                                                    defaultValue={ editBox[CUSTOMIZE.DEFAULT] }
-                                                    onChange={ this._onChange.bind(this) }/>
-                                            </td>
-                                            );      
+                                            if(editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER) {
+                                                const step = (Utils.inJson(editBox, OPTIONS_KEY.OPTIONS_NUMBER)
+                                                                && !Utils.isEmpty(editBox[OPTIONS_KEY.OPTIONS_NUMBER]))
+                                                                ?editBox[OPTIONS_KEY.OPTIONS_NUMBER]:'0';
+                                                return(
+                                                    <td>
+                                                        <FormControl
+                                                            type={ this.state.defaultType }
+                                                            name={ CUSTOMIZE.DEFAULT }
+                                                            step={ step }
+                                                            defaultValue={ editBox[CUSTOMIZE.DEFAULT] }
+                                                            onChange={ this._onChange.bind(this) }/>
+                                                    </td>
+                                                );
+                                            } else {
+                                                return(
+                                                    <td>
+                                                        <FormControl
+                                                            type={ this.state.defaultType }
+                                                            name={ CUSTOMIZE.DEFAULT }
+                                                            defaultValue={ editBox[CUSTOMIZE.DEFAULT] }
+                                                            onChange={ this._onChange.bind(this) }/>
+                                                    </td>
+                                                );
+                                            }
                                         }
                                     } else if(editBox[CUSTOMIZE.TYPE] === TYPE.FILE || editBox[CUSTOMIZE.TYPE] === TYPE.IMAGE) {
-                                        // var defaultValue = editBox[CUSTOMIZE.DEFAULT];
+                                        // let defaultValue = editBox[CUSTOMIZE.DEFAULT];
                                         // if(Utils.inJson(editBox, OPTIONS_KEY.OPTIONS_FILE)) {
                                         //     if(editBox[CUSTOMIZE.TYPE] === TYPE.FILE && editBox[OPTIONS_KEY.OPTIONS_FILE].length > 0) {
                                         //         defaultValue = fileFormatBase64(editBox);
@@ -834,8 +855,8 @@ export default class CustomizeBox extends C {
                                         && editBox[CUSTOMIZE.TYPE] !== TYPE.HIDDEN
                                         && editBox[CUSTOMIZE.TYPE] !== TYPE.CHILDENS
                                         && editBox[CUSTOMIZE.TYPE] !== TYPE.QRCODE
-                                        // && editBox[CUSTOMIZE.TYPE] !== TYPE.IMAGE
-                                        ) {
+                                        && editBox[CUSTOMIZE.TYPE] !== TYPE.NUMBER
+                                        && editBox[CUSTOMIZE.TYPE] !== TYPE.TEXT) {
                                         return(
                                             <td style={ { height: '40px' } }>
                                                 <input
@@ -845,8 +866,82 @@ export default class CustomizeBox extends C {
                                                     onChange={ this._onChange.bind(this) }></input>
                                             </td>
                                         );
+                                    } else if(editBox[CUSTOMIZE.TYPE] === TYPE.TEXT) {
+                                        let formats = [];
+                                        formats.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+                                        FORMAT_TYPE.map((o, i) => {
+                                            formats.push(< option key={ i } value={ o.value }>{ o.label }</option> );
+                                        });
+                                        return(
+                                            <td style={ { height: '40px' } }>
+                                                <table style={ { width: '100%' } }>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <input
+                                                                    type={ HTML_TAG.CHECKBOX }
+                                                                    name={ CUSTOMIZE.REQUIRED }
+                                                                    defaultChecked={ editBox[CUSTOMIZE.REQUIRED] }
+                                                                    onChange={ this._onChange.bind(this) }></input>
+                                                            </td>
+                                                            <td style={ { width: '50px',textAlign: 'right' } }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_type') }</td>
+                                                            <td style={ { width: '40%' } }>
+                                                                <FormControl
+                                                                    as={ HTML_TAG.SELECT }
+                                                                    name={ OPTIONS_KEY.OPTIONS_FORMAT_TYPE }
+                                                                    defaultValue={ editBox[OPTIONS_KEY.OPTIONS_FORMAT_TYPE] }
+                                                                    onChange={ this._onChange.bind(this) }>
+                                                                    { formats }
+                                                                </FormControl>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        );
+                                    } else if(editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER) {
+                                        let decimals = [];
+                                        // decimals.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
+                                        DOUBLES.map((o, i) => {
+                                            decimals.push(< option key={ i } value={ o.value }>{ o.label }</option> );
+                                        });
+                                        return(
+                                            <td style={ { height: '40px' } }>
+                                                <table style={ { width: '100%' } }>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <input
+                                                                    type={ HTML_TAG.CHECKBOX }
+                                                                    name={ CUSTOMIZE.REQUIRED }
+                                                                    defaultChecked={ editBox[CUSTOMIZE.REQUIRED] }
+                                                                    onChange={ this._onChange.bind(this) }></input>
+                                                                <input
+                                                                    style={{ float: 'right', marginTop: '.2em' }}
+                                                                    type={ HTML_TAG.CHECKBOX }
+                                                                    name={ OPTIONS_KEY.OPTIONS_ROUND }
+                                                                    defaultChecked={ editBox[OPTIONS_KEY.OPTIONS_ROUND] }
+                                                                    // title={ Msg.getMsg(null, this.state.isUser.language, 'obj_round') }
+                                                                    onChange={ this._onChange.bind(this) }></input>                                                                
+                                                                <span style={{ fontSize: '40%', float: 'right', marginTop: '.5em', color: 'blue' }}>{ Msg.getMsg(null, this.state.isUser.language, 'obj_round') }</span>
+                                                            </td>
+                                                            <td style={ { width: '50px',textAlign: 'right' } }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_number') }</td>
+                                                            <td style={ { width: '40%' } }>
+                                                                <FormControl
+                                                                    as={ HTML_TAG.SELECT }
+                                                                    name={ OPTIONS_KEY.OPTIONS_NUMBER }
+                                                                    defaultValue={ editBox[OPTIONS_KEY.OPTIONS_NUMBER] }
+                                                                    onChange={ this._onChange.bind(this) }>
+                                                                    { decimals }
+                                                                </FormControl>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </td>
+                                        );
                                     } else if(editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
-                                        var regexs = [];
+                                        let regexs = [];
                                         regexs.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
                                         REGEXS.map((o, i) => {
                                             regexs.push(< option key={ i } value={ o }>{ o }</option> );
@@ -857,11 +952,11 @@ export default class CustomizeBox extends C {
                                                     <tbody>
                                                         <tr>
                                                             <td>
-                                                            <input
-                                                                type={ HTML_TAG.CHECKBOX }
-                                                                name={ CUSTOMIZE.QRAPPLINK }
-                                                                defaultChecked={ editBox[CUSTOMIZE.QRAPPLINK] }
-                                                                onChange={ this._onChange.bind(this) }></input>
+                                                                <input
+                                                                    type={ HTML_TAG.CHECKBOX }
+                                                                    name={ CUSTOMIZE.QRAPPLINK }
+                                                                    defaultChecked={ editBox[CUSTOMIZE.QRAPPLINK] }
+                                                                    onChange={ this._onChange.bind(this) }></input>
                                                             </td>
                                                             <td style={ { width: '50px',textAlign: 'right' } }>{ Msg.getMsg(null, this.state.isUser.language, 'obj_regex') }</td>
                                                             <td style={ { width: '40%' } }>
@@ -899,7 +994,7 @@ export default class CustomizeBox extends C {
                             {(() => {
                                 if (editBox[CUSTOMIZE.TYPE] === TYPE.TEXT
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
-                                || editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                                || editBox[CUSTOMIZE.TYPE] === TYPE.INTERGER
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
                                 return(
                                     <td className='td-not-break'>{ Msg.getMsg(null, this.state.isUser.language, 'obj_placeholder') }</td>
@@ -911,7 +1006,7 @@ export default class CustomizeBox extends C {
                             {(() => {
                                 if (editBox[CUSTOMIZE.TYPE] === TYPE.TEXT
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
-                                || editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                                || editBox[CUSTOMIZE.TYPE] === TYPE.INTERGER
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
                                 return(
                                     <td>
@@ -940,7 +1035,7 @@ export default class CustomizeBox extends C {
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.FILE
                                 // || editBox[CUSTOMIZE.TYPE] === TYPE.IMAGE
-                                || editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                                || editBox[CUSTOMIZE.TYPE] === TYPE.INTERGER
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
                                 return(
                                     <td className='td-not-break'>
@@ -960,12 +1055,12 @@ export default class CustomizeBox extends C {
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.TEXTAREA
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.FILE
                                 // || editBox[CUSTOMIZE.TYPE] === TYPE.IMAGE
-                                || editBox[CUSTOMIZE.TYPE] === TYPE.NUMBER
+                                || editBox[CUSTOMIZE.TYPE] === TYPE.INTERGER
                                 || editBox[CUSTOMIZE.TYPE] === TYPE.PASSWORD) {
                                 return(
                                     <td>
                                         <FormControl
-                                            type={ TYPE.NUMBER }
+                                            type={ TYPE.INTERGER }
                                             name={ CUSTOMIZE.MAX_LENGTH }
                                             defaultValue={ editBox[CUSTOMIZE.MAX_LENGTH] }
                                             onChange={ this._onChange.bind(this) }/>
@@ -1172,7 +1267,7 @@ export default class CustomizeBox extends C {
                             || editBox[CUSTOMIZE.TYPE] === TYPE.HIDDEN
                             || editBox[CUSTOMIZE.TYPE] === TYPE.QRCODE) {
                             const menus = this.state.menus;
-                            var listmenus = [];
+                            let listmenus = [];
                             listmenus.push( <option key={ 'blank' } value={ '' }>{ '---' }</option> );
                             if(Array.isArray(menus) && menus.length > 0) {
                                 for (let i=0; i<menus.length; i++) {
@@ -1213,7 +1308,7 @@ export default class CustomizeBox extends C {
                             const items = this.state.forms.map((f, fIdx) => {
                                 const ps = f['object']['schema']['properties'];
                                 const list = Object.keys(ps).map((key, idx) => {
-                                    var checked = false;
+                                    let checked = false;
                                     if(inputType === HTML_TAG.CHECKBOX) checked = (Array.isArray(values) && values.includes(key))?true:false;
                                     if(inputType === HTML_TAG.RADIO) checked = (!Utils.isEmpty(values) && (values === key))?true:false;
                                     return (
@@ -1240,7 +1335,7 @@ export default class CustomizeBox extends C {
                             console.log(items);
                             console.log(this.state.forms);
                             // const items = this.state.pageItems.map((obj, idx) => {
-                            //     var checked = false;
+                            //     let checked = false;
                             //     if(inputType === HTML_TAG.CHECKBOX) checked = (Array.isArray(values) && values.includes(obj['value']))?true:false;
                             //     if(inputType === HTML_TAG.RADIO) checked = (!Utils.isEmpty(values) && (values === obj['value']))?true:false;
                             //     return (

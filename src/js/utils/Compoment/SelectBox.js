@@ -2,7 +2,7 @@ import React, { Component as C } from 'react';
 
 import { CUSTOMIZE, OPTIONS_KEY } from '../HtmlTypes';
 import { SYSTEM } from '../Types';
-import Utils from '../Utils';
+import Utils, { isEmpty } from '../Utils';
 import { THEME } from '../../utils/Theme';
 import Msg from '../../../msg/Msg';
 
@@ -11,7 +11,7 @@ export default class SelectBox extends C {
         super(props);
     
         this._onChange = this._onChange.bind(this);
-        this.state = { multiple: false }
+        this.state = { multiple: false, codes: [ 'city_info' ] }
     };
 
     _getOptions() {
@@ -45,17 +45,25 @@ export default class SelectBox extends C {
             }    
         }
 
-        this.props.onChange(Utils.isNumber(value)?parseInt(value):value);
+        this.props.onChange((Utils.isNumber(value)
+                            && Utils.inJson(this.props.schema, 'option_target')
+                            && !this.state.codes.includes(this.props.schema['option_target']))?parseInt(value):value);
     }
 
     render() {
         this.state.multiple = (Utils.inJson(this.props.schema, 'option_checked'))?this.props.schema.option_checked:false;
+        let value = (!Utils.isEmpty(this.props.value)
+                    && !Number.isNaN(Number(this.props.value))
+                    && Utils.inJson(this.props.schema, 'option_target')
+                    && !this.state.codes.includes(this.props.schema['option_target']))?parseInt(this.props.value):this.props.value;
+        console.log(value);
+        if(Utils.isEmpty(value)) value = '';
         return (
             <select
                 id={ this.props.id }
                 multiple={ this.state.multiple }
                 className="form-control"
-                value={ this.props.value }
+                value={ value }
                 onChange={ this._onChange.bind(this) }>
                 {(() => {
                     if (!this.props.schema[CUSTOMIZE.REQUIRED] && !this.state.multiple) {

@@ -3,10 +3,30 @@ function isNumber(val) {
     return !Number.isNaN(Number(val));
 }
   
-function isTelNumber(val) {
+function isTel(val) {
     if(isEmpty(val)) return false;
-    return /^([0-9]|#|\*|-)+$/.test(val.replace(/[-()\s]/g,''));
+    return /^([0-9]|#|\*|-)+$/.test(val.toString().replace(/[-()\s]/g,''));
     // return true;///^([0-9]|#|\*|-)+$/.test(val.replace(/[-()\s]/g,''));
+}
+
+function isUrl(val){
+    if (isEmpty(val) || val.match(/^(http|https|ftp|ftps):\/\//i) == null) return false
+    return true;
+}
+
+function isMail(val) {
+    if(isEmpty(val)) return false;
+    const regex1 = new RegExp( '(?:[-!#-\'*+/-9=?A-Z^-~]+\.?(?:\.[-!#-\'*+/-9=?A-Z^-~]+)*|"(?:[!#-\[\]-~]|\\\\[\x09 -~])*")@[-!#-\'*+/-9=?A-Z^-~]+(?:\.[-!#-\'*+/-9=?A-Z^-~]+)*' );
+    const regex2 = new RegExp( '^[^\@]+\@[^\@]+$' );
+    if(val.match(regex1) && val.match(regex2)) {
+        // 全角チェック
+        if(val.match( /[^a-zA-Z0-9\!\"\#\$\%\&\'\(\)\=\~\|\-\^\\\@\[\;\:\]\,\.\/\\\<\>\?\_\`\{\+\*\} ]/ )) return false
+        // 末尾TLDチェック（〜.co,jpなどの末尾ミスチェック用）
+        if(!val.match( /\.[a-z]+$/ )) return false
+        return true;
+    } else {
+        return false;
+    }
 }
   
 function isReplace(symbol, val) {
@@ -82,7 +102,9 @@ module.exports.isNull = isNull;
 module.exports.isEmpty = isEmpty;
 module.exports.isReplace = isReplace;
 module.exports.isNumber = isNumber;
-module.exports.isTelNumber = isTelNumber;
+module.exports.isTel = isTel;
+module.exports.isUrl = isUrl;
+module.exports.isMail = isMail;
 module.exports.getLocale = getLocale;
 module.exports.inArray = inArray;
 module.exports.inJson = inJson;
